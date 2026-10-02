@@ -17,3 +17,11 @@ npm run dev      # Entwicklung
 npm run build    # Produktion nach dist/ (statisch, überall hostbar)
 node scripts/icons.mjs   # Icons neu erzeugen
 ```
+
+## Veröffentlichen
+
+```bash
+npm run deploy   # baut und pusht dist/ auf den Branch gh-pages
+```
+
+Live: https://juliusnit.github.io/Allgemeinwissen/
