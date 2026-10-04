@@ -26,6 +26,7 @@ export function VideoWatch({ day, videos, video, at, open, close }: Props) {
   const playerRef = useRef<YTPlayer | null>(null)
   const [now, setNow] = useState(0)
   const [ytError, setYtError] = useState(false)
+  const size = useVideoSize()
 
   useEffect(() => {
     const prevOverflow = document.body.style.overflow
@@ -71,13 +72,18 @@ export function VideoWatch({ day, videos, video, at, open, close }: Props) {
           <span className="muted small">Tag {day} · Video {idx + 1}/{videos.length} {video.star ? '· ★ Pflicht' : '· optional'}{video.source ? ` · ${video.source}` : ''}</span>
           <b>{video.title}</b>
         </div>
+        <span className="size-ctl" role="group" aria-label="Videogröße">
+          <button className="btn ghost small" onClick={() => size.step(-1)} disabled={!size.canSmaller} aria-label="Video kleiner" title="Video kleiner">−</button>
+          <span className="muted small">Größe</span>
+          <button className="btn ghost small" onClick={() => size.step(1)} disabled={!size.canBigger} aria-label="Video größer" title="Video größer">+</button>
+        </span>
         <span className="right">
           <button className="btn ghost small" disabled={!prev} onClick={() => prev && open(prev.id)} aria-label="Vorheriges Video">‹</button>
           <button className="btn ghost small" disabled={!next} onClick={() => next && open(next.id)} aria-label="Nächstes Video">›</button>
         </span>
       </div>
 
-      <div className="watch-body">
+      <div className="watch-body" ref={size.bodyRef} style={size.style}>
         <div className="watch-main">
           {embed.kind === 'youtube' && !ytError ? (
             <YouTube
@@ -114,6 +120,7 @@ export function VideoWatch({ day, videos, video, at, open, close }: Props) {
           </div>
         </div>
 
+        <div className="splitter" onPointerDown={size.startDrag} role="separator" aria-orientation="vertical" aria-label="Breite von Video und Notizen ziehen" />
         <NotesPane
           key={video.id}
           notes={notes}
@@ -126,6 +133,82 @@ export function VideoWatch({ day, videos, video, at, open, close }: Props) {
       </div>
     </div>
   )
+}
+
+// Desktop: Breite der Notizspalte (px); Handy: Videobreite (%)
+const NOTES_W = { min: 240, max: 640, step: 80, def: 360 }
+const MOBILE_PCT = [40, 55, 70, 85, 100]
+const WIDE = '(min-width: 901px)'
+
+function readNum(key: string, def: number): number {
+  try {
+    const v = Number(localStorage.getItem(key))
+    return Number.isFinite(v) && v > 0 ? v : def
+  } catch {
+    return def
+  }
+}
+
+function saveNum(key: string, v: number) {
+  try { localStorage.setItem(key, String(Math.round(v))) } catch { /* egal */ }
+}
+
+/** Videogroesse: Plus/Minus auf allen Geraeten, am Rechner zusaetzlich Trennlinie ziehen */
+function useVideoSize() {
+  const [wide, setWide] = useState(() => matchMedia(WIDE).matches)
+  const [notesW, setNotesW] = useState(() => readNum('aw-notes-w', NOTES_W.def))
+  const [pct, setPct] = useState(() => readNum('aw-video-pct', 100))
+  const bodyRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const mq = matchMedia(WIDE)
+    const on = () => setWide(mq.matches)
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [])
+
+  const maxNotes = () => Math.min(NOTES_W.max, (bodyRef.current?.clientWidth ?? 1200) - 320)
+  const setW = (w: number) => {
+    const v = Math.max(NOTES_W.min, Math.min(maxNotes(), w))
+    setNotesW(v)
+    saveNum('aw-notes-w', v)
+  }
+
+  function step(dir: 1 | -1) {
+    if (wide) setW(notesW - dir * NOTES_W.step)
+    else {
+      const i = MOBILE_PCT.findIndex((p) => p >= pct)
+      const v = MOBILE_PCT[Math.max(0, Math.min(MOBILE_PCT.length - 1, (i < 0 ? MOBILE_PCT.length - 1 : i) + dir))]
+      setPct(v)
+      saveNum('aw-video-pct', v)
+    }
+  }
+
+  function startDrag(e: React.PointerEvent) {
+    const body = bodyRef.current
+    if (!body) return
+    e.preventDefault()
+    const right = body.getBoundingClientRect().right
+    // iframes schlucken sonst die Mausbewegung
+    body.classList.add('dragging')
+    const move = (ev: PointerEvent) => setW(right - ev.clientX)
+    const up = () => {
+      body.classList.remove('dragging')
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
+
+  return {
+    bodyRef,
+    startDrag,
+    step,
+    canBigger: wide ? notesW > NOTES_W.min : pct < 100,
+    canSmaller: wide ? notesW < NOTES_W.max : pct > MOBILE_PCT[0],
+    style: { '--notes-w': `${notesW}px`, '--video-pct': `${pct}%` } as React.CSSProperties,
+  }
 }
 
 function YouTube({

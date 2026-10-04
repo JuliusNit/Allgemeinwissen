@@ -174,9 +174,18 @@ label { display: block; font-size: 0.85rem; color: var(--muted); margin: 10px 0 
 }
 .watch-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 2.5px solid var(--ink); }
 .watch-title { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
-.watch-title b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.watch-title b, .watch-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .watch-bar .right { display: flex; gap: 2px; flex: none; }
-.watch-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 360px; }
+.watch-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 8px var(--notes-w, 360px); }
+.watch-main .player { max-width: calc((100dvh - 200px) * 16 / 9); margin: 0 auto; }
+.splitter { cursor: col-resize; position: relative; touch-action: none; }
+.splitter::after { content: ''; position: absolute; top: 50%; left: 2px; width: 4px; height: 44px; margin-top: -22px; border-radius: 2px; background: var(--ink); opacity: 0.35; }
+.splitter:hover::after { opacity: 0.8; }
+.watch-body.dragging { cursor: col-resize; user-select: none; }
+.watch-body.dragging iframe { pointer-events: none; }
+.size-ctl { display: flex; align-items: center; gap: 0; margin-left: auto; flex: none; }
+.size-ctl .btn { font-size: 1.1rem; padding: 0 10px; text-decoration: none; }
+.size-ctl + .right { margin-left: 4px; }
 .watch-main { padding: 16px; overflow-y: auto; }
 .player { position: relative; width: 100%; aspect-ratio: 16 / 9; border: 2.5px solid var(--ink); border-radius: 12px; overflow: hidden; background: #000; }
 .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -185,6 +194,7 @@ label { display: block; font-size: 0.85rem; color: var(--muted); margin: 10px 0 
 .player.pick p { margin: 0 0 6px; }
 .player.pick ol { margin: 0 0 6px; padding-left: 1.2em; }
 .watch-actions .right { margin-left: auto; }
+.watch-notes { min-width: 0; }
 .watch-notes {
   border-left: 2.5px solid var(--ink); display: flex; flex-direction: column; min-height: 0;
   padding: 14px 14px calc(10px + env(safe-area-inset-bottom));
@@ -217,8 +227,10 @@ label { display: block; font-size: 0.85rem; color: var(--muted); margin: 10px 0 
   /* Handy/Tablet: Video oben fest, Notizen darunter */
   .watch-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
   .watch-main { padding: 0; overflow: visible; }
-  .watch-main .player { border-width: 0 0 2.5px; border-radius: 0; }
-  .watch-main .player.pick { aspect-ratio: auto; min-height: 220px; }
+  .watch-main .player { border-width: 0 0 2.5px; border-radius: 0; width: var(--video-pct, 100%); max-width: none; }
+  .splitter { display: none; }
+  .size-ctl .muted { display: none; }
+  .watch-main .player.pick { aspect-ratio: auto; min-height: 220px; width: 100%; }
   .watch-actions { margin: 0; padding: 8px 12px; border-bottom: 2px solid var(--ink); }
   .watch-notes { border-left: 0; padding-top: 10px; }
 }
