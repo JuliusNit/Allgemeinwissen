@@ -277,3 +277,4 @@ details summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
   h1 { font-size: 1.25rem; }
   .card { padding: 15px; }
 }
+.cmsg-del { padding: 0 4px; font-size: 0.75rem; font-weight: 400; color: var(--muted); }
