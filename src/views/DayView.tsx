@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { AREAS, BLOCKS, defaultVideos, getDay, isBlockMix, youtubeSearch, type Video } from '../data/plan'
 import { anchorChat, checkChat, describeError, DONE_MARKER, makeSummary, questionsChat } from '../lib/ai'
 import { addCards } from '../lib/srs'
-import { dayState, today, updateDay, useStore, videosOf } from '../lib/store'
+import { dayState, sortNotes, today, updateDay, useStore, videosOf } from '../lib/store'
+import { fmtTime, parseVideoUrl } from '../lib/video'
+import { VideoWatch } from '../components/VideoWatch'
 import { Chat } from '../components/Chat'
 import { Markdown } from '../components/Markdown'
 import { CoinBadge } from '../components/Coin'
@@ -11,7 +13,18 @@ import { Frame } from '../components/Ink'
 
 type Tab = 'fragen' | 'check' | 'zusammenfassung'
 
-export function DayView({ day, openDay, back }: { day: number; openDay: (n: number) => void; back: () => void }) {
+interface Props {
+  day: number
+  /** geoeffnetes Video (Route /tag/N/video/ID[/Sekunden]) */
+  video?: string
+  at?: number
+  openDay: (n: number) => void
+  openVideo: (id: string, t?: number) => void
+  closeVideo: () => void
+  back: () => void
+}
+
+export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }: Props) {
   const d = getDay(day)
   const ds = useStore((s) => dayState(s, day))
   const videos = useStore((s) => videosOf(s, day))
@@ -28,6 +41,8 @@ export function DayView({ day, openDay, back }: { day: number; openDay: (n: numb
   const watched = new Set(ds.watched ?? [])
   const stars = videos.filter((v) => v.star)
   const starsWatched = stars.filter((v) => watched.has(v.id)).length
+  const playing = video ? videos.find((v) => v.id === video) : undefined
+  const noteCount = Object.values(ds.videoNotes ?? {}).reduce((a, n) => a + n.length, 0)
 
   function setVideos(v: Video[]) {
     updateDay(day, (x) => ({ ...x, videos: v }))
@@ -75,6 +90,7 @@ export function DayView({ day, openDay, back }: { day: number; openDay: (n: numb
 
   return (
     <div className="day">
+      {playing && <VideoWatch day={day} videos={videos} video={playing} at={at} open={openVideo} close={closeVideo} />}
       <div className="day-head">
         <div className="day-nav">
           <button className="icon-btn" onClick={back} aria-label="Zurück zum Lernpfad"><Icon name="BACK" size={26} /></button>
@@ -147,6 +163,8 @@ export function DayView({ day, openDay, back }: { day: number; openDay: (n: numb
               })
             }
             onChange={setVideos}
+            onOpen={openVideo}
+            noteCounts={Object.fromEntries(Object.entries(ds.videoNotes ?? {}).map(([k, n]) => [k, n.length]))}
             onReset={() => setVideos(defaultVideos(d))}
             day={day}
           />
@@ -154,11 +172,38 @@ export function DayView({ day, openDay, back }: { day: number; openDay: (n: numb
       )}
 
       <Frame className="card">
-        <h2>{mix ? '2' : '3'} · Notizen</h2>
+        <div className="section-head">
+          <h2>{mix ? '2' : '3'} · Notizen</h2>
+          {noteCount > 0 && <span className="muted small">{noteCount} am Video</span>}
+        </div>
+        {!mix && noteCount === 0 && (
+          <p className="muted small">Notizen machst du direkt neben dem Video – mit Zeitmarke, zum Zurückspringen. Sie fließen in Check und Zusammenfassung ein.</p>
+        )}
+        {videos.map((v) => {
+          const notes = sortNotes(ds.videoNotes?.[v.id] ?? [])
+          if (!notes.length) return null
+          return (
+            <div key={v.id} className="note-group">
+              <button className="note-video" onClick={() => openVideo(v.id)}>{v.title}</button>
+              <ul className="vnotes static">
+                {notes.map((n) => (
+                  <li key={n.id}>
+                    {n.t !== undefined ? (
+                      <button className="stamp" onClick={() => openVideo(v.id, n.t)} title="Video an dieser Stelle öffnen">{fmtTime(n.t)}</button>
+                    ) : (
+                      <span className="stamp none">–</span>
+                    )}
+                    <p>{n.text}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        })}
         <textarea
           className="notes"
-          rows={3}
-          placeholder="Eigene Stichpunkte während der Videos (fließen in Check & Zusammenfassung ein)"
+          rows={2}
+          placeholder={mix ? 'Eigene Stichpunkte (fließen in Check & Zusammenfassung ein)' : 'Allgemeine Notizen zur Session'}
           value={ds.notes ?? ''}
           onChange={(e) => updateDay(day, (x) => ({ ...x, notes: e.target.value }))}
         />
@@ -235,13 +280,15 @@ export function DayView({ day, openDay, back }: { day: number; openDay: (n: numb
 }
 
 function VideoList({
-  videos, watched, onToggleWatched, onChange, onReset, day,
+  videos, watched, onToggleWatched, onChange, onReset, onOpen, noteCounts, day,
 }: {
   videos: Video[]
   watched: Set<string>
   onToggleWatched: (id: string) => void
   onChange: (v: Video[]) => void
   onReset: () => void
+  onOpen: (id: string) => void
+  noteCounts: Record<string, number>
   day: number
 }) {
   const [editing, setEditing] = useState<string | null>(null)
@@ -264,7 +311,7 @@ function VideoList({
             {editing === v.id ? (
               <div className="video-edit">
                 <input value={v.title} onChange={(e) => patch(v.id, { title: e.target.value })} placeholder="Titel" />
-                <input value={v.url} onChange={(e) => patch(v.id, { url: e.target.value })} placeholder="YouTube-Link einfügen" />
+                <input value={v.url} onChange={(e) => patch(v.id, { url: e.target.value })} placeholder="YouTube-Link einfügen (läuft dann in der App)" />
                 <div className="row">
                   <button className="btn small" onClick={() => patch(v.id, { url: youtubeSearch(`${v.title} einfach erklärt`) })}>Als Suchlink</button>
                   <button className="btn small danger" onClick={() => onChange(videos.filter((x) => x.id !== v.id))}>Entfernen</button>
@@ -277,12 +324,12 @@ function VideoList({
                 <button className={`star ${v.star ? 'on' : ''}`} onClick={() => patch(v.id, { star: !v.star })} title={v.star ? 'Pflichtvideo (wird abgefragt)' : 'optional'}>
                   {v.star ? '★' : '☆'}
                 </button>
-                {v.url ? (
-                  <a href={v.url} target="_blank" rel="noreferrer">{v.title}</a>
-                ) : (
+                <button className="video-open" onClick={() => onOpen(v.id)}>
+                  <span className="video-play" aria-hidden>▶</span>
                   <span>{v.title}</span>
-                )}
-                <span className="video-kind">{v.url.includes('/results?') ? 'Suche' : v.url ? 'Video' : ''}</span>
+                </button>
+                {noteCounts[v.id] > 0 && <span className="video-kind">{noteCounts[v.id]} ✎</span>}
+                <span className="video-kind">{videoKind(v.url)}</span>
                 <button className="btn ghost small" onClick={() => setEditing(v.id)} aria-label="Bearbeiten">✎</button>
               </>
             )}
@@ -293,7 +340,12 @@ function VideoList({
         <button className="btn small" onClick={add}>+ Video</button>
         <button className="btn ghost small" onClick={() => confirm('Videoliste auf Standard zurücksetzen?') && onReset()}>Zurücksetzen</button>
       </div>
-      <p className="muted small">★ = Pflichtvideo (wird abgefragt), ☆ = optional. Suchlinks öffnen YouTube mit passender Suche – gutes Video gefunden? Über ✎ den direkten Link einfügen.</p>
+      <p className="muted small">★ = Pflichtvideo (wird abgefragt), ☆ = optional. Antippen öffnet das Video in der App mit Notizen daneben. Steht „Video wählen“ dran, ist erst ein Suchlink hinterlegt: dort einmal ein Video aussuchen und den Link einfügen.</p>
     </>
   )
+}
+
+function videoKind(url: string): string {
+  const k = parseVideoUrl(url).kind
+  return k === 'youtube' || k === 'vimeo' ? '' : k === 'extern' ? 'extern' : 'Video wählen'
 }

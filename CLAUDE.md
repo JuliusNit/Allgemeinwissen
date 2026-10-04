@@ -15,6 +15,9 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 - `src/data/plan.ts` – kompletter Lehrplan: Bereiche (Farben), Blöcke, 90 Tage mit Teilthemen und
   `links` (frühere Sessions zum Anknüpfen). Phase-2-Teilthemen und Verknüpfungen wurden ergänzt, nicht von Julius vorgegeben.
   Videos: pro Teilthema ein YouTube-**Suchlink** (bewusst keine ungeprüften Direktlinks); Julius ersetzt sie in der App über ✎.
+- `src/components/VideoWatch.tsx` + `src/lib/video.ts` – Videos laufen eingebettet (YouTube-IFrame-API über
+  youtube-nocookie, Vimeo) unter `#/tag/N/video/ID[/Sekunden]`; Notizen am Rand mit Zeitmarke (`videoNotes`),
+  Pause beim Tippen, letzte Position (`videoPos`). Suchlinks lassen sich nicht einbetten → dort Video wählen + Link einfügen.
 - `src/lib/store.ts` – gesamter Zustand in localStorage (`allgemeinwissen-v1`), Export/Import für Gerätewechsel (ohne API-Key).
   Enthält auch Profil (Name, Bild), Kartenprotokoll, Wiederholungs-Stationen, Community-Nachrichten, Spezialisierungswahl.
 - `src/lib/ai.ts` – OpenAI-kompatibler Endpunkt per fetch/SSE direkt aus dem Browser. Standard: Qwen `qwen3.8-27b` auf

@@ -1,6 +1,6 @@
 import { AREAS, BLOCKS, DAYS, getDay, isBlockMix, type AreaId, type Day } from '../data/plan'
 import { DONE_MARKER, statsTable } from './stats'
-import { dayState, getState, videosOf, type ChatMsg } from './store'
+import { dayState, getState, videoNotesText, videosOf, type ChatMsg } from './store'
 
 export { DONE_MARKER }
 
@@ -158,6 +158,8 @@ function sessionContext(d: Day): string {
   if (optional.length) lines.push(`Optionale Videos (nicht abfragen): ${optional.map((v) => v.title).join(' · ')}`)
   if (d.evidence) lines.push('Evidenzcheck aktiv: bei Körper/Gesundheit/Psychologie immer „belegt vs. Hype“ einordnen (Studienlage, Evidenzstufe).')
   if (notes) lines.push(`Julius' eigene Notizen zur Session:\n${clip(notes, 2000)}`)
+  const vnotes = videoNotesText(s, d.day)
+  if (vnotes) lines.push(`Julius' Notizen während der Videos ([Minute:Sekunde]):\n${clip(vnotes, 3000)}`)
   lines.push('', earlierSessions(d))
   return lines.join('\n')
 }

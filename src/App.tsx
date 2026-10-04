@@ -14,15 +14,19 @@ import { StatsView } from './views/StatsView'
 type Tab = 'home' | 'chat' | 'stats' | 'profil'
 
 type Route =
-  | { tab: 'home'; day?: number; review?: string }
+  | { tab: 'home'; day?: number; review?: string; video?: string; at?: number }
   | { tab: 'chat'; channel?: string }
   | { tab: 'stats'; area?: AreaId; day?: number }
   | { tab: 'profil' }
 
 function parseHash(): Route {
   const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)
-  const [a, b, c] = parts
-  if (a === 'tag' && b) return { tab: 'home', day: Math.min(90, Math.max(1, Number(b) || 1)) }
+  const [a, b, c, d, e] = parts
+  if (a === 'tag' && b) {
+    const day = Math.min(90, Math.max(1, Number(b) || 1))
+    if (c === 'video' && d) return { tab: 'home', day, video: decodeURIComponent(d), at: e ? Number(e) || 0 : undefined }
+    return { tab: 'home', day }
+  }
   if (a === 'wiederholung' && b) return { tab: 'home', review: b }
   if (a === 'chat') return { tab: 'chat', channel: b }
   if (a === 'statistik') {
@@ -40,14 +44,22 @@ const NAV: { tab: Tab; label: string; icon: IconName; hash: string }[] = [
   { tab: 'profil', label: 'Profil', icon: 'PROFILE', hash: '/profil' },
 ]
 
+/** Video aus der Session heraus geoeffnet → Schliessen = Zurueck im Verlauf */
+let videoFromSession = false
+
 export default function App() {
   const [route, setRoute] = useState<Route>(parseHash)
   const due = useStore((s) => dueCards(s.cards).length)
 
   useEffect(() => {
+    // Video-Ansicht liegt ueber der Session: beim Oeffnen/Schliessen Scrollposition behalten
+    const base = (h: string) => h.replace(/\/video\/.*$/, '')
+    let last = location.hash
     const on = () => {
       setRoute(parseHash())
-      window.scrollTo(0, 0)
+      if (base(location.hash) !== base(last)) window.scrollTo(0, 0)
+      last = location.hash
+      if (!location.hash.includes('/video/')) videoFromSession = false
     }
     window.addEventListener('hashchange', on)
     return () => window.removeEventListener('hashchange', on)
@@ -63,7 +75,28 @@ export default function App() {
       <main>
         {route.tab === 'home' &&
           (route.day ? (
-            <DayView key={route.day} day={route.day} openDay={(n) => go(`/tag/${n}`)} back={() => go('/')} />
+            <DayView
+              key={route.day}
+              day={route.day}
+              video={route.video}
+              at={route.at}
+              openDay={(n) => go(`/tag/${n}`)}
+              openVideo={(id, t) => {
+                const hash = `#/tag/${route.day}/video/${encodeURIComponent(id)}${t !== undefined ? `/${Math.floor(t)}` : ''}`
+                // Video zu Video ersetzt den Verlaufseintrag, damit "Zurueck" direkt zur Session fuehrt
+                if (route.video) location.replace(hash)
+                else {
+                  videoFromSession = true
+                  location.hash = hash
+                }
+              }}
+              closeVideo={() => {
+                if (videoFromSession) history.back()
+                else go(`/tag/${route.day}`)
+                videoFromSession = false
+              }}
+              back={() => go('/')}
+            />
           ) : route.review ? (
             <ReviewView key={route.review} id={route.review} go={go} />
           ) : (

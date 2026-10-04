@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { DAYS, defaultVideos, getDay, type Video } from '../data/plan'
+import { fmtTime } from './video'
 
 export interface ChatMsg {
   role: 'user' | 'assistant'
@@ -10,11 +11,22 @@ export interface ChatMsg {
 
 export type DayStatus = 'offen' | 'laeuft' | 'fertig'
 
+/** Notiz zu einem Video, optional mit Zeitmarke (Sekunden) */
+export interface VideoNote {
+  id: string
+  t?: number
+  text: string
+}
+
 export interface DayState {
   status: DayStatus
   videos?: Video[]
   watched?: string[]
   notes?: string
+  /** Video-ID → Notizen am Rand des Players */
+  videoNotes?: Record<string, VideoNote[]>
+  /** Video-ID → zuletzt gesehene Stelle (Sekunden) */
+  videoPos?: Record<string, number>
   anchor?: string
   questions?: ChatMsg[]
   check?: ChatMsg[]
@@ -177,6 +189,23 @@ export function updateDay(day: number, fn: (d: DayState) => DayState) {
 
 export function videosOf(s: State, day: number): Video[] {
   return dayState(s, day).videos ?? defaultVideos(getDay(day))
+}
+
+/** Video-Notizen als Text (fuer KI und Uebersicht), nach Zeitmarke sortiert */
+export function videoNotesText(s: State, day: number): string {
+  const ds = dayState(s, day)
+  return videosOf(s, day)
+    .map((v) => {
+      const notes = sortNotes(ds.videoNotes?.[v.id] ?? [])
+      if (!notes.length) return ''
+      return `${v.title}:\n` + notes.map((n) => `- ${n.t !== undefined ? `[${fmtTime(n.t)}] ` : ''}${n.text}`).join('\n')
+    })
+    .filter(Boolean)
+    .join('\n')
+}
+
+export function sortNotes(notes: VideoNote[]): VideoNote[] {
+  return [...notes].sort((a, b) => (a.t ?? Infinity) - (b.t ?? Infinity))
 }
 
 /** Aktuelle Session = erster nicht abgeschlossener Tag */
