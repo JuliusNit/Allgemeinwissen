@@ -52,7 +52,7 @@ export function VideoWatch({ day, videos, video, at, open, close }: Props) {
   }
 
   function setUrl(url: string) {
-    updateDay(day, (x) => ({ ...x, videos: videos.map((v) => (v.id === video.id ? { ...v, url } : v)) }))
+    updateDay(day, (x) => ({ ...x, videos: videos.map((v) => (v.id === video.id ? { ...v, url, source: undefined } : v)) }))
   }
 
   function seek(t: number) {
@@ -68,7 +68,7 @@ export function VideoWatch({ day, videos, video, at, open, close }: Props) {
       <div className="watch-bar">
         <button className="icon-btn" onClick={close} aria-label="Zurück zur Session"><Icon name="BACK" size={26} /></button>
         <div className="watch-title">
-          <span className="muted small">Tag {day} · Video {idx + 1}/{videos.length} {video.star ? '· ★ Pflicht' : '· optional'}</span>
+          <span className="muted small">Tag {day} · Video {idx + 1}/{videos.length} {video.star ? '· ★ Pflicht' : '· optional'}{video.source ? ` · ${video.source}` : ''}</span>
           <b>{video.title}</b>
         </div>
         <span className="right">

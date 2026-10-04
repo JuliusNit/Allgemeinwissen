@@ -14,7 +14,10 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 
 - `src/data/plan.ts` – kompletter Lehrplan: Bereiche (Farben), Blöcke, 90 Tage mit Teilthemen und
   `links` (frühere Sessions zum Anknüpfen). Phase-2-Teilthemen und Verknüpfungen wurden ergänzt, nicht von Julius vorgegeben.
-  Videos: pro Teilthema ein YouTube-**Suchlink** (bewusst keine ungeprüften Direktlinks); Julius ersetzt sie in der App über ✎.
+  Videos: pro Teilthema ein ausgewähltes YouTube-Video aus `src/data/videos.ts` (per Suche gefunden, von Hand gewählt,
+  per oEmbed auf „existiert + einbettbar“ geprüft; bevorzugt Studyflix, simpleclub, MrWissen2go, Terra X, Kurzgesagt).
+  Fehlt ein Eintrag, gibt es einen Suchlink. Gespeicherte, unveränderte Suchlinks ersetzt `upgradeVideos` automatisch;
+  Julius kann jedes Video über ✎ oder „anderes Video“ tauschen.
 - `src/components/VideoWatch.tsx` + `src/lib/video.ts` – Videos laufen eingebettet (YouTube-IFrame-API über
   youtube-nocookie, Vimeo) unter `#/tag/N/video/ID[/Sekunden]`; Notizen am Rand mit Zeitmarke (`videoNotes`),
   Pause beim Tippen, letzte Position (`videoPos`). Suchlinks lassen sich nicht einbetten → dort Video wählen + Link einfügen.

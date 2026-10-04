@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { DAYS, defaultVideos, getDay, type Video } from '../data/plan'
+import { DAYS, defaultVideos, getDay, upgradeVideos, type Video } from '../data/plan'
 import { fmtTime } from './video'
 
 export interface ChatMsg {
@@ -187,8 +187,18 @@ export function updateDay(day: number, fn: (d: DayState) => DayState) {
   setState((s) => ({ ...s, days: { ...s.days, [day]: fn(dayState(s, day)) } }))
 }
 
+// gleiche Eingabe → gleiches Array, sonst rendert useStore endlos neu
+const upgraded = new WeakMap<Video[], Video[]>()
+
 export function videosOf(s: State, day: number): Video[] {
-  return dayState(s, day).videos ?? defaultVideos(getDay(day))
+  const stored = dayState(s, day).videos
+  if (!stored) return defaultVideos(getDay(day))
+  let v = upgraded.get(stored)
+  if (!v) {
+    v = upgradeVideos(getDay(day), stored)
+    upgraded.set(stored, v)
+  }
+  return v
 }
 
 /** Video-Notizen als Text (fuer KI und Uebersicht), nach Zeitmarke sortiert */

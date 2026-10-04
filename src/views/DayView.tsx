@@ -311,9 +311,9 @@ function VideoList({
             {editing === v.id ? (
               <div className="video-edit">
                 <input value={v.title} onChange={(e) => patch(v.id, { title: e.target.value })} placeholder="Titel" />
-                <input value={v.url} onChange={(e) => patch(v.id, { url: e.target.value })} placeholder="YouTube-Link einfügen (läuft dann in der App)" />
+                <input value={v.url} onChange={(e) => patch(v.id, { url: e.target.value, source: undefined })} placeholder="YouTube-Link einfügen (läuft dann in der App)" />
                 <div className="row">
-                  <button className="btn small" onClick={() => patch(v.id, { url: youtubeSearch(`${v.title} einfach erklärt`) })}>Als Suchlink</button>
+                  <button className="btn small" onClick={() => patch(v.id, { url: youtubeSearch(`${v.title} einfach erklärt`), source: undefined })}>Als Suchlink</button>
                   <button className="btn small danger" onClick={() => onChange(videos.filter((x) => x.id !== v.id))}>Entfernen</button>
                   <button className="btn small primary" onClick={() => setEditing(null)}>Fertig</button>
                 </div>
@@ -326,7 +326,7 @@ function VideoList({
                 </button>
                 <button className="video-open" onClick={() => onOpen(v.id)}>
                   <span className="video-play" aria-hidden>▶</span>
-                  <span>{v.title}</span>
+                  <span>{v.title}{v.source && <small className="video-source"> · {v.source}</small>}</span>
                 </button>
                 {noteCounts[v.id] > 0 && <span className="video-kind">{noteCounts[v.id]} ✎</span>}
                 <span className="video-kind">{videoKind(v.url)}</span>

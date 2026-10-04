@@ -157,6 +157,7 @@ label { display: block; font-size: 0.85rem; color: var(--muted); margin: 10px 0 
 }
 .video-open > span:last-child { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
 .video-open:hover > span:last-child { text-decoration: underline; }
+.video-source { color: var(--muted); font-size: 0.78rem; }
 .videos .video-kind { flex: none; white-space: nowrap; }
 .video-play {
   flex: none; width: 26px; height: 26px; border: 2px solid var(--ink); border-radius: 50%;

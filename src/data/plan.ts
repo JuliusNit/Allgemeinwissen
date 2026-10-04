@@ -1,4 +1,5 @@
 // Lernplan – Allgemeinwissen. Inhalt 1:1 aus dem Plan, Teilthemen fuer Phase 2 ergaenzt.
+import { VIDEO_PICKS } from './videos'
 
 export type AreaId =
   | 'BIO' | 'CHE' | 'NERV' | 'MIX'
@@ -56,6 +57,8 @@ export interface Video {
   title: string
   url: string
   star: boolean
+  /** Kanal des ausgewaehlten Videos (z. B. Studyflix) */
+  source?: string
 }
 
 export interface Day {
@@ -216,10 +219,29 @@ export function defaultVideos(d: Day): Video[] {
 
 function buildDefaultVideos(d: Day): Video[] {
   if (isBlockMix(d)) return []
-  return d.subtopics.map((s, i) => ({
-    id: `${d.day}-${i}`,
-    title: s,
-    url: youtubeSearch(`${s} einfach erklärt`),
-    star: true,
-  }))
+  return d.subtopics.map((s, i) => {
+    const pick = VIDEO_PICKS[`${d.day}-${i}`]
+    return {
+      id: `${d.day}-${i}`,
+      title: s,
+      url: pick ? `https://www.youtube.com/watch?v=${pick[0]}` : youtubeSearch(`${s} einfach erklärt`),
+      star: true,
+      source: pick?.[1],
+    }
+  })
+}
+
+/** Gespeicherte Liste: unveraenderte Suchlinks durch das ausgewaehlte Video ersetzen */
+export function upgradeVideos(d: Day, videos: Video[]): Video[] {
+  const defs = defaultVideos(d)
+  let changed = false
+  const out = videos.map((v) => {
+    const def = defs.find((x) => x.id === v.id)
+    if (def && v.url === youtubeSearch(`${v.title} einfach erklärt`) && def.url !== v.url) {
+      changed = true
+      return { ...v, url: def.url, source: def.source }
+    }
+    return v
+  })
+  return changed ? out : videos
 }
