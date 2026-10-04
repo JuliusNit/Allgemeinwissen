@@ -27,7 +27,12 @@ const RIM: Stroke[] = (() => {
 
 const FACE: Stroke[] = [ellipse(0, 0, R, RY)]
 
-const RING: Stroke[] = Array.from({ length: 14 }, (_, i) => arc(0, D / 2, R + 9, i * (360 / 14), i * (360 / 14) + 13, 0.7, (R + 9) * COIN_TILT))
+// Ring liegt auf dem Boden (Hoehe der Muenzunterkante) und ist genauso geneigt wie die Muenze:
+// vorne sichtbar, hinten von der Muenze verdeckt
+const RING: Stroke[] = Array.from({ length: 14 }, (_, i) => arc(0, D, R + 9, i * (360 / 14), i * (360 / 14) + 13, 0.7, (R + 9) * COIN_TILT))
+
+/** Umriss des Muenzkoerpers (Seite + untere Haelfte), weiss gefuellt – verdeckt den Ring dahinter */
+const BODY = `M${-R} 0V${D}A${R} ${RY} 0 0 0 ${R} ${D}V0Z`
 
 const BADGE: Stroke[] = [circle(0, 0, 10)]
 
@@ -37,6 +42,8 @@ export function Coin({ icon, state, pressed, scale = 1 }: { icon: IconName; stat
   return (
     <g className={`coin ${state}${pressed ? ' pressed' : ''}`} transform={scale !== 1 ? `scale(${scale})` : undefined}>
       {state === 'current' && <InkPaths strokes={RING} w={2.6} />}
+      <path d={BODY} fill="#fff" />
+      <ellipse rx={R} ry={RY} fill="#fff" />
       <InkPaths strokes={RIM} w={2.8} />
       <g className="coin-face">
         <ellipse rx={R} ry={RY} fill="#fff" />
