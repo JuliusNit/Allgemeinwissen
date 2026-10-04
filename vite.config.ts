@@ -12,13 +12,13 @@ export default defineConfig({
       manifest: {
         name: 'Allgemeinwissen – 90-Tage-Lernplan',
         short_name: 'Allgemeinwissen',
-        description: 'Lernplan für kristalline Intelligenz: Sessions, Verständnischeck mit KI, Zusammenfassungen, Spaced Repetition',
+        description: 'Lernplan für kristalline Intelligenz: Sessions, Lernpfad, KI-Verständnischeck, Statistik, Spaced Repetition',
         lang: 'de',
         start_url: './',
         scope: './',
         display: 'standalone',
-        background_color: '#1c1f26',
-        theme_color: '#1c1f26',
+        background_color: '#ffffff',
+        theme_color: '#ffffff',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },

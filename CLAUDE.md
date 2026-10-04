@@ -16,10 +16,17 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   `links` (frühere Sessions zum Anknüpfen). Phase-2-Teilthemen und Verknüpfungen wurden ergänzt, nicht von Julius vorgegeben.
   Videos: pro Teilthema ein YouTube-**Suchlink** (bewusst keine ungeprüften Direktlinks); Julius ersetzt sie in der App über ✎.
 - `src/lib/store.ts` – gesamter Zustand in localStorage (`allgemeinwissen-v1`), Export/Import für Gerätewechsel (ohne API-Key).
-- `src/lib/ai.ts` – Claude direkt aus dem Browser (`dangerouslyAllowBrowser`, Key vom Nutzer in den Einstellungen).
-  Standardmodell `claude-opus-5-5`, Fallback `fallbacks: "default"` (Beta `server-side-fallback-2026-07-01`).
-  Modi: Anknüpfen, Fragen, Verständnischeck (Ende über Marker `[[SESSION_ABGESCHLOSSEN]]`), Zusammenfassung + Karteikarten (Structured Output).
+  Enthält auch Profil (Name, Bild), Kartenprotokoll, Wiederholungs-Stationen, Community-Nachrichten, Spezialisierungswahl.
+- `src/lib/ai.ts` – OpenAI-kompatibler Endpunkt per fetch/SSE direkt aus dem Browser. Standard: Qwen `qwen3.8-27b` auf
+  `ai.inference2.corpus.music` (vLLM, CORS offen). **Key nie ins Repo** – Julius trägt ihn unter Profil → KI ein.
+  Modi: Anknüpfen, Fragen, Verständnischeck (Ende über `[[SESSION_ABGESCHLOSSEN]]`, Bewertung je Antwort über
+  `[[BEWERTUNG: richtig|teilweise|falsch | 1-5]]`), Lernzettel + Karten (json_schema), Stärkenberatung, Kanal-Chat.
+- `src/lib/stats.ts` – wertet Marker + Zeitstempel aus (richtig, Antwortzeit, Präzision) je Session/Überthema.
+- `src/lib/path.ts` – Lernpfad: 90 Tage + Wiederholungs-Station nach je 4 Sessions (Begründung im Kommentar).
 - `src/lib/srs.ts` – vereinfachtes SM-2 für Karteikarten.
+- `src/lib/ink.ts`, `components/Ink.tsx`, `Icons.tsx`, `Coin.tsx` – Tusche-Optik: exakte Formen, Strichbreite je nach Richtung.
+- Design: schwarz auf weiß, Schraffur statt Flächen, Farbe nur grün/rot in der Statistik. Navigation unten:
+  [frei] · Austausch · Home (Lernpfad) · Statistik · Profil. Der Austausch-Chat ist noch lokal (kein Server).
 - `src/components/Markdown.tsx` – eigener Renderer ohne innerHTML.
 - `scripts/icons.mjs` – erzeugt PWA-Icons; `scripts/deploy.mjs` – Deploy auf gh-pages.
 

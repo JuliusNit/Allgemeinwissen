@@ -25,8 +25,17 @@ export function intervalLabel(c: Card, r: Rating): string {
   return r === 0 ? 'gleich' : `${n.interval} T`
 }
 
-export function rateCard(id: string, r: Rating) {
-  setState((s) => ({ ...s, cards: s.cards.map((c) => (c.id === id ? schedule(c, r) : c)) }))
+/** Bewertet eine Karte und protokolliert Ergebnis + Zeit bis zum Aufdecken (fuer die Staerkenanalyse) */
+export function rateCard(id: string, r: Rating, ms = 0) {
+  setState((s) => {
+    const card = s.cards.find((c) => c.id === id)
+    if (!card) return s
+    return {
+      ...s,
+      cards: s.cards.map((c) => (c.id === id ? schedule(c, r) : c)),
+      cardLog: [...s.cardLog, { day: card.day, rating: r, ms, at: today() }],
+    }
+  })
 }
 
 export function addCards(day: number, items: { q: string; a: string }[]) {

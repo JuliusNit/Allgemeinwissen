@@ -5,11 +5,13 @@ import { addCards } from '../lib/srs'
 import { dayState, today, updateDay, useStore, videosOf } from '../lib/store'
 import { Chat } from '../components/Chat'
 import { Markdown } from '../components/Markdown'
-import { AreaBadge } from '../components/AreaBadge'
+import { CoinBadge } from '../components/Coin'
+import { Icon } from '../components/Icons'
+import { Frame } from '../components/Ink'
 
 type Tab = 'fragen' | 'check' | 'zusammenfassung'
 
-export function DayView({ day, openDay }: { day: number; openDay: (n: number) => void }) {
+export function DayView({ day, openDay, back }: { day: number; openDay: (n: number) => void; back: () => void }) {
   const d = getDay(day)
   const ds = useStore((s) => dayState(s, day))
   const videos = useStore((s) => videosOf(s, day))
@@ -75,13 +77,19 @@ export function DayView({ day, openDay }: { day: number; openDay: (n: number) =>
     <div className="day">
       <div className="day-head">
         <div className="day-nav">
-          <button className="btn ghost small" disabled={day <= 1} onClick={() => openDay(day - 1)} aria-label="Vorheriger Tag">‹</button>
-          <span className="muted">Tag {day} / 90 · {block.name}</span>
-          <button className="btn ghost small" disabled={day >= 90} onClick={() => openDay(day + 1)} aria-label="Nächster Tag">›</button>
+          <button className="icon-btn" onClick={back} aria-label="Zurück zum Lernpfad"><Icon name="BACK" size={26} /></button>
+          <span className="muted small">Tag {day} / 90 · {block.name}</span>
+          <span className="right">
+            <button className="btn ghost small" disabled={day <= 1} onClick={() => openDay(day - 1)} aria-label="Vorheriger Tag">‹</button>
+            <button className="btn ghost small" disabled={day >= 90} onClick={() => openDay(day + 1)} aria-label="Nächster Tag">›</button>
+          </span>
         </div>
         <div className="day-title">
-          <AreaBadge area={d.area} />
-          <h1>{d.title}</h1>
+          <CoinBadge icon={d.area} size={60} />
+          <div>
+            <p className="muted small">{AREAS[d.area].name}</p>
+            <h1>{d.title}</h1>
+          </div>
         </div>
         <p className="muted">{d.subtopics.join(' · ')}</p>
         <div className="status-row">
@@ -91,10 +99,10 @@ export function DayView({ day, openDay }: { day: number; openDay: (n: number) =>
         </div>
       </div>
 
-      {!hasKey && <div className="notice">Für Anknüpfen, Fragen und Verständnischeck einen Anthropic-API-Key unter <b>Einstellungen</b> eintragen.</div>}
+      {!hasKey && <div className="notice">Für Anknüpfen, Fragen und Verständnischeck den API-Key unter <b>Profil → KI</b> eintragen.</div>}
       {error && <div className="chat-error">{error}</div>}
 
-      <section className="card">
+      <Frame className="card">
         <h2>1 · Anknüpfen</h2>
         {d.links.length > 0 && (
           <div className="chips">
@@ -102,7 +110,7 @@ export function DayView({ day, openDay }: { day: number; openDay: (n: number) =>
               const st = statuses[n]?.status ?? 'offen'
               return (
                 <button key={n} className={`chip link ${st}`} onClick={() => openDay(n)} title={getDay(n).title}>
-                  <span className="dot" style={{ background: AREAS[getDay(n).area].color }} />
+                  <Icon name={getDay(n).area} size={16} />
                   Tag {n} · {getDay(n).title.split(':')[0]}
                 </button>
               )
@@ -119,10 +127,10 @@ export function DayView({ day, openDay }: { day: number; openDay: (n: number) =>
         ) : (
           <button className="btn" onClick={runAnchor} disabled={!hasKey}>Einordnen lassen: Zeitstrahl, Karte, frühere Sessions</button>
         )}
-      </section>
+      </Frame>
 
       {!mix && (
-        <section className="card">
+        <Frame className="card">
           <div className="section-head">
             <h2>2 · Lernvideos</h2>
             <span className="muted">{starsWatched}/{stars.length} ★ gesehen · ~{Math.round(videos.length * 9)} min</span>
@@ -142,10 +150,10 @@ export function DayView({ day, openDay }: { day: number; openDay: (n: number) =>
             onReset={() => setVideos(defaultVideos(d))}
             day={day}
           />
-        </section>
+        </Frame>
       )}
 
-      <section className="card">
+      <Frame className="card">
         <h2>{mix ? '2' : '3'} · Notizen</h2>
         <textarea
           className="notes"
@@ -154,9 +162,9 @@ export function DayView({ day, openDay }: { day: number; openDay: (n: number) =>
           value={ds.notes ?? ''}
           onChange={(e) => updateDay(day, (x) => ({ ...x, notes: e.target.value }))}
         />
-      </section>
+      </Frame>
 
-      <section className="card">
+      <Frame className="card">
         <div className="tabs">
           <button className={tab === 'fragen' ? 'active' : ''} onClick={() => setTab('fragen')}>{mix ? 'Fragen' : '4 · Deine Fragen'}</button>
           <button className={tab === 'check' ? 'active' : ''} onClick={() => setTab('check')}>Verständnischeck {checkDone && '✓'}</button>
@@ -221,7 +229,7 @@ export function DayView({ day, openDay }: { day: number; openDay: (n: number) =>
           </div>
         )}
         {busy && <p className="typing">{busy}</p>}
-      </section>
+      </Frame>
     </div>
   )
 }

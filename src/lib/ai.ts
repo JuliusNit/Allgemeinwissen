@@ -1,42 +1,114 @@
-import Anthropic from '@anthropic-ai/sdk'
-import { AREAS, BLOCKS, DAYS, getDay, isBlockMix, type Day } from '../data/plan'
+import { AREAS, BLOCKS, DAYS, getDay, isBlockMix, type AreaId, type Day } from '../data/plan'
+import { DONE_MARKER, statsTable } from './stats'
 import { dayState, getState, videosOf, type ChatMsg } from './store'
 
-export const MODELS = [
-  { id: 'claude-opus-5-5', label: 'Claude Opus 5.5 (beste Qualität)' },
-  { id: 'claude-sonnet-5-5', label: 'Claude Sonnet 5.5 (günstiger, schnell)' },
-  { id: 'claude-haiku-4-5', label: 'Claude Haiku 4.5 (am günstigsten)' },
-]
+export { DONE_MARKER }
 
-export const DONE_MARKER = '[[SESSION_ABGESCHLOSSEN]]'
+// OpenAI-kompatibler Chat-Completions-Endpunkt (Standard: Qwen ueber vLLM), direkt aus dem Browser.
+// Persoenliche App ohne Backend: der Key liegt nur im Browser dieses Geraets.
 
-function client(): Anthropic {
-  const { apiKey } = getState().settings
-  if (!apiKey) throw new Error('Kein API-Key hinterlegt – bitte unter „Einstellungen“ eintragen.')
-  // Persoenliche App ohne Backend: der Key liegt nur im Browser dieses Geraets.
-  return new Anthropic({ apiKey, dangerouslyAllowBrowser: true })
-}
-
-/** Server-seitiger Fallback bei Ablehnungen – nur fuer Modelle, die ihn unterstuetzen */
-function fallbackParams(model: string) {
-  if (model === 'claude-opus-5-5' || model === 'claude-sonnet-5-5') {
-    return { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' as const }
+class ApiError extends Error {
+  status?: number
+  constructor(message: string, status?: number) {
+    super(message)
+    this.status = status
   }
-  return {}
 }
 
-function requestBase(maxTokens: number) {
-  const { model, effort } = getState().settings
+type Msg = { role: 'system' | 'user' | 'assistant'; content: string }
+
+function body(messages: Msg[], maxTokens: number, extra: Record<string, unknown> = {}) {
+  const { model, thinking } = getState().settings
   return {
     model,
+    messages,
     max_tokens: maxTokens,
-    ...(model.startsWith('claude-haiku') ? {} : { output_config: { effort } }),
-    ...fallbackParams(model),
+    temperature: 0.6,
+    // Qwen-Denkmodus ueber das Chat-Template steuern (vLLM)
+    ...(/qwen/i.test(model) ? { chat_template_kwargs: { enable_thinking: thinking } } : {}),
+    ...extra,
   }
 }
 
-function textOf(content: Anthropic.Beta.BetaContentBlock[]): string {
-  return content.map((b) => (b.type === 'text' ? b.text : '')).join('')
+async function post(payload: unknown): Promise<Response> {
+  const { apiUrl, apiKey } = getState().settings
+  if (!apiKey) throw new ApiError('Kein API-Key hinterlegt – bitte unter „Profil → KI“ eintragen.')
+  let res: Response
+  try {
+    res = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify(payload),
+    })
+  } catch {
+    throw new ApiError('Keine Verbindung zur KI – Internet bzw. API-Adresse prüfen.')
+  }
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    if (res.status === 401 || res.status === 403) throw new ApiError('API-Key ungültig – bitte im Profil prüfen.', res.status)
+    if (res.status === 429) throw new ApiError('Zu viele Anfragen – kurz warten und erneut versuchen.', res.status)
+    throw new ApiError(`API-Fehler ${res.status}: ${text.slice(0, 200)}`, res.status)
+  }
+  return res
+}
+
+/** Denk-Abschnitte entfernen, falls der Server sie im Text mitliefert */
+function clean(t: string): string {
+  return t.replace(/<think>[\s\S]*?(<\/think>|$)/g, '').trimStart()
+}
+
+async function streamChat(system: string, messages: ChatMsg[], onText: (t: string) => void, maxTokens = 4000): Promise<string> {
+  const res = await post(
+    body([{ role: 'system', content: system }, ...messages.map((m) => ({ role: m.role, content: m.content }))], maxTokens, { stream: true }),
+  )
+  if (!res.body) throw new ApiError('Leere Antwort vom Server.')
+  const reader = res.body.getReader()
+  const dec = new TextDecoder()
+  let buf = ''
+  let acc = ''
+  let finish = ''
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buf += dec.decode(value, { stream: true })
+    let i: number
+    while ((i = buf.indexOf('\n')) >= 0) {
+      const ln = buf.slice(0, i).trim()
+      buf = buf.slice(i + 1)
+      if (!ln.startsWith('data:')) continue
+      const data = ln.slice(5).trim()
+      if (data === '[DONE]') continue
+      try {
+        const j = JSON.parse(data)
+        const ch = j.choices?.[0]
+        if (ch?.delta?.content) {
+          acc += ch.delta.content
+          onText(clean(acc))
+        }
+        if (ch?.finish_reason) finish = ch.finish_reason
+      } catch {
+        // unvollstaendige Zeile – ignorieren
+      }
+    }
+  }
+  const out = clean(acc).trim()
+  if (!out) throw new ApiError(finish === 'length' ? 'Antwort zu lang abgebrochen – Denkmodus ausschalten oder erneut senden.' : 'Leere Antwort – bitte erneut senden.')
+  return out
+}
+
+async function complete(system: string, user: string, maxTokens: number, extra: Record<string, unknown> = {}): Promise<string> {
+  const res = await post(
+    body(
+      [
+        { role: 'system', content: system },
+        { role: 'user', content: user },
+      ],
+      maxTokens,
+      extra,
+    ),
+  )
+  const j = await res.json()
+  return clean(j.choices?.[0]?.message?.content ?? '').trim()
 }
 
 // ---------- Kontext ----------
@@ -94,25 +166,7 @@ const PERSONA = `Du bist der Lernbegleiter von Julius in seinem 90-Tage-Lernplan
 Ziel: breites, vernetztes Wissen, an das sich Neues schnell anhängen lässt. Gerüste: Zeitstrahl, Weltkarte, Größenordnungen, Evolution, Angebot/Nachfrage.
 Antworte immer auf Deutsch, klar und knapp, ohne Floskeln. Markdown ist erlaubt (Überschriften, Listen, **fett**, Tabellen).`
 
-// ---------- Streaming-Chat ----------
-
-async function streamChat(system: string, messages: ChatMsg[], onText: (t: string) => void, maxTokens = 8000): Promise<string> {
-  const stream = client().beta.messages.stream({
-    ...requestBase(maxTokens),
-    system,
-    messages: messages.map((m) => ({ role: m.role, content: m.content })),
-  })
-  let acc = ''
-  for await (const ev of stream) {
-    if (ev.type === 'content_block_delta' && ev.delta.type === 'text_delta') {
-      acc += ev.delta.text
-      onText(acc)
-    }
-  }
-  const final = await stream.finalMessage()
-  if (final.stop_reason === 'refusal') throw new Error('Die Anfrage wurde vom Modell abgelehnt.')
-  return textOf(final.content) || acc
-}
+// ---------- Session ----------
 
 export function anchorChat(day: number, onText: (t: string) => void) {
   const d = getDay(day)
@@ -150,8 +204,11 @@ Phase „Verständnischeck“: Julius hat „verstanden“ gesagt. Führe den Ch
 - ${isBlockMix(d) ? '5' : '3–5'} Verständnisfragen, IMMER nur EINE Frage pro Nachricht, dann auf die Antwort warten.
 - ${isBlockMix(d) ? 'Gemischte Abfrage des ganzen Blocks plus Verknüpfungsfragen zwischen den Bereichen.' : 'Abgefragt wird nur, was in den ★-Pflichtvideos gelehrt wurde.'}
 - Keine reinen Wiedergabefragen, sondern: Teilthemen kombinieren („Was passiert mit X, wenn Y ausfällt?“), Anwendung auf Alltag/Nachrichten/Entscheidungen, Vorhersagen & Fallbeispiele („Warum…?“, „Was wäre, wenn…?“), Verknüpfung mit früheren Sessions UND anderen Bereichen.
-- Nummeriere die Fragen („Frage 2/4“).
-- Nach jeder Antwort: kurz bewerten (✅ richtig / 🟡 unvollständig / ❌ falsch). Bei falsch/unvollständig: kurz erklären, dann eine Nachfrage zum GLEICHEN Punkt stellen, bevor es mit der nächsten Frage weitergeht.
+- Nummeriere die Fragen im Format „**Frage 2/4:** …“.
+- Nach JEDER Antwort von Julius beginnt deine Nachricht in der ersten Zeile mit genau einem Bewertungs-Marker:
+  [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]
+  P = Präzision der Antwort von 1 (vage) bis 5 (präzise, Fachbegriffe korrekt). Beispiel: [[BEWERTUNG: teilweise | 3]]
+- Danach kurz bewerten (✅ richtig / 🟡 unvollständig / ❌ falsch). Bei falsch/unvollständig: kurz erklären, dann eine Nachfrage zum GLEICHEN Punkt stellen, bevor es mit der nächsten Frage weitergeht.
 - Erst wenn alles sitzt: kurzes Fazit (was saß gut, was wiederholen) und schreibe dann in die letzte Zeile exakt: ${DONE_MARKER}
 - Schreibe ${DONE_MARKER} niemals vorher.
 
@@ -166,6 +223,18 @@ export interface SummaryResult {
   cards: { q: string; a: string }[]
 }
 
+function parseJson<T>(t: string): T {
+  const s = t.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '')
+  try {
+    return JSON.parse(s) as T
+  } catch {
+    const a = s.indexOf('{')
+    const b = s.lastIndexOf('}')
+    if (a >= 0 && b > a) return JSON.parse(s.slice(a, b + 1)) as T
+    throw new ApiError('Antwort der KI war kein gültiges JSON – bitte erneut versuchen.')
+  }
+}
+
 export async function makeSummary(day: number): Promise<SummaryResult> {
   const d = getDay(day)
   const ds = dayState(getState(), day)
@@ -174,7 +243,7 @@ export async function makeSummary(day: number): Promise<SummaryResult> {
 
   const system = `${PERSONA}
 
-Erstelle nach der abgeschlossenen Session die Zusammenfassung zum Wiederholen und Karteikarten.
+Erstelle nach der abgeschlossenen Session den Lernzettel zum Wiederholen und Karteikarten. Antworte NUR mit JSON.
 
 summary_markdown – NUR Stichpunkte und Grafiken, kein Fließtext:
 # Tag ${d.day} · ${d.area} · <kurzer Titel>
@@ -190,14 +259,12 @@ cards – 6–10 Karteikarten für Spaced Repetition. Fragen, die Verständnis p
 ${transcript('Julius\' Fragen', ds.questions)}
 ${transcript('Verständnischeck', ds.check)}`
 
-  const res = await client().beta.messages.create({
-    ...requestBase(16000),
-    system,
-    messages: [{ role: 'user', content: user }],
-    output_config: {
-      ...(getState().settings.model.startsWith('claude-haiku') ? {} : { effort: getState().settings.effort }),
-      format: {
-        type: 'json_schema',
+  const text = await complete(system, user, 8000, {
+    chat_template_kwargs: { enable_thinking: false },
+    response_format: {
+      type: 'json_schema',
+      json_schema: {
+        name: 'lernzettel',
         schema: {
           type: 'object',
           additionalProperties: false,
@@ -218,14 +285,40 @@ ${transcript('Verständnischeck', ds.check)}`
       },
     },
   })
-  if (res.stop_reason === 'refusal') throw new Error('Die Anfrage wurde vom Modell abgelehnt.')
-  return JSON.parse(textOf(res.content)) as SummaryResult
+  const r = parseJson<SummaryResult>(text)
+  if (typeof r.summary_markdown !== 'string' || !Array.isArray(r.cards)) throw new ApiError('Unvollständige Antwort – bitte erneut versuchen.')
+  return r
+}
+
+// ---------- Staerkenanalyse ----------
+
+export async function adviseFocus(): Promise<string> {
+  const s = getState()
+  const done = DAYS.filter((d) => dayState(s, d.day).status === 'fertig').length
+  const system = `${PERSONA}
+
+Du berätst Julius, worin er gut ist und welche Themen ihm liegen. SEHR KURZ, höchstens 5 Zeilen, keine Einleitung:
+- 2–3 Zeilen nach dem Muster „**Bereich**: x % richtig, Ø y s, Präzision z/5“ – nur die auffälligsten (stark und schwach).
+- 1 Zeile „Deshalb könnte dir … liegen“ mit 1–2 konkreten Vertiefungsrichtungen.
+- 1 Zeile: Alternative – breit weitermachen mit gefächertem Allgemeinwissen, und wann das sinnvoller wäre.
+Stütze dich nur auf die Zahlen. Wenig Daten? Dann sag das in einem Halbsatz.`
+  const user = `Abgeschlossene Sessions: ${done}/90\nKennzahlen je Überthema:\n${statsTable(s) || '(noch keine Daten)'}`
+  return complete(system, user, 900)
+}
+
+// ---------- Community-Chat ----------
+
+export function channelChat(area: AreaId | null, history: { author: 'ich' | 'ki'; text: string }[], onText: (t: string) => void) {
+  const topic = area ? `Kanal #${AREAS[area].name} – nur Themen aus diesem Bereich.` : 'Kanal #allgemein – alle Themen des Lernplans.'
+  const system = `${PERSONA}
+
+Du bist im Themen-Chat der App als „KI“ dabei. ${topic}
+Antworte wie in einem Chat: kurz (max. 6 Zeilen), locker, sachlich korrekt. Verweise nur auf Sessions aus dieser Liste (Tag-Nummer), erfinde keine:
+${DAYS.filter((d) => !area || d.area === area).map(dayLine).join('\n')}`
+  const msgs: ChatMsg[] = history.slice(-20).map((m) => ({ role: m.author === 'ich' ? 'user' : 'assistant', content: m.text }))
+  return streamChat(system, msgs, onText, 1500)
 }
 
 export function describeError(e: unknown): string {
-  if (e instanceof Anthropic.AuthenticationError) return 'API-Key ungültig – bitte in den Einstellungen prüfen.'
-  if (e instanceof Anthropic.RateLimitError) return 'Zu viele Anfragen – kurz warten und erneut versuchen.'
-  if (e instanceof Anthropic.APIConnectionError) return 'Keine Verbindung zur API – Internet prüfen.'
-  if (e instanceof Anthropic.APIError) return `API-Fehler ${e.status ?? ''}: ${e.message}`
   return e instanceof Error ? e.message : String(e)
 }

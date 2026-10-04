@@ -4,6 +4,8 @@ import { DAYS, defaultVideos, getDay, type Video } from '../data/plan'
 export interface ChatMsg {
   role: 'user' | 'assistant'
   content: string
+  /** Zeitpunkt (ms) – fuer die Antwortzeit-Analyse */
+  at?: number
 }
 
 export type DayStatus = 'offen' | 'laeuft' | 'fertig'
@@ -32,34 +34,97 @@ export interface Card {
   reps: number
 }
 
+/** Protokoll jeder Kartenabfrage (Bewertung + Zeit bis zum Aufdecken) */
+export interface CardLog {
+  day: number
+  rating: 0 | 1 | 2 | 3
+  ms: number
+  at: string
+}
+
+export interface CommunityMsg {
+  id: string
+  channel: string
+  author: 'ich' | 'ki'
+  text: string
+  at: number
+}
+
 export interface Settings {
+  apiUrl: string
   apiKey: string
   model: string
-  effort: 'low' | 'medium' | 'high'
+  /** Denkmodus (Qwen/vLLM): gruendlicher, aber langsamer */
+  thinking: boolean
+}
+
+export interface Profile {
+  name: string
+  /** Profilbild als data-URL (verkleinert) */
+  avatar?: string
+}
+
+export interface Focus {
+  choice?: string // 'breit' oder Bereichs-ID
+  advice?: string
+  at?: string
 }
 
 export interface State {
   version: 1
   days: Record<number, DayState>
   cards: Card[]
+  cardLog: CardLog[]
+  /** abgeschlossene Wiederholungs-Stationen: id → Datum */
+  reviews: Record<string, string>
+  community: CommunityMsg[]
+  profile: Profile
+  focus: Focus
   settings: Settings
 }
 
 const KEY = 'allgemeinwissen-v1'
 
+export const DEFAULT_API_URL = 'https://ai.inference2.corpus.music/v1/chat/completions'
+export const DEFAULT_MODEL = 'qwen3.8-27b'
+
 const initial: State = {
   version: 1,
   days: {},
   cards: [],
-  settings: { apiKey: '', model: 'claude-opus-5-5', effort: 'medium' },
+  cardLog: [],
+  reviews: {},
+  community: [],
+  profile: { name: 'Julius' },
+  focus: {},
+  settings: { apiUrl: DEFAULT_API_URL, apiKey: '', model: DEFAULT_MODEL, thinking: false },
+}
+
+function migrateSettings(raw: Partial<Settings> | undefined): Settings {
+  const s = { ...initial.settings, ...raw }
+  // Umstieg von Anthropic auf den OpenAI-kompatiblen Endpunkt
+  if (!s.model || s.model.startsWith('claude')) s.model = DEFAULT_MODEL
+  if (s.apiKey.startsWith('sk-ant')) s.apiKey = ''
+  if (!s.apiUrl) s.apiUrl = DEFAULT_API_URL
+  return { apiUrl: s.apiUrl, apiKey: s.apiKey, model: s.model, thinking: !!s.thinking }
+}
+
+function normalize(parsed: Partial<State>): State {
+  return {
+    ...initial,
+    ...parsed,
+    version: 1,
+    profile: { ...initial.profile, ...parsed.profile },
+    focus: { ...parsed.focus },
+    settings: migrateSettings(parsed.settings),
+  }
 }
 
 function load(): State {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return initial
-    const parsed = JSON.parse(raw) as State
-    return { ...initial, ...parsed, settings: { ...initial.settings, ...parsed.settings } }
+    return normalize(JSON.parse(raw) as Partial<State>)
   } catch {
     return initial
   }
@@ -122,7 +187,8 @@ export function today(): string {
 }
 
 export function exportJson(): string {
-  return JSON.stringify(state, null, 2)
+  // Sicherung ohne API-Key, damit sie gefahrlos zwischen Geraeten wandern kann
+  return JSON.stringify({ ...state, settings: { ...state.settings, apiKey: '' } }, null, 2)
 }
 
 export function importJson(text: string) {
@@ -130,9 +196,9 @@ export function importJson(text: string) {
   if (parsed.version !== 1 || typeof parsed.days !== 'object') throw new Error('Keine gültige Sicherung')
   // API-Key des Geraets behalten, wenn die Sicherung keinen hat
   const apiKey = parsed.settings?.apiKey || state.settings.apiKey
-  setState(() => ({ ...initial, ...parsed, settings: { ...initial.settings, ...parsed.settings, apiKey } }))
+  setState(() => normalize({ ...parsed, settings: { ...parsed.settings, apiKey } }))
 }
 
 export function resetAll() {
-  setState((s) => ({ ...initial, settings: s.settings }))
+  setState((s) => ({ ...initial, settings: s.settings, profile: s.profile }))
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { describeError, DONE_MARKER } from '../lib/ai'
+import { stripMarks } from '../lib/stats'
 import type { ChatMsg } from '../lib/store'
 import { Markdown } from './Markdown'
 
@@ -27,7 +28,7 @@ export function Chat({ history, onHistory, send, placeholder, kickoff, disabled,
     setStreaming('')
     try {
       const reply = await send(h, (t) => setStreaming(t))
-      const next = [...h, { role: 'assistant' as const, content: reply }]
+      const next = [...h, { role: 'assistant' as const, content: reply, at: Date.now() }]
       onHistory(next)
       if (reply.includes(DONE_MARKER)) onDone?.()
     } catch (e) {
@@ -40,7 +41,7 @@ export function Chat({ history, onHistory, send, placeholder, kickoff, disabled,
   useEffect(() => {
     if (kickoff && history.length === 0 && !started.current) {
       started.current = true
-      void run([{ role: 'user', content: kickoff }])
+      void run([{ role: 'user', content: kickoff, at: Date.now() }])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -54,7 +55,7 @@ export function Chat({ history, onHistory, send, placeholder, kickoff, disabled,
     const t = input.trim()
     if (!t || streaming !== null) return
     setInput('')
-    void run([...history, { role: 'user', content: t }])
+    void run([...history, { role: 'user', content: t, at: Date.now() }])
   }
 
   const last = history[history.length - 1]
@@ -65,12 +66,12 @@ export function Chat({ history, onHistory, send, placeholder, kickoff, disabled,
       <div className="chat-log" ref={logRef}>
         {history.map((m, i) => (
           <div key={i} className={`msg ${m.role}`}>
-            {m.role === 'assistant' ? <Markdown text={m.content.replace(DONE_MARKER, '').trim()} /> : <p>{m.content}</p>}
+            {m.role === 'assistant' ? <Markdown text={stripMarks(m.content)} /> : <p>{m.content}</p>}
           </div>
         ))}
         {streaming !== null && (
           <div className="msg assistant">
-            {streaming ? <Markdown text={streaming.replace(DONE_MARKER, '')} /> : <span className="typing">denkt nach …</span>}
+            {streaming ? <Markdown text={stripMarks(streaming)} /> : <span className="typing">denkt nach …</span>}
           </div>
         )}
         {error && (

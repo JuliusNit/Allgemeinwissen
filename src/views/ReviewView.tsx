@@ -1,132 +1,141 @@
-import { useState } from 'react'
-import { AREAS, DAYS, getDay } from '../data/plan'
-import { addCards, deleteCard, dueCards, intervalLabel, rateCard, type Rating } from '../lib/srs'
-import { dayState, useStore } from '../lib/store'
+import { useEffect, useRef, useState } from 'react'
+import { getDay } from '../data/plan'
+import { reviewNode, reviewReady } from '../lib/path'
+import { dueCards, intervalLabel, rateCard, type Rating } from '../lib/srs'
+import { getState, setState, today, useStore } from '../lib/store'
+import { CoinBadge } from '../components/Coin'
+import { Icon } from '../components/Icons'
+import { Frame } from '../components/Ink'
 import { Markdown } from '../components/Markdown'
 
-type Seg = 'karten' | 'zusammenfassungen' | 'stapel'
-
-export function ReviewView({ openDay }: { openDay: (n: number) => void }) {
-  const [seg, setSeg] = useState<Seg>('karten')
-  const cards = useStore((s) => s.cards)
-  const due = dueCards(cards)
-  return (
-    <div className="review">
-      <h1>Wiederholen</h1>
-      <div className="tabs">
-        <button className={seg === 'karten' ? 'active' : ''} onClick={() => setSeg('karten')}>Fällig ({due.length})</button>
-        <button className={seg === 'zusammenfassungen' ? 'active' : ''} onClick={() => setSeg('zusammenfassungen')}>Zusammenfassungen</button>
-        <button className={seg === 'stapel' ? 'active' : ''} onClick={() => setSeg('stapel')}>Alle Karten ({cards.length})</button>
-      </div>
-      {seg === 'karten' && <Session />}
-      {seg === 'zusammenfassungen' && <Summaries openDay={openDay} />}
-      {seg === 'stapel' && <Deck />}
-    </div>
-  )
+/** Karten fuer eine Station: alle Karten der abgedeckten Sessions (gemischt) + faellige Karten (max. 20) */
+function buildQueue(id: string): string[] {
+  const s = getState()
+  const node = reviewNode(id)
+  const due = dueCards(s.cards).map((c) => c.id)
+  if (!node) return due
+  const own = s.cards.filter((c) => node.days.includes(c.day)).map((c) => c.id)
+  const extra = due.filter((x) => !own.includes(x)).slice(0, 20)
+  return shuffle([...own, ...extra])
 }
 
-function Session() {
-  const cards = useStore((s) => s.cards)
-  const due = dueCards(cards)
-  const [flipped, setFlipped] = useState(false)
-  const card = due[0]
+function shuffle<T>(a: T[]): T[] {
+  const r = [...a]
+  for (let i = r.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[r[i], r[j]] = [r[j], r[i]]
+  }
+  return r
+}
 
-  if (!card) {
-    const next = cards.map((c) => c.due).sort()[0]
+export function ReviewView({ id, go }: { id: string; go: (hash: string) => void }) {
+  const node = reviewNode(id)
+  const ready = useStore((s) => (node ? reviewReady(s, node) : true))
+  const doneAt = useStore((s) => s.reviews[id])
+  const cards = useStore((s) => s.cards)
+  const [queue, setQueue] = useState<string[]>(() => buildQueue(id))
+  const [stats, setStats] = useState({ ok: 0, again: 0 })
+  const [flipped, setFlipped] = useState(false)
+  const shownAt = useRef(0)
+  const revealMs = useRef(0)
+
+  const title = node ? `Wiederholung · Tag ${node.days[0]}–${node.days[node.days.length - 1]}` : 'Fällige Karten'
+  const card = cards.find((c) => c.id === queue[0])
+
+  // Zeit bis zum Aufdecken messen, ab dem Moment, in dem die Karte erscheint
+  useEffect(() => {
+    shownAt.current = Date.now()
+  }, [queue])
+
+  function reveal() {
+    revealMs.current = Date.now() - shownAt.current
+    setFlipped(true)
+  }
+
+  function rate(r: Rating) {
+    if (!card) return
+    rateCard(card.id, r, revealMs.current)
+    setStats((x) => (r === 0 ? { ...x, again: x.again + 1 } : { ...x, ok: x.ok + 1 }))
+    // "Nochmal" kommt ans Ende der Runde (Lernschritt), sonst raus
+    const rest = queue.slice(1)
+    const next = r === 0 ? [...rest, card.id] : rest
+    setQueue(next)
+    setFlipped(false)
+    if (!next.length && node) setState((s) => ({ ...s, reviews: { ...s.reviews, [id]: s.reviews[id] ?? today() } }))
+  }
+
+  const head = (
+    <div className="page-head">
+      <button className="icon-btn" onClick={() => go('/')} aria-label="Zurück zum Lernpfad"><Icon name="BACK" size={26} /></button>
+      <CoinBadge icon="REVIEW" size={52} />
+      <div>
+        <h1>{title}</h1>
+        {node && <p className="muted small">{node.days.map((d) => getDay(d).title.split(/[:(]/)[0].trim()).join(' · ')}</p>}
+      </div>
+    </div>
+  )
+
+  if (node && !ready) {
     return (
-      <div className="card empty">
-        <p className="big">Alles wiederholt ✓</p>
-        <p className="muted">{cards.length ? `Nächste Karte fällig am ${next}.` : 'Karteikarten entstehen automatisch, wenn du eine Session abschließt.'}</p>
+      <div className="review">
+        {head}
+        <Frame className="card empty">
+          <p>Diese Station öffnet sich, wenn die Sessions <b>Tag {node.days.join(', ')}</b> abgeschlossen sind.</p>
+          <p className="muted small">Abrufen statt Wiederlesen: hier werden die Karteikarten dieser Sessions gemischt abgefragt, dazu alles, was laut Wiederholungsplan fällig ist.</p>
+        </Frame>
       </div>
     )
   }
-  const d = getDay(card.day)
-  function rate(r: Rating) {
-    rateCard(card.id, r)
-    setFlipped(false)
-  }
-  return (
-    <div className="card flash">
-      <div className="flash-meta">
-        <span className="badge" style={{ background: AREAS[d.area].color }}>{d.area}</span>
-        <span className="muted">Tag {d.day} · {d.title.split(':')[0]}</span>
-        <span className="muted right">{due.length} fällig</span>
-      </div>
-      <p className="flash-q">{card.q}</p>
-      {flipped ? (
-        <>
-          <div className="flash-a"><Markdown text={card.a} /></div>
-          <div className="rate">
-            {(['Nochmal', 'Schwer', 'Gut', 'Leicht'] as const).map((label, i) => (
-              <button key={label} className={`btn rate-${i}`} onClick={() => rate(i as Rating)}>
-                {label}<small>{intervalLabel(card, i as Rating)}</small>
-              </button>
-            ))}
-          </div>
-        </>
-      ) : (
-        <button className="btn primary wide" onClick={() => setFlipped(true)}>Antwort zeigen</button>
-      )}
-      <p className="muted small">Erst selbst laut beantworten (Active Recall), dann aufdecken.</p>
-    </div>
-  )
-}
 
-function Summaries({ openDay }: { openDay: (n: number) => void }) {
-  const s = useStore((x) => x)
-  const done = DAYS.filter((d) => dayState(s, d.day).summary)
-  const [open, setOpen] = useState<number | null>(null)
-  if (!done.length) return <div className="card empty"><p className="muted">Noch keine Zusammenfassungen – sie entstehen nach jeder abgeschlossenen Session.</p></div>
-  return (
-    <div>
-      {done.map((d) => (
-        <section key={d.day} className="card">
-          <button className="summary-head" onClick={() => setOpen(open === d.day ? null : d.day)}>
-            <span className="badge" style={{ background: AREAS[d.area].color }}>{d.area}</span>
-            <span>Tag {d.day} · {d.title}</span>
-            <span className="muted right">{open === d.day ? '▲' : '▼'}</span>
-          </button>
-          {open === d.day && (
+  if (!card) {
+    const finished = stats.ok + stats.again > 0
+    return (
+      <div className="review">
+        {head}
+        <Frame className="card empty">
+          <p className="big">{finished || doneAt ? 'Station geschafft ✓' : 'Keine Karten'}</p>
+          {finished && <p className="muted">{stats.ok} gewusst · {stats.again}× nochmal</p>}
+          {!finished && !doneAt && node && (
             <>
-              <Markdown text={dayState(s, d.day).summary!} />
-              <button className="btn ghost small" onClick={() => openDay(d.day)}>Zur Session</button>
+              <p className="muted">Für diese Sessions gibt es noch keine Karteikarten.</p>
+              <button className="btn" onClick={() => setState((s) => ({ ...s, reviews: { ...s.reviews, [id]: today() } }))}>Trotzdem abhaken</button>
             </>
           )}
-        </section>
-      ))}
-    </div>
-  )
-}
+          {doneAt && !finished && <p className="muted">Erledigt am {doneAt}. <button className="btn small" onClick={() => setQueue(buildQueue(id))}>Nochmal üben</button></p>}
+          <button className="btn primary" onClick={() => go('/')}>Zum Lernpfad</button>
+        </Frame>
+      </div>
+    )
+  }
 
-function Deck() {
-  const cards = useStore((s) => s.cards)
-  const [q, setQ] = useState('')
-  const [a, setA] = useState('')
-  const [day, setDay] = useState(1)
+  const d = getDay(card.day)
   return (
-    <div>
-      <section className="card">
-        <h2>Eigene Karte</h2>
-        <select value={day} onChange={(e) => setDay(Number(e.target.value))}>
-          {DAYS.map((d) => <option key={d.day} value={d.day}>Tag {d.day} · {d.title}</option>)}
-        </select>
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Frage" />
-        <textarea value={a} onChange={(e) => setA(e.target.value)} placeholder="Antwort" rows={2} />
-        <button className="btn primary" disabled={!q.trim() || !a.trim()} onClick={() => { addCards(day, [{ q: q.trim(), a: a.trim() }]); setQ(''); setA('') }}>Hinzufügen</button>
-      </section>
-      <ul className="deck">
-        {[...cards].sort((x, y) => x.day - y.day).map((c) => (
-          <li key={c.id} className="card">
-            <div className="flash-meta">
-              <span className="badge" style={{ background: AREAS[getDay(c.day).area].color }}>{getDay(c.day).area}</span>
-              <span className="muted">Tag {c.day} · fällig {c.due}</span>
-              <button className="btn ghost small right" onClick={() => confirm('Karte löschen?') && deleteCard(c.id)}>Löschen</button>
+    <div className="review">
+      {head}
+      <Frame className="card flash">
+        <div className="flash-meta">
+          <Icon name={d.area} size={22} />
+          <span className="muted small">Tag {d.day} · {d.title.split(/[:(]/)[0].trim()}</span>
+          <span className="muted small right">noch {queue.length}</span>
+        </div>
+        <p className="flash-q">{card.q}</p>
+        {flipped ? (
+          <>
+            <div className="flash-a"><Markdown text={card.a} /></div>
+            <div className="rate">
+              {(['Nochmal', 'Schwer', 'Gut', 'Leicht'] as const).map((l, i) => (
+                <button key={l} className={`btn rate-${i}`} onClick={() => rate(i as Rating)}>
+                  {l}
+                  <small>{intervalLabel(card, i as Rating)}</small>
+                </button>
+              ))}
             </div>
-            <p><b>{c.q}</b></p>
-            <p className="muted">{c.a}</p>
-          </li>
-        ))}
-      </ul>
+          </>
+        ) : (
+          <button className="btn primary wide" onClick={reveal}>Antwort zeigen</button>
+        )}
+        <p className="muted small">Erst selbst beantworten (Active Recall), dann aufdecken.</p>
+      </Frame>
     </div>
   )
 }
