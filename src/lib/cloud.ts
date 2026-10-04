@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js'
 import { parseLevel, type Level } from '../data/school'
 import type { Video } from '../data/plan'
-import { getState, resetAll, setState } from './store'
+import { getState, resetAll, setState, useStore } from './store'
 
 // Supabase: Konten (E-Mail + Passwort), Rollen (user | editor), Austausch-Chat und die vom Editor
 // gepflegten Videolisten. Adresse + Publishable Key kommen beim Bauen aus der lokalen .env
@@ -319,4 +319,22 @@ export async function saveDayVideos(day: number, videos: Video[] | null) {
     })
     throw new Error(`Speichern fehlgeschlagen: ${error.message}`)
   }
+}
+
+// ---------- KI ueber den Server ----------
+
+/** Zugang zum KI-Proxy (Edge Function "ki") fuer angemeldete Konten; null ohne Server/Konto */
+export async function kiProxy(): Promise<{ url: string; headers: Record<string, string> } | null> {
+  if (!cloud || !url || !key || !auth.user) return null
+  const { data } = await cloud.auth.getSession()
+  const token = data.session?.access_token
+  if (!token) return null
+  return { url: `${url.replace(/\/$/, '')}/functions/v1/ki`, headers: { Authorization: `Bearer ${token}`, apikey: key } }
+}
+
+/** KI nutzbar: eigener Key – oder angemeldet mit Server (dann ueber den Proxy) */
+export function useAiReady(): boolean {
+  const a = useAuth()
+  const ownKey = useStore((s) => !!s.settings.apiKey)
+  return ownKey || (!!cloud && !!a.user)
 }

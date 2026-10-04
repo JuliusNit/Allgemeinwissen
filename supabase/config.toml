@@ -1,0 +1,5 @@
+# Nur fuer "npx supabase functions deploy". Das Konto wird in der Funktion selbst geprueft.
+project_id = "allgemeinwissen"
+
+[functions.ki]
+verify_jwt = false

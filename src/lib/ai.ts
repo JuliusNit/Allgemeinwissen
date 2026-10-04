@@ -1,5 +1,6 @@
 import { AREAS, BLOCKS, DAYS, getDay, isBlockMix, type AreaId, type Day } from '../data/plan'
 import { blockName, isRepeat, levelLabel, SCHOOL_GRADE } from '../data/school'
+import { kiProxy } from './cloud'
 import { DONE_MARKER, statsTable } from './stats'
 import { dayState, getState, videoNotesText, videosOf, type ChatMsg } from './store'
 
@@ -33,20 +34,30 @@ function body(messages: Msg[], maxTokens: number, extra: Record<string, unknown>
 
 async function post(payload: unknown): Promise<Response> {
   const { apiUrl, apiKey } = getState().settings
-  if (!apiKey) throw new ApiError('Kein API-Key hinterlegt – bitte unter „Profil → KI“ eintragen.')
+  // eigener Key → direkt; sonst ueber den KI-Proxy des Servers (Key liegt nur dort)
+  const proxy = apiKey ? null : await kiProxy()
+  if (!apiKey && !proxy) throw new ApiError('Für die KI bitte anmelden – oder unter „Profil → KI“ einen eigenen Key eintragen.')
   let res: Response
   try {
-    res = await fetch(apiUrl, {
+    res = await fetch(proxy ? proxy.url : apiUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      headers: { 'Content-Type': 'application/json', ...(proxy ? proxy.headers : { Authorization: `Bearer ${apiKey}` }) },
       body: JSON.stringify(payload),
     })
   } catch {
-    throw new ApiError('Keine Verbindung zur KI – Internet bzw. API-Adresse prüfen.')
+    throw new ApiError(proxy ? 'Keine Verbindung zum KI-Server.' : 'Keine Verbindung zur KI – Internet bzw. API-Adresse prüfen.')
   }
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    if (res.status === 401 || res.status === 403) throw new ApiError('API-Key ungültig – bitte im Profil prüfen.', res.status)
+    let msg: string | undefined
+    try {
+      msg = (JSON.parse(text) as { error?: string }).error
+    } catch {
+      msg = undefined
+    }
+    if (proxy && res.status === 404) throw new ApiError('KI-Server noch nicht eingerichtet (Edge Function „ki“ fehlt).', 404)
+    if (proxy && msg) throw new ApiError(msg, res.status)
+    if (res.status === 401 || res.status === 403) throw new ApiError(proxy ? 'Bitte neu anmelden.' : 'API-Key ungültig – bitte im Profil prüfen.', res.status)
     if (res.status === 429) throw new ApiError('Zu viele Anfragen – kurz warten und erneut versuchen.', res.status)
     throw new ApiError(`API-Fehler ${res.status}: ${text.slice(0, 200)}`, res.status)
   }

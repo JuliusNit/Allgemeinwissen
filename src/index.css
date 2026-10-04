@@ -415,3 +415,4 @@ details summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
 .level-note { margin: 10px 0 0; }
 .chip.repeat { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
 span.star { cursor: default; }
+.own-ai summary { cursor: pointer; font-weight: 600; margin: 6px 0; }

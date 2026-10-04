@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { AREAS, DAYS } from '../data/plan'
 import { adviseFocus, describeError } from '../lib/ai'
 import { areaStats, STAT_AREAS } from '../lib/stats'
-import { cloud, saveDayVideos, saveLevel, signOut, useAuth } from '../lib/cloud'
+import { cloud, saveDayVideos, saveLevel, signOut, useAiReady, useAuth } from '../lib/cloud'
 import { DEFAULT_API_URL, DEFAULT_MODEL, dayState, exportJson, getState, videosOf, importJson, resetAll, setState, today, useStore, type Settings } from '../lib/store'
 import { Avatar } from '../components/Avatar'
 import { Icon } from '../components/Icons'
@@ -67,7 +67,7 @@ export function ProfileView() {
 function Strengths() {
   const s = useStore((x) => x)
   const focus = s.focus
-  const hasKey = !!s.settings.apiKey
+  const hasKey = useAiReady()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const done = DAYS.filter((d) => dayState(s, d.day).status === 'fertig').length
@@ -147,6 +147,9 @@ function AiSettings() {
   return (
     <Frame className="card">
       <h2>KI</h2>
+      {cloud && <p className="muted small">Mit Konto läuft die KI über den App-Server – kein eigener Key nötig.</p>}
+      <details className="own-ai" open={!cloud || !!settings.apiKey}>
+      <summary className="small">Eigener KI-Zugang {cloud ? '(optional)' : ''}</summary>
       <label>API-Key</label>
       <div className="row">
         <input type={show ? 'text' : 'password'} value={settings.apiKey} onChange={(e) => patch({ apiKey: e.target.value.trim() })} placeholder="sk-…" autoComplete="off" />
@@ -161,11 +164,12 @@ function AiSettings() {
         <option value="qwen3.8-27b" />
         <option value="qwen3.6-27b" />
       </datalist>
+      <button className="btn ghost small" onClick={() => patch({ apiUrl: DEFAULT_API_URL, model: DEFAULT_MODEL })}>Standard wiederherstellen</button>
+      </details>
       <label className="check-label">
         <input type="checkbox" checked={settings.thinking} onChange={(e) => patch({ thinking: e.target.checked })} />
         Denkmodus – gründlicher, aber langsamer
       </label>
-      <button className="btn ghost small" onClick={() => patch({ apiUrl: DEFAULT_API_URL, model: DEFAULT_MODEL })}>Standard wiederherstellen</button>
     </Frame>
   )
 }

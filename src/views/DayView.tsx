@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AREAS, BLOCKS, getDay, isBlockMix, youtubeSearch, type Video } from '../data/plan'
 import { anchorChat, checkChat, describeError, DONE_MARKER, makeSummary, questionsChat } from '../lib/ai'
-import { saveDayVideos, useCanEdit } from '../lib/cloud'
+import { saveDayVideos, useAiReady, useCanEdit } from '../lib/cloud'
 import { blockName, isRepeat, SCHOOL_GRADE } from '../data/school'
 import { addCards } from '../lib/srs'
 import { dayState, sortNotes, today, updateDay, useStore, videosOf } from '../lib/store'
@@ -31,7 +31,7 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
   const ds = useStore((s) => dayState(s, day))
   const videos = useStore((s) => videosOf(s, day))
   const statuses = useStore((s) => s.days)
-  const hasKey = useStore((s) => !!s.settings.apiKey)
+  const hasKey = useAiReady()
   const level = useStore((s) => s.level)
   const canEdit = useCanEdit()
   const repeat = isRepeat(level, day)
@@ -127,7 +127,7 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
       {repeat && ds.status !== 'fertig' && (
         <div className="notice">Kennst du aus der Schule. Die Videos sind nur zum Auffrischen – du kannst direkt mit Anknüpfen und Verständnischeck starten. Der Check sucht Lücken und verknüpft den Stoff mit Neuem.</div>
       )}
-      {!hasKey && <div className="notice">Für Anknüpfen, Fragen und Verständnischeck den API-Key unter <b>Profil → KI</b> eintragen.</div>}
+      {!hasKey && <div className="notice">Für Anknüpfen, Fragen und Verständnischeck bitte anmelden – oder unter <b>Profil → KI</b> einen eigenen Key eintragen.</div>}
       {error && <div className="chat-error">{error}</div>}
 
       <Frame className="card">
@@ -248,7 +248,7 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
         {tab === 'check' && (
           <>
             {(ds.check?.length ?? 0) === 0 && !hasKey ? (
-              <p className="muted">API-Key fehlt.</p>
+              <p className="muted">KI nicht verfügbar – bitte anmelden.</p>
             ) : (
               <Chat
                 key={`c-${day}-${checkGen}`}

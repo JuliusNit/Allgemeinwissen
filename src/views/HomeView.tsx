@@ -5,7 +5,7 @@ import { blockName, isRepeat, type Level } from '../data/school'
 import { currentNode, nodeDone, PATH, reviewReady, type PathNode } from '../lib/path'
 import { dueCards } from '../lib/srs'
 import { dayState, useStore } from '../lib/store'
-import { Coin, COIN_D, COIN_R, type CoinState } from '../components/Coin'
+import { Coin, COIN_D, COIN_R, COIN_RY, type CoinState } from '../components/Coin'
 import { Icon, type IconName } from '../components/Icons'
 import { InkPaths } from '../components/Ink'
 
@@ -45,8 +45,8 @@ const CONNECTORS: Stroke[] = (() => {
   for (let i = 0; i < placed.length - 1; i++) {
     const a = placed[i]
     const b = placed[i + 1]
-    const y0 = a.y + COIN_R + COIN_D + 9
-    const y1 = b.y - COIN_R - 10
+    const y0 = a.y + COIN_RY + COIN_D + 9
+    const y1 = b.y - COIN_RY - 10
     if (b.blockStart) {
       // Blockwechsel: Linie laeuft aus, Punkte, neuer Block beginnt
       out.push(bez([a.x, y0], [a.x, y0 + 26], [CX, y0 + 18], [CX, y0 + 32]))
@@ -166,7 +166,7 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
               }}
             >
               <g transform={`translate(${p.x} ${p.y})`}>
-                <circle r={COIN_R + 6} cy={COIN_D / 2} className="hit" />
+                <ellipse rx={COIN_R + 6} ry={COIN_RY + 6} cy={COIN_D / 2} className="hit" />
                 <Coin icon={iconOf(n)} state={st} pressed={pressed === n.id} />
               </g>
               <text x={tx} y={p.y - 6 - (lines.length - 1) * 7} textAnchor={right ? 'start' : 'end'} className="node-label">

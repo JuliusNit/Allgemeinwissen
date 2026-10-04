@@ -1,28 +1,33 @@
-import { arc, circle, line, type Stroke } from '../lib/ink'
+import { arc, circle, ellipse, line, type Stroke } from '../lib/ink'
 import { IconGroup, type IconName } from './Icons'
 import { InkPaths } from './Ink'
 
-// Knopf auf dem Lernpfad: perfekter Kreis als Oberseite, darunter der Muenzrand mit senkrechten
+// Knopf auf dem Lernpfad: leicht gestauchte Ellipse als Oberseite (Blick minimal schraeg von oben), darunter der Muenzrand mit senkrechten
 // Schattenlinien. Beim Druecken sinkt die Oberseite nach unten und verdeckt den Rand.
 
 export const COIN_R = 36
 export const COIN_D = 11
+/** Stauchung der Oberseite: 1 = Draufsicht, kleiner = flacherer Blickwinkel */
+export const COIN_TILT = 0.9
+/** halbe Hoehe der Oberseite */
+export const COIN_RY = COIN_R * COIN_TILT
 
 const R = COIN_R
+const RY = COIN_RY
 const D = COIN_D
 
 const RIM: Stroke[] = (() => {
-  const s: Stroke[] = [arc(0, D, R, 0, 180), line([R, 0], [R, D]), line([-R, 0], [-R, D])]
+  const s: Stroke[] = [arc(0, D, R, 0, 180, undefined, RY), line([R, 0], [R, D]), line([-R, 0], [-R, D])]
   for (let x = -R + 4.5; x <= R - 4.5; x += 4.5) {
-    const y = Math.sqrt(R * R - x * x)
+    const y = COIN_TILT * Math.sqrt(R * R - x * x)
     s.push(line([x, y + 1.6], [x, y + D - 0.4], 0.42))
   }
   return s
 })()
 
-const FACE: Stroke[] = [circle(0, 0, R)]
+const FACE: Stroke[] = [ellipse(0, 0, R, RY)]
 
-const RING: Stroke[] = Array.from({ length: 14 }, (_, i) => arc(0, D / 2, R + 9, i * (360 / 14), i * (360 / 14) + 13, 0.7))
+const RING: Stroke[] = Array.from({ length: 14 }, (_, i) => arc(0, D / 2, R + 9, i * (360 / 14), i * (360 / 14) + 13, 0.7, (R + 9) * COIN_TILT))
 
 const BADGE: Stroke[] = [circle(0, 0, 10)]
 
@@ -34,11 +39,11 @@ export function Coin({ icon, state, pressed, scale = 1 }: { icon: IconName; stat
       {state === 'current' && <InkPaths strokes={RING} w={2.6} />}
       <InkPaths strokes={RIM} w={2.8} />
       <g className="coin-face">
-        <circle r={R} fill="#fff" />
+        <ellipse rx={R} ry={RY} fill="#fff" />
         <InkPaths strokes={FACE} w={3.1} />
-        <IconGroup name={icon} w={1.5} transform="translate(-23.5 -23.5) scale(1.958)" />
+        <IconGroup name={icon} w={1.5} transform={`translate(-23.5 ${-23.5 * COIN_TILT}) scale(1.958 ${1.958 * COIN_TILT})`} />
         {state === 'done' && (
-          <g transform={`translate(${R * 0.74} ${-R * 0.74})`}>
+          <g transform={`translate(${R * 0.74} ${-RY * 0.74})`}>
             <circle r={10} fill="#fff" />
             <InkPaths strokes={BADGE} w={2.2} />
             <IconGroup name="CHECK" w={2} transform="translate(-6.6 -6.6) scale(0.55)" />

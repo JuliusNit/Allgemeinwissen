@@ -23,7 +23,9 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Pause beim Tippen, letzte Position (`videoPos`). Suchlinks lassen sich nicht einbetten → dort Video wählen + Link einfügen.
 - `src/lib/store.ts` – gesamter Zustand in localStorage (`allgemeinwissen-v1`), Export/Import für Gerätewechsel (ohne API-Key).
   Enthält auch Profil (Name, Bild), Kartenprotokoll, Wiederholungs-Stationen, Community-Nachrichten, Spezialisierungswahl.
-- `src/lib/ai.ts` – OpenAI-kompatibler Endpunkt per fetch/SSE direkt aus dem Browser. Standard: Qwen `qwen3.8-27b` auf
+- `src/lib/ai.ts` – OpenAI-kompatibler Endpunkt per fetch/SSE direkt aus dem Browser. Ohne eigenen Key geht jede Anfrage über den
+  KI-Proxy `supabase/functions/ki` (Edge Function, Key als Secret `LLM_KEY`, nur für angemeldete Konten, Tageslimit
+  `KI_DAILY_LIMIT` über `003_ki_limit.sql`). Standard: Qwen `qwen3.8-27b` auf
   `ai.inference2.corpus.music` (vLLM, CORS offen). **Key nie ins Repo** – Julius trägt ihn unter Profil → KI ein.
   Modi: Anknüpfen, Fragen, Verständnischeck (Ende über `[[SESSION_ABGESCHLOSSEN]]`, Bewertung je Antwort über
   `[[BEWERTUNG: richtig|teilweise|falsch | 1-5]]`), Lernzettel + Karten (json_schema), Stärkenberatung, Kanal-Chat.
