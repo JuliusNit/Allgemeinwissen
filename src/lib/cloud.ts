@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { getState } from './store'
 
-// Supabase fuer den Austausch-Chat. Adresse + Publishable Key kommen beim Bauen aus .env.local
+// Supabase fuer den Austausch-Chat. Adresse + Publishable Key kommen beim Bauen aus der lokalen .env
 // (VITE_SUPABASE_URL, VITE_SUPABASE_KEY). Ohne Konfiguration laeuft der Chat nur lokal.
 // Der Publishable Key ist oeffentlich gedacht; geschuetzt wird ueber Row Level Security (supabase/schema.sql).
 

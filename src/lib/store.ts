@@ -88,6 +88,9 @@ const KEY = 'allgemeinwissen-v1'
 export const DEFAULT_API_URL = 'https://ai.inference2.corpus.music/v1/chat/completions'
 export const DEFAULT_MODEL = 'qwen3.8-27b'
 
+// Key aus der lokalen .env nur im Dev-Server; im Build ist DEV false und der Zweig faellt weg
+const DEV_KEY: string = import.meta.env.DEV ? (import.meta.env.VITE_DEV_LLM_KEY ?? '') : ''
+
 const initial: State = {
   version: 1,
   days: {},
@@ -97,7 +100,7 @@ const initial: State = {
   community: [],
   profile: { name: 'Julius' },
   focus: {},
-  settings: { apiUrl: DEFAULT_API_URL, apiKey: '', model: DEFAULT_MODEL, thinking: false },
+  settings: { apiUrl: DEFAULT_API_URL, apiKey: DEV_KEY, model: DEFAULT_MODEL, thinking: false },
 }
 
 function migrateSettings(raw: Partial<Settings> | undefined): Settings {
@@ -105,6 +108,7 @@ function migrateSettings(raw: Partial<Settings> | undefined): Settings {
   // Umstieg von Anthropic auf den OpenAI-kompatiblen Endpunkt
   if (!s.model || s.model.startsWith('claude')) s.model = DEFAULT_MODEL
   if (s.apiKey.startsWith('sk-ant')) s.apiKey = ''
+  if (!s.apiKey) s.apiKey = DEV_KEY
   if (!s.apiUrl) s.apiUrl = DEFAULT_API_URL
   return { apiUrl: s.apiUrl, apiKey: s.apiKey, model: s.model, thinking: !!s.thinking }
 }

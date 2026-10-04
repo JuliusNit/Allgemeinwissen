@@ -28,8 +28,9 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 - Design: schwarz auf weiß, Schraffur statt Flächen, Farbe nur grün/rot in der Statistik. Navigation unten:
   [frei] · Austausch · Home (Lernpfad) · Statistik · Profil.
 - `src/lib/cloud.ts` + `supabase/schema.sql` – Austausch-Chat über Supabase (anonyme Anmeldung, RLS, Realtime).
-  Konfiguration beim Bauen aus `.env.local` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY` = Publishable Key, gitignored).
-  Ohne `.env.local` läuft der Chat nur lokal – vor `npm run deploy` also prüfen, dass sie existiert.
+  Konfiguration beim Bauen aus der lokalen `.env` (gitignored): `VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY` (Publishable Key).
+  Ohne Werte läuft der Chat nur lokal – vor `npm run deploy` prüfen. `VITE_DEV_LLM_KEY` gilt nur für `npm run dev`
+  und darf nie in den Build gelangen (nach dem Build `dist/` auf `sk-` prüfen).
 - `src/components/Markdown.tsx` – eigener Renderer ohne innerHTML.
 - `scripts/icons.mjs` – erzeugt PWA-Icons; `scripts/deploy.mjs` – Deploy auf gh-pages.
 
