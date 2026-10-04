@@ -4,7 +4,7 @@ import { InkPaths } from './Ink'
 
 // Alle Icons im 24er-Raster, gezeichnet mit der Tusche-Feder aus lib/ink.
 
-export type IconName = AreaId | 'REVIEW' | 'HOME' | 'STATS' | 'PROFILE' | 'CHAT' | 'CHECK' | 'LOCK' | 'BACK'
+export type IconName = AreaId | 'REVIEW' | 'HOME' | 'STATS' | 'PROFILE' | 'CHAT' | 'CHECK' | 'LOCK' | 'BACK' | 'BOLT' | 'CRYSTAL' | 'MAIL'
 
 interface IconDef {
   strokes: Stroke[]
@@ -205,6 +205,22 @@ const DEFS: Record<IconName, IconDef> = {
   CHECK: { strokes: poly([[4.6, 12.6], [9.8, 17.6], [19.6, 6]]) },
   LOCK: { strokes: [roundRect(5, 11, 14, 10, 2), arc(12, 11, 4.4, 180, 360), line([12, 15], [12, 17.4], 1.2)] },
   BACK: { strokes: [line([20, 12], [4.4, 12]), ...poly([[10.4, 5.6], [4, 12], [10.4, 18.4]])] },
+
+  // Einfuehrung: fluide Intelligenz (Blitz) und kristalline Intelligenz (Kristall)
+  BOLT: {
+    strokes: poly([[14, 2.4], [5, 13.6], [11.4, 13.6], [9.8, 21.6], [19, 10], [12.6, 10]], true),
+    fill: 'M14 2.4L5 13.6H11.4L9.8 21.6L19 10H12.6Z',
+  },
+  CRYSTAL: {
+    strokes: [
+      ...poly([[12, 2.4], [18, 7.6], [17, 17.4], [12, 21.6], [7, 17.4], [6, 7.6]], true),
+      ...poly([[6, 7.6], [12, 10.4], [18, 7.6]]),
+      line([12, 10.4], [12, 21.6], 0.9),
+      line([12, 2.4], [12, 10.4], 0.7),
+    ],
+    fill: 'M12 2.4L18 7.6L17 17.4L12 21.6L7 17.4L6 7.6Z',
+  },
+  MAIL: { strokes: [roundRect(2.6, 5, 18.8, 14, 2.4), ...poly([[3.4, 6.2], [12, 13], [20.6, 6.2]])] },
 }
 
 export function Icon({ name, size = 28, w = 1.55, hatched = false, title }: { name: IconName; size?: number; w?: number; hatched?: boolean; title?: string }) {

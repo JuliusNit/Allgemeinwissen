@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { AREAS, type AreaId } from './data/plan'
 import { dueCards } from './lib/srs'
+import { cloud, useAuth } from './lib/cloud'
 import { useStore } from './lib/store'
 import { Icon, type IconName } from './components/Icons'
 import { HatchDefs } from './components/Ink'
 import { CommunityView } from './views/CommunityView'
 import { DayView } from './views/DayView'
 import { HomeView } from './views/HomeView'
+import { Onboarding } from './views/Onboarding'
 import { ProfileView } from './views/ProfileView'
 import { ReviewView } from './views/ReviewView'
 import { StatsView } from './views/StatsView'
@@ -50,6 +52,8 @@ let videoFromSession = false
 export default function App() {
   const [route, setRoute] = useState<Route>(parseHash)
   const due = useStore((s) => dueCards(s.cards).length)
+  const hasLevel = useStore((s) => !!s.level)
+  const auth = useAuth()
 
   useEffect(() => {
     // Video-Ansicht liegt ueber der Session: beim Oeffnen/Schliessen Scrollposition behalten
@@ -67,6 +71,17 @@ export default function App() {
 
   const go = (hash: string) => {
     location.hash = hash
+  }
+
+  // Erst Einfuehrung + Konto (mit Server) bzw. Wissensstand (ohne Server)
+  if (!auth.ready) return <div className="app"><HatchDefs /></div>
+  if ((cloud && (!auth.user || auth.recovery)) || !hasLevel) {
+    return (
+      <div className="app onboarding">
+        <HatchDefs />
+        <Onboarding />
+      </div>
+    )
   }
 
   return (

@@ -361,3 +361,57 @@ details summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
   .card { padding: 15px; }
 }
 .cmsg-del { padding: 0 4px; font-size: 0.75rem; font-weight: 400; color: var(--muted); }
+
+/* Einfuehrung & Konto */
+.app.onboarding { padding-bottom: 32px; }
+.onb { max-width: 460px; margin: 0 auto; }
+.onb-brand { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1.25rem; margin: 18px 0 16px; }
+.onb-slides { min-height: calc(100dvh - 44px); display: flex; flex-direction: column; padding-top: 8px; }
+.onb-top { display: flex; align-items: center; justify-content: space-between; min-height: 34px; }
+.onb-slide { flex: 1; margin: 8px 0 14px; animation: onb-in 220ms ease-out; }
+.onb-slide h1 { font-size: 1.55rem; margin-bottom: 14px; }
+@keyframes onb-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .onb-slide { animation: none; } }
+.onb-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 12px; }
+.onb-feature { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 12px 6px; border: 2px solid var(--ink); border-radius: 14px; }
+.onb-feature p { margin: 0; }
+.onb-chart { width: 100%; height: auto; display: block; margin: 4px 0 10px; }
+.chart-t { font-size: 11px; fill: var(--muted); }
+.chart-l { font-size: 13px; font-weight: 700; fill: var(--ink); }
+.onb-rating { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1.5px solid var(--faint); }
+.onb-rating p { margin: 2px 0 0; }
+.onb-rating-head { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.dots { display: inline-flex; gap: 4px; }
+.dots span { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ink); }
+.dots span.on { background: var(--ink); }
+.onb-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+.onb-list li { display: flex; gap: 12px; align-items: flex-start; }
+.onb-dots { display: flex; justify-content: center; gap: 10px; margin-bottom: 14px; }
+.onb-dots button { width: 12px; height: 12px; padding: 0; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); cursor: pointer; }
+.onb-dots button.on { background: repeating-linear-gradient(45deg, var(--ink) 0 1.5px, transparent 1.5px 3.5px); width: 26px; border-radius: 8px; }
+.onb-actions { display: flex; flex-direction: column; gap: 8px; align-items: stretch; margin-bottom: 8px; }
+.onb-actions.row { flex-direction: row; }
+.onb-form h1 { margin-bottom: 8px; }
+.onb-form input, .onb-form select { width: 100%; }
+.btn.center { display: block; margin: 12px auto 0; }
+.row.center { justify-content: center; }
+.row.between { justify-content: space-between; }
+.row.tight { margin-top: 0; flex-wrap: nowrap; }
+.center-text { text-align: center; }
+.center-text .icon { margin: 0 auto 6px; }
+.field-err { color: var(--ink); font-weight: 600; margin: 4px 0 0; }
+.field-err::before { content: '! '; }
+
+.pw-strength { margin-top: 8px; }
+.pw-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 4px; }
+.pw-bar span { height: 10px; border: 2px solid var(--ink); border-radius: 4px; }
+.pw-bar span.on { background: repeating-linear-gradient(45deg, var(--ink) 0 1.5px, transparent 1.5px 4px); }
+.pw-checks { list-style: none; padding: 0; margin: 4px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px; color: var(--muted); }
+.pw-checks li.ok { color: var(--ink); font-weight: 600; }
+
+.level-opts { display: grid; gap: 8px; }
+.level-opt { text-align: left; display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border: 2px solid var(--ink); border-radius: 12px; background: var(--paper); cursor: pointer; }
+.level-opt.on { background: repeating-linear-gradient(45deg, transparent 0 5px, #0001 5px 6.5px); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.level-note { margin: 10px 0 0; }
+.chip.repeat { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
+span.star { cursor: default; }

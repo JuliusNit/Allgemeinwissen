@@ -1,3 +1,4 @@
+-- Danach supabase/002_konten_rollen.sql ausführen (Konten, Rollen, Editor-Inhalte).
 -- Austausch-Chat: Profile + Nachrichten. Anmeldung anonym (Supabase Anonymous Sign-ins),
 -- jeder darf alles lesen, aber nur eigene Nachrichten/Profile schreiben.
 

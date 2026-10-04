@@ -33,7 +33,16 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 - `src/lib/ink.ts`, `components/Ink.tsx`, `Icons.tsx`, `Coin.tsx` – Tusche-Optik: exakte Formen, Strichbreite je nach Richtung.
 - Design: schwarz auf weiß, Schraffur statt Flächen, Farbe nur grün/rot in der Statistik. Navigation unten:
   [frei] · Austausch · Home (Lernpfad) · Statistik · Profil.
-- `src/lib/cloud.ts` + `supabase/schema.sql` – Austausch-Chat über Supabase (anonyme Anmeldung, RLS, Realtime).
+- `src/views/Onboarding.tsx` – erster Start: 5 Slides (fluide vs. kristalline Intelligenz), dann Konto anlegen
+  (E-Mail, Name, Passwort mit Stärke – Pflicht: 8+ Zeichen, klein/groß, Zahl, Sonderzeichen – + Wiederholung) und Wissensstand.
+  Ohne Supabase nur Name + Wissensstand lokal.
+- `src/data/school.ts` – Wissensstand (Schule + Klasse / Studium / Ausbildung-Beruf) und `SCHOOL_GRADE` (Klassenstufe je Tag,
+  grob G9-Gymnasium, von Claude geschätzt). Studium/Beruf: aller Schulstoff = Wiederholungstag; Schule Kl. G: Stoff < G.
+  Wiederholungstage: „Wdh.“ im Pfad, Videos optional, Prompts fragen Teilthemen ab und suchen Lücken.
+- Rollen: `user` (Standard) und `editor` (nur per SQL vergeben, Trigger schützt die Spalte). Nur der Editor ändert
+  Videolisten (✎, ★, + Video, „anderes Video“) – gespeichert in `day_videos` für alle; darf außerdem jede Chat-Nachricht löschen.
+- `src/lib/cloud.ts` + `supabase/schema.sql` + `supabase/002_konten_rollen.sql` – Konten (E-Mail/Passwort, PKCE),
+  Austausch-Chat (RLS, Realtime), Editor-Inhalte. Name/Wissensstand liegen in den user_metadata, Fortschritt bleibt lokal.
   Konfiguration beim Bauen aus der lokalen `.env` (gitignored): `VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY` (Publishable Key).
   Ohne Werte läuft der Chat nur lokal – vor `npm run deploy` prüfen. `VITE_DEV_LLM_KEY` gilt nur für `npm run dev`
   und darf nie in den Build gelangen (nach dem Build `dist/` auf `sk-` prüfen).

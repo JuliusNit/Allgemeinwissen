@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { DAYS, defaultVideos, getDay, upgradeVideos, type Video } from '../data/plan'
+import { parseLevel, type Level } from '../data/school'
 import { fmtTime } from './video'
 
 export interface ChatMsg {
@@ -93,6 +94,14 @@ export interface State {
   profile: Profile
   focus: Focus
   settings: Settings
+  /** Wissensstand (Schule/Studium/Beruf) → bestimmt die Wiederholungstage */
+  level?: Level
+  /** Einführungs-Slides auf diesem Gerät gesehen */
+  onboarded?: boolean
+  /** Konto, dem der Fortschritt auf diesem Gerät gehört */
+  owner?: string
+  /** Videolisten vom Editor (Supabase), Tag → Videos; lokal zwischengespeichert für offline */
+  content: Record<number, Video[]>
 }
 
 const KEY = 'allgemeinwissen-v1'
@@ -110,8 +119,9 @@ const initial: State = {
   cardLog: [],
   reviews: {},
   community: [],
-  profile: { name: 'Julius' },
+  profile: { name: '' },
   focus: {},
+  content: {},
   settings: { apiUrl: DEFAULT_API_URL, apiKey: DEV_KEY, model: DEFAULT_MODEL, thinking: false },
 }
 
@@ -132,6 +142,8 @@ function normalize(parsed: Partial<State>): State {
     version: 1,
     profile: { ...initial.profile, ...parsed.profile },
     focus: { ...parsed.focus },
+    content: { ...parsed.content },
+    level: parseLevel(parsed.level),
     settings: migrateSettings(parsed.settings),
   }
 }
@@ -191,6 +203,9 @@ export function updateDay(day: number, fn: (d: DayState) => DayState) {
 const upgraded = new WeakMap<Video[], Video[]>()
 
 export function videosOf(s: State, day: number): Video[] {
+  // Reihenfolge: vom Editor veroeffentlicht → fruehere lokale Aenderung → Standard
+  const pub = s.content[day]
+  if (pub) return pub
   const stored = dayState(s, day).videos
   if (!stored) return defaultVideos(getDay(day))
   let v = upgraded.get(stored)
@@ -239,9 +254,9 @@ export function importJson(text: string) {
   if (parsed.version !== 1 || typeof parsed.days !== 'object') throw new Error('Keine gültige Sicherung')
   // API-Key des Geraets behalten, wenn die Sicherung keinen hat
   const apiKey = parsed.settings?.apiKey || state.settings.apiKey
-  setState(() => normalize({ ...parsed, settings: { ...parsed.settings, apiKey } }))
+  setState((s) => normalize({ ...parsed, settings: { ...parsed.settings, apiKey }, owner: s.owner, content: s.content }))
 }
 
 export function resetAll() {
-  setState((s) => ({ ...initial, settings: s.settings, profile: s.profile }))
+  setState((s) => ({ ...initial, settings: s.settings, profile: s.profile, level: s.level, onboarded: s.onboarded, owner: s.owner, content: s.content }))
 }

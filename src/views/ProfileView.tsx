@@ -2,11 +2,13 @@ import { useRef, useState } from 'react'
 import { AREAS, DAYS } from '../data/plan'
 import { adviseFocus, describeError } from '../lib/ai'
 import { areaStats, STAT_AREAS } from '../lib/stats'
-import { DEFAULT_API_URL, DEFAULT_MODEL, dayState, exportJson, importJson, resetAll, setState, today, useStore, type Settings } from '../lib/store'
+import { cloud, saveDayVideos, saveLevel, signOut, useAuth } from '../lib/cloud'
+import { DEFAULT_API_URL, DEFAULT_MODEL, dayState, exportJson, getState, videosOf, importJson, resetAll, setState, today, useStore, type Settings } from '../lib/store'
 import { Avatar } from '../components/Avatar'
 import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
 import { Markdown } from '../components/Markdown'
+import { LevelPicker } from './Onboarding'
 
 async function resizeImage(f: File, px = 192): Promise<string> {
   const url = URL.createObjectURL(f)
@@ -53,6 +55,8 @@ export function ProfileView() {
         </div>
       </div>
 
+      <Account />
+      <Editor />
       <Strengths />
       <AiSettings />
       <Backup />
@@ -199,6 +203,67 @@ function Backup() {
       </div>
       {msg && <p>{msg}</p>}
       <button className="btn danger small spaced" onClick={() => confirm('Wirklich ALLEN Fortschritt löschen? Vorher exportieren!') && resetAll()}>Fortschritt löschen</button>
+    </Frame>
+  )
+}
+
+function Account() {
+  const auth = useAuth()
+  const level = useStore((s) => s.level)
+  const [msg, setMsg] = useState<string | null>(null)
+  return (
+    <Frame className="card">
+      <h2>Konto</h2>
+      {auth.user ? (
+        <p className="small">
+          {auth.user.email} {auth.role === 'editor' && <span className="chip">Editor</span>}
+        </p>
+      ) : (
+        <p className="muted small">Ohne Server – alles bleibt auf diesem Gerät.</p>
+      )}
+      <h2 className="spaced">Wissensstand</h2>
+      <LevelPicker value={level} onChange={(l) => { setMsg(null); saveLevel(l).catch((e: Error) => setMsg(e.message)) }} />
+      {msg && <div className="chat-error">{msg}</div>}
+      {auth.user && (
+        <button className="btn small spaced" onClick={() => confirm('Abmelden? Der Fortschritt bleibt auf diesem Gerät.') && void signOut()}>Abmelden</button>
+      )}
+    </Frame>
+  )
+}
+
+/** Nur fuer den Editor: fruehere lokale Videoaenderungen fuer alle veroeffentlichen */
+function Editor() {
+  const auth = useAuth()
+  const s = useStore((x) => x)
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState<string | null>(null)
+  if (!cloud || auth.role !== 'editor') return null
+  const local = DAYS.filter((d) => dayState(s, d.day).videos && !s.content[d.day]).map((d) => d.day)
+
+  async function publish() {
+    setBusy(true)
+    setMsg(null)
+    try {
+      for (const day of local) await saveDayVideos(day, videosOf(getState(), day))
+      setMsg(`${local.length} Tage veröffentlicht ✓`)
+    } catch (e) {
+      setMsg(describeError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Frame className="card">
+      <h2>Editor</h2>
+      <p className="muted small">Als Editor änderst du Videos (✎, ★, „anderes Video“) für alle. Normale Konten können nichts bearbeiten. {Object.keys(s.content).length} Tage haben eigene Videolisten.</p>
+      {local.length > 0 && (
+        <>
+          <p className="small">{local.length} Tage mit älteren Änderungen nur auf diesem Gerät (Tag {local.join(', ')}).</p>
+          <button className="btn" disabled={busy} onClick={publish}>{busy ? 'Veröffentliche …' : 'Für alle veröffentlichen'}</button>
+        </>
+      )}
+      {msg && <p className="small">{msg}</p>}
     </Frame>
   )
 }

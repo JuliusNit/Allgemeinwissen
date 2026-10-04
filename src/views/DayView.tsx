@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { AREAS, BLOCKS, defaultVideos, getDay, isBlockMix, youtubeSearch, type Video } from '../data/plan'
+import { AREAS, BLOCKS, getDay, isBlockMix, youtubeSearch, type Video } from '../data/plan'
 import { anchorChat, checkChat, describeError, DONE_MARKER, makeSummary, questionsChat } from '../lib/ai'
+import { saveDayVideos, useCanEdit } from '../lib/cloud'
+import { blockName, isRepeat, SCHOOL_GRADE } from '../data/school'
 import { addCards } from '../lib/srs'
 import { dayState, sortNotes, today, updateDay, useStore, videosOf } from '../lib/store'
 import { fmtTime, parseVideoUrl } from '../lib/video'
@@ -30,6 +32,10 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
   const videos = useStore((s) => videosOf(s, day))
   const statuses = useStore((s) => s.days)
   const hasKey = useStore((s) => !!s.settings.apiKey)
+  const level = useStore((s) => s.level)
+  const canEdit = useCanEdit()
+  const repeat = isRepeat(level, day)
+  const grade = SCHOOL_GRADE[day]
   const checkDone = !!ds.check?.some((m) => m.role === 'assistant' && m.content.includes(DONE_MARKER))
   const [tab, setTab] = useState<Tab>(ds.status === 'fertig' ? 'zusammenfassung' : ds.check?.length ? 'check' : 'fragen')
   const [anchorText, setAnchorText] = useState<string | null>(null)
@@ -44,8 +50,9 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
   const playing = video ? videos.find((v) => v.id === video) : undefined
   const noteCount = Object.values(ds.videoNotes ?? {}).reduce((a, n) => a + n.length, 0)
 
-  function setVideos(v: Video[]) {
-    updateDay(day, (x) => ({ ...x, videos: v }))
+  function setVideos(v: Video[] | null) {
+    setError(null)
+    saveDayVideos(day, v).catch((e) => setError(describeError(e)))
   }
 
   function start() {
@@ -94,7 +101,7 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
       <div className="day-head">
         <div className="day-nav">
           <button className="icon-btn" onClick={back} aria-label="Zurück zum Lernpfad"><Icon name="BACK" size={26} /></button>
-          <span className="muted small">Tag {day} / 90 · {block.name}</span>
+          <span className="muted small">Tag {day} / 90 · {blockName(block, level)}</span>
           <span className="right">
             <button className="btn ghost small" disabled={day <= 1} onClick={() => openDay(day - 1)} aria-label="Vorheriger Tag">‹</button>
             <button className="btn ghost small" disabled={day >= 90} onClick={() => openDay(day + 1)} aria-label="Nächster Tag">›</button>
@@ -110,11 +117,16 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
         <p className="muted">{d.subtopics.join(' · ')}</p>
         <div className="status-row">
           <span className={`status ${ds.status}`}>{ds.status === 'offen' ? 'offen' : ds.status === 'laeuft' ? 'läuft' : `abgeschlossen ${ds.completedAt ?? ''}`}</span>
+          {repeat && <span className="chip repeat"><Icon name="REVIEW" size={16} /> Wiederholung · Schulstoff Kl. {grade}</span>}
+          {!repeat && grade !== undefined && level?.kind === 'schule' && <span className="chip">kommt in Klasse {grade}</span>}
           {d.evidence && <span className="chip warn">Evidenzcheck: belegt vs. Hype</span>}
           {ds.status === 'offen' && <button className="btn primary" onClick={start}>Session starten</button>}
         </div>
       </div>
 
+      {repeat && ds.status !== 'fertig' && (
+        <div className="notice">Kennst du aus der Schule. Die Videos sind nur zum Auffrischen – du kannst direkt mit Anknüpfen und Verständnischeck starten. Der Check sucht Lücken und verknüpft den Stoff mit Neuem.</div>
+      )}
       {!hasKey && <div className="notice">Für Anknüpfen, Fragen und Verständnischeck den API-Key unter <b>Profil → KI</b> eintragen.</div>}
       {error && <div className="chat-error">{error}</div>}
 
@@ -148,7 +160,7 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
       {!mix && (
         <Frame className="card">
           <div className="section-head">
-            <h2>2 · Lernvideos</h2>
+            <h2>2 · Lernvideos{repeat ? ' (optional)' : ''}</h2>
             <span className="muted">{starsWatched}/{stars.length} ★ gesehen · ~{Math.round(videos.length * 9)} min</span>
           </div>
           <VideoList
@@ -163,9 +175,10 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
               })
             }
             onChange={setVideos}
+            canEdit={canEdit}
             onOpen={openVideo}
             noteCounts={Object.fromEntries(Object.entries(ds.videoNotes ?? {}).map(([k, n]) => [k, n.length]))}
-            onReset={() => setVideos(defaultVideos(d))}
+            onReset={() => setVideos(null)}
             day={day}
           />
         </Frame>
@@ -280,7 +293,7 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
 }
 
 function VideoList({
-  videos, watched, onToggleWatched, onChange, onReset, onOpen, noteCounts, day,
+  videos, watched, onToggleWatched, onChange, onReset, onOpen, noteCounts, day, canEdit,
 }: {
   videos: Video[]
   watched: Set<string>
@@ -290,57 +303,72 @@ function VideoList({
   onOpen: (id: string) => void
   noteCounts: Record<string, number>
   day: number
+  canEdit: boolean
 }) {
-  const [editing, setEditing] = useState<string | null>(null)
+  // Bearbeiten erst mit "Fertig" speichern (beim Editor geht jede Speicherung an alle)
+  const [draft, setDraft] = useState<Video | null>(null)
+  const isNew = !!draft && !videos.some((v) => v.id === draft.id)
+  const list = isNew && draft ? [...videos, draft] : videos
 
   function patch(id: string, p: Partial<Video>) {
     onChange(videos.map((v) => (v.id === id ? { ...v, ...p } : v)))
   }
 
+  function commit() {
+    if (!draft) return
+    onChange(isNew ? [...videos, draft] : videos.map((v) => (v.id === draft.id ? draft : v)))
+    setDraft(null)
+  }
+
   function add() {
-    const id = `${day}-u${Date.now()}`
-    onChange([...videos, { id, title: 'Neues Video', url: '', star: false }])
-    setEditing(id)
+    setDraft({ id: `${day}-u${Date.now()}`, title: 'Neues Video', url: '', star: false })
   }
 
   return (
     <>
       <ul className="videos">
-        {videos.map((v) => (
+        {list.map((v) => (
           <li key={v.id} className={watched.has(v.id) ? 'done' : ''}>
-            {editing === v.id ? (
+            {draft?.id === v.id ? (
               <div className="video-edit">
-                <input value={v.title} onChange={(e) => patch(v.id, { title: e.target.value })} placeholder="Titel" />
-                <input value={v.url} onChange={(e) => patch(v.id, { url: e.target.value, source: undefined })} placeholder="YouTube-Link einfügen (läuft dann in der App)" />
+                <input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} placeholder="Titel" />
+                <input value={draft.url} onChange={(e) => setDraft({ ...draft, url: e.target.value, source: undefined })} placeholder="YouTube-Link einfügen (läuft dann in der App)" />
                 <div className="row">
-                  <button className="btn small" onClick={() => patch(v.id, { url: youtubeSearch(`${v.title} einfach erklärt`), source: undefined })}>Als Suchlink</button>
-                  <button className="btn small danger" onClick={() => onChange(videos.filter((x) => x.id !== v.id))}>Entfernen</button>
-                  <button className="btn small primary" onClick={() => setEditing(null)}>Fertig</button>
+                  <button className="btn small" onClick={() => setDraft({ ...draft, url: youtubeSearch(`${draft.title} einfach erklärt`), source: undefined })}>Als Suchlink</button>
+                  <button className="btn small danger" onClick={() => { if (!isNew) onChange(videos.filter((x) => x.id !== v.id)); setDraft(null) }}>Entfernen</button>
+                  <button className="btn small" onClick={() => setDraft(null)}>Abbrechen</button>
+                  <button className="btn small primary" onClick={commit}>Fertig</button>
                 </div>
               </div>
             ) : (
               <>
                 <input type="checkbox" checked={watched.has(v.id)} onChange={() => onToggleWatched(v.id)} aria-label="gesehen" />
-                <button className={`star ${v.star ? 'on' : ''}`} onClick={() => patch(v.id, { star: !v.star })} title={v.star ? 'Pflichtvideo (wird abgefragt)' : 'optional'}>
-                  {v.star ? '★' : '☆'}
-                </button>
+                {canEdit ? (
+                  <button className={`star ${v.star ? 'on' : ''}`} onClick={() => patch(v.id, { star: !v.star })} title={v.star ? 'Pflichtvideo (wird abgefragt)' : 'optional'}>
+                    {v.star ? '★' : '☆'}
+                  </button>
+                ) : (
+                  <span className={`star ${v.star ? 'on' : ''}`} title={v.star ? 'Pflichtvideo (wird abgefragt)' : 'optional'}>{v.star ? '★' : '☆'}</span>
+                )}
                 <button className="video-open" onClick={() => onOpen(v.id)}>
                   <span className="video-play" aria-hidden>▶</span>
                   <span>{v.title}{v.source && <small className="video-source"> · {v.source}</small>}</span>
                 </button>
                 {noteCounts[v.id] > 0 && <span className="video-kind">{noteCounts[v.id]} ✎</span>}
                 <span className="video-kind">{videoKind(v.url)}</span>
-                <button className="btn ghost small" onClick={() => setEditing(v.id)} aria-label="Bearbeiten">✎</button>
+                {canEdit && <button className="btn ghost small" onClick={() => setDraft(v)} aria-label="Bearbeiten">✎</button>}
               </>
             )}
           </li>
         ))}
       </ul>
-      <div className="row">
-        <button className="btn small" onClick={add}>+ Video</button>
-        <button className="btn ghost small" onClick={() => confirm('Videoliste auf Standard zurücksetzen?') && onReset()}>Zurücksetzen</button>
-      </div>
-      <p className="muted small">★ = Pflichtvideo (wird abgefragt), ☆ = optional. Antippen öffnet das Video in der App mit Notizen daneben. Steht „Video wählen“ dran, ist erst ein Suchlink hinterlegt: dort einmal ein Video aussuchen und den Link einfügen.</p>
+      {canEdit && (
+        <div className="row">
+          <button className="btn small" onClick={add} disabled={!!draft}>+ Video</button>
+          <button className="btn ghost small" onClick={() => confirm('Videoliste auf Standard zurücksetzen?') && onReset()}>Zurücksetzen</button>
+        </div>
+      )}
+      <p className="muted small">★ = Pflichtvideo (wird abgefragt), ☆ = optional. Antippen öffnet das Video in der App mit Notizen daneben.{canEdit ? ' Als Editor änderst du die Videos für alle.' : ''}</p>
     </>
   )
 }

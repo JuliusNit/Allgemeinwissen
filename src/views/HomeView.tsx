@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BLOCKS, DAYS, getDay } from '../data/plan'
 import { bez, type Stroke } from '../lib/ink'
+import { blockName, isRepeat, type Level } from '../data/school'
 import { currentNode, nodeDone, PATH, reviewReady, type PathNode } from '../lib/path'
 import { dueCards } from '../lib/srs'
 import { dayState, useStore } from '../lib/store'
@@ -73,10 +74,10 @@ function wrap(t: string, max: number): string[] {
   return lines
 }
 
-function label(n: PathNode): { head: string; title: string } {
+function label(n: PathNode, level: Level | undefined): { head: string; title: string } {
   if (n.kind === 'review') return { head: 'Wiederholung', title: `Tag ${n.days[0]}–${n.days[n.days.length - 1]}` }
   const d = getDay(n.day)
-  return { head: `Tag ${d.day}`, title: d.title.split(/[:(]/)[0].trim() }
+  return { head: isRepeat(level, d.day) ? `Tag ${d.day} · Wdh.` : `Tag ${d.day}`, title: d.title.split(/[:(]/)[0].trim() }
 }
 
 function iconOf(n: PathNode): IconName {
@@ -134,14 +135,14 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
               {p.node.block > 0 && (
                 <text x={CX} y={y - 40} textAnchor="middle" className="dots">· · ·</text>
               )}
-              <text x={CX} y={y} textAnchor="middle">{b.name}</text>
+              <text x={CX} y={y} textAnchor="middle">{blockName(b, s.level)}</text>
             </g>
           )
         })}
         {LAYOUT.placed.map((p) => {
           const n = p.node
           const st = stateOf(n)
-          const l = label(n)
+          const l = label(n, s.level)
           const right = p.x <= CX
           const tx = right ? p.x + COIN_R + 16 : p.x - COIN_R - 16
           const lines = wrap(l.title, right ? Math.floor((W - tx) / 7.4) : Math.floor(tx / 7.4))

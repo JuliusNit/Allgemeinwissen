@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Video } from '../data/plan'
+import { saveDayVideos, useCanEdit } from '../lib/cloud'
 import { dayState, sortNotes, updateDay, useStore, type VideoNote } from '../lib/store'
 import { fmtTime, loadYouTubeApi, parseVideoUrl, YT_ENDED, YT_PLAYING, type YTPlayer } from '../lib/video'
 import { Icon } from './Icons'
@@ -17,6 +18,7 @@ interface Props {
 /** Vollbild-Ansicht: eingebettetes Video, daneben (bzw. darunter) Notizen mit Zeitmarken */
 export function VideoWatch({ day, videos, video, at, open, close }: Props) {
   const ds = useStore((s) => dayState(s, day))
+  const canEdit = useCanEdit()
   const embed = parseVideoUrl(video.url)
   const idx = videos.findIndex((v) => v.id === video.id)
   const prev = videos[idx - 1]
@@ -53,7 +55,7 @@ export function VideoWatch({ day, videos, video, at, open, close }: Props) {
   }
 
   function setUrl(url: string) {
-    updateDay(day, (x) => ({ ...x, videos: videos.map((v) => (v.id === video.id ? { ...v, url, source: undefined } : v)) }))
+    saveDayVideos(day, videos.map((v) => (v.id === video.id ? { ...v, url, source: undefined } : v))).catch((e: Error) => alert(e.message))
   }
 
   function seek(t: number) {
@@ -101,14 +103,14 @@ export function VideoWatch({ day, videos, video, at, open, close }: Props) {
               <iframe src={`https://player.vimeo.com/video/${embed.id}?dnt=1`} title={video.title} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />
             </div>
           ) : (
-            <PickVideo video={video} embedKind={embed.kind} ytError={ytError} onUrl={(u) => { setYtError(false); setUrl(u) }} />
+            <PickVideo video={video} canEdit={canEdit} embedKind={embed.kind} ytError={ytError} onUrl={(u) => { setYtError(false); setUrl(u) }} />
           )}
           <div className="row watch-actions">
             <label className="check-label"><input type="checkbox" checked={watched} onChange={(e) => setWatched(e.target.checked)} /> gesehen</label>
             {video.url && (
               <a className="btn ghost small" href={video.url} target="_blank" rel="noreferrer">extern öffnen</a>
             )}
-            {(embed.kind === 'youtube' || embed.kind === 'vimeo') && (
+            {canEdit && (embed.kind === 'youtube' || embed.kind === 'vimeo') && (
               <button className="btn ghost small" onClick={() => confirm('Anderes Video für dieses Thema wählen?') && setUrl('')}>anderes Video</button>
             )}
             {next && (
@@ -283,7 +285,7 @@ function YouTube({
   return <div className="player" ref={host} />
 }
 
-function PickVideo({ video, embedKind, ytError, onUrl }: { video: Video; embedKind: string; ytError: boolean; onUrl: (u: string) => void }) {
+function PickVideo({ video, canEdit, embedKind, ytError, onUrl }: { video: Video; canEdit: boolean; embedKind: string; ytError: boolean; onUrl: (u: string) => void }) {
   const [val, setVal] = useState('')
   const parsed = parseVideoUrl(val)
   const ok = parsed.kind === 'youtube' || parsed.kind === 'vimeo'
@@ -305,7 +307,9 @@ function PickVideo({ video, embedKind, ytError, onUrl }: { video: Video; embedKi
         {ytError ? (
           <p><b>YouTube ließ sich nicht laden.</b> Verbindung prüfen oder extern öffnen.</p>
         ) : embedKind === 'extern' ? (
-          <p><b>Diese Seite lässt sich nicht einbetten.</b> Extern öffnen – die Notizen rechts funktionieren trotzdem. Gibt es das Video auch auf YouTube, den Link hier einfügen.</p>
+          <p><b>Diese Seite lässt sich nicht einbetten.</b> Extern öffnen – die Notizen rechts funktionieren trotzdem.{canEdit && ' Gibt es das Video auch auf YouTube, den Link hier einfügen.'}</p>
+        ) : !canEdit ? (
+          <p><b>Für dieses Thema ist noch kein Video hinterlegt.</b> Such dir eins auf YouTube – die Notizen rechts funktionieren trotzdem.</p>
         ) : (
           <>
             <p><b>Noch kein Video gewählt.</b></p>
@@ -318,15 +322,17 @@ function PickVideo({ video, embedKind, ytError, onUrl }: { video: Video; embedKi
         )}
         <div className="row">
           <a className="btn small" href={searchUrl} target="_blank" rel="noreferrer">Auf YouTube suchen</a>
-          {'clipboard' in navigator && 'readText' in navigator.clipboard && (
+          {canEdit && 'clipboard' in navigator && 'readText' in navigator.clipboard && (
             <button className="btn small" onClick={paste}>Link aus Zwischenablage</button>
           )}
         </div>
-        <div className="row">
-          <input value={val} onChange={(e) => setVal(e.target.value)} placeholder="YouTube- oder Vimeo-Link" onKeyDown={(e) => e.key === 'Enter' && ok && onUrl(val.trim())} />
-          <button className="btn small primary" disabled={!ok} onClick={() => onUrl(val.trim())}>Übernehmen</button>
-        </div>
-        {val && !ok && <p className="small muted">Kein YouTube-/Vimeo-Videolink erkannt.</p>}
+        {canEdit && (
+          <div className="row">
+            <input value={val} onChange={(e) => setVal(e.target.value)} placeholder="YouTube- oder Vimeo-Link" onKeyDown={(e) => e.key === 'Enter' && ok && onUrl(val.trim())} />
+            <button className="btn small primary" disabled={!ok} onClick={() => onUrl(val.trim())}>Übernehmen</button>
+          </div>
+        )}
+        {canEdit && val && !ok && <p className="small muted">Kein YouTube-/Vimeo-Videolink erkannt.</p>}
       </div>
     </div>
   )

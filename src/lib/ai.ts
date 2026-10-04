@@ -1,4 +1,5 @@
 import { AREAS, BLOCKS, DAYS, getDay, isBlockMix, type AreaId, type Day } from '../data/plan'
+import { blockName, isRepeat, levelLabel, SCHOOL_GRADE } from '../data/school'
 import { DONE_MARKER, statsTable } from './stats'
 import { dayState, getState, videoNotesText, videosOf, type ChatMsg } from './store'
 
@@ -150,21 +151,38 @@ function sessionContext(d: Day): string {
   const notes = dayState(s, d.day).notes
   const lines = [
     `HEUTIGE SESSION: ${dayLine(d)}`,
-    `Phase ${d.phase}, ${block.name}`,
+    `Phase ${d.phase}, ${blockName(block, s.level)}`,
     isBlockMix(d)
       ? `MIX-Tag: gemischte Abfrage des ganzen Blocks (${block.from}–${block.to - 1}) + Verknüpfungsfragen zwischen Bereichen. Schwerpunkte: ${d.subtopics.join(' · ')}`
       : `★-Pflichtvideos (nur deren Inhalt wird abgefragt): ${stars.map((v) => v.title).join(' · ') || '—'}`,
   ]
+  if (isRepeat(s.level, d.day)) {
+    lines.push(`WIEDERHOLUNG: Für ${nm()} ist das Schulstoff (typisch Klasse ${SCHOOL_GRADE[d.day]}), also bekannt. Vorwissen aktivieren, Lücken aufdecken und vor allem mit Neuem und anderen Bereichen verknüpfen. Videos sind nur zum Auffrischen; abgefragt werden die Teilthemen insgesamt.`)
+  }
   if (optional.length) lines.push(`Optionale Videos (nicht abfragen): ${optional.map((v) => v.title).join(' · ')}`)
   if (d.evidence) lines.push('Evidenzcheck aktiv: bei Körper/Gesundheit/Psychologie immer „belegt vs. Hype“ einordnen (Studienlage, Evidenzstufe).')
-  if (notes) lines.push(`Julius' eigene Notizen zur Session:\n${clip(notes, 2000)}`)
+  if (notes) lines.push(`Eigene Notizen von ${nm()} zur Session:\n${clip(notes, 2000)}`)
   const vnotes = videoNotesText(s, d.day)
-  if (vnotes) lines.push(`Julius' Notizen während der Videos ([Minute:Sekunde]):\n${clip(vnotes, 3000)}`)
+  if (vnotes) lines.push(`Notizen von ${nm()} während der Videos ([Minute:Sekunde]):\n${clip(vnotes, 3000)}`)
   lines.push('', earlierSessions(d))
   return lines.join('\n')
 }
 
-const PERSONA = `Du bist der Lernbegleiter von Julius in seinem 90-Tage-Lernplan „Allgemeinwissen (kristalline Intelligenz)“.
+/** Name der lernenden Person (aus dem Profil) */
+function nm(): string {
+  return getState().profile.name.trim() || 'die lernende Person'
+}
+
+function levelLine(): string {
+  const l = getState().level
+  if (!l) return ''
+  if (l.kind === 'schule') return `Wissensstand: ${levelLabel(l)} (Gymnasium). Setze nur Schulwissen bis Klasse ${l.grade - 1} voraus, erkläre Fachbegriffe darüber hinaus und baue Neues auf dem Bekannten auf.`
+  return `Wissensstand: ${levelLabel(l)}. Schulwissen bis zum Abitur gilt als bekannt – Schulthemen sind Wiederholung, darauf aufbauen.`
+}
+
+// Funktion statt Konstante: Name und Wissensstand koennen sich aendern
+const persona = () => `Du bist der Lernbegleiter von ${nm()} im 90-Tage-Lernplan „Allgemeinwissen (kristalline Intelligenz)“.
+${levelLine()}
 Ziel: breites, vernetztes Wissen, an das sich Neues schnell anhängen lässt. Gerüste: Zeitstrahl, Weltkarte, Größenordnungen, Evolution, Angebot/Nachfrage.
 Antworte immer auf Deutsch, klar und knapp, ohne Floskeln. Markdown ist erlaubt (Überschriften, Listen, **fett**, Tabellen).`
 
@@ -172,7 +190,7 @@ Antworte immer auf Deutsch, klar und knapp, ohne Floskeln. Markdown ist erlaubt 
 
 export function anchorChat(day: number, onText: (t: string) => void) {
   const d = getDay(day)
-  const system = `${PERSONA}
+  const system = `${persona()}
 
 Aufgabe: „Anknüpfen“ zu Beginn der Session. Schreibe 4–6 kurze Stichpunkte:
 - Wo liegt das Thema auf dem Zeitstrahl und/oder der Weltkarte (bzw. auf der Größenordnungs-Skala)?
@@ -187,12 +205,12 @@ ${sessionContext(d)}`
 
 export function questionsChat(day: number, history: ChatMsg[], onText: (t: string) => void) {
   const d = getDay(day)
-  const system = `${PERSONA}
+  const system = `${persona()}
 
-Phase „Julius' Fragen“: Julius hat die Videos gesehen und stellt eigene Fragen zum Thema.
+Phase „Eigene Fragen“: ${nm()} hat die Videos gesehen und stellt eigene Fragen zum Thema.
 Erkläre verständlich, mit Beispielen aus Alltag/Nachrichten, und knüpfe wo sinnvoll an Zeitstrahl, Karte und frühere Sessions an.
 Wenn du etwas nicht sicher weißt, sag das. ${d.evidence ? 'Ordne Gesundheits-/Psychologie-Aussagen immer nach Evidenz ein („belegt vs. Hype“).' : ''}
-Frage NICHT ab – das passiert erst, wenn Julius „verstanden“ sagt.
+Frage NICHT ab – das passiert erst, wenn ${nm()} „verstanden“ sagt.
 
 ${sessionContext(d)}`
   return streamChat(system, history, onText)
@@ -200,14 +218,14 @@ ${sessionContext(d)}`
 
 export function checkChat(day: number, history: ChatMsg[], onText: (t: string) => void) {
   const d = getDay(day)
-  const system = `${PERSONA}
+  const system = `${persona()}
 
-Phase „Verständnischeck“: Julius hat „verstanden“ gesagt. Führe den Check nach diesen Regeln:
+Phase „Verständnischeck“: ${nm()} hat „verstanden“ gesagt. Führe den Check nach diesen Regeln:
 - ${isBlockMix(d) ? '5' : '3–5'} Verständnisfragen, IMMER nur EINE Frage pro Nachricht, dann auf die Antwort warten.
-- ${isBlockMix(d) ? 'Gemischte Abfrage des ganzen Blocks plus Verknüpfungsfragen zwischen den Bereichen.' : 'Abgefragt wird nur, was in den ★-Pflichtvideos gelehrt wurde.'}
+- ${isBlockMix(d) ? 'Gemischte Abfrage des ganzen Blocks plus Verknüpfungsfragen zwischen den Bereichen.' : isRepeat(getState().level, d.day) ? 'Wiederholung: abgefragt werden die Teilthemen (Schulstoff) – unabhängig davon, welche Videos gesehen wurden; Schwerpunkt Lücken und Verknüpfungen.' : 'Abgefragt wird nur, was in den ★-Pflichtvideos gelehrt wurde.'}
 - Keine reinen Wiedergabefragen, sondern: Teilthemen kombinieren („Was passiert mit X, wenn Y ausfällt?“), Anwendung auf Alltag/Nachrichten/Entscheidungen, Vorhersagen & Fallbeispiele („Warum…?“, „Was wäre, wenn…?“), Verknüpfung mit früheren Sessions UND anderen Bereichen.
 - Nummeriere die Fragen im Format „**Frage 2/4:** …“.
-- Nach JEDER Antwort von Julius beginnt deine Nachricht in der ersten Zeile mit genau einem Bewertungs-Marker:
+- Nach JEDER Antwort von ${nm()} beginnt deine Nachricht in der ersten Zeile mit genau einem Bewertungs-Marker:
   [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]
   P = Präzision der Antwort von 1 (vage) bis 5 (präzise, Fachbegriffe korrekt). Beispiel: [[BEWERTUNG: teilweise | 3]]
 - Danach kurz bewerten (✅ richtig / 🟡 unvollständig / ❌ falsch). Bei falsch/unvollständig: kurz erklären, dann eine Nachfrage zum GLEICHEN Punkt stellen, bevor es mit der nächsten Frage weitergeht.
@@ -241,9 +259,9 @@ export async function makeSummary(day: number): Promise<SummaryResult> {
   const d = getDay(day)
   const ds = dayState(getState(), day)
   const transcript = (label: string, msgs?: ChatMsg[]) =>
-    msgs?.length ? `\n## ${label}\n` + msgs.map((m) => `${m.role === 'user' ? 'Julius' : 'Begleiter'}: ${m.content}`).join('\n\n') : ''
+    msgs?.length ? `\n## ${label}\n` + msgs.map((m) => `${m.role === 'user' ? nm() : 'Begleiter'}: ${m.content}`).join('\n\n') : ''
 
-  const system = `${PERSONA}
+  const system = `${persona()}
 
 Erstelle nach der abgeschlossenen Session den Lernzettel zum Wiederholen und Karteikarten. Antworte NUR mit JSON.
 
@@ -258,7 +276,7 @@ ${d.evidence ? '## Evidenz  (belegt vs. Hype, je 1 Zeile)\n' : ''}
 cards – 6–10 Karteikarten für Spaced Repetition. Fragen, die Verständnis prüfen (Warum/Was wäre wenn/Zusammenhang), Antworten in 1–3 Sätzen. Schwerpunkt auf den wackeligen Punkten.`
 
   const user = `${sessionContext(d)}
-${transcript('Julius\' Fragen', ds.questions)}
+${transcript('Eigene Fragen', ds.questions)}
 ${transcript('Verständnischeck', ds.check)}`
 
   const text = await complete(system, user, 8000, {
@@ -297,9 +315,9 @@ ${transcript('Verständnischeck', ds.check)}`
 export async function adviseFocus(): Promise<string> {
   const s = getState()
   const done = DAYS.filter((d) => dayState(s, d.day).status === 'fertig').length
-  const system = `${PERSONA}
+  const system = `${persona()}
 
-Du berätst Julius, worin er gut ist und welche Themen ihm liegen. SEHR KURZ, höchstens 5 Zeilen, keine Einleitung:
+Du berätst ${nm()}, worin die Stärken liegen und welche Themen liegen. SEHR KURZ, höchstens 5 Zeilen, keine Einleitung:
 - 2–3 Zeilen nach dem Muster „**Bereich**: x % richtig, Ø y s, Präzision z/5“ – nur die auffälligsten (stark und schwach).
 - 1 Zeile „Deshalb könnte dir … liegen“ mit 1–2 konkreten Vertiefungsrichtungen.
 - 1 Zeile: Alternative – breit weitermachen mit gefächertem Allgemeinwissen, und wann das sinnvoller wäre.
@@ -312,7 +330,7 @@ Stütze dich nur auf die Zahlen. Wenig Daten? Dann sag das in einem Halbsatz.`
 
 export function channelChat(area: AreaId | null, history: { author: 'ich' | 'ki'; text: string }[], onText: (t: string) => void) {
   const topic = area ? `Kanal #${AREAS[area].name} – nur Themen aus diesem Bereich.` : 'Kanal #allgemein – alle Themen des Lernplans.'
-  const system = `${PERSONA}
+  const system = `${persona()}
 
 Du bist im Themen-Chat der App als „KI“ dabei. ${topic}
 Antworte wie in einem Chat: kurz (max. 6 Zeilen), locker, sachlich korrekt. Verweise nur auf Sessions aus dieser Liste (Tag-Nummer), erfinde keine:
