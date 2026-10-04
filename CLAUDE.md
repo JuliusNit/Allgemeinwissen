@@ -26,7 +26,10 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 - `src/lib/srs.ts` – vereinfachtes SM-2 für Karteikarten.
 - `src/lib/ink.ts`, `components/Ink.tsx`, `Icons.tsx`, `Coin.tsx` – Tusche-Optik: exakte Formen, Strichbreite je nach Richtung.
 - Design: schwarz auf weiß, Schraffur statt Flächen, Farbe nur grün/rot in der Statistik. Navigation unten:
-  [frei] · Austausch · Home (Lernpfad) · Statistik · Profil. Der Austausch-Chat ist noch lokal (kein Server).
+  [frei] · Austausch · Home (Lernpfad) · Statistik · Profil.
+- `src/lib/cloud.ts` + `supabase/schema.sql` – Austausch-Chat über Supabase (anonyme Anmeldung, RLS, Realtime).
+  Konfiguration beim Bauen aus `.env.local` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY` = Publishable Key, gitignored).
+  Ohne `.env.local` läuft der Chat nur lokal – vor `npm run deploy` also prüfen, dass sie existiert.
 - `src/components/Markdown.tsx` – eigener Renderer ohne innerHTML.
 - `scripts/icons.mjs` – erzeugt PWA-Icons; `scripts/deploy.mjs` – Deploy auf gh-pages.
 
