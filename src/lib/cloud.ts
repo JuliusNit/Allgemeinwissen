@@ -83,11 +83,23 @@ if (cloud) {
     const user = u && !u.is_anonymous ? u : null
     const recovery = !!user && (event === 'PASSWORD_RECOVERY' || recoveryFlag())
     setAuth({ ready: true, user, role: user && user.id === auth.user?.id ? auth.role : 'user', recovery })
-    if (location.search.includes('code=') || location.search.includes('reset=')) history.replaceState(null, '', location.pathname + location.hash)
+    if (/code=|reset=|token_hash=/.test(location.search)) history.replaceState(null, '', location.pathname + location.hash)
     // Supabase-Aufrufe nicht direkt im Callback abwarten (Sperre im Client)
     if (user && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) window.setTimeout(() => void afterLogin(user), 0)
     if (!user) syncedProfile = ''
   })
+
+  // Bestaetigungs-Mail mit ?token_hash=…&type=… (E-Mail-Vorlage in Supabase): meldet direkt an –
+  // anders als ?code=… (PKCE) auch, wenn der Link in einem anderen Browser aufgeht als die Registrierung
+  const q = new URLSearchParams(location.search)
+  const tokenHash = q.get('token_hash')
+  const type = q.get('type')
+  if (tokenHash && (type === 'email' || type === 'signup' || type === 'recovery' || type === 'magiclink' || type === 'email_change')) {
+    void cloud.auth.verifyOtp({ token_hash: tokenHash, type: type === 'signup' ? 'email' : type }).then(({ error }) => {
+      history.replaceState(null, '', location.pathname + location.hash)
+      if (error) alert('Bestätigungslink ungültig oder abgelaufen – bitte anmelden oder neuen Link anfordern.')
+    })
+  }
 }
 
 /** Nach der Anmeldung: Rolle laden, Profil/Wissensstand uebernehmen, Videolisten holen */
