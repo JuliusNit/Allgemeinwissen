@@ -13,8 +13,10 @@ import { getState, resetAll, setState, useStore } from './store'
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_KEY as string | undefined
 
-// PKCE: Bestaetigungs-Links kommen mit ?code=… zurueck und stoeren so das Hash-Routing nicht
-export const cloud: SupabaseClient | null = url && key ? createClient(url, key, { auth: { flowType: 'pkce' } }) : null
+// Implicit Flow: Bestaetigungs-Links kommen mit #access_token=… zurueck und melden direkt an – auch in einem
+// anderen Browser als bei der Registrierung (PKCE ginge nur im selben). supabase-js liest den Hash und leert ihn;
+// das Hash-Routing faellt dann auf Home zurueck.
+export const cloud: SupabaseClient | null = url && key ? createClient(url, key, { auth: { flowType: 'implicit' } }) : null
 
 export type Role = 'user' | 'editor'
 
