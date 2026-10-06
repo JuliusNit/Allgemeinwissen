@@ -56,6 +56,10 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 - `src/views/ExamView.tsx` + `src/lib/exam.ts` – Prüfungsmodus `#/pruefung[/N]`: abgeschlossene Themen nach Dringlichkeit
   (Schwäche + Zeit seit letztem Abruf), oben Vorschlag, Münze fährt Kasten aus; Test = 1 Verständnis- + 1 Transferaufgabe
   (`examChat`), Ergebnisse in `exams`.
+- `src/lib/recap.ts` + `components/WeekRecap.tsx` – Wochenrückblick: ab Montag beim ersten Öffnen von Home ein Kasten über die Vorwoche
+  (Seiten: neu gelernt grob je Überthema · Wissensindex mit Zuwachs · nächste Stationen; Streak oben rechts; X oder letzte Seite
+  schließt, `recapSeen` = Montag). Wissensindex = Anteil des Plans, der sitzt (gewichtet wie Prüfungsmodus) – bewusst kein IQ-Wert,
+  Gc-Tests (WAIS) brauchen eine Normstichprobe.
 - `src/views/Onboarding.tsx` – erster Start: 5 Slides (fluide vs. kristalline Intelligenz), dann Konto anlegen
   (E-Mail, Name, Passwort mit Stärke – Pflicht: 8+ Zeichen, klein/groß, Zahl, Sonderzeichen – + Wiederholung) und Wissensstand.
   Ohne Supabase nur Name + Wissensstand lokal.

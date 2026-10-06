@@ -107,6 +107,8 @@ export interface State {
   settings: Settings
   /** Wissensstand (Schule/Studium/Beruf) → bestimmt die Wiederholungstage */
   level?: Level
+  /** Montag (YYYY-MM-DD) der Woche, in der der Wochenrückblick zuletzt gezeigt wurde */
+  recapSeen?: string
   /** Einführungs-Slides auf diesem Gerät gesehen */
   onboarded?: boolean
   /** Konto, dem der Fortschritt auf diesem Gerät gehört */

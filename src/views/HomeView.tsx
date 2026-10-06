@@ -6,11 +6,13 @@ import { blockName, isRepeat, knownUpTo, type Level } from '../data/school'
 import { BASIS_BLOCK, currentNode, nodeDone, nodeReady, pathOf, type PathNode } from '../lib/path'
 import { basisTitle } from './BasisView'
 import { dueCards } from '../lib/srs'
-import { useStore } from '../lib/store'
+import { getState, setState, useStore } from '../lib/store'
+import { markRecapSeen, recapDue } from '../lib/recap'
 import { Coin, COIN_D, COIN_R, COIN_RY, type CoinState } from '../components/Coin'
 import { Icon, type IconName } from '../components/Icons'
 import { InkPaths } from '../components/Ink'
 import { Streak } from '../components/Streak'
+import { WeekRecap } from '../components/WeekRecap'
 
 const W = 360
 const CX = W / 2
@@ -111,6 +113,7 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
   const due = dueCards(s.cards).length
   const [pressed, setPressed] = useState<string | null>(null)
   const curRef = useRef<SVGGElement>(null)
+  const [recap, setRecap] = useState(() => recapDue(getState()))
 
   useEffect(() => {
     curRef.current?.scrollIntoView({ block: 'center' })
@@ -136,6 +139,14 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
   return (
     <div className="home">
       <Streak />
+      {recap && (
+        <WeekRecap
+          onClose={() => {
+            setState(markRecapSeen)
+            setRecap(false)
+          }}
+        />
+      )}
       {due > 0 && (
         <header className="home-head">
           <button className="btn small due" onClick={() => go('/wiederholung/faellig')}>

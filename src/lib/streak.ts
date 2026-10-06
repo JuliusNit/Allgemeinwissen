@@ -3,13 +3,13 @@ import { today, type State } from './store'
 // Tages-Streak ohne eigenes Protokoll: aus vorhandenen Zeitstempeln abgeleitet
 // (eigene Chat-Nachrichten, Session-Start/-Abschluss, Kartenabfragen, Wiederholungs-Stationen).
 
-function localDate(ms: number): string {
+export function localDate(ms: number): string {
   const d = new Date(ms)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 /** 'YYYY-MM-DD' oder ISO-Zeitstempel → lokales Datum */
-function toDate(v: string): string {
+export function toDate(v: string): string {
   return v.length === 10 ? v : localDate(Date.parse(v))
 }
 

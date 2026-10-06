@@ -4,7 +4,7 @@ import { useStore } from '../lib/store'
 import { Icon } from './Icons'
 
 /** Tages-Streak oben rechts: Flamme schraffiert, wenn heute schon gelernt wurde */
-export function Streak() {
+export function Streak({ inline = false }: { inline?: boolean }) {
   const s = useStore((x) => x)
   const st = useMemo(() => streak(s), [s])
   const title = st.today
@@ -13,7 +13,7 @@ export function Streak() {
       ? `${st.days} ${st.days === 1 ? 'Tag' : 'Tage'} in Folge – heute noch lernen, sonst reißt die Serie`
       : 'Noch keine Serie – heute lernen startet sie'
   return (
-    <div className={`streak${st.today ? ' on' : ''}`} title={title} aria-label={title} role="status">
+    <div className={`streak${st.today ? ' on' : ''}${inline ? ' inline' : ''}`} title={title} aria-label={title} role="status">
       <Icon name="FLAME" size={24} hatched={st.today && 'hatch-orange'} />
       <span>{st.days}</span>
     </div>
