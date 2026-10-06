@@ -49,9 +49,9 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   - Kästen: `Frame`/`InkBorder` (`components/Ink.tsx`), freie Formen: `InkPaths` mit Strichen aus `lib/ink.ts`.
   - Alle übrigen CSS-Ränder zeichnet `src/lib/pen.ts` automatisch als Tusche (liest Breite/Farbe/Radius/gestrichelt aus dem CSS,
     Strich = Randbreite × 1,45). Neues Element mit Rand → Selektor in `SELECTOR` ergänzen oder `data-pen` setzen.
-    Schraffur-Hintergründe auf solchen Elementen über `--hatch` statt `background`. Knöpfe (`.btn`) nie massiv: keine schwarze
-    Füllung, kein Münzrand/Schatten/3D darunter – nur weißer Knopf mit einem Tusche-Umriss wie die Kästen; Hauptknopf (`.primary`) nur fette Schrift. CSS-`border`-Kurzform setzt `border-image` zurück – deshalb steht
-    der Stift-Rand in `.pen` mit `!important`.
+    Schraffur-Hintergründe auf solchen Elementen über `--hatch` statt `background`. Knöpfe (`.btn`): weiß mit Tusche-Umriss und
+    Münzrand darunter (`--pen-rim`, Schattenstriche wie auf Home), nie schwarz gefüllt, kein `box-shadow`; Hauptknopf (`.primary`) nur fette Schrift. CSS-`border`-Kurzform setzt `border-image` zurück – deshalb stehen
+    Rand und Hintergrund-Position in `.pen` mit `!important` (sonst versetztes, gekacheltes Tusche-Bild = fette Ecke oben links).
 - `src/views/ExamView.tsx` + `src/lib/exam.ts` – Prüfungsmodus `#/pruefung[/N]`: abgeschlossene Themen nach Dringlichkeit
   (Schwäche + Zeit seit letztem Abruf), oben Vorschlag, Münze fährt Kasten aus; Test = 1 Verständnis- + 1 Transferaufgabe
   (`examChat`), Ergebnisse in `exams`.
