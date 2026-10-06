@@ -1,5 +1,7 @@
 import { AREAS, BLOCKS, DAYS, getDay, isBlockMix, type AreaId, type Day } from '../data/plan'
-import { blockName, isRepeat, levelLabel, SCHOOL_GRADE } from '../data/school'
+import { FAECHER, fach, topicsUpTo, type Fach, type FachId } from '../data/lehrplan'
+import { blockName, DAY_FACH, isRepeat, knownUpTo, levelLabel, SCHOOL_GRADE } from '../data/school'
+import type { BasisNode } from './path'
 import { kiProxy } from './cloud'
 import { DONE_MARKER, statsTable } from './stats'
 import { dayState, examState, getState, videoNotesText, videosOf, type ChatMsg } from './store'
@@ -168,7 +170,7 @@ function sessionContext(d: Day): string {
       : `★-Pflichtvideos (nur deren Inhalt wird abgefragt): ${stars.map((v) => v.title).join(' · ') || '—'}`,
   ]
   if (isRepeat(s.level, d.day)) {
-    lines.push(`WIEDERHOLUNG: Für ${nm()} ist das Schulstoff (typisch Klasse ${SCHOOL_GRADE[d.day]}), also bekannt. Vorwissen aktivieren, Lücken aufdecken und vor allem mit Neuem und anderen Bereichen verknüpfen. Videos sind nur zum Auffrischen; abgefragt werden die Teilthemen insgesamt.`)
+    lines.push(`WIEDERHOLUNG: Für ${nm()} ist das Schulstoff (LehrplanPLUS Bayern bis Jgst. ${SCHOOL_GRADE[d.day]}), also bekannt. Vorwissen aktivieren, Lücken aufdecken und vor allem mit Neuem und anderen Bereichen verknüpfen. Videos sind nur zum Auffrischen; abgefragt werden die Teilthemen insgesamt.`)
   }
   if (optional.length) lines.push(`Optionale Videos (nicht abfragen): ${optional.map((v) => v.title).join(' · ')}`)
   if (d.evidence) lines.push('Evidenzcheck aktiv: bei Körper/Gesundheit/Psychologie immer „belegt vs. Hype“ einordnen (Studienlage, Evidenzstufe).')
@@ -187,7 +189,7 @@ function nm(): string {
 function levelLine(): string {
   const l = getState().level
   if (!l) return ''
-  if (l.kind === 'schule') return `Wissensstand: ${levelLabel(l)} (Gymnasium). Setze nur Schulwissen bis Klasse ${l.grade - 1} voraus, erkläre Fachbegriffe darüber hinaus und baue Neues auf dem Bekannten auf.`
+  if (l.kind === 'schule') return `Wissensstand: ${levelLabel(l)} (Gymnasium Bayern, LehrplanPLUS). Setze nur Schulwissen bis Jahrgangsstufe ${l.grade - 1} voraus, erkläre Fachbegriffe darüber hinaus und baue Neues auf dem Bekannten auf.`
   return `Wissensstand: ${levelLabel(l)}. Schulwissen bis zum Abitur gilt als bekannt – Schulthemen sind Wiederholung, darauf aufbauen.`
 }
 
@@ -275,6 +277,46 @@ ${ds.summary ? `Lernzettel:\n${clip(ds.summary, 3500)}` : '(kein Lernzettel vorh
 ${past.length ? `Frühere Prüfungen: ${past.map((r) => `${r.at.slice(0, 10)} ${r.score == null ? '–' : Math.round(r.score * 100) + ' %'}`).join(', ')}` : ''}
 
 ${earlierSessions(d)}`
+  return streamChat(system, history, onText)
+}
+
+// ---------- Grundwiederholung ----------
+
+/** Lehrplan-Ausschnitt eines Fachs bis zur bekannten Jahrgangsstufe */
+function fachLines(f: Fach, max: number): string {
+  return topicsUpTo(f, max).map(([g, t]) => `  Jgst. ${g}: ${t.join(' · ')}`).join('\n')
+}
+
+export function basisChat(n: BasisNode, history: ChatMsg[], onText: (t: string) => void) {
+  const s = getState()
+  const max = knownUpTo(s.level)
+  const mix = n.fach === 'mix'
+  const faecher = mix ? FAECHER.filter((f) => n.days.some((d) => DAY_FACH[d] === f.id)) : [fach(n.fach as FachId)]
+  const what =
+    n.variant === 'start'
+      ? `Grundwiederholung ${faecher[0].name} zu Beginn des Lernplans: Vorwissen aktivieren und Lücken finden, bevor Neues darauf aufbaut.`
+      : n.variant === 'auffrischung'
+        ? 'Auffrischung der Grundwiederholung zur Hälfte des Lernplans (verteiltes Wiederholen): Schulstoff aller Fächer gemischt, verknüpft mit dem inzwischen gelernten neuen Stoff.'
+        : 'Abschluss-Check des Grundwissens am Ende des Lernplans: Schulstoff aller Fächer gemischt, verknüpft mit allem, was in den 90 Tagen dazukam.'
+  const done = DAYS.filter((d) => dayState(s, d.day).status === 'fertig')
+  const system = `${persona()}
+
+Aufgabe: ${what}
+Grundlage ist der bayerische LehrplanPLUS (Gymnasium) bis einschließlich Jahrgangsstufe ${max}:
+${faecher.map((f) => `- ${f.name}:\n${fachLines(f, max)}`).join('\n')}
+
+Zugehörige Sessions im Lernplan (zum Vertiefen bei Lücken):
+${n.days.map((d) => `- ${dayLine(getDay(d))} – ${getDay(d).subtopics.join(' · ')}`).join('\n')}
+
+Regeln:
+- ${mix ? '6' : '4–6'} Fragen, IMMER nur EINE Frage pro Nachricht, dann auf die Antwort warten. Format „**Frage 2/5:** …“.
+- Quer über die Jahrgangsstufen und Lernbereiche; Kernwissen und Zusammenhänge statt Details, keine reinen Wiedergabefragen („Warum…?“, „Was passiert, wenn…?“, Einordnen auf Zeitstrahl/Karte).
+${mix ? '- Jede Frage verknüpft mindestens zwei Fächer oder Schulstoff mit einer neuen Session.\n' : ''}- Nach JEDER Antwort beginnt deine Nachricht in der ersten Zeile mit genau einem Marker:
+  [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]  (P = Präzision 1–5)
+- Danach kurz bewerten (✅ / 🟡 / ❌). Bei Fehlern kurz erklären, dann eine Nachfrage zum GLEICHEN Punkt.
+- Zum Schluss: Fazit als Tabelle „Lernbereich | sitzt / Lücke“, und für jede Lücke die passende Session nennen („→ Tag N öffnen“). Dann in die letzte Zeile exakt: ${DONE_MARKER}
+- Schreibe ${DONE_MARKER} niemals vorher.
+${done.length ? `\nBereits abgeschlossene Sessions (für Verknüpfungen):\n${done.map((d) => `- ${dayLine(d)}`).join('\n')}` : ''}`
   return streamChat(system, history, onText)
 }
 

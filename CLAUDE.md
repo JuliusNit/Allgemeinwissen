@@ -30,7 +30,11 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Modi: Anknüpfen, Fragen, Verständnischeck (Ende über `[[SESSION_ABGESCHLOSSEN]]`, Bewertung je Antwort über
   `[[BEWERTUNG: richtig|teilweise|falsch | 1-5]]`), Lernzettel + Karten (json_schema), Stärkenberatung, Kanal-Chat.
 - `src/lib/stats.ts` – wertet Marker + Zeitstempel aus (richtig, Antwortzeit, Präzision) je Session/Überthema.
-- `src/lib/path.ts` – Lernpfad: 90 Tage + Wiederholungs-Station nach je 4 Sessions (Begründung im Kommentar).
+- `src/lib/path.ts` – Lernpfad je Wissensstand (`buildPath(level)`): zuerst Grundwiederholung (je Schulfach eine Station `g-<fach>`
+  mit KI-Grundcheck; die Schulstoff-Sessions hängen an der Station statt im Pfad), Trennlinie, dann der neue Stoff mit
+  Abruf-Station nach je 4 Sessions, „Auffrischung“ (`g-auffrischung`) am Blockende nahe der Mitte, am Ende
+  Abschlusswiederholung (`w-ende`, unsicherste Karten) + Grundwissen-Check (`g-abschluss`). Begründung im Kommentar.
+  Ansicht der Stationen: `src/views/BasisView.tsx` (Route `#/wiederholung/g-…`), Chat in `basis` im Zustand.
 - `src/lib/srs.ts` – vereinfachtes SM-2 für Karteikarten.
 - `src/lib/ink.ts`, `components/Ink.tsx`, `Icons.tsx`, `Coin.tsx` – Tusche-Optik: exakte Formen, Strichbreite je nach Richtung.
 - Design: schwarz auf weiß, Schraffur statt Flächen, Farbe nur grün/rot in der Statistik. Navigation unten:
@@ -41,9 +45,10 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 - `src/views/Onboarding.tsx` – erster Start: 5 Slides (fluide vs. kristalline Intelligenz), dann Konto anlegen
   (E-Mail, Name, Passwort mit Stärke – Pflicht: 8+ Zeichen, klein/groß, Zahl, Sonderzeichen – + Wiederholung) und Wissensstand.
   Ohne Supabase nur Name + Wissensstand lokal.
-- `src/data/school.ts` – Wissensstand (Schule + Klasse / Studium / Ausbildung-Beruf) und `SCHOOL_GRADE` (Klassenstufe je Tag,
-  grob G9-Gymnasium, von Claude geschätzt). Studium/Beruf: aller Schulstoff = Wiederholungstag; Schule Kl. G: Stoff < G.
-  Wiederholungstage: „Wdh.“ im Pfad, Videos optional, Prompts fragen Teilthemen ab und suchen Lücken.
+- `src/data/school.ts` – Wissensstand (Schule + Klasse / Studium / Ausbildung-Beruf), `SCHOOL_GRADE` (Jahrgangsstufe je Tag nach
+  bayerischem LehrplanPLUS, Gymnasium G9) und `DAY_FACH` (Schulfach je Schulstoff-Tag). `src/data/lehrplan.ts` – Lernbereiche
+  je Fach und Jgst. 5–13 aus lehrplanplus.bayern.de (gekürzt), Grundlage für Grundcheck und Stationsseite. Studium/Beruf: aller Schulstoff = Wiederholungstag; Schule Kl. G: Stoff < G.
+  Wiederholungstage: in der Grundwiederholung (Station ihres Fachs), Videos optional, Prompts fragen Teilthemen ab und suchen Lücken.
 - Rollen: `user` (Standard) und `editor` (nur per SQL vergeben, Trigger schützt die Spalte). Nur der Editor ändert
   Videolisten (✎, ★, + Video, „anderes Video“) – gespeichert in `day_videos` für alle; darf außerdem jede Chat-Nachricht löschen.
 - Austausch: Kanäle ohne „#“ (IDs bleiben Slugs), Freunde (Suche nach Name, Anfrage → annehmen) + Direktnachrichten

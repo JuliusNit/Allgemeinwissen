@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { getDay } from '../data/plan'
-import { reviewNode, reviewReady } from '../lib/path'
+import { nodeReady, reviewNode } from '../lib/path'
 import { dueCards, intervalLabel, rateCard, type Rating } from '../lib/srs'
 import { getState, setState, today, useStore } from '../lib/store'
 import { CoinBadge } from '../components/Coin'
@@ -8,15 +8,20 @@ import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
 import { Markdown } from '../components/Markdown'
 
+/** Höchstzahl Karten der Abschlusswiederholung: die unsichersten zuerst (niedrigster Leichtigkeitsfaktor) */
+const FINAL_MAX = 60
+
 /** Karten fuer eine Station: alle Karten der abgedeckten Sessions (gemischt) + faellige Karten (max. 20) */
 function buildQueue(id: string): string[] {
   const s = getState()
-  const node = reviewNode(id)
+  const node = reviewNode(s, id)
   const due = dueCards(s.cards).map((c) => c.id)
   if (!node) return due
-  const own = s.cards.filter((c) => node.days.includes(c.day)).map((c) => c.id)
-  const extra = due.filter((x) => !own.includes(x)).slice(0, 20)
-  return shuffle([...own, ...extra])
+  let own = s.cards.filter((c) => node.days.includes(c.day))
+  if (node.final) own = [...own].sort((a, b) => a.ease - b.ease || b.reps - a.reps).slice(0, FINAL_MAX)
+  const ids = own.map((c) => c.id)
+  const extra = due.filter((x) => !ids.includes(x)).slice(0, 20)
+  return shuffle([...ids, ...extra])
 }
 
 function shuffle<T>(a: T[]): T[] {
@@ -29,8 +34,8 @@ function shuffle<T>(a: T[]): T[] {
 }
 
 export function ReviewView({ id, go }: { id: string; go: (hash: string) => void }) {
-  const node = reviewNode(id)
-  const ready = useStore((s) => (node ? reviewReady(s, node) : true))
+  const node = useStore((s) => reviewNode(s, id))
+  const ready = useStore((s) => (node ? nodeReady(s, node) : true))
   const doneAt = useStore((s) => s.reviews[id])
   const cards = useStore((s) => s.cards)
   const [queue, setQueue] = useState<string[]>(() => buildQueue(id))
@@ -39,7 +44,7 @@ export function ReviewView({ id, go }: { id: string; go: (hash: string) => void 
   const shownAt = useRef(0)
   const revealMs = useRef(0)
 
-  const title = node ? `Wiederholung · Tag ${node.days[0]}–${node.days[node.days.length - 1]}` : 'Fällige Karten'
+  const title = node ? (node.final ? 'Abschlusswiederholung' : `Wiederholung · Tag ${node.days[0]}–${node.days[node.days.length - 1]}`) : 'Fällige Karten'
   const card = cards.find((c) => c.id === queue[0])
 
   // Zeit bis zum Aufdecken messen, ab dem Moment, in dem die Karte erscheint
@@ -70,7 +75,8 @@ export function ReviewView({ id, go }: { id: string; go: (hash: string) => void 
       <CoinBadge icon="REVIEW" size={52} />
       <div>
         <h1>{title}</h1>
-        {node && <p className="muted small">{node.days.map((d) => getDay(d).title.split(/[:(]/)[0].trim()).join(' · ')}</p>}
+        {node && !node.final && <p className="muted small">{node.days.map((d) => getDay(d).title.split(/[:(]/)[0].trim()).join(' · ')}</p>}
+        {node?.final && <p className="muted small">Alle Sessions gemischt – die unsichersten Karten zuerst (max. {FINAL_MAX}).</p>}
       </div>
     </div>
   )
@@ -80,7 +86,7 @@ export function ReviewView({ id, go }: { id: string; go: (hash: string) => void 
       <div className="review">
         {head}
         <Frame className="card empty">
-          <p>Diese Station öffnet sich, wenn die Sessions <b>Tag {node.days.join(', ')}</b> abgeschlossen sind.</p>
+          <p>Diese Station öffnet sich, wenn {node.final ? <b>alle Sessions</b> : <>die Sessions <b>Tag {node.days.join(', ')}</b></>} abgeschlossen sind.</p>
           <p className="muted small">Abrufen statt Wiederlesen: hier werden die Karteikarten dieser Sessions gemischt abgefragt, dazu alles, was laut Wiederholungsplan fällig ist.</p>
         </Frame>
       </div>

@@ -96,6 +96,8 @@ export interface State {
   cardLog: CardLog[]
   /** abgeschlossene Wiederholungs-Stationen: id → Datum */
   reviews: Record<string, string>
+  /** Grundwiederholung: Station → Check-Chat */
+  basis: Record<string, ChatMsg[]>
   /** Pruefungsmodus: Tag → Tests */
   exams: Record<number, ExamState>
   community: CommunityMsg[]
@@ -126,6 +128,7 @@ const initial: State = {
   cards: [],
   cardLog: [],
   reviews: {},
+  basis: {},
   exams: {},
   community: [],
   profile: { name: '' },
@@ -153,6 +156,7 @@ function normalize(parsed: Partial<State>): State {
     focus: { ...parsed.focus },
     content: { ...parsed.content },
     exams: { ...parsed.exams },
+    basis: { ...parsed.basis },
     level: parseLevel(parsed.level),
     settings: migrateSettings(parsed.settings),
   }

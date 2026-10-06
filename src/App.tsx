@@ -12,6 +12,7 @@ import { HomeView } from './views/HomeView'
 import { Onboarding } from './views/Onboarding'
 import { ProfileView } from './views/ProfileView'
 import { ReviewView } from './views/ReviewView'
+import { BasisView } from './views/BasisView'
 import { StatsView } from './views/StatsView'
 
 type Tab = 'exam' | 'home' | 'chat' | 'stats' | 'profil'
@@ -117,7 +118,11 @@ export default function App() {
               back={() => go('/')}
             />
           ) : route.review ? (
-            <ReviewView key={route.review} id={route.review} go={go} />
+            route.review.startsWith('g-') ? (
+              <BasisView key={route.review} id={route.review} go={go} />
+            ) : (
+              <ReviewView key={route.review} id={route.review} go={go} />
+            )
           ) : (
             <HomeView go={go} />
           ))}
