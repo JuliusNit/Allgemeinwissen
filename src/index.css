@@ -290,9 +290,13 @@ label { display: block; font-size: 0.85rem; color: var(--muted); margin: 10px 0 
 }
 .area-name { flex: 1; font-weight: 600; }
 .area-pct { font-variant-numeric: tabular-nums; font-weight: 700; }
-.area-body { display: flex; gap: 16px; align-items: flex-start; }
-.pie { flex: none; overflow: visible; width: 36%; max-width: 150px; height: auto; position: sticky; top: 12px; }
-.topic-list { list-style: none; padding: 0; margin: 0; flex: 1; min-width: 0; }
+.area-body { display: flex; gap: 16px; align-items: center; }
+.pie { flex: none; overflow: visible; width: 36%; max-width: 150px; height: auto; }
+/* nur ~5 Themen sichtbar (Zeile ≈ 35px), Rest scrollbar */
+.topic-list {
+  list-style: none; padding: 0 4px 0 0; margin: 0; flex: 1; min-width: 0;
+  max-height: 176px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+}
 .topic-list button {
   width: 100%; display: flex; align-items: center; gap: 8px; background: none; border: 0;
   padding: 6px 2px; cursor: pointer; text-align: left; font-size: 0.92rem;
