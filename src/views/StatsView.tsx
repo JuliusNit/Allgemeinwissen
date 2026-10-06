@@ -62,7 +62,6 @@ export function StatsView({ area, day, go }: { area?: AreaId; day?: number; go: 
   return (
     <div className="stats">
       <h1>Statistik</h1>
-      <p className="muted small">Grün schraffiert = gut bearbeitet, rot = wackelig, weiß = noch offen.</p>
       <div className="area-list">
         {STAT_AREAS.map((a, i) => (
           <AreaBox key={a} area={a} left={i % 2 === 0} open={area === a} go={go} />

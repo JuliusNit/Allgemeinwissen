@@ -39,6 +39,10 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 - `src/lib/ink.ts`, `components/Ink.tsx`, `Icons.tsx`, `Coin.tsx` – Tusche-Optik: exakte Formen, Strichbreite je nach Richtung.
 - Design: schwarz auf weiß, Schraffur statt Flächen, Farbe nur grün/rot in der Statistik. Navigation unten:
   Prüfung · Austausch · Home (Lernpfad) · Statistik · Profil.
+- **Regel keine Erklärtexte (gilt für jede Änderung):** Keine hellgrauen Hinweis-/Erklärzeilen (`muted small` o. ä.), die
+  beschreiben, was die Oberfläche ohnehin zeigt – keine Legenden („Grün = …“), Bedienhinweise („Antippen öffnet …“),
+  Untertitel, die die Überschrift umschreiben, oder Methodik-Erklärungen. Erlaubt bleiben nur echte Information:
+  Metadaten (Tag, Fach, Datum), Leer-/Ladezustände, Fehlermeldungen, Quellenangaben.
 - **Regel Tusche-Optik (gilt für jede Änderung):** Alles außer Schrift – Kästen, Knöpfe, Felder, Chips, Trennlinien,
   Icons – sieht aus wie die Münzen auf Home: kräftiger, handgezeichneter Tusche-Strich (Federwinkel + Pinsel-Druckwechsel),
   nie ein glatter CSS-Rand/-Schatten. Umsetzung:

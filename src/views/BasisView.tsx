@@ -63,16 +63,10 @@ export function BasisView({ id, go }: { id: string; go: (hash: string) => void }
       {!ready ? (
         <Frame className="card empty">
           <p>Diese Station öffnet sich, wenn alle Sessions davor abgeschlossen sind.</p>
-          <p className="muted small">Verteiltes Wiederholen: der Schulstoff kommt mit wachsendem Abstand wieder – gemischt und verknüpft mit dem, was du inzwischen neu gelernt hast.</p>
         </Frame>
       ) : (
         <Frame className="card">
           <h2>Grundcheck {checkDone && '✓'}</h2>
-          <p className="muted small">
-            {node.variant === 'start'
-              ? 'Ein paar Fragen quer durch den Schulstoff: was sitzt, wo sind Lücken? Lücken schließt du mit den Sessions unten.'
-              : 'Fragen quer durch alle Fächer, verknüpft mit dem neuen Stoff.'}
-          </p>
           {history.length === 0 && !hasKey ? (
             <p className="muted">KI nicht verfügbar – bitte anmelden.</p>
           ) : (
@@ -115,7 +109,6 @@ export function BasisView({ id, go }: { id: string; go: (hash: string) => void }
 
       <Frame className="card">
         <h2>Sessions zum Vertiefen</h2>
-        <p className="muted small">Schulstoff-Sessions dieses {mix ? 'Plans' : 'Fachs'} – optional, vor allem bei Lücken.</p>
         <div className="chips">
           {node.days.map((n) => {
             const st = statuses[n]?.status ?? 'offen'

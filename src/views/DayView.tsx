@@ -189,9 +189,6 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
           <h2>{mix ? '2' : '3'} · Notizen</h2>
           {noteCount > 0 && <span className="muted small">{noteCount} am Video</span>}
         </div>
-        {!mix && noteCount === 0 && (
-          <p className="muted small">Notizen machst du direkt neben dem Video – mit Zeitmarke, zum Zurückspringen. Sie fließen in Check und Zusammenfassung ein.</p>
-        )}
         {videos.map((v) => {
           const notes = sortNotes(ds.videoNotes?.[v.id] ?? [])
           if (!notes.length) return null
@@ -368,7 +365,6 @@ function VideoList({
           <button className="btn ghost small" onClick={() => confirm('Videoliste auf Standard zurücksetzen?') && onReset()}>Zurücksetzen</button>
         </div>
       )}
-      <p className="muted small">★ = Pflichtvideo (wird abgefragt), ☆ = optional. Antippen öffnet das Video in der App mit Notizen daneben.{canEdit ? ' Als Editor änderst du die Videos für alle.' : ''}</p>
     </>
   )
 }

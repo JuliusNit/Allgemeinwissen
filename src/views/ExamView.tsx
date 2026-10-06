@@ -73,7 +73,6 @@ function ExamList({ go }: { go: (hash: string) => void }) {
   return (
     <div className="exam">
       <h1>Prüfung</h1>
-      <p className="muted small">Wiederholen wie in einer Prüfung: Zusammenhänge erklären und Neues mit dem Gelernten erschließen.</p>
 
       <Frame className="card exam-hero">
         <button className="exam-hero-coin" onClick={() => startTest(top.day, go)} aria-label={`${short(top.day)}: ${startLabel(top.day)}`}>
@@ -179,7 +178,6 @@ function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
         <>
           {!hasKey && <div className="notice">Für die Prüfung bitte anmelden – oder unter <b>Profil → KI</b> einen eigenen Key eintragen.</div>}
           <Frame className="card">
-            <p className="muted small">2 Aufgaben: erst Verständnis, dann Transfer – neues Material, das du mit diesem Thema erschließt.</p>
             {(hasKey || chat.length > 0) && (
               <Chat
                 key={`e-${day}-${gen}`}

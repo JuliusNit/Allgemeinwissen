@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { AREAS, DAYS } from '../data/plan'
 import { adviseFocus, describeError } from '../lib/ai'
-import { areaStats, STAT_AREAS } from '../lib/stats'
+import { areaStats, LIKE_GROUPS, LIKE_LABELS, STAT_AREAS } from '../lib/stats'
 import { cloud, saveDayVideos, saveLevel, signOut, useAiReady, useAuth } from '../lib/cloud'
 import { DEFAULT_API_URL, DEFAULT_MODEL, dayState, exportJson, getState, videosOf, importJson, resetAll, setState, today, useStore, type Settings } from '../lib/store'
 import { Avatar } from '../components/Avatar'
@@ -89,6 +89,10 @@ function Strengths() {
     }
   }
 
+  function like(id: string, v: number) {
+    setState((x) => ({ ...x, focus: { ...x.focus, likes: { ...x.focus.likes, [id]: v } } }))
+  }
+
   function choose(choice: string) {
     setState((x) => ({ ...x, focus: { ...x.focus, choice } }))
   }
@@ -130,6 +134,17 @@ function Strengths() {
 
       <h2 className="spaced">Nach den 90 Tagen</h2>
       {!allDone && <p className="muted small">Noch {DAYS.length - done} Sessions – danach entscheidest du: spezialisieren oder breit weitermachen.</p>}
+      <p className="small">Was hat dir gefallen? Grob einschätzen – fließt in die KI-Einschätzung ein.</p>
+      {LIKE_GROUPS.map((g) => {
+        const v = focus.likes?.[g.id]
+        return (
+          <label key={g.id} style={{ display: 'block', margin: '6px 0' }}>
+            <span className="small"><b>{g.name}</b> <span className="muted">– {v == null ? 'noch offen' : LIKE_LABELS[v]}</span></span>
+            <input type="range" min={0} max={4} step={1} value={v ?? 2} style={{ width: '100%', accentColor: 'currentColor', opacity: v == null ? 0.4 : 1 }}
+              onChange={(e) => like(g.id, Number(e.target.value))} aria-label={`${g.name}: wie gern`} />
+          </label>
+        )
+      })}
       <div className="focus-choice">
         <button className={`btn ${focus.choice === 'breit' ? 'primary' : ''}`} disabled={!allDone} onClick={() => choose('breit')}>Breit weitermachen</button>
         <select value={focus.choice && focus.choice !== 'breit' ? focus.choice : ''} disabled={!allDone} onChange={(e) => e.target.value && choose(e.target.value)}>
@@ -201,7 +216,6 @@ function Backup() {
   return (
     <Frame className="card">
       <h2>Sicherung & Gerätewechsel</h2>
-      <p className="muted small">Alles liegt lokal im Browser. Zum Wechsel zwischen Geräten: hier exportieren, dort importieren.</p>
       <div className="row">
         <button className="btn primary" onClick={download}>Exportieren</button>
         <button className="btn" onClick={() => fileRef.current?.click()}>Importieren</button>
@@ -262,7 +276,7 @@ function Editor() {
   return (
     <Frame className="card">
       <h2>Editor</h2>
-      <p className="muted small">Als Editor änderst du Videos (✎, ★, „anderes Video“) für alle. Normale Konten können nichts bearbeiten. {Object.keys(s.content).length} Tage haben eigene Videolisten.</p>
+      <p className="muted small">{Object.keys(s.content).length} Tage haben eigene Videolisten.</p>
       {local.length > 0 && (
         <>
           <p className="small">{local.length} Tage mit älteren Änderungen nur auf diesem Gerät (Tag {local.join(', ')}).</p>

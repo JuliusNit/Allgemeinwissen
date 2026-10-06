@@ -87,7 +87,6 @@ export function ReviewView({ id, go }: { id: string; go: (hash: string) => void 
         {head}
         <Frame className="card empty">
           <p>Diese Station öffnet sich, wenn {node.final ? <b>alle Sessions</b> : <>die Sessions <b>Tag {node.days.join(', ')}</b></>} abgeschlossen sind.</p>
-          <p className="muted small">Abrufen statt Wiederlesen: hier werden die Karteikarten dieser Sessions gemischt abgefragt, dazu alles, was laut Wiederholungsplan fällig ist.</p>
         </Frame>
       </div>
     )
@@ -140,7 +139,6 @@ export function ReviewView({ id, go }: { id: string; go: (hash: string) => void 
         ) : (
           <button className="btn primary wide" onClick={reveal}>Antwort zeigen</button>
         )}
-        <p className="muted small">Erst selbst beantworten (Active Recall), dann aufdecken.</p>
       </Frame>
     </div>
   )
