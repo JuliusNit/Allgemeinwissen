@@ -34,7 +34,8 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   mit KI-Grundcheck; die Schulstoff-Sessions hängen an der Station statt im Pfad), Trennlinie, dann der neue Stoff mit
   Abruf-Station nach je 4 Sessions, „Auffrischung“ (`g-auffrischung`) am Blockende nahe der Mitte, am Ende
   Abschlusswiederholung (`w-ende`, unsicherste Karten) + Grundwissen-Check (`g-abschluss`). Begründung im Kommentar.
-  Ansicht der Stationen: `src/views/BasisView.tsx` (Route `#/wiederholung/g-…`), Chat in `basis` im Zustand.
+  Ansicht der Stationen: `src/views/BasisView.tsx` (Route `#/wiederholung/g-…`), Chat in `basis` im Zustand. Lehrplan-Kasten zeigt je Jgst.
+  die Videos der Stationssessions (gleiche Jgst. laut `SCHOOL_GRADE`), abspielbar unter `#/wiederholung/g-…/video/Tag/ID[/Sek.]`.
 - `src/lib/srs.ts` – vereinfachtes SM-2 für Karteikarten.
 - `src/lib/ink.ts`, `components/Ink.tsx`, `Icons.tsx`, `Coin.tsx` – Tusche-Optik: exakte Formen, Strichbreite je nach Richtung.
 - Design: schwarz auf weiß, Schraffur statt Flächen, Farbe nur grün/rot in der Statistik. Navigation unten:

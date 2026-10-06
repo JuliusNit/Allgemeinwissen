@@ -18,7 +18,7 @@ import { StatsView } from './views/StatsView'
 type Tab = 'exam' | 'home' | 'chat' | 'stats' | 'profil'
 
 type Route =
-  | { tab: 'home'; day?: number; review?: string; video?: string; at?: number }
+  | { tab: 'home'; day?: number; review?: string; vday?: number; video?: string; at?: number }
   | { tab: 'chat'; channel?: string }
   | { tab: 'stats'; area?: AreaId; day?: number }
   | { tab: 'profil' }
@@ -26,13 +26,16 @@ type Route =
 
 function parseHash(): Route {
   const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)
-  const [a, b, c, d, e] = parts
+  const [a, b, c, d, e, f] = parts
   if (a === 'tag' && b) {
     const day = Math.min(90, Math.max(1, Number(b) || 1))
     if (c === 'video' && d) return { tab: 'home', day, video: decodeURIComponent(d), at: e ? Number(e) || 0 : undefined }
     return { tab: 'home', day }
   }
-  if (a === 'wiederholung' && b) return { tab: 'home', review: b }
+  if (a === 'wiederholung' && b) {
+    if (c === 'video' && d && e) return { tab: 'home', review: b, vday: Math.min(90, Math.max(1, Number(d) || 1)), video: decodeURIComponent(e), at: f ? Number(f) || 0 : undefined }
+    return { tab: 'home', review: b }
+  }
   if (a === 'chat') return { tab: 'chat', channel: b }
   if (a === 'statistik') {
     const area = b && b in AREAS ? (b as AreaId) : undefined
@@ -119,7 +122,27 @@ export default function App() {
             />
           ) : route.review ? (
             route.review.startsWith('g-') ? (
-              <BasisView key={route.review} id={route.review} go={go} />
+              <BasisView
+                key={route.review}
+                id={route.review}
+                go={go}
+                vday={route.vday}
+                video={route.video}
+                at={route.at}
+                openVideo={(day, id, t) => {
+                  const hash = `#/wiederholung/${route.review}/video/${day}/${encodeURIComponent(id)}${t !== undefined ? `/${Math.floor(t)}` : ''}`
+                  if (route.video) location.replace(hash)
+                  else {
+                    videoFromSession = true
+                    location.hash = hash
+                  }
+                }}
+                closeVideo={() => {
+                  if (videoFromSession) history.back()
+                  else go(`/wiederholung/${route.review}`)
+                  videoFromSession = false
+                }}
+              />
             ) : (
               <ReviewView key={route.review} id={route.review} go={go} />
             )
