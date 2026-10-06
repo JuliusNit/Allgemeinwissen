@@ -9,6 +9,10 @@ export interface Stroke {
   closed?: boolean
   /** Faktor auf die Grundbreite */
   w?: number
+  /** Druckwechsel entlang des Strichs wie bei einem Pinsel (0 = gleichmaessig, 0.2 = +-20 %) */
+  p?: number
+  /** Startwert fuer den Druckverlauf, damit nicht jeder Strich gleich schwankt */
+  seed?: number
 }
 
 const STEP = 0.45
@@ -98,11 +102,11 @@ export function curve(f: (t: number) => Pt, n: number, w?: number): Stroke {
 }
 
 /** Abgerundetes Rechteck als ein geschlossener Strich */
-export function roundRect(x: number, y: number, wd: number, ht: number, r: number, w?: number): Stroke {
+export function roundRect(x: number, y: number, wd: number, ht: number, r: number, w?: number, step = STEP * 2): Stroke {
   r = Math.max(0, Math.min(r, wd / 2, ht / 2))
   const pts: Pt[] = []
   const edge = (a: Pt, b: Pt) => {
-    const n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / (STEP * 2)))
+    const n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step))
     for (let i = 0; i < n; i++) pts.push([a[0] + ((b[0] - a[0]) * i) / n, a[1] + ((b[1] - a[1]) * i) / n])
   }
   const corner = (cx: number, cy: number, a0: number) => {
@@ -121,6 +125,25 @@ export function roundRect(x: number, y: number, wd: number, ht: number, r: numbe
   edge([x, y + ht - r], [x, y + r])
   corner(x + r, y + r, 180)
   return { pts, closed: true, w }
+}
+
+/** Strich in Teilstriche zerlegen (gestrichelt); Laengen in px entlang des Strichs */
+export function dashes(s: Stroke, dash: number, gap: number): Stroke[] {
+  const out: Stroke[] = []
+  const pts = s.closed ? [...s.pts, s.pts[0]] : s.pts
+  const push = (c: Pt[]) => c.length > 1 && out.push({ pts: c, w: s.w, p: s.p, seed: (s.seed ?? 0) + out.length })
+  let cur: Pt[] = []
+  let pos = 0
+  for (let i = 0; i < pts.length; i++) {
+    if (i > 0) pos += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])
+    if (pos % (dash + gap) < dash) cur.push(pts[i])
+    else if (cur.length) {
+      push(cur)
+      cur = []
+    }
+  }
+  push(cur)
+  return out
 }
 
 /** Pfeilspitze am Ende eines Strichs */
@@ -144,6 +167,8 @@ export function outline(s: Stroke, base: number): string {
   const L: number[] = [0]
   for (let i = 1; i < n; i++) L.push(L[i - 1] + Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]))
   const total = L[n - 1]
+  const pr = s.p ?? 0
+  const sd = s.seed ?? 0
   const left: Pt[] = []
   const right: Pt[] = []
   for (let i = 0; i < n; i++) {
@@ -155,6 +180,7 @@ export function outline(s: Stroke, base: number): string {
     tx /= tl
     ty /= tl
     let w = base * (s.w ?? 1) * (0.62 + 0.55 * Math.abs(Math.sin(Math.atan2(ty, tx) - NIB)))
+    if (pr) w *= 1 + pr * (0.6 * Math.sin(L[i] / 19 + sd) + 0.4 * Math.sin(L[i] / 53 + sd * 2.3))
     if (!closed) {
       const e = Math.min(L[i], total - L[i])
       w *= Math.min(1, 0.55 + e / (base * 3))

@@ -33,7 +33,7 @@ export function HatchDefs() {
 }
 
 /** Tusche-Rahmen um das Elternelement (Elternelement braucht position: relative) */
-export function InkBorder({ r = 14, w = 2.3 }: { r?: number; w?: number }) {
+export function InkBorder({ r = 14, w = 3.3 }: { r?: number; w?: number }) {
   const ref = useRef<SVGSVGElement>(null)
   const [size, setSize] = useState<[number, number] | null>(null)
   useLayoutEffect(() => {
@@ -48,7 +48,11 @@ export function InkBorder({ r = 14, w = 2.3 }: { r?: number; w?: number }) {
   const d = useMemo(() => {
     if (!size || size[0] < 4 || size[1] < 4) return ''
     const pad = w / 2 + 0.6
-    return outline(roundRect(pad, pad, size[0] - 2 * pad, size[1] - 2 * pad, r), w)
+    const box = roundRect(pad, pad, size[0] - 2 * pad, size[1] - 2 * pad, r, undefined, 1.4)
+    // gleicher Pinsel-Druckwechsel wie beim Tusche-Stift (lib/pen.ts)
+    box.p = 0.16
+    box.seed = (size[0] * 7 + size[1] * 13) % 17
+    return outline(box, w)
   }, [size, r, w])
   return (
     <svg ref={ref} className="ink-border" aria-hidden>

@@ -39,6 +39,14 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 - `src/lib/ink.ts`, `components/Ink.tsx`, `Icons.tsx`, `Coin.tsx` – Tusche-Optik: exakte Formen, Strichbreite je nach Richtung.
 - Design: schwarz auf weiß, Schraffur statt Flächen, Farbe nur grün/rot in der Statistik. Navigation unten:
   Prüfung · Austausch · Home (Lernpfad) · Statistik · Profil.
+- **Regel Tusche-Optik (gilt für jede Änderung):** Alles außer Schrift – Kästen, Knöpfe, Felder, Chips, Trennlinien,
+  Icons – sieht aus wie die Münzen auf Home: kräftiger, handgezeichneter Tusche-Strich (Federwinkel + Pinsel-Druckwechsel),
+  nie ein glatter CSS-Rand/-Schatten. Umsetzung:
+  - Kästen: `Frame`/`InkBorder` (`components/Ink.tsx`), freie Formen: `InkPaths` mit Strichen aus `lib/ink.ts`.
+  - Alle übrigen CSS-Ränder zeichnet `src/lib/pen.ts` automatisch als Tusche (liest Breite/Farbe/Radius/gestrichelt aus dem CSS,
+    Strich = Randbreite × 1,45). Neues Element mit Rand → Selektor in `SELECTOR` ergänzen oder `data-pen` setzen.
+    Schraffur-Hintergründe auf solchen Elementen über `--hatch` statt `background`. Knöpfe (`.btn`) haben wie Münzen einen
+    Rand darunter (`--pen-rim`, Füllung `--pen-fill`); kein `box-shadow`/`transform` für 3D-Effekte.
 - `src/views/ExamView.tsx` + `src/lib/exam.ts` – Prüfungsmodus `#/pruefung[/N]`: abgeschlossene Themen nach Dringlichkeit
   (Schwäche + Zeit seit letztem Abruf), oben Vorschlag, Münze fährt Kasten aus; Test = 1 Verständnis- + 1 Transferaufgabe
   (`examChat`), Ergebnisse in `exams`.
