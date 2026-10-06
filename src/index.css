@@ -496,7 +496,7 @@ span.star { cursor: default; }
 
 /* Regler in Tusche-Optik: Schiene als Umriss, gefuellter Teil schraffiert, Knopf als Muenze; natives range liegt unsichtbar darueber */
 .like-row { display: block; margin: 8px 0 12px; }
-.ink-range { position: relative; height: 26px; margin-top: 4px; }
+.ink-range { display: block; position: relative; height: 26px; margin-top: 4px; }
 .ink-range-track { position: absolute; left: 0; right: 0; top: 9px; height: 8px; border: 1.5px solid var(--ink); border-radius: 6px; }
 .ink-range-fill { position: absolute; left: 0; top: 9px; height: 8px; border: 1.5px solid var(--ink); border-radius: 6px;
   --hatch: repeating-linear-gradient(45deg, var(--ink) 0 1.5px, transparent 1.5px 4px); background-image: var(--hatch); }

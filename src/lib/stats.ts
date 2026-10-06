@@ -119,6 +119,22 @@ export function areaStats(s: State, area: AreaId): AreaStats {
   }
 }
 
+/** Grobe Bereiche für die Selbsteinschätzung „was hat mir gefallen“ (Regler im Profil) */
+export const LIKE_GROUPS: { id: string; name: string; areas: AreaId[] }[] = [
+  { id: 'natur', name: 'Naturwissenschaft & Technik', areas: ['PHY', 'CHE', 'BIO', 'NERV', 'GEO', 'TECH'] },
+  { id: 'gesellschaft', name: 'Gesellschaft, Politik & Wirtschaft', areas: ['GESCH', 'POL', 'WIRT'] },
+  { id: 'mensch', name: 'Mensch & Denken', areas: ['PSY', 'PHIL', 'DENK'] },
+  { id: 'kultur', name: 'Kultur, Kunst & Sprache', areas: ['LIT', 'KUL'] },
+]
+export const LIKE_LABELS = ['gar nicht', 'wenig', 'mittel', 'gern', 'sehr gern']
+
+export function likesTable(s: State): string {
+  const likes = s.focus.likes ?? {}
+  return LIKE_GROUPS.filter((g) => likes[g.id] != null)
+    .map((g) => `${g.name} (${g.areas.map((a) => AREAS[a].name).join(', ')}): ${LIKE_LABELS[likes[g.id]]} (${likes[g.id]}/4)`)
+    .join('\n')
+}
+
 /** Kompakte Kennzahlen-Tabelle fuer die KI-Beratung */
 export function statsTable(s: State): string {
   const rows = STAT_AREAS.map((a) => areaStats(s, a))

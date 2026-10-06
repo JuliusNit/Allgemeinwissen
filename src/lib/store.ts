@@ -87,6 +87,7 @@ export interface Focus {
   choice?: string // 'breit' oder Bereichs-ID
   advice?: string
   at?: string
+  likes?: Record<string, number> // Selbsteinschätzung je Grobbereich (LIKE_GROUPS), 0–4
 }
 
 export interface State {

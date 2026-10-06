@@ -134,14 +134,20 @@ function Strengths() {
 
       <h2 className="spaced">Nach den 90 Tagen</h2>
       {!allDone && <p className="muted small">Noch {DAYS.length - done} Sessions – danach entscheidest du: spezialisieren oder breit weitermachen.</p>}
-      <p className="small">Was hat dir gefallen? Grob einschätzen – fließt in die KI-Einschätzung ein.</p>
+      <p className="small"><b>Was hat dir gefallen?</b></p>
       {LIKE_GROUPS.map((g) => {
         const v = focus.likes?.[g.id]
+        const pct = ((v ?? 2) / 4) * 100
         return (
-          <label key={g.id} style={{ display: 'block', margin: '6px 0' }}>
-            <span className="small"><b>{g.name}</b> <span className="muted">– {v == null ? 'noch offen' : LIKE_LABELS[v]}</span></span>
-            <input type="range" min={0} max={4} step={1} value={v ?? 2} style={{ width: '100%', accentColor: 'currentColor', opacity: v == null ? 0.4 : 1 }}
-              onChange={(e) => like(g.id, Number(e.target.value))} aria-label={`${g.name}: wie gern`} />
+          <label key={g.id} className="like-row">
+            <span className="small">{g.name} – {v == null ? 'offen' : LIKE_LABELS[v]}</span>
+            <span className={`ink-range ${v == null ? 'open' : ''}`}>
+              <span className="ink-range-track" data-pen />
+              {v != null && v > 0 && <span className="ink-range-fill" data-pen style={{ width: `${pct}%` }} />}
+              <span className="ink-range-knob" data-pen style={{ left: `calc(11px + (100% - 22px) * ${pct / 100})` }} />
+              <input type="range" min={0} max={4} step={1} value={v ?? 2} onChange={(e) => like(g.id, Number(e.target.value))}
+                onPointerUp={(e) => v == null && like(g.id, Number(e.currentTarget.value))} aria-label={g.name} />
+            </span>
           </label>
         )
       })}

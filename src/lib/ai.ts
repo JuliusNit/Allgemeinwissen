@@ -3,7 +3,7 @@ import { FAECHER, fach, topicsUpTo, type Fach, type FachId } from '../data/lehrp
 import { blockName, DAY_FACH, isRepeat, knownUpTo, levelLabel, SCHOOL_GRADE } from '../data/school'
 import type { BasisNode } from './path'
 import { kiProxy } from './cloud'
-import { DONE_MARKER, statsTable } from './stats'
+import { DONE_MARKER, likesTable, statsTable } from './stats'
 import { dayState, examState, getState, videoNotesText, videosOf, type ChatMsg } from './store'
 
 export { DONE_MARKER }
@@ -401,12 +401,13 @@ export async function adviseFocus(): Promise<string> {
   const done = DAYS.filter((d) => dayState(s, d.day).status === 'fertig').length
   const system = `${persona()}
 
-Du berätst ${nm()}, worin die Stärken liegen und welche Themen liegen. SEHR KURZ, höchstens 5 Zeilen, keine Einleitung:
+Du berätst ${nm()}, worin die Stärken liegen und welche Themen liegen. SEHR KURZ, höchstens 6 Zeilen, keine Einleitung:
 - 2–3 Zeilen nach dem Muster „**Bereich**: x % richtig, Ø y s, Präzision z/5“ – nur die auffälligsten (stark und schwach).
-- 1 Zeile „Deshalb könnte dir … liegen“ mit 1–2 konkreten Vertiefungsrichtungen.
+- 1 Zeile: Abgleich mit der Selbsteinschätzung („gefallen“) – wo Können und Gefallen zusammenpassen, wo nicht.
+- 1 Zeile „Deshalb könnte dir … liegen“ mit 1–2 konkreten Vertiefungsrichtungen – bevorzugt dort, wo gut UND gern zusammenkommen.
 - 1 Zeile: Alternative – breit weitermachen mit gefächertem Allgemeinwissen, und wann das sinnvoller wäre.
-Stütze dich nur auf die Zahlen. Wenig Daten? Dann sag das in einem Halbsatz.`
-  const user = `Abgeschlossene Sessions: ${done}/90\nKennzahlen je Überthema:\n${statsTable(s) || '(noch keine Daten)'}`
+Stütze dich nur auf die Zahlen und die Selbsteinschätzung. Wenig Daten? Dann sag das in einem Halbsatz.`
+  const user = `Abgeschlossene Sessions: ${done}/90\nKennzahlen je Überthema:\n${statsTable(s) || '(noch keine Daten)'}\nSelbsteinschätzung, was gefallen hat:\n${likesTable(s) || '(nicht angegeben)'}`
   return complete(system, user, 900)
 }
 
