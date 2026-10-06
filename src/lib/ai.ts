@@ -340,7 +340,7 @@ Stütze dich nur auf die Zahlen. Wenig Daten? Dann sag das in einem Halbsatz.`
 // ---------- Community-Chat ----------
 
 export function channelChat(area: AreaId | null, history: { author: 'ich' | 'ki'; text: string }[], onText: (t: string) => void) {
-  const topic = area ? `Kanal #${AREAS[area].name} – nur Themen aus diesem Bereich.` : 'Kanal #allgemein – alle Themen des Lernplans.'
+  const topic = area ? `Kanal „${AREAS[area].name}“ – nur Themen aus diesem Bereich.` : 'Allgemeiner Kanal oder Direktnachricht – alle Themen des Lernplans.'
   const system = `${persona()}
 
 Du bist im Themen-Chat der App als „KI“ dabei. ${topic}

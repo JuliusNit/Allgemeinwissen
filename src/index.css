@@ -321,7 +321,12 @@ details summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
   padding: 6px 8px; cursor: pointer; text-align: left; color: var(--muted); font-weight: 600;
 }
 .channels button.active, .channels button:hover { color: var(--ink); background: repeating-linear-gradient(45deg, transparent 0 4px, #0001 4px 5px); }
-.hash { font-weight: 400; font-size: 1.15rem; color: var(--muted); }
+.side-head { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 14px 0 4px; }
+.badge { margin-left: auto; background: var(--ink); color: var(--paper); border-radius: 999px; font-size: 0.72rem; padding: 0 7px; }
+.friend-list { list-style: none; padding: 0; margin: 6px 0 0; }
+.friend-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1.5px solid var(--faint); flex-wrap: wrap; }
+.friend-row b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.friend-actions { display: flex; gap: 6px; align-items: center; }
 .channel { display: flex; flex-direction: column; min-height: 0; height: calc(100vh - 130px); }
 .channel-head { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); }
 .channel-log { flex: 1; overflow-y: auto; padding: 12px 2px; display: flex; flex-direction: column; gap: 14px; }

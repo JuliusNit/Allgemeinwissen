@@ -213,6 +213,7 @@ export interface CloudMsg {
   is_ki: boolean
   text: string
   created_at: string
+  recipient?: string | null
 }
 
 export interface CloudProfile {
@@ -266,12 +267,87 @@ export async function fetchMessages(channel: string, limit = 150): Promise<Cloud
   return ((data ?? []) as CloudMsg[]).reverse()
 }
 
-export async function postMessage(channel: string, text: string, isKi = false): Promise<CloudMsg> {
+/** Oeffentlicher Kanal – oder mit `to` Direktnachricht an einen Freund (channel 'dm') */
+export async function postMessage(channel: string, text: string, isKi = false, to?: string): Promise<CloudMsg> {
   const c = need()
   const uid = await ensureUser()
-  const { data, error } = await c.from('messages').insert({ channel, text: text.slice(0, 4000), is_ki: isKi, user_id: uid }).select().single()
-  if (error) throw new Error(`Senden fehlgeschlagen: ${error.message}`)
+  const row = { channel: to ? 'dm' : channel, text: text.slice(0, 4000), is_ki: isKi, user_id: uid, ...(to ? { recipient: to } : {}) }
+  const { data, error } = await c.from('messages').insert(row).select().single()
+  if (error) throw new Error(`Senden fehlgeschlagen: ${missingSql(error.message) ?? error.message}`)
   return data as CloudMsg
+}
+
+/** Direktnachrichten zwischen mir und einem Freund */
+export async function fetchDirect(me: string, friend: string, limit = 150): Promise<CloudMsg[]> {
+  if (!cloud) return []
+  const { data, error } = await cloud
+    .from('messages')
+    .select('*')
+    .eq('channel', 'dm')
+    .or(`and(user_id.eq.${me},recipient.eq.${friend}),and(user_id.eq.${friend},recipient.eq.${me})`)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw new Error(`Nachrichten konnten nicht geladen werden: ${missingSql(error.message) ?? error.message}`)
+  return ((data ?? []) as CloudMsg[]).reverse()
+}
+
+/** Hinweis, falls supabase/004_freunde.sql noch nicht ausgefuehrt wurde */
+function missingSql(m: string): string | null {
+  return /friendships|recipient|are_friends|schema cache/i.test(m) ? 'Freunde sind auf dem Server noch nicht eingerichtet (supabase/004_freunde.sql ausführen).' : null
+}
+
+// ---------- Freunde ----------
+
+export interface Friendship {
+  id: number
+  requester: string
+  addressee: string
+  status: 'pending' | 'accepted'
+  created_at: string
+}
+
+export async function fetchFriendships(): Promise<Friendship[]> {
+  const { data, error } = await need().from('friendships').select('*').order('created_at', { ascending: false })
+  if (error) throw new Error(missingSql(error.message) ?? `Freunde konnten nicht geladen werden: ${error.message}`)
+  return (data ?? []) as Friendship[]
+}
+
+/** Konten nach Name suchen (ohne mich selbst) */
+export async function searchProfiles(q: string, me: string): Promise<CloudProfile[]> {
+  const term = q.trim().replace(/[%_,()\\]/g, '')
+  if (term.length < 2) return []
+  const { data, error } = await need().from('profiles').select('id,name,avatar').ilike('name', `%${term}%`).neq('id', me).order('name').limit(12)
+  if (error) throw new Error(`Suche fehlgeschlagen: ${error.message}`)
+  const list = (data ?? []) as CloudProfile[]
+  for (const p of list) profiles.set(p.id, p)
+  return list
+}
+
+export async function requestFriend(id: string) {
+  const uid = await ensureUser()
+  const { error } = await need().from('friendships').insert({ requester: uid, addressee: id })
+  if (error) throw new Error(/duplicate|unique/i.test(error.message) ? 'Ihr seid schon befreundet oder es gibt bereits eine Anfrage.' : missingSql(error.message) ?? `Anfrage fehlgeschlagen: ${error.message}`)
+}
+
+export async function acceptFriend(id: number) {
+  const { error } = await need().from('friendships').update({ status: 'accepted' }).eq('id', id)
+  if (error) throw new Error(`Annehmen fehlgeschlagen: ${error.message}`)
+}
+
+/** Anfrage ablehnen/zurueckziehen oder Freundschaft beenden */
+export async function removeFriend(id: number) {
+  const { error } = await need().from('friendships').delete().eq('id', id)
+  if (error) throw new Error(`Entfernen fehlgeschlagen: ${error.message}`)
+}
+
+/** Live: jede Aenderung an meinen Freundschaften */
+export function subscribeFriends(onChange: () => void): () => void {
+  if (!cloud) return () => {}
+  const c = cloud
+  const sub = c.channel(`friendships:${Math.random().toString(36).slice(2)}`).on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, () => onChange()).subscribe()
+  return () => {
+    void c.removeChannel(sub)
+  }
 }
 
 export async function deleteMessage(id: number) {
@@ -280,12 +356,13 @@ export async function deleteMessage(id: number) {
   if (error) throw new Error(`Löschen fehlgeschlagen: ${error.message}`)
 }
 
-/** Live: neue und geloeschte Nachrichten eines Kanals */
+/** Live: neue und geloeschte Nachrichten eines Kanals ('dm' = alle meine Direktnachrichten, RLS filtert) */
 export function subscribe(channel: string, onInsert: (m: CloudMsg) => void, onDelete: (id: number) => void): () => void {
   if (!cloud) return () => {}
   const c = cloud
+  // eindeutiger Name: removeChannel laeuft asynchron, ein gleichnamiger neuer Kanal bekaeme sonst den alten zurueck
   const sub = c
-    .channel(`messages:${channel}`)
+    .channel(`messages:${channel}:${Math.random().toString(36).slice(2)}`)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `channel=eq.${channel}` }, (p) => onInsert(p.new as CloudMsg))
     .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, (p) => onDelete((p.old as { id: number }).id))
     .subscribe()
