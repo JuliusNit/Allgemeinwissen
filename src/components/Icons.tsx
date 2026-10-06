@@ -237,11 +237,11 @@ const DEFS: Record<IconName, IconDef> = {
   MAIL: { strokes: [roundRect(2.6, 5, 18.8, 14, 2.4), ...poly([[3.4, 6.2], [12, 13], [20.6, 6.2]])] },
 }
 
-export function Icon({ name, size = 28, w = 1.55, hatched = false, title }: { name: IconName; size?: number; w?: number; hatched?: boolean; title?: string }) {
+export function Icon({ name, size = 28, w = 1.55, hatched = false, title }: { name: IconName; size?: number; w?: number; hatched?: boolean | string; title?: string }) {
   const def = DEFS[name]
   return (
     <svg className="icon" width={size} height={size} viewBox="-1 -1 26 26" role={title ? 'img' : undefined} aria-label={title} aria-hidden={title ? undefined : true}>
-      {hatched && def.fill && <path d={def.fill} fill="url(#hatch)" />}
+      {hatched && def.fill && <path d={def.fill} fill={`url(#${typeof hatched === 'string' ? hatched : 'hatch'})`} />}
       <InkPaths strokes={def.strokes} w={w} />
     </svg>
   )

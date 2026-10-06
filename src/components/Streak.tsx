@@ -14,7 +14,7 @@ export function Streak() {
       : 'Noch keine Serie – heute lernen startet sie'
   return (
     <div className={`streak${st.today ? ' on' : ''}`} title={title} aria-label={title} role="status">
-      <Icon name="FLAME" size={24} hatched={st.today} />
+      <Icon name="FLAME" size={24} hatched={st.today && 'hatch-orange'} />
       <span>{st.days}</span>
     </div>
   )

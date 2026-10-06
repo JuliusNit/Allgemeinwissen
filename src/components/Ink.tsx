@@ -26,6 +26,7 @@ export function HatchDefs() {
         {pat('hatch', '#000', 3.2, 0.9)}
         {pat('hatch-green', '#14892c', 5, 1.6)}
         {pat('hatch-red', '#d0021b', 5, 1.6)}
+        {pat('hatch-orange', '#f27a00', 2.6, 1.3)}
       </defs>
     </svg>
   )
