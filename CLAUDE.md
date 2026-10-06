@@ -51,7 +51,8 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
     Strich = Randbreite × 1,45). Neues Element mit Rand → Selektor in `SELECTOR` ergänzen oder `data-pen` setzen.
     Schraffur-Hintergründe auf solchen Elementen über `--hatch` statt `background`. Knöpfe (`.btn`) haben wie Münzen einen
     Rand darunter (`--pen-rim`); kein `box-shadow`/`transform` für 3D-Effekte. Knöpfe nie massiv (schwarz) füllen –
-    immer weiß mit Tusche-Rand; Hauptknopf (`.primary`) nur kräftigerer Strich (`--pen-k`).
+    immer weiß mit Tusche-Rand; Hauptknopf (`.primary`) nur fette Schrift. CSS-`border`-Kurzform setzt `border-image` zurück – deshalb steht
+    der Stift-Rand in `.pen` mit `!important`.
 - `src/views/ExamView.tsx` + `src/lib/exam.ts` – Prüfungsmodus `#/pruefung[/N]`: abgeschlossene Themen nach Dringlichkeit
   (Schwäche + Zeit seit letztem Abruf), oben Vorschlag, Münze fährt Kasten aus; Test = 1 Verständnis- + 1 Transferaufgabe
   (`examChat`), Ergebnisse in `exams`.
