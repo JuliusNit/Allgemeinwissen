@@ -4,7 +4,7 @@ import { InkPaths } from './Ink'
 
 // Alle Icons im 24er-Raster, gezeichnet mit der Tusche-Feder aus lib/ink.
 
-export type IconName = AreaId | 'REVIEW' | 'HOME' | 'STATS' | 'PROFILE' | 'CHAT' | 'CHECK' | 'LOCK' | 'BACK' | 'BOLT' | 'CRYSTAL' | 'MAIL'
+export type IconName = AreaId | 'REVIEW' | 'HOME' | 'STATS' | 'PROFILE' | 'CHAT' | 'CHECK' | 'LOCK' | 'BACK' | 'BOLT' | 'CRYSTAL' | 'MAIL' | 'FLAME'
 
 interface IconDef {
   strokes: Stroke[]
@@ -219,6 +219,20 @@ const DEFS: Record<IconName, IconDef> = {
       line([12, 2.4], [12, 10.4], 0.7),
     ],
     fill: 'M12 2.4L18 7.6L17 17.4L12 21.6L7 17.4L6 7.6Z',
+  },
+  // Tages-Streak
+  FLAME: {
+    strokes: [
+      bez([12, 21.6], [5.4, 21.6], [3.6, 15.4], [6.4, 10.6]),
+      bez([6.4, 10.6], [7.4, 12.6], [8.6, 13.2], [9.4, 13]),
+      bez([9.4, 13], [8.4, 8.4], [10.6, 4.6], [13.4, 2.4]),
+      bez([13.4, 2.4], [13.6, 6.6], [20.4, 9.8], [18.6, 16]),
+      bez([18.6, 16], [17.8, 19.4], [15, 21.6], [12, 21.6]),
+      bez([12, 19.4], [9.4, 19.4], [8.6, 16.6], [10.4, 14.4], 0.8),
+      bez([10.4, 14.4], [11, 15.6], [12.4, 15.8], [12.6, 13.8], 0.8),
+      bez([12.6, 13.8], [15.6, 15.4], [15.2, 19.4], [12, 19.4], 0.8),
+    ],
+    fill: 'M12 21.6C5.4 21.6 3.6 15.4 6.4 10.6C7.4 12.6 8.6 13.2 9.4 13C8.4 8.4 10.6 4.6 13.4 2.4C13.6 6.6 20.4 9.8 18.6 16C17.8 19.4 15 21.6 12 21.6Z',
   },
   MAIL: { strokes: [roundRect(2.6, 5, 18.8, 14, 2.4), ...poly([[3.4, 6.2], [12, 13], [20.6, 6.2]])] },
 }

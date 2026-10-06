@@ -5,6 +5,7 @@ import { areaStats, STAT_AREAS } from '../lib/stats'
 import { cloud, saveDayVideos, saveLevel, signOut, useAiReady, useAuth } from '../lib/cloud'
 import { DEFAULT_API_URL, DEFAULT_MODEL, dayState, exportJson, getState, videosOf, importJson, resetAll, setState, today, useStore, type Settings } from '../lib/store'
 import { Avatar } from '../components/Avatar'
+import { Streak } from '../components/Streak'
 import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
 import { Markdown } from '../components/Markdown'
@@ -41,6 +42,7 @@ export function ProfileView() {
 
   return (
     <div className="profile">
+      <Streak />
       <div className="profile-head">
         <button className="avatar-btn" onClick={() => picRef.current?.click()} aria-label="Profilbild ändern">
           <Avatar src={profile.avatar} name={profile.name} size={96} />

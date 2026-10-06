@@ -420,3 +420,9 @@ details summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
 .chip.repeat { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
 span.star { cursor: default; }
 .own-ai summary { cursor: pointer; font-weight: 600; margin: 6px 0; }
+
+/* Tages-Streak oben rechts (Home + Profil) */
+.streak { position: fixed; top: calc(10px + env(safe-area-inset-top)); right: max(16px, calc((100vw - 760px) / 2 + 16px)); z-index: 5; padding: 2px 8px 2px 4px; border-radius: 999px; background: var(--paper, #fff); display: flex; align-items: center; gap: 2px; font-weight: 700; font-size: 1.05rem; color: var(--muted, #777); }
+.streak.on { color: var(--ink); }
+.home-head, .profile-head { padding-right: 56px; }
+.home-head:empty { display: none; }

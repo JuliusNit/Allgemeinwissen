@@ -8,6 +8,7 @@ import { useStore } from '../lib/store'
 import { Coin, COIN_D, COIN_R, COIN_RY, type CoinState } from '../components/Coin'
 import { Icon, type IconName } from '../components/Icons'
 import { InkPaths } from '../components/Ink'
+import { Streak } from '../components/Streak'
 
 const W = 360
 const CX = W / 2
@@ -114,6 +115,7 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
 
   return (
     <div className="home">
+      <Streak />
       {due > 0 && (
         <header className="home-head">
           <button className="btn small due" onClick={() => go('/wiederholung/faellig')}>
