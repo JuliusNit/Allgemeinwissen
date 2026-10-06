@@ -55,6 +55,12 @@ export interface CardLog {
   at: string
 }
 
+/** Pruefungs-Wiederholung eines Themas: laufender Test + Ergebnisse frueherer Tests */
+export interface ExamState {
+  chat?: ChatMsg[]
+  results: { at: string; score: number | null }[]
+}
+
 export interface CommunityMsg {
   id: string
   channel: string
@@ -90,6 +96,8 @@ export interface State {
   cardLog: CardLog[]
   /** abgeschlossene Wiederholungs-Stationen: id → Datum */
   reviews: Record<string, string>
+  /** Pruefungsmodus: Tag → Tests */
+  exams: Record<number, ExamState>
   community: CommunityMsg[]
   profile: Profile
   focus: Focus
@@ -118,6 +126,7 @@ const initial: State = {
   cards: [],
   cardLog: [],
   reviews: {},
+  exams: {},
   community: [],
   profile: { name: '' },
   focus: {},
@@ -143,6 +152,7 @@ function normalize(parsed: Partial<State>): State {
     profile: { ...initial.profile, ...parsed.profile },
     focus: { ...parsed.focus },
     content: { ...parsed.content },
+    exams: { ...parsed.exams },
     level: parseLevel(parsed.level),
     settings: migrateSettings(parsed.settings),
   }
@@ -214,6 +224,16 @@ export function videosOf(s: State, day: number): Video[] {
     upgraded.set(stored, v)
   }
   return v
+}
+
+const EMPTY_EXAM: ExamState = { results: [] }
+
+export function examState(s: State, day: number): ExamState {
+  return s.exams[day] ?? EMPTY_EXAM
+}
+
+export function updateExam(day: number, fn: (e: ExamState) => ExamState) {
+  setState((s) => ({ ...s, exams: { ...s.exams, [day]: fn(examState(s, day)) } }))
 }
 
 /** Video-Notizen als Text (fuer KI und Uebersicht), nach Zeitmarke sortiert */

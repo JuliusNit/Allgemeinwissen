@@ -4,7 +4,7 @@ import { InkPaths } from './Ink'
 
 // Alle Icons im 24er-Raster, gezeichnet mit der Tusche-Feder aus lib/ink.
 
-export type IconName = AreaId | 'REVIEW' | 'HOME' | 'STATS' | 'PROFILE' | 'CHAT' | 'CHECK' | 'LOCK' | 'BACK' | 'BOLT' | 'CRYSTAL' | 'MAIL' | 'FLAME'
+export type IconName = AreaId | 'REVIEW' | 'HOME' | 'STATS' | 'PROFILE' | 'CHAT' | 'EXAM' | 'CHECK' | 'LOCK' | 'BACK' | 'BOLT' | 'CRYSTAL' | 'MAIL' | 'FLAME'
 
 interface IconDef {
   strokes: Stroke[]
@@ -201,6 +201,17 @@ const DEFS: Record<IconName, IconDef> = {
   CHAT: {
     strokes: [roundRect(2.6, 3.4, 18.8, 12.6, 3.4), ...poly([[7, 16], [6, 20.8], [11.4, 16]]), line([6.8, 8], [17.2, 8], 0.8), line([6.8, 11.4], [14, 11.4], 0.8)],
     fill: 'M6 3.4H18A3.4 3.4 0 0 1 21.4 6.8V12.6A3.4 3.4 0 0 1 18 16H11.4L6 20.8L7 16H6A3.4 3.4 0 0 1 2.6 12.6V6.8A3.4 3.4 0 0 1 6 3.4Z',
+  },
+  // Pruefungs-Wiederholung: Pruefungsblatt mit Haken
+  EXAM: {
+    strokes: [
+      roundRect(4.5, 2.6, 15, 18.8, 2),
+      line([8, 7], [16, 7], 0.9),
+      line([8, 10.4], [16, 10.4], 0.9),
+      line([8, 13.8], [12.6, 13.8], 0.9),
+      ...poly([[10.6, 17], [12.8, 19], [17, 14.4]]),
+    ],
+    fill: 'M6.5 2.6H17.5A2 2 0 0 1 19.5 4.6V19.4A2 2 0 0 1 17.5 21.4H6.5A2 2 0 0 1 4.5 19.4V4.6A2 2 0 0 1 6.5 2.6Z',
   },
   CHECK: { strokes: poly([[4.6, 12.6], [9.8, 17.6], [19.6, 6]]) },
   LOCK: { strokes: [roundRect(5, 11, 14, 10, 2), arc(12, 11, 4.4, 180, 360), line([12, 15], [12, 17.4], 1.2)] },

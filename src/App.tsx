@@ -7,19 +7,21 @@ import { Icon, type IconName } from './components/Icons'
 import { HatchDefs } from './components/Ink'
 import { CommunityView } from './views/CommunityView'
 import { DayView } from './views/DayView'
+import { ExamView } from './views/ExamView'
 import { HomeView } from './views/HomeView'
 import { Onboarding } from './views/Onboarding'
 import { ProfileView } from './views/ProfileView'
 import { ReviewView } from './views/ReviewView'
 import { StatsView } from './views/StatsView'
 
-type Tab = 'home' | 'chat' | 'stats' | 'profil'
+type Tab = 'exam' | 'home' | 'chat' | 'stats' | 'profil'
 
 type Route =
   | { tab: 'home'; day?: number; review?: string; video?: string; at?: number }
   | { tab: 'chat'; channel?: string }
   | { tab: 'stats'; area?: AreaId; day?: number }
   | { tab: 'profil' }
+  | { tab: 'exam'; day?: number }
 
 function parseHash(): Route {
   const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)
@@ -36,10 +38,12 @@ function parseHash(): Route {
     return { tab: 'stats', area, day: area && c ? Number(c) || undefined : undefined }
   }
   if (a === 'profil') return { tab: 'profil' }
+  if (a === 'pruefung') return { tab: 'exam', day: b ? Math.min(90, Math.max(1, Number(b) || 1)) : undefined }
   return { tab: 'home' }
 }
 
 const NAV: { tab: Tab; label: string; icon: IconName; hash: string }[] = [
+  { tab: 'exam', label: 'Prüfung', icon: 'EXAM', hash: '/pruefung' },
   { tab: 'chat', label: 'Austausch', icon: 'CHAT', hash: '/chat' },
   { tab: 'home', label: 'Home', icon: 'HOME', hash: '/' },
   { tab: 'stats', label: 'Statistik', icon: 'STATS', hash: '/statistik' },
@@ -120,10 +124,9 @@ export default function App() {
         {route.tab === 'chat' && <CommunityView channel={route.channel} go={go} />}
         {route.tab === 'stats' && <StatsView area={route.area} day={route.day} go={go} />}
         {route.tab === 'profil' && <ProfileView />}
+        {route.tab === 'exam' && <ExamView day={route.day} go={go} />}
       </main>
       <nav className="bottom">
-        {/* linker Platz bleibt vorerst frei */}
-        <div className="nav-slot empty" aria-hidden />
         {NAV.map((n) => {
           const active = route.tab === n.tab
           return (

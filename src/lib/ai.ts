@@ -2,7 +2,7 @@ import { AREAS, BLOCKS, DAYS, getDay, isBlockMix, type AreaId, type Day } from '
 import { blockName, isRepeat, levelLabel, SCHOOL_GRADE } from '../data/school'
 import { kiProxy } from './cloud'
 import { DONE_MARKER, statsTable } from './stats'
-import { dayState, getState, videoNotesText, videosOf, type ChatMsg } from './store'
+import { dayState, examState, getState, videoNotesText, videosOf, type ChatMsg } from './store'
 
 export { DONE_MARKER }
 
@@ -244,6 +244,37 @@ Phase „Verständnischeck“: ${nm()} hat „verstanden“ gesagt. Führe den C
 - Schreibe ${DONE_MARKER} niemals vorher.
 
 ${sessionContext(d)}`
+  return streamChat(system, history, onText)
+}
+
+// ---------- Pruefungs-Wiederholung ----------
+
+export function examChat(day: number, history: ChatMsg[], onText: (t: string) => void) {
+  const d = getDay(day)
+  const s = getState()
+  const ds = dayState(s, day)
+  const past = examState(s, day).results
+  const system = `${persona()}
+
+Modus „Prüfungs-Wiederholung“: ${nm()} hat dieses Thema schon abgeschlossen und wiederholt es jetzt in Prüfungsform. Sinn der App: mit vorhandenem Wissen schneller Neues erschließen – genau das wird hier geprüft.
+Regeln:
+- Genau 2 Aufgaben, IMMER nur EINE pro Nachricht, dann auf die Antwort warten. Nummeriere im Format „**Frage 1/2:** …“.
+- Beide Aufgaben ausführlich und anspruchsvoll, KEINE Wissens- oder Wiedergabefragen (kein „Nenne…“, „Was ist…“, „Wann war…“).
+- Aufgabe 1 – Verständnis: Zusammenhänge erklären lassen, Ursachen/Folgen, „Was passiert, wenn…?“, Teilthemen kombinieren.
+- Aufgabe 2 – Transfer: Gib zuerst neues Material, das in der Session NICHT vorkam (ein kurzer Fall, eine Situation, ein Textauszug, Daten/eine kleine Tabelle, ein Ereignis aus einer anderen Epoche, einem anderen Land oder Bereich). Stelle dann eine Frage, die man nur mit dem Wissen aus diesem Thema beantworten oder sich erschließen kann. Das Material selbst enthält die Lösung nicht.
+- Stütze dich auf den Lernzettel und die Teilthemen; ${d.evidence ? 'ordne Gesundheits-/Psychologie-Aussagen nach Evidenz ein („belegt vs. Hype“). ' : ''}Schwerpunkt auf Punkten, die früher wackelig waren.
+- Nach JEDER Antwort beginnt deine Nachricht in der ersten Zeile mit genau einem Marker:
+  [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]  (P = Präzision 1–5)
+- Danach kurz bewerten (✅ / 🟡 / ❌) und die Musterlösung in 2–4 Stichpunkten zeigen – bei Transfer: welches Wissen aus dem Thema den Schlüssel liefert. Keine Nachfrage, weiter zur nächsten Aufgabe.
+- Nach der letzten Bewertung: Fazit in 2 Zeilen (was saß, was wiederholen) und dann in die letzte Zeile exakt: ${DONE_MARKER}
+- Schreibe ${DONE_MARKER} niemals vorher.
+
+THEMA: ${dayLine(d)}
+Teilthemen: ${d.subtopics.join(' · ')}
+${ds.summary ? `Lernzettel:\n${clip(ds.summary, 3500)}` : '(kein Lernzettel vorhanden – Teilthemen nutzen)'}
+${past.length ? `Frühere Prüfungen: ${past.map((r) => `${r.at.slice(0, 10)} ${r.score == null ? '–' : Math.round(r.score * 100) + ' %'}`).join(', ')}` : ''}
+
+${earlierSessions(d)}`
   return streamChat(system, history, onText)
 }
 
