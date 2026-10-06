@@ -59,6 +59,10 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   (Seiten: neu gelernt grob je Überthema · Wissensindex mit Zuwachs · nächste Stationen; Streak oben rechts; X oder letzte Seite
   schließt, `recapSeen` = Montag). Wissensindex = Anteil des Plans, der sitzt (gewichtet wie Prüfungsmodus) – bewusst kein IQ-Wert,
   Gc-Tests (WAIS) brauchen eine Normstichprobe.
+- `src/lib/after90.ts` + `components/AfterNinety.tsx` – Weg nach Tag 90: Regler „Was hat dir gefallen?“ (4 Grobbereiche, `focus.likes`),
+  Empfehlung per Regel (gern + Können → A breit / B spezialisieren / C Hybrid 70/30 + Erhaltungsmodus), Wahl in `focus.choice`
+  (`breit` | `spezial:<Fach>` | `hybrid:<Fach>`). Großer Kasten oben auf Home, sobald Tag 90 fertig ist (danach eine Zeile), auch im Profil.
+  Die eigentlichen Pfade A/B/C sind noch nicht gebaut.
 - `src/views/Onboarding.tsx` – erster Start: 5 Slides (fluide vs. kristalline Intelligenz), dann Konto anlegen
   (E-Mail, Name, Passwort mit Stärke – Pflicht: 8+ Zeichen, klein/groß, Zahl, Sonderzeichen – + Wiederholung) und Wissensstand.
   Ohne Supabase nur Name + Wissensstand lokal.

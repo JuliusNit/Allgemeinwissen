@@ -525,3 +525,7 @@ span.star { cursor: default; }
 .recap-bar { width: 100%; height: auto; display: block; overflow: visible; }
 .recap-next { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
 @media (prefers-reduced-motion: reduce) { .recap-page { animation: none; } }
+.mode-list { display: grid; gap: 8px; margin: 12px 0; }
+.mode-list .level-opt:disabled { cursor: default; opacity: 0.55; }
+.after90-home { margin: 8px 0 16px; }
+.after90-home h1 { font-size: 1.6rem; margin: 0 0 6px; }

@@ -10,9 +10,11 @@ import { getState, setState, useStore } from '../lib/store'
 import { markRecapSeen, recapDue } from '../lib/recap'
 import { Coin, COIN_D, COIN_R, COIN_RY, type CoinState } from '../components/Coin'
 import { Icon, type IconName } from '../components/Icons'
-import { InkPaths } from '../components/Ink'
+import { Frame, InkPaths } from '../components/Ink'
 import { Streak } from '../components/Streak'
 import { WeekRecap } from '../components/WeekRecap'
+import { AfterNinety } from '../components/AfterNinety'
+import { choiceLabel, MODES, parseChoice, planFinished } from '../lib/after90'
 
 const W = 360
 const CX = W / 2
@@ -105,6 +107,29 @@ function iconOf(n: PathNode): IconName {
   return n.kind === 'review' ? 'REVIEW' : getDay(n.day).area
 }
 
+/** Nach Tag 90: großer Kasten mit Auswertung und Wahl des weiteren Wegs; nach der Wahl eine Zeile */
+function Finished() {
+  const s = useStore((x) => x)
+  const [edit, setEdit] = useState(false)
+  if (!planFinished(s)) return null
+  const chosen = parseChoice(s.focus.choice)
+  if (chosen && !edit)
+    return (
+      <Frame className="card after90-home">
+        <p className="small">Dein Weg nach Tag 90: <b>{MODES[chosen.mode].letter} – {choiceLabel(chosen)}</b></p>
+        <button className="btn small" onClick={() => setEdit(true)}>ändern</button>
+      </Frame>
+    )
+  return (
+    <Frame className="card after90-home">
+      <h1>90 Tage geschafft!</h1>
+      <h2>Wie geht es weiter?</h2>
+      <AfterNinety />
+      {chosen && <button className="btn small" onClick={() => setEdit(false)}>fertig</button>}
+    </Frame>
+  )
+}
+
 export function HomeView({ go }: { go: (hash: string) => void }) {
   const s = useStore((x) => x)
   const path = pathOf(s)
@@ -116,7 +141,10 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
   const [recap, setRecap] = useState(() => recapDue(getState()))
 
   useEffect(() => {
-    curRef.current?.scrollIntoView({ block: 'center' })
+    // nach Tag 90 ohne Wahl bleibt der Kasten oben sichtbar
+    const st = getState()
+    if (planFinished(st) && !parseChoice(st.focus.choice)) window.scrollTo(0, 0)
+    else curRef.current?.scrollIntoView({ block: 'center' })
   }, [])
 
   const blockLabels = L.placed.filter((p) => p.blockStart)
@@ -147,6 +175,7 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
           }}
         />
       )}
+      <Finished />
       {due > 0 && (
         <header className="home-head">
           <button className="btn small due" onClick={() => go('/wiederholung/faellig')}>

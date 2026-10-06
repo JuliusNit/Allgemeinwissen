@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import { AREAS, DAYS } from '../data/plan'
 import { adviseFocus, describeError } from '../lib/ai'
-import { areaStats, LIKE_GROUPS, LIKE_LABELS, STAT_AREAS } from '../lib/stats'
+import { areaStats, STAT_AREAS } from '../lib/stats'
+import { AfterNinety } from '../components/AfterNinety'
 import { cloud, saveDayVideos, saveLevel, signOut, useAiReady, useAuth } from '../lib/cloud'
 import { DEFAULT_API_URL, DEFAULT_MODEL, dayState, exportJson, getState, videosOf, importJson, resetAll, setState, today, useStore, type Settings } from '../lib/store'
 import { Avatar } from '../components/Avatar'
@@ -89,13 +90,7 @@ function Strengths() {
     }
   }
 
-  function like(id: string, v: number) {
-    setState((x) => ({ ...x, focus: { ...x.focus, likes: { ...x.focus.likes, [id]: v } } }))
-  }
 
-  function choose(choice: string) {
-    setState((x) => ({ ...x, focus: { ...x.focus, choice } }))
-  }
 
   return (
     <Frame className="card">
@@ -133,32 +128,8 @@ function Strengths() {
       <button className="btn" onClick={advise} disabled={busy || !hasKey}>{busy ? 'KI wertet aus …' : focus.advice ? 'Neu einschätzen lassen' : 'KI-Einschätzung: was liegt mir?'}</button>
 
       <h2 className="spaced">Nach den 90 Tagen</h2>
-      {!allDone && <p className="muted small">Noch {DAYS.length - done} Sessions – danach entscheidest du: spezialisieren oder breit weitermachen.</p>}
-      <p className="small"><b>Was hat dir gefallen?</b></p>
-      {LIKE_GROUPS.map((g) => {
-        const v = focus.likes?.[g.id]
-        const pct = ((v ?? 2) / 4) * 100
-        return (
-          <label key={g.id} className="like-row">
-            <span className="small">{g.name} – {v == null ? 'offen' : LIKE_LABELS[v]}</span>
-            <span className={`ink-range ${v == null ? 'open' : ''}`}>
-              <span className="ink-range-track" data-pen />
-              {v != null && v > 0 && <span className="ink-range-fill" data-pen style={{ width: `${pct}%` }} />}
-              <span className="ink-range-knob" data-pen style={{ left: `calc(11px + (100% - 22px) * ${pct / 100})` }} />
-              <input type="range" min={0} max={4} step={1} value={v ?? 2} onChange={(e) => like(g.id, Number(e.target.value))}
-                onPointerUp={(e) => v == null && like(g.id, Number(e.currentTarget.value))} aria-label={g.name} />
-            </span>
-          </label>
-        )
-      })}
-      <div className="focus-choice">
-        <button className={`btn ${focus.choice === 'breit' ? 'primary' : ''}`} disabled={!allDone} onClick={() => choose('breit')}>Breit weitermachen</button>
-        <select value={focus.choice && focus.choice !== 'breit' ? focus.choice : ''} disabled={!allDone} onChange={(e) => e.target.value && choose(e.target.value)}>
-          <option value="">Spezialisieren auf …</option>
-          {STAT_AREAS.map((a) => <option key={a} value={a}>{AREAS[a].name}</option>)}
-        </select>
-      </div>
-      {focus.choice && <p className="small">Gewählt: <b>{focus.choice === 'breit' ? 'gefächertes Allgemeinwissen' : AREAS[focus.choice as keyof typeof AREAS]?.name}</b></p>}
+      {!allDone && <p className="muted small">Noch {DAYS.length - done} Sessions</p>}
+      <AfterNinety />
     </Frame>
   )
 }
