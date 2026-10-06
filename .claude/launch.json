@@ -4,28 +4,113 @@
     {
       "name": "dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "5173", "--strictPort"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5173",
+        "--strictPort"
+      ],
       "port": 5173
     },
     {
       "name": "dev-2",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "5174", "--strictPort"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5174",
+        "--strictPort"
+      ],
       "port": 5174
     },
     {
       "name": "dev-lokal",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "5175", "--strictPort"],
-      "env": { "VITE_SUPABASE_URL": "", "VITE_SUPABASE_KEY": "" },
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5175",
+        "--strictPort"
+      ],
+      "env": {
+        "VITE_SUPABASE_URL": "",
+        "VITE_SUPABASE_KEY": ""
+      },
       "port": 5175
     },
     {
       "name": "dev-lokal-2",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "5176", "--strictPort"],
-      "env": { "VITE_SUPABASE_URL": "", "VITE_SUPABASE_KEY": "" },
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5176",
+        "--strictPort"
+      ],
+      "env": {
+        "VITE_SUPABASE_URL": "",
+        "VITE_SUPABASE_KEY": ""
+      },
       "port": 5176
+    },
+    {
+      "name": "dev-lokal-3",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5177",
+        "--strictPort"
+      ],
+      "env": {
+        "VITE_SUPABASE_URL": "",
+        "VITE_SUPABASE_KEY": ""
+      },
+      "port": 5177
+    },
+    {
+      "name": "dev-lokal-4",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5178",
+        "--strictPort"
+      ],
+      "env": {
+        "VITE_SUPABASE_URL": "",
+        "VITE_SUPABASE_KEY": ""
+      },
+      "port": 5178
+    },
+    {
+      "name": "dev-lokal-5",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5179",
+        "--strictPort"
+      ],
+      "env": {
+        "VITE_SUPABASE_URL": "",
+        "VITE_SUPABASE_KEY": ""
+      },
+      "port": 5179
     }
   ]
 }
