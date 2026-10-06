@@ -4,7 +4,7 @@ import { circle, line, poly, roundRect, sectorPath, type Pt, type Stroke } from 
 import { areaStats, parseCheck, sessionScore, STAT_AREAS } from '../lib/stats'
 import { dayState, useStore } from '../lib/store'
 import { Icon } from '../components/Icons'
-import { Frame, InkPaths } from '../components/Ink'
+import { Frame, InkPaths, InkScroll } from '../components/Ink'
 import { Markdown } from '../components/Markdown'
 
 /** Kreisdiagramm: gut (gruen schraffiert), schlecht (rot schraffiert), Rest weiss; faechert in 1/3 s auf */
@@ -87,23 +87,25 @@ function AreaBox({ area, left, open, go }: { area: AreaId; left: boolean; open: 
       {open && (
         <div className="area-body">
           <Pie good={st.good} bad={st.bad} />
-          <ul className="topic-list">
-            {days.map((d) => {
-              const ds = dayState(s, d.day)
-              const sc = sessionScore(s, d.day)
-              return (
-                <li key={d.day}>
-                  <button onClick={() => go(`/statistik/${area}/${d.day}`)}>
-                    <InkCheck checked={ds.status === 'fertig'} />
-                    <span>
-                      <span className="muted small">Tag {d.day}</span> {d.title.split(/[:(]/)[0].trim()}
-                    </span>
-                    {sc != null && <span className={`score ${sc >= 0.7 ? 'good' : 'bad'}`}>{pct(sc)}</span>}
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
+          <InkScroll className="topic-scroll">
+            <ul className="topic-list">
+              {days.map((d) => {
+                const ds = dayState(s, d.day)
+                const sc = sessionScore(s, d.day)
+                return (
+                  <li key={d.day}>
+                    <button onClick={() => go(`/statistik/${area}/${d.day}`)}>
+                      <InkCheck checked={ds.status === 'fertig'} />
+                      <span>
+                        <span className="muted small">Tag {d.day}</span> {d.title.split(/[:(]/)[0].trim()}
+                      </span>
+                      {sc != null && <span className={`score ${sc >= 0.7 ? 'good' : 'bad'}`}>{pct(sc)}</span>}
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </InkScroll>
         </div>
       )}
       {open && (

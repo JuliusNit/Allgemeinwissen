@@ -293,21 +293,13 @@ label { display: block; font-size: 0.85rem; color: var(--muted); margin: 10px 0 
 .area-body { display: flex; gap: 16px; align-items: center; }
 .pie { flex: none; overflow: visible; width: 36%; max-width: 150px; height: auto; }
 /* nur ~5 Themen sichtbar (Zeile ≈ 35px), Rest scrollbar */
-.topic-list {
-  list-style: none; padding: 0 4px 0 0; margin: 0; flex: 1; min-width: 0;
-  max-height: 176px; overflow-y: auto; overscroll-behavior: contain;
-}
-/* Scroller in Tusche-Optik: feine Linie als Schiene, schwarzer Strich als Griff, keine Pfeile */
-.topic-list::-webkit-scrollbar { width: 10px; }
-.topic-list::-webkit-scrollbar-button { display: none; height: 0; }
-.topic-list::-webkit-scrollbar-track {
-  background: linear-gradient(var(--ink), var(--ink)) center / 1.5px 100% no-repeat;
-  margin: 6px 0;
-}
-.topic-list::-webkit-scrollbar-thumb { background: var(--ink); border-radius: 999px; border: 2px solid var(--paper); }
-@supports not selector(::-webkit-scrollbar) {
-  .topic-list { scrollbar-width: thin; scrollbar-color: var(--ink) transparent; }
-}
+.topic-list { list-style: none; padding: 0; margin: 0; }
+.topic-scroll { max-height: 176px; }
+/* Scroller in Tusche-Optik (InkScroll): nativer Balken versteckt, Schiene + schraffierter Griff als SVG */
+.ink-scroll { flex: 1; min-width: 0; display: flex; gap: 6px; }
+.ink-scroll-view { flex: 1; min-width: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.ink-scroll-view::-webkit-scrollbar { display: none; }
+.ink-rail { flex: none; width: 14px; overflow: visible; cursor: pointer; touch-action: none; user-select: none; }
 .topic-list button {
   width: 100%; display: flex; align-items: center; gap: 8px; background: none; border: 0;
   padding: 6px 2px; cursor: pointer; text-align: left; font-size: 0.92rem;
