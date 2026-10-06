@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { BLOCKS, DAYS, getDay } from '../data/plan'
+import { BLOCKS, getDay } from '../data/plan'
 import { bez, type Stroke } from '../lib/ink'
 import { blockName, isRepeat, type Level } from '../data/school'
 import { currentNode, nodeDone, PATH, reviewReady, type PathNode } from '../lib/path'
 import { dueCards } from '../lib/srs'
-import { dayState, useStore } from '../lib/store'
+import { useStore } from '../lib/store'
 import { Coin, COIN_D, COIN_R, COIN_RY, type CoinState } from '../components/Coin'
 import { Icon, type IconName } from '../components/Icons'
 import { InkPaths } from '../components/Ink'
@@ -88,7 +88,6 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
   const s = useStore((x) => x)
   const cur = currentNode(s)
   const due = dueCards(s.cards).length
-  const doneDays = DAYS.filter((d) => dayState(s, d.day).status === 'fertig').length
   const [pressed, setPressed] = useState<string | null>(null)
   const curRef = useRef<SVGGElement>(null)
 
@@ -115,15 +114,13 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
 
   return (
     <div className="home">
-      <header className="home-head">
-        <h1>Allgemeinwissen</h1>
-        <span className="muted">{doneDays}/90</span>
-        {due > 0 && (
+      {due > 0 && (
+        <header className="home-head">
           <button className="btn small due" onClick={() => go('/wiederholung/faellig')}>
             <Icon name="REVIEW" size={18} /> {due} fällig
           </button>
-        )}
-      </header>
+        </header>
+      )}
 
       <svg className="path" viewBox={`0 0 ${W} ${LAYOUT.height}`} role="list">
         <InkPaths strokes={CONNECTORS} w={2.3} />
