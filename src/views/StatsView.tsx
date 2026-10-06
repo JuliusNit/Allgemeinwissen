@@ -55,16 +55,6 @@ export function InkCheck({ checked }: { checked: boolean }) {
   )
 }
 
-/** Diagonale Verbindungslinie zwischen zwei Kaesten (links ↔ rechts) */
-function Connector({ fromLeft }: { fromLeft: boolean }) {
-  const s = useMemo(() => [fromLeft ? line([110, 4], [250, 34]) : line([250, 4], [110, 34])], [fromLeft])
-  return (
-    <svg className="connector" viewBox="0 0 360 38" aria-hidden>
-      <InkPaths strokes={s} w={2.3} />
-    </svg>
-  )
-}
-
 const pct = (x: number) => `${Math.round(x * 100)} %`
 
 export function StatsView({ area, day, go }: { area?: AreaId; day?: number; go: (hash: string) => void }) {
@@ -75,10 +65,7 @@ export function StatsView({ area, day, go }: { area?: AreaId; day?: number; go: 
       <p className="muted small">Grün schraffiert = gut bearbeitet, rot = wackelig, weiß = noch offen.</p>
       <div className="area-list">
         {STAT_AREAS.map((a, i) => (
-          <div key={a}>
-            {i > 0 && <Connector fromLeft={i % 2 === 1} />}
-            <AreaBox area={a} left={i % 2 === 0} open={area === a} go={go} />
-          </div>
+          <AreaBox key={a} area={a} left={i % 2 === 0} open={area === a} go={go} />
         ))}
       </div>
     </div>
