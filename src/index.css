@@ -44,7 +44,7 @@ h2 { font-size: 1.05rem; margin: 0 0 0.6rem; }
 .pen {
   border-image: linear-gradient(transparent, transparent) 1 !important;
   background-image: var(--pen-bg), var(--hatch, none) !important;
-  background-repeat: no-repeat; background-size: 100% 100%; background-origin: border-box;
+  background-repeat: no-repeat !important; background-size: 100% 100% !important; background-origin: border-box !important; background-position: 0 0 !important;
 }
 .icon { display: block; flex: none; overflow: visible; }
 
@@ -75,18 +75,18 @@ h2 { font-size: 1.05rem; margin: 0 0 0.6rem; }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
 .row.end { justify-content: flex-end; }
 
-/* Knopf wie eine Muenze auf Home: Oberseite mit Tusche-Rand, darunter --pen-rim px Rand mit Schattenstrichen */
+/* Knopf: nur Tusche-Umriss wie die Kaesten, keine Fuellung, kein Rand darunter */
 .btn {
-  --pad-y: 8px; --pen-rim: 6; --pen-fill: var(--paper);
+  --pad-y: 8px; --pen-fill: var(--paper);
   border: 2px solid var(--ink); background: none; border-radius: 12px;
-  padding: var(--pad-y) 14px calc(var(--pad-y) + var(--pen-rim) * 1px); cursor: pointer; font-weight: 600;
+  padding: var(--pad-y) 14px; cursor: pointer; font-weight: 600; transition: transform 80ms ease-out;
 }
 .btn:not(.pen) { background: var(--paper); }
-.btn.pen:active:not(:disabled) { background-image: var(--pen-bg-down), var(--hatch, none) !important; padding-top: calc(var(--pad-y) + var(--pen-rim) * 1px); padding-bottom: var(--pad-y); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
 .btn:disabled { opacity: 0.4; cursor: default; }
 .btn.primary { font-weight: 700; }
-.btn.ghost { --pen-rim: 0; border-color: transparent; padding-bottom: var(--pad-y); text-decoration: underline; text-underline-offset: 3px; }
-.btn.ghost.pen:active { padding-top: var(--pad-y); }
+.btn.ghost { border-color: transparent; text-decoration: underline; text-underline-offset: 3px; }
+.btn.ghost:active { transform: none; }
 .btn.danger { color: var(--bad); border-color: var(--bad); }
 .btn.small { --pad-y: 4px; padding-left: 10px; padding-right: 10px; font-size: 0.85rem; }
 .btn.wide { --pad-y: 12px; width: 100%; padding-left: 12px; padding-right: 12px; }
