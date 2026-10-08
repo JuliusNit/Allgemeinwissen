@@ -1,4 +1,4 @@
-import { arc, circle, ellipse, line, type Stroke } from '../lib/ink'
+import { arc, ellipse, line, type Stroke } from '../lib/ink'
 import { IconGroup, type IconName } from './Icons'
 import { InkPaths } from './Ink'
 
@@ -34,8 +34,6 @@ const RING: Stroke[] = Array.from({ length: 14 }, (_, i) => arc(0, D, R + 9, i *
 /** Umriss des Muenzkoerpers (Seite + untere Haelfte), weiss gefuellt – verdeckt den Ring dahinter */
 const BODY = `M${-R} 0V${D}A${R} ${RY} 0 0 0 ${R} ${D}V0Z`
 
-const BADGE: Stroke[] = [circle(0, 0, 10)]
-
 export type CoinState = 'done' | 'current' | 'open' | 'locked'
 
 export function Coin({ icon, state, pressed, scale = 1 }: { icon: IconName; state: CoinState; pressed: boolean; scale?: number }) {
@@ -49,13 +47,6 @@ export function Coin({ icon, state, pressed, scale = 1 }: { icon: IconName; stat
         <ellipse rx={R} ry={RY} fill="#fff" />
         <InkPaths strokes={FACE} w={3.1} />
         <IconGroup name={icon} w={1.5} transform={`translate(-23.5 ${-23.5 * COIN_TILT}) scale(1.958 ${1.958 * COIN_TILT})`} />
-        {state === 'done' && (
-          <g transform={`translate(${R * 0.74} ${-RY * 0.74})`}>
-            <circle r={10} fill="#fff" />
-            <InkPaths strokes={BADGE} w={2.2} />
-            <IconGroup name="CHECK" w={2} transform="translate(-6.6 -6.6) scale(0.55)" />
-          </g>
-        )}
       </g>
     </g>
   )
