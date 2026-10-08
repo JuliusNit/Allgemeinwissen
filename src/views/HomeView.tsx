@@ -208,14 +208,6 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
       )}
 
       <svg className="path" viewBox={`0 0 ${W} ${L.height}`} role="list">
-        <defs>
-          {/* abgeschlossene Knoepfe: koernige Tusche wie ein abgenutzter Stempel */}
-          <filter id="coin-grain" x="-10%" y="-10%" width="120%" height="120%">
-            <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" seed="7" result="n" />
-            <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -6 0 0 0 4" result="m" />
-            <feComposite in="SourceGraphic" in2="m" operator="in" />
-          </filter>
-        </defs>
         {/* Wege nur zwischen noch offenen Einheiten */}
         <InkPaths strokes={L.connectors.filter((c) => !nodeDone(s, L.placed[c.i].node) && !nodeDone(s, L.placed[c.i + 1].node)).flatMap((c) => c.strokes)} w={2.3} />
         {L.sepY !== undefined && (

@@ -132,7 +132,6 @@ label { display: block; font-size: 0.85rem; color: var(--muted); margin: 10px 0 
 .node .hit { fill: transparent; }
 .node:focus-visible .hit { stroke: var(--ink); stroke-width: 2; stroke-dasharray: 4 4; }
 .node.locked .coin { opacity: 0.4; }
-.node.done .coin { filter: url(#coin-grain); }
 .node.locked { cursor: default; }
 .coin-face { transition: transform 90ms ease-out; }
 .coin.done .coin-face { transform: translateY(6px); }
