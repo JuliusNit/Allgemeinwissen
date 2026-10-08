@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { AREAS, BLOCKS, getDay, isBlockMix, type Video } from '../data/plan'
-import { anchorChat, checkChat, describeError, DONE_MARKER, makeSummary, questionsChat } from '../lib/ai'
+import { anchorChat, checkChat, describeError, DONE_MARKER, makeSummary, questionsChat, refreshChat, refreshDays } from '../lib/ai'
 import { saveDayVideos, useAiReady, useCanEdit } from '../lib/cloud'
 import { blockName, isRepeat, SCHOOL_GRADE } from '../data/school'
+import { fach, type FachId } from '../data/lehrplan'
+import { stationOf, type BasisNode } from '../lib/path'
 import { addCards } from '../lib/srs'
 import { dayState, sortNotes, today, updateDay, useStore, videosOf } from '../lib/store'
 import { fmtTime } from '../lib/video'
@@ -22,12 +24,14 @@ interface Props {
   video?: string
   at?: number
   openDay: (n: number) => void
+  /** Station der Grundwiederholung oeffnen (g-<fach>) */
+  openStation: (id: string) => void
   openVideo: (id: string, t?: number) => void
   closeVideo: () => void
   back: () => void
 }
 
-export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }: Props) {
+export function DayView({ day, video, at, openDay, openStation, openVideo, closeVideo, back }: Props) {
   const d = getDay(day)
   const ds = useStore((s) => dayState(s, day))
   const videos = useStore((s) => videosOf(s, day))
@@ -40,6 +44,7 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
   const checkDone = !!ds.check?.some((m) => m.role === 'assistant' && m.content.includes(DONE_MARKER))
   const [tab, setTab] = useState<Tab>(ds.status === 'fertig' ? 'zusammenfassung' : ds.check?.length ? 'check' : 'fragen')
   const [anchorText, setAnchorText] = useState<string | null>(null)
+  const [refreshText, setRefreshText] = useState<string | null>(null)
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [checkGen, setCheckGen] = useState(0)
@@ -49,6 +54,9 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
   const stars = videos.filter((v) => v.star)
   const starsWatched = stars.filter((v) => watched.has(v.id)).length
   const playing = video ? videos.find((v) => v.id === video) : undefined
+  const base = repeat ? [] : refreshDays(day)
+  const stations = [...new Map(base.map((n) => stationOf(level, n)).filter((n): n is BasisNode => !!n).map((n) => [n.id, n])).values()]
+  const streaming = anchorText !== null || refreshText !== null
   const noteCount = Object.values(ds.videoNotes ?? {}).reduce((a, n) => a + n.length, 0)
 
   function setVideos(v: Video[] | null) {
@@ -70,6 +78,19 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
       setError(describeError(e))
     } finally {
       setAnchorText(null)
+    }
+  }
+
+  async function runRefresh() {
+    setError(null)
+    setRefreshText('')
+    try {
+      const t = await refreshChat(day, setRefreshText)
+      updateDay(day, (x) => ({ ...x, refresh: t }))
+    } catch (e) {
+      setError(describeError(e))
+    } finally {
+      setRefreshText(null)
     }
   }
 
@@ -148,13 +169,44 @@ export function DayView({ day, video, at, openDay, openVideo, closeVideo, back }
         )}
         {anchorText !== null ? (
           anchorText ? <Markdown text={anchorText} /> : <p className="typing">ordnet ein …</p>
-        ) : ds.anchor ? (
-          <>
-            <Markdown text={ds.anchor} />
-            <button className="btn ghost small" onClick={runAnchor} disabled={!hasKey}>Neu einordnen</button>
-          </>
         ) : (
-          <button className="btn" onClick={runAnchor} disabled={!hasKey}>Einordnen lassen: Zeitstrahl, Karte, frühere Sessions</button>
+          ds.anchor && <Markdown text={ds.anchor} />
+        )}
+        {(refreshText !== null || ds.refresh) && (
+          <div className="refresh">
+            <h3>Grundwissen</h3>
+            {refreshText !== null ? (
+              refreshText ? <Markdown text={refreshText} /> : <p className="typing">frischt auf …</p>
+            ) : (
+              <>
+                <Markdown text={ds.refresh!} />
+                {stations.length > 0 && (
+                  <div className="row">
+                    {stations.map((n) => (
+                      <button key={n.id} className="btn small" onClick={() => openStation(n.id)}>
+                        <Icon name={fach(n.fach as FachId).icon} size={16} /> Grundcheck {fach(n.fach as FachId).name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+        {!streaming && (
+          <div className="row">
+            {ds.anchor ? (
+              <button className="btn ghost small" onClick={runAnchor} disabled={!hasKey}>Neu einordnen</button>
+            ) : (
+              <button className="btn" onClick={runAnchor} disabled={!hasKey}>Einordnen lassen: Zeitstrahl, Karte, frühere Sessions</button>
+            )}
+            {base.length > 0 &&
+              (ds.refresh ? (
+                <button className="btn ghost small" onClick={runRefresh} disabled={!hasKey}>Neu auffrischen</button>
+              ) : (
+                <button className="btn" onClick={runRefresh} disabled={!hasKey}>Auffrischen: Grundwissen aus der Schule</button>
+              ))}
+          </div>
         )}
       </Frame>
 

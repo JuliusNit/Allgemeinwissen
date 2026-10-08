@@ -488,7 +488,7 @@ span.star { cursor: default; }
 }
 
 /* Grundwiederholung */
-.basis h3 { display: flex; align-items: center; gap: 6px; font-size: 0.95rem; margin: 12px 0 4px; }
+.basis h3, .refresh h3 { display: flex; align-items: center; gap: 6px; font-size: 0.95rem; margin: 12px 0 4px; }
 .lp { list-style: none; padding: 0; margin: 0; }
 .lp li { padding: 4px 0; border-bottom: 1px dashed #0002; font-size: 0.92rem; }
 .lp li b { display: inline-block; min-width: 2.2em; }

@@ -73,7 +73,7 @@ export function BasisView({ id, go, vday, video, at, openVideo, closeVideo }: Pr
         <VideoWatch day={vday} videos={playVideos} video={playing} at={at} open={(vid, t) => openVideo(vday, vid, t)} close={closeVideo} />
       )}
       <div className="page-head">
-        <button className="icon-btn" onClick={() => go('/')} aria-label="Zurück zum Lernpfad"><Icon name="BACK" size={26} /></button>
+        <button className="icon-btn" onClick={() => (window.history.length > 1 ? window.history.back() : go('/'))} aria-label="Zurück"><Icon name="BACK" size={26} /></button>
         <CoinBadge icon={mix ? 'REVIEW' : faecher[0].icon} size={52} />
         <div>
           <h1>{node.variant === 'start' ? `Grundwiederholung · ${t.head}` : `${t.head} · ${t.title}`}</h1>

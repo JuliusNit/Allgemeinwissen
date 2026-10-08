@@ -30,10 +30,11 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Modi: Anknüpfen, Fragen, Verständnischeck (Ende über `[[SESSION_ABGESCHLOSSEN]]`, Bewertung je Antwort über
   `[[BEWERTUNG: richtig|teilweise|falsch | 1-5]]`), Lernzettel + Karten (json_schema), Stärkenberatung, Kanal-Chat.
 - `src/lib/stats.ts` – wertet Marker + Zeitstempel aus (richtig, Antwortzeit, Präzision) je Session/Überthema.
-- `src/lib/path.ts` – Lernpfad je Wissensstand (`buildPath(level)`): zuerst Grundwiederholung (je Schulfach eine Station `g-<fach>`
-  mit KI-Grundcheck; die Schulstoff-Sessions hängen an der Station statt im Pfad), Trennlinie, dann der neue Stoff mit
-  Abruf-Station nach je 4 Sessions, „Auffrischung“ (`g-auffrischung`) am Blockende nahe der Mitte, am Ende
-  Abschlusswiederholung (`w-ende`, unsicherste Karten) + Grundwissen-Check (`g-abschluss`). Begründung im Kommentar.
+- `src/lib/path.ts` – Lernpfad je Wissensstand (`buildPath(level)`): beginnt direkt mit dem neuen Stoff, Abruf-Station nach je
+  4 Sessions, am Ende Abschlusswiederholung (`w-ende`, unsicherste Karten). Schulstoff-Sessions stehen nicht im Pfad und gelten
+  als bekannt (`dayDone`). Grundwissen optional über „Auffrischen“ im Anknüpfen-Kasten einer Session, die per `links` auf
+  Schulstoff-Sessions verweist (`refreshChat`, nur deren Stoff, heutiges Thema tabu; Ergebnis in `refresh`), von dort
+  „Grundcheck <Fach>“ = Station `g-<fach>` (`basisStations`, nicht im Pfad). Begründung im Kommentar.
   Ansicht der Stationen: `src/views/BasisView.tsx` (Route `#/wiederholung/g-…`), Chat in `basis` im Zustand. Lehrplan-Kasten zeigt je Jgst.
   die Videos der Stationssessions (gleiche Jgst. laut `SCHOOL_GRADE`), abspielbar unter `#/wiederholung/g-…/video/Tag/ID[/Sek.]`.
 - `src/lib/srs.ts` – vereinfachtes SM-2 für Karteikarten.

@@ -225,25 +225,22 @@ export function refreshDays(day: number): number[] {
 
 export function refreshChat(day: number, onText: (t: string) => void) {
   const d = getDay(day)
-  const s = getState()
-  const max = knownUpTo(s.level)
   const base = refreshDays(day).map(getDay)
-  const faecher = FAECHER.filter((f) => base.some((b) => DAY_FACH[b.day] === f.id))
   const system = `${persona()}
 
 Aufgabe: „Auffrischen“ vor der Session. Die heutige Session baut auf Schulstoff auf, den ${nm()} kennen sollte, aber vielleicht vergessen hat.
-Frische genau das Grundwissen auf, das für das heutige Thema gebraucht wird – nicht mehr:
-- 5–8 Stichpunkte: Begriffe, Zusammenhänge, Jahreszahlen/Größen, jeweils mit einem Halbsatz, wozu man es heute braucht.
-- Wenn es hilft, eine kleine Tabelle oder ein Text-Diagramm.
-- Zum Schluss 2 kurze Selbsttest-Fragen (ohne Lösung), mit denen ${nm()} merkt, ob das Grundwissen sitzt.
-Keine Inhalte der heutigen Videos vorwegnehmen.
+Frische NUR diesen Schulstoff auf (Sessions unten) – und nur den Teil, auf den das heutige Thema aufbaut.
+Das heutige Thema selbst ist tabu: seine Teilthemen, Personen und Begriffe weder erklären noch anreißen – das lernt ${nm()} gleich in den Videos.
+Form (höchstens ~150 Wörter, ohne Einleitung):
+- 4–6 Stichpunkte: Begriff/Ereignis/Jahreszahl/Größe + Halbsatz, wozu man es heute braucht.
+- Wenn es hilft, eine kleine Tabelle oder ein Text-Zeitstrahl.
+- Zum Schluss 2 kurze Selbsttest-Fragen zum Schulstoff (ohne Lösung).
 
-HEUTIGE SESSION: ${dayLine(d)} – ${d.subtopics.join(' · ')}
+HEUTIGE SESSION (nicht erklären): ${dayLine(d)} – ${d.subtopics.join(' · ')}
 
-Schulstoff-Sessions, auf denen sie aufbaut:
-${base.map((b) => `- ${dayLine(b)} – ${b.subtopics.join(' · ')}`).join('\n')}
-${faecher.length ? `\nLehrplanPLUS Bayern (Gymnasium) bis Jgst. ${max}:\n${faecher.map((f) => `- ${f.name}:\n${fachLines(f, max)}`).join('\n')}` : ''}`
-  return streamChat(system, [{ role: 'user', content: 'Frisch mein Grundwissen auf.' }], onText, 2000)
+Schulstoff, der aufgefrischt wird:
+${base.map((b) => `- ${dayLine(b)} – ${b.subtopics.join(' · ')}`).join('\n')}`
+  return streamChat(system, [{ role: 'user', content: 'Frisch mein Grundwissen auf.' }], onText, 1500)
 }
 
 export function questionsChat(day: number, history: ChatMsg[], onText: (t: string) => void) {

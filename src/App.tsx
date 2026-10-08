@@ -104,6 +104,7 @@ export default function App() {
               video={route.video}
               at={route.at}
               openDay={(n) => go(`/tag/${n}`)}
+              openStation={(id) => go(`/wiederholung/${id}`)}
               openVideo={(id, t) => {
                 const hash = `#/tag/${route.day}/video/${encodeURIComponent(id)}${t !== undefined ? `/${Math.floor(t)}` : ''}`
                 // Video zu Video ersetzt den Verlaufseintrag, damit "Zurueck" direkt zur Session fuehrt
