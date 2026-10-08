@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { BLOCKS, getDay } from '../data/plan'
 import { bez, type Stroke } from '../lib/ink'
 import { fach } from '../data/lehrplan'
@@ -9,7 +9,7 @@ import { dueCards } from '../lib/srs'
 import { getState, setState, useStore } from '../lib/store'
 import { markRecapSeen, recapDue } from '../lib/recap'
 import { Coin, COIN_D, COIN_R, COIN_RY, type CoinState } from '../components/Coin'
-import { Icon, type IconName } from '../components/Icons'
+import { Icon, IconGroup, type IconName } from '../components/Icons'
 import { Frame, InkPaths } from '../components/Ink'
 import { Streak } from '../components/Streak'
 import { WeekRecap } from '../components/WeekRecap'
@@ -37,7 +37,8 @@ interface Layout {
   height: number
   /** y der Trennlinie (nur mit Grundwiederholung) */
   sepY?: number
-  connectors: Stroke[]
+  /** Verbindung von placed[i] zu placed[i + 1] */
+  connectors: { i: number; strokes: Stroke[] }[]
   separator: Stroke[]
 }
 
@@ -58,7 +59,7 @@ function layout(path: PathNode[]): Layout {
     y += STEP
   })
 
-  const connectors: Stroke[] = []
+  const connectors: Layout['connectors'] = []
   for (let i = 0; i < placed.length - 1; i++) {
     const a = placed[i]
     const b = placed[i + 1]
@@ -66,12 +67,11 @@ function layout(path: PathNode[]): Layout {
     const y1 = b.y - COIN_RY - 10
     if (b.blockStart) {
       // Blockwechsel: Linie laeuft aus, Punkte bzw. Trennlinie, neuer Block beginnt
-      connectors.push(bez([a.x, y0], [a.x, y0 + 26], [CX, y0 + 18], [CX, y0 + 32]))
-      connectors.push(bez([CX, y1 - 30], [CX, y1 - 16], [b.x, y1 - 26], [b.x, y1]))
+      connectors.push({ i, strokes: [bez([a.x, y0], [a.x, y0 + 26], [CX, y0 + 18], [CX, y0 + 32]), bez([CX, y1 - 30], [CX, y1 - 16], [b.x, y1 - 26], [b.x, y1])] })
       continue
     }
     const dy = y1 - y0
-    connectors.push(bez([a.x, y0], [a.x, y0 + dy * 0.55], [b.x, y1 - dy * 0.55], [b.x, y1]))
+    connectors.push({ i, strokes: [bez([a.x, y0], [a.x, y0 + dy * 0.55], [b.x, y1 - dy * 0.55], [b.x, y1])] })
   }
 
   // Trennlinie quer ueber den Pfad, leicht geschwungen wie von Hand gezogen
@@ -130,6 +130,29 @@ function Finished() {
   )
 }
 
+/** Beschriftung neben dem Knopf; abgeschlossen: Tusche-Haken hinter dem Thema */
+function NodeLabel({ x, y, right, head, lines, done }: { x: number; y: number; right: boolean; head: string; lines: string[]; done: boolean }) {
+  const headRef = useRef<SVGTSpanElement>(null)
+  const [hw, setHw] = useState(0)
+  useLayoutEffect(() => {
+    if (done && right && headRef.current) setHw(headRef.current.getComputedTextLength())
+  }, [done, right, head])
+  // links vom Knopf: Kopfzeile um den Haken nach links ruecken
+  const hx = done && !right ? x - 17 : x
+  const cx = right ? x + hw + 4 : x - 14
+  return (
+    <>
+      <text x={x} y={y} textAnchor={right ? 'start' : 'end'} className="node-label">
+        <tspan ref={headRef} x={hx} className="node-head">{head}</tspan>
+        {lines.map((ln, i) => (
+          <tspan key={i} x={x} dy={i === 0 ? 17 : 15}>{ln}</tspan>
+        ))}
+      </text>
+      {done && (right ? hw > 0 : true) && <IconGroup name="CHECK" w={1.9} transform={`translate(${cx} ${y - 12}) scale(0.58)`} />}
+    </>
+  )
+}
+
 export function HomeView({ go }: { go: (hash: string) => void }) {
   const s = useStore((x) => x)
   const path = pathOf(s)
@@ -185,7 +208,16 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
       )}
 
       <svg className="path" viewBox={`0 0 ${W} ${L.height}`} role="list">
-        <InkPaths strokes={L.connectors} w={2.3} />
+        <defs>
+          {/* abgeschlossene Knoepfe: koernige Tusche wie ein abgenutzter Stempel */}
+          <filter id="coin-grain" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" seed="7" result="n" />
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -6 0 0 0 4" result="m" />
+            <feComposite in="SourceGraphic" in2="m" operator="in" />
+          </filter>
+        </defs>
+        {/* Wege nur zwischen noch offenen Einheiten */}
+        <InkPaths strokes={L.connectors.filter((c) => !nodeDone(s, L.placed[c.i].node) && !nodeDone(s, L.placed[c.i + 1].node)).flatMap((c) => c.strokes)} w={2.3} />
         {L.sepY !== undefined && (
           <g className="separator">
             <InkPaths strokes={L.separator} w={2.3} />
@@ -240,12 +272,7 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
                 <ellipse rx={COIN_R + 6} ry={COIN_RY + 6} cy={COIN_D / 2} className="hit" />
                 <Coin icon={iconOf(n)} state={st} pressed={pressed === n.id} />
               </g>
-              <text x={tx} y={p.y - 6 - (lines.length - 1) * 7} textAnchor={right ? 'start' : 'end'} className="node-label">
-                <tspan className="node-head">{l.head}</tspan>
-                {lines.map((ln, i) => (
-                  <tspan key={i} x={tx} dy={i === 0 ? 17 : 15}>{ln}</tspan>
-                ))}
-              </text>
+              <NodeLabel x={tx} y={p.y - 6 - (lines.length - 1) * 7} right={right} head={l.head} lines={lines} done={st === 'done'} />
             </g>
           )
         })}
