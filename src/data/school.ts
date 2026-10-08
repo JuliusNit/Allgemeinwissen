@@ -37,6 +37,13 @@ export const DAY_FACH: Partial<Record<number, FachId>> = {
   86: 'bio', 88: 'deu',
 }
 
+/** Videos einer Session aus einem anderen Fach als DAY_FACH (gemischter Tag 5) */
+const VIDEO_FACH: Record<string, FachId> = { '5-2': 'bio', '5-3': 'pug', '5-4': 'pug' }
+
+export function videoFach(day: number, videoId: string): FachId | undefined {
+  return VIDEO_FACH[videoId] ?? DAY_FACH[day]
+}
+
 /** Höchste Jahrgangsstufe, deren Stoff als bekannt gilt (0 = keine) */
 export function knownUpTo(level: Level | undefined): number {
   if (!level) return 0

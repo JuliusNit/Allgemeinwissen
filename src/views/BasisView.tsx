@@ -1,15 +1,16 @@
-import { getDay } from '../data/plan'
+import { getDay, type Video } from '../data/plan'
 import { FAECHER, fach, topicsUpTo, type Fach } from '../data/lehrplan'
-import { DAY_FACH, knownUpTo, levelLabel, SCHOOL_GRADE } from '../data/school'
+import { DAY_FACH, knownUpTo, levelLabel, repeatDays, SCHOOL_GRADE, videoFach } from '../data/school'
 import { basisChat, DONE_MARKER } from '../lib/ai'
 import { useAiReady } from '../lib/cloud'
 import { basisNode, nodeDone, nodeReady, type BasisNode } from '../lib/path'
-import { dayState, setState, today, useStore, videosOf } from '../lib/store'
+import { dayState, setState, today, updateDay, useStore, videosOf, type State } from '../lib/store'
 import { Chat } from '../components/Chat'
 import { CoinBadge } from '../components/Coin'
 import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
 import { VideoWatch } from '../components/VideoWatch'
+import { VideoList } from '../components/VideoList'
 import type { ChatMsg } from '../lib/store'
 
 const NO_MSGS: ChatMsg[] = []
@@ -57,6 +58,10 @@ export function BasisView({ id, go, vday, video, at, openVideo, closeVideo }: Pr
   const t = basisTitle(node)
   const mix = node.fach === 'mix'
   const faecher = mix ? FAECHER.filter((f) => node.days.some((d) => DAY_FACH[d] === f.id)) : [fach(node.fach as Exclude<typeof node.fach, 'mix'>)]
+  const rows = faecher.map((f) => ({ f, rows: gradeRows(state, f, max, mix ? node.days : repeatDays(level)) }))
+  const all = rows.flatMap((r) => r.rows.flatMap(([, , ds]) => ds.flatMap(([d, vs]) => vs.map((v) => ({ d, v })))))
+  const stars = all.filter((x) => x.v.star)
+  const starsWatched = stars.filter((x) => dayState(state, x.d).watched?.includes(x.v.id)).length
   const checkDone = history.some((m) => m.role === 'assistant' && m.content.includes(DONE_MARKER))
   const playVideos = vday ? videosOf(state, vday) : []
   const playing = video ? playVideos.find((v) => v.id === video) : undefined
@@ -112,29 +117,34 @@ export function BasisView({ id, go, vday, video, at, openVideo, closeVideo }: Pr
       )}
 
       <Frame className="card">
-        <h2>Lehrplan bis Jgst. {max}</h2>
-        {faecher.map((f) => (
+        <div className="section-head">
+          <h2>Lehrplan bis Jgst. {max}</h2>
+          {all.length > 0 && <span className="muted">{starsWatched}/{stars.length} ★ gesehen · ~{Math.round(all.length * 9)} min</span>}
+        </div>
+        {rows.map(({ f, rows: rs }) => (
           <div key={f.id} className="lp-fach">
             {mix && <h3><Icon name={f.icon} size={18} /> {f.name}</h3>}
             <ul className="lp">
-              {gradeRows(f, max, node.days).map(([g, ts, days]) => (
+              {rs.map(([g, ts, days]) => (
                 <li key={g}>
                   <b>{g}</b> {ts.join(' · ')}
-                  {days.length > 0 && (
-                    <ul className="videos lp-videos">
-                      {days.flatMap((d) => {
-                        const watched = dayState(state, d).watched ?? []
-                        return videosOf(state, d).map((v) => (
-                          <li key={v.id} className={watched.includes(v.id) ? 'done' : ''}>
-                            <button className="video-open" onClick={() => openVideo(d, v.id)}>
-                              <span className="video-play" aria-hidden>▶</span>
-                              <span>{v.title}{v.source && <small className="video-source"> · {v.source}</small>}</span>
-                            </button>
-                          </li>
-                        ))
-                      })}
-                    </ul>
-                  )}
+                  {days.map(([d, vs]) => {
+                    const ds = dayState(state, d)
+                    return (
+                      <VideoList
+                        key={d}
+                        videos={vs}
+                        watched={new Set(ds.watched ?? [])}
+                        onToggleWatched={(vid) => toggleWatched(d, vid)}
+                        onChange={() => {}}
+                        onReset={() => {}}
+                        onOpen={(vid) => openVideo(d, vid)}
+                        noteCounts={Object.fromEntries(Object.entries(ds.videoNotes ?? {}).map(([k, n]) => [k, n.length]))}
+                        day={d}
+                        canEdit={false}
+                      />
+                    )
+                  })}
                 </li>
               ))}
             </ul>
@@ -160,14 +170,30 @@ export function BasisView({ id, go, vday, video, at, openVideo, closeVideo }: Pr
   )
 }
 
-/** Lehrplan-Zeilen je Jgst., dazu die Sessions dieser Station aus derselben Jgst. (fuer die Videos) */
-function gradeRows(f: Fach, max: number, days: number[]): [number, string[], number[]][] {
-  const rows = new Map<number, [string[], number[]]>(topicsUpTo(f, max).map(([g, ts]) => [g, [ts, []]]))
+function toggleWatched(day: number, id: string) {
+  updateDay(day, (x) => {
+    const w = new Set(x.watched ?? [])
+    if (w.has(id)) w.delete(id)
+    else w.add(id)
+    return { ...x, watched: [...w] }
+  })
+}
+
+type GradeRow = [number, string[], [number, Video[]][]]
+
+/**
+ * Lehrplan-Zeilen je Jgst., dazu die Videos der Wiederholungs-Sessions aus derselben Jgst. – nur die des Fachs
+ * (gemischte Tage steuern einzelne Videos bei), also dieselben Videos wie ohne Wiederholung.
+ */
+function gradeRows(s: State, f: Fach, max: number, days: number[]): GradeRow[] {
+  const rows = new Map<number, [string[], [number, Video[]][]]>(topicsUpTo(f, max).map(([g, ts]) => [g, [ts, []]]))
   for (const d of days) {
     const g = SCHOOL_GRADE[d]
-    if (DAY_FACH[d] !== f.id || g === undefined) continue
+    if (g === undefined) continue
+    const vs = videosOf(s, d).filter((v) => videoFach(d, v.id) === f.id)
+    if (!vs.length) continue
     if (!rows.has(g)) rows.set(g, [[], []])
-    rows.get(g)![1].push(d)
+    rows.get(g)![1].push([d, vs])
   }
   return [...rows].sort((a, b) => a[0] - b[0]).map(([g, [ts, ds]]) => [g, ts, ds])
 }

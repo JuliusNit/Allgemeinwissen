@@ -492,8 +492,9 @@ span.star { cursor: default; }
 .lp { list-style: none; padding: 0; margin: 0; }
 .lp li { padding: 4px 0; border-bottom: 1px dashed #0002; font-size: 0.92rem; }
 .lp li b { display: inline-block; min-width: 2.2em; }
-.lp .lp-videos { margin: 2px 0 2px 2.2em; }
-.lp .lp-videos li { padding: 3px 0; border-bottom: 0; }
+.lp .videos { margin: 2px 0 2px 2.2em; }
+.lp .videos li { padding: 8px 0; border-bottom: 1.5px solid var(--faint); font-size: 1rem; }
+.lp .videos li:last-child { border-bottom: 0; }
 .path .separator text { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; fill: var(--ink); opacity: 0.6; }
 .path .block-label .block-sub { font-size: 11.5px; font-weight: 400; opacity: 0.65; }
 
