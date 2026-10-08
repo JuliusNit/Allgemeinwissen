@@ -27,6 +27,49 @@ const RIM: Stroke[] = (() => {
 
 const FACE: Stroke[] = [ellipse(0, 0, R, RY)]
 
+// Abgeschlossen: leichte Schraffur (45°) auf der Oberseite, mit Abstand zum Rand
+const HATCH: Stroke[] = (() => {
+  const r = R - 5
+  const s: Stroke[] = []
+  for (let c = -r * Math.SQRT2 + 5; c < r * Math.SQRT2 - 4; c += 6.5) {
+    // Gerade x - y' = c im ungestauchten Kreis, danach y auf die Neigung stauchen
+    const q = Math.sqrt(2 * r * r - c * c) / 2
+    const x0 = c / 2 - q
+    const x1 = c / 2 + q
+    s.push(line([x0, (x0 - c) * COIN_TILT], [x1, (x1 - c) * COIN_TILT], 0.38))
+  }
+  return s
+})()
+
+// Abgeschlossene Wiederholung: Lorbeerkranz um die untere Haelfte, zwei Zweige von unten nach oben aussen
+const LAUREL: Stroke[] = (() => {
+  const rx = R + 8
+  const ry = RY + 8
+  const cy = D * 0.6
+  const s: Stroke[] = []
+  for (const side of [-1, 1]) {
+    const a0 = side < 0 ? 100 : 80
+    const a1 = side < 0 ? 222 : -42
+    s.push(arc(0, cy, rx, a0, a1, 0.7, ry))
+    const n = 7
+    for (let i = 1; i <= n; i++) {
+      const a = ((a0 + ((a1 - a0) * i) / (n + 0.4)) * Math.PI) / 180
+      const px = Math.cos(a) * rx
+      const py = cy + Math.sin(a) * ry
+      // Blattrichtung = Tangente Richtung Zweigspitze, abwechselnd nach aussen/innen gekippt
+      const tx = -Math.sin(a) * rx * Math.sign(a1 - a0)
+      const ty = Math.cos(a) * ry * Math.sign(a1 - a0)
+      const dir = (Math.atan2(ty, tx) * 180) / Math.PI
+      for (const k of [-1, 1]) {
+        const rot = dir + k * 38 * -side
+        const rr = (rot * Math.PI) / 180
+        s.push(ellipse(px + Math.cos(rr) * 3.6, py + Math.sin(rr) * 3.6, 3.8, 1.5, rot, 0.6))
+      }
+    }
+  }
+  return s
+})()
+
 // Ring liegt auf dem Boden (Hoehe der Muenzunterkante) und ist genauso geneigt wie die Muenze:
 // vorne sichtbar, hinten von der Muenze verdeckt
 const RING: Stroke[] = Array.from({ length: 14 }, (_, i) => arc(0, D, R + 9, i * (360 / 14), i * (360 / 14) + 13, 0.7, (R + 9) * COIN_TILT))
@@ -36,15 +79,17 @@ const BODY = `M${-R} 0V${D}A${R} ${RY} 0 0 0 ${R} ${D}V0Z`
 
 export type CoinState = 'done' | 'current' | 'open' | 'locked'
 
-export function Coin({ icon, state, pressed, scale = 1 }: { icon: IconName; state: CoinState; pressed: boolean; scale?: number }) {
+export function Coin({ icon, state, pressed, scale = 1, laurel }: { icon: IconName; state: CoinState; pressed: boolean; scale?: number; laurel?: boolean }) {
   return (
     <g className={`coin ${state}${pressed ? ' pressed' : ''}`} transform={scale !== 1 ? `scale(${scale})` : undefined}>
       {state === 'current' && <InkPaths strokes={RING} w={2.6} />}
+      {laurel && <InkPaths strokes={LAUREL} w={2.4} />}
       <path d={BODY} fill="#fff" />
       <ellipse rx={R} ry={RY} fill="#fff" />
       <InkPaths strokes={RIM} w={2.8} />
       <g className="coin-face">
         <ellipse rx={R} ry={RY} fill="#fff" />
+        {state === 'done' && <InkPaths strokes={HATCH} w={2.4} />}
         <InkPaths strokes={FACE} w={3.1} />
         <IconGroup name={icon} w={1.5} transform={`translate(-23.5 ${-23.5 * COIN_TILT}) scale(1.958 ${1.958 * COIN_TILT})`} />
       </g>

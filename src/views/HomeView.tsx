@@ -262,7 +262,7 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
             >
               <g transform={`translate(${p.x} ${p.y})`}>
                 <ellipse rx={COIN_R + 6} ry={COIN_RY + 6} cy={COIN_D / 2} className="hit" />
-                <Coin icon={iconOf(n)} state={st} pressed={pressed === n.id} />
+                <Coin icon={iconOf(n)} state={st} pressed={pressed === n.id} laurel={st === 'done' && n.kind !== 'day'} />
               </g>
               <NodeLabel x={tx} y={p.y - 6 - (lines.length - 1) * 7} right={right} head={l.head} lines={lines} done={st === 'done'} />
             </g>
