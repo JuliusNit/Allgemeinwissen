@@ -229,6 +229,9 @@ ${sessionContext(d)}`
   return streamChat(system, history, onText)
 }
 
+/** Nachfrage nach Fehler: Erklärung anwenden statt wiedergeben */
+const FOLLOW_UP = `Die Nachfrage darf NICHT mit deiner Erklärung beantwortbar sein (nicht dieselbe Frage neu formulieren, keine Auswahl „Masse, Energie, Impuls?“). Stelle stattdessen eine neue Situation zum gleichen Prinzip, in der man die Erklärung übertragen und selbst weiterdenken muss – z. B. abgewandelter Fall, Gegenbeispiel, Vorhersage („Was ändert sich, wenn…?“), Begründung eines Details.`
+
 export function checkChat(day: number, history: ChatMsg[], onText: (t: string) => void) {
   const d = getDay(day)
   const system = `${persona()}
@@ -241,7 +244,7 @@ Phase „Verständnischeck“: ${nm()} hat „verstanden“ gesagt. Führe den C
 - Nach JEDER Antwort von ${nm()} beginnt deine Nachricht in der ersten Zeile mit genau einem Bewertungs-Marker:
   [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]
   P = Präzision der Antwort von 1 (vage) bis 5 (präzise, Fachbegriffe korrekt). Beispiel: [[BEWERTUNG: teilweise | 3]]
-- Danach kurz bewerten (✅ richtig / 🟡 unvollständig / ❌ falsch). Bei falsch/unvollständig: kurz erklären, dann eine Nachfrage zum GLEICHEN Punkt stellen, bevor es mit der nächsten Frage weitergeht.
+- Danach kurz bewerten (✅ richtig / 🟡 unvollständig / ❌ falsch). Bei falsch/unvollständig: kurz erklären, dann eine Nachfrage zum GLEICHEN Punkt stellen, bevor es mit der nächsten Frage weitergeht. ${FOLLOW_UP}
 - Erst wenn alles sitzt: kurzes Fazit (was saß gut, was wiederholen) und schreibe dann in die letzte Zeile exakt: ${DONE_MARKER}
 - Schreibe ${DONE_MARKER} niemals vorher.
 
@@ -313,7 +316,7 @@ Regeln:
 - Quer über die Jahrgangsstufen und Lernbereiche; Kernwissen und Zusammenhänge statt Details, keine reinen Wiedergabefragen („Warum…?“, „Was passiert, wenn…?“, Einordnen auf Zeitstrahl/Karte).
 ${mix ? '- Jede Frage verknüpft mindestens zwei Fächer oder Schulstoff mit einer neuen Session.\n' : ''}- Nach JEDER Antwort beginnt deine Nachricht in der ersten Zeile mit genau einem Marker:
   [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]  (P = Präzision 1–5)
-- Danach kurz bewerten (✅ / 🟡 / ❌). Bei Fehlern kurz erklären, dann eine Nachfrage zum GLEICHEN Punkt.
+- Danach kurz bewerten (✅ / 🟡 / ❌). Bei Fehlern kurz erklären, dann eine Nachfrage zum GLEICHEN Punkt. ${FOLLOW_UP}
 - Zum Schluss: Fazit als Tabelle „Lernbereich | sitzt / Lücke“, und für jede Lücke die passende Session nennen („→ Tag N öffnen“). Dann in die letzte Zeile exakt: ${DONE_MARKER}
 - Schreibe ${DONE_MARKER} niemals vorher.
 ${done.length ? `\nBereits abgeschlossene Sessions (für Verknüpfungen):\n${done.map((d) => `- ${dayLine(d)}`).join('\n')}` : ''}`
