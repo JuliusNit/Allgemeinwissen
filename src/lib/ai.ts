@@ -216,6 +216,36 @@ ${sessionContext(d)}`
   return streamChat(system, [{ role: 'user', content: 'Lass uns anknüpfen.' }], onText, 2000)
 }
 
+/** Schulstoff-Sessions, auf die eine Session verweist (Grundlage fürs Auffrischen) */
+export function refreshDays(day: number): number[] {
+  const level = getState().level
+  if (isRepeat(level, day)) return []
+  return getDay(day).links.filter((n) => isRepeat(level, n))
+}
+
+export function refreshChat(day: number, onText: (t: string) => void) {
+  const d = getDay(day)
+  const s = getState()
+  const max = knownUpTo(s.level)
+  const base = refreshDays(day).map(getDay)
+  const faecher = FAECHER.filter((f) => base.some((b) => DAY_FACH[b.day] === f.id))
+  const system = `${persona()}
+
+Aufgabe: „Auffrischen“ vor der Session. Die heutige Session baut auf Schulstoff auf, den ${nm()} kennen sollte, aber vielleicht vergessen hat.
+Frische genau das Grundwissen auf, das für das heutige Thema gebraucht wird – nicht mehr:
+- 5–8 Stichpunkte: Begriffe, Zusammenhänge, Jahreszahlen/Größen, jeweils mit einem Halbsatz, wozu man es heute braucht.
+- Wenn es hilft, eine kleine Tabelle oder ein Text-Diagramm.
+- Zum Schluss 2 kurze Selbsttest-Fragen (ohne Lösung), mit denen ${nm()} merkt, ob das Grundwissen sitzt.
+Keine Inhalte der heutigen Videos vorwegnehmen.
+
+HEUTIGE SESSION: ${dayLine(d)} – ${d.subtopics.join(' · ')}
+
+Schulstoff-Sessions, auf denen sie aufbaut:
+${base.map((b) => `- ${dayLine(b)} – ${b.subtopics.join(' · ')}`).join('\n')}
+${faecher.length ? `\nLehrplanPLUS Bayern (Gymnasium) bis Jgst. ${max}:\n${faecher.map((f) => `- ${f.name}:\n${fachLines(f, max)}`).join('\n')}` : ''}`
+  return streamChat(system, [{ role: 'user', content: 'Frisch mein Grundwissen auf.' }], onText, 2000)
+}
+
 export function questionsChat(day: number, history: ChatMsg[], onText: (t: string) => void) {
   const d = getDay(day)
   const system = `${persona()}

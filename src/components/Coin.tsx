@@ -41,7 +41,7 @@ const HATCH: Stroke[] = (() => {
   return s
 })()
 
-// Abgeschlossene Wiederholung: Lorbeerkranz um die untere Haelfte, zwei Zweige von unten nach oben aussen
+// Abgeschlossene Abruf-Station (Wiederholung Tag x–y): Lorbeerkranz um die untere Haelfte, zwei Zweige von unten nach oben aussen
 const LAUREL: Stroke[] = (() => {
   const rx = R + 8
   const ry = RY + 8

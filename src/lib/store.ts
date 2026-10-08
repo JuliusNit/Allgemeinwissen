@@ -29,6 +29,8 @@ export interface DayState {
   /** Video-ID → zuletzt gesehene Stelle (Sekunden) */
   videoPos?: Record<string, number>
   anchor?: string
+  /** „Auffrischen“: Schul-Grundwissen, auf dem die Session aufbaut */
+  refresh?: string
   questions?: ChatMsg[]
   check?: ChatMsg[]
   summary?: string

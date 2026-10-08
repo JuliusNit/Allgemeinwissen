@@ -1,5 +1,6 @@
 import { AREAS, DAYS, MAP_AREAS, type AreaId } from '../data/plan'
-import { pathOf, type BasisNode } from './path'
+import { isRepeat } from '../data/school'
+import { stationOf, type BasisNode } from './path'
 import { dayState, type ChatMsg, type State } from './store'
 
 // Auswertung des Verstaendnischecks: das Modell setzt nach jeder Antwort einen Marker
@@ -62,15 +63,13 @@ function scoreOf(msgs: ChatMsg[] | undefined): number | null {
 
 /** Abgehakte Start-Station der Grundwiederholung, an der die Session haengt */
 export function basisCover(s: State, day: number): BasisNode | undefined {
-  for (const n of pathOf(s)) {
-    if (n.kind === 'basis' && n.variant === 'start' && s.reviews[n.id] && n.days.includes(day)) return n
-  }
-  return undefined
+  const n = stationOf(s.level, day)
+  return n && s.reviews[n.id] ? n : undefined
 }
 
-/** Session gilt als gelernt: selbst abgeschlossen oder ueber den Grundcheck ihres Fachs */
+/** Session gilt als gelernt: selbst abgeschlossen oder Schulstoff (laut Wissensstand bekannt) */
 export function dayDone(s: State, day: number): boolean {
-  return dayState(s, day).status === 'fertig' || !!basisCover(s, day)
+  return dayState(s, day).status === 'fertig' || isRepeat(s.level, day)
 }
 
 /** Datum, ab dem die Session als gelernt gilt */

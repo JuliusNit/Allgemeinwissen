@@ -1,5 +1,6 @@
 import { AREAS, DAYS, getDay, type AreaId } from '../data/plan'
 import { fach } from '../data/lehrplan'
+import { isRepeat } from '../data/school'
 import { currentNode, pathOf, nodeDone, type PathNode } from './path'
 import { dayDone, dayDoneAt, sessionScore, VERDICT_SCORE, type Verdict } from './stats'
 import { activeDates, localDate, streak, toDate } from './streak'
@@ -41,7 +42,8 @@ export function markRecapSeen(s: State): State {
 /** Sitzt-Wert einer Session (0–1) mit Stand vor dem Datum `before` */
 function mastery(s: State, day: number, before: string): number {
   const at = dayDoneAt(s, day)
-  if (!at || toDate(at) >= before) return 0
+  // Schulstoff ohne Datum gilt von Anfang an als bekannt
+  if (at ? toDate(at) >= before : !isRepeat(s.level, day)) return 0
   const parts: { v: number; w: number }[] = []
   const ex = examState(s, day).results.filter((r) => r.score != null && toDate(r.at) < before)
   if (ex.length) parts.push({ v: ex[ex.length - 1].score!, w: 2 })

@@ -6,12 +6,12 @@ import { dayState, type State } from './store'
 // Lernpfad je Wissensstand.
 //
 // Aufbau:
-// 1. Grundwiederholung (nur wenn es fuer den Stand bekannten Schulstoff gibt): je Schulfach eine Station,
-//    die den Schulstoff bis zur abgeschlossenen Jahrgangsstufe (LehrplanPLUS Bayern) abfragt und Luecken sucht.
-//    Die Schulstoff-Sessions dieses Fachs haengen an der Station (zum Vertiefen) statt im Hauptpfad.
-// 2. Trennlinie, danach der neue Stoff: die uebrigen Sessions + Abruf-Station nach je 4 Sessions.
-// 3. Auffrischung der Grundwiederholung etwa zur Haelfte (an einem Blockende) – verteiltes Wiederholen.
-// 4. Am Ende: Abschlusswiederholung aller Karten + Abschluss-Check des Grundwissens.
+// 1. Der Pfad beginnt direkt mit dem neuen Stoff: alle Sessions, die fuer den Stand kein bekannter Schulstoff
+//    sind, + Abruf-Station nach je 4 Sessions. Schulstoff-Sessions stehen nicht im Pfad und gelten als bekannt.
+// 2. Grundwissen wird bei Bedarf aufgefrischt: verweist eine Session auf Schulstoff-Sessions, gibt es dort
+//    „Auffrischen“ (optional) – Vorwissen genau dann aktivieren, wenn Neues darauf aufbaut. Von dort geht es
+//    zur Station des Fachs (`g-<fach>`, Grundcheck bis zur abgeschlossenen Jgst.), die nicht im Pfad steht.
+// 3. Am Ende: Abschlusswiederholung aller Karten.
 //
 // Grundlage (Lernforschung):
 // - Verteiltes Lernen schlaegt Massieren (Cepeda et al. 2006, Metaanalyse ueber 254 Studien).
@@ -45,30 +45,25 @@ export type PathNode =
 export type ReviewNode = Extract<PathNode, { kind: 'review' }>
 export type BasisNode = Extract<PathNode, { kind: 'basis' }>
 
-function build(level: Level | undefined): PathNode[] {
+/** Station der Grundwiederholung je Schulfach (nicht im Pfad, erreichbar ueber „Auffrischen“) */
+function stations(level: Level | undefined): BasisNode[] {
   const repeat = DAYS.filter((d) => isRepeat(level, d.day))
-  const main = DAYS.filter((d) => !isRepeat(level, d.day))
-  const out: PathNode[] = []
-
-  // 1. Grundwiederholung je Fach (Reihenfolge wie im Lehrplan-Verzeichnis)
+  const out: BasisNode[] = []
   for (const f of FAECHER) {
     const days = repeat.filter((d) => DAY_FACH[d.day] === f.id).map((d) => d.day)
     if (days.length) out.push({ kind: 'basis', id: `g-${f.id}`, fach: f.id, days, block: BASIS_BLOCK, after: [], variant: 'start' })
   }
-  const hasBasis = out.length > 0
-  const allRepeat = repeat.map((d) => d.day)
+  return out
+}
 
-  // Auffrischung an dem Blockende (MIX-Tag), das der Mitte des neuen Stoffs am naechsten liegt
-  const mixIdx = main.map((d, i) => (isBlockMix(d) ? i : -1)).filter((i) => i >= 0)
-  const mid = mixIdx.reduce((best, i) => (Math.abs(i - main.length / 2) < Math.abs(best - main.length / 2) ? i : best), mixIdx[0] ?? -1)
+function build(level: Level | undefined): PathNode[] {
+  const main = DAYS.filter((d) => !isRepeat(level, d.day))
+  const out: PathNode[] = []
 
-  // 2. Neuer Stoff mit Abruf-Stationen
+  // 1. Neuer Stoff mit Abruf-Stationen
   let since: number[] = []
   main.forEach((d, i) => {
     out.push({ kind: 'day', id: `d${d.day}`, day: d.day, block: d.block })
-    if (hasBasis && i === mid) {
-      out.push({ kind: 'basis', id: 'g-auffrischung', fach: 'mix', days: allRepeat, block: d.block, after: main.slice(0, i + 1).map((x) => x.day), variant: 'auffrischung' })
-    }
     if (isBlockMix(d)) {
       since = []
       return
@@ -81,12 +76,9 @@ function build(level: Level | undefined): PathNode[] {
     }
   })
 
-  // 4. Abschluss
+  // 3. Abschluss
   const last = main[main.length - 1]
-  if (last) {
-    out.push({ kind: 'review', id: 'w-ende', days: main.map((d) => d.day), block: last.block, final: true })
-    if (hasBasis) out.push({ kind: 'basis', id: 'g-abschluss', fach: 'mix', days: allRepeat, block: last.block, after: main.map((d) => d.day), variant: 'abschluss' })
-  }
+  if (last) out.push({ kind: 'review', id: 'w-ende', days: main.map((d) => d.day), block: last.block, final: true })
   return out
 }
 
@@ -106,8 +98,25 @@ export function pathOf(s: State): PathNode[] {
   return buildPath(s.level)
 }
 
+const stationCache = new Map<string, BasisNode[]>()
+
+export function basisStations(level: Level | undefined): BasisNode[] {
+  const key = JSON.stringify(level ?? null)
+  let p = stationCache.get(key)
+  if (!p) {
+    p = stations(level)
+    stationCache.set(key, p)
+  }
+  return p
+}
+
+/** Station des Fachs, zu dem eine Schulstoff-Session gehoert */
+export function stationOf(level: Level | undefined, day: number): BasisNode | undefined {
+  return basisStations(level).find((n) => n.days.includes(day))
+}
+
 export function findNode(s: State, id: string): PathNode | undefined {
-  return pathOf(s).find((x) => x.id === id)
+  return pathOf(s).find((x) => x.id === id) ?? basisStations(s.level).find((x) => x.id === id)
 }
 
 export function reviewNode(s: State, id: string): ReviewNode | undefined {
