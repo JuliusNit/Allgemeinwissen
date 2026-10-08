@@ -1,7 +1,7 @@
 import { AREAS, DAYS, getDay, type AreaId } from '../data/plan'
 import { fach } from '../data/lehrplan'
 import { currentNode, pathOf, nodeDone, type PathNode } from './path'
-import { sessionScore, VERDICT_SCORE, type Verdict } from './stats'
+import { dayDone, dayDoneAt, sessionScore, VERDICT_SCORE, type Verdict } from './stats'
 import { activeDates, localDate, streak, toDate } from './streak'
 import { dayState, examState, today, type State } from './store'
 
@@ -40,8 +40,8 @@ export function markRecapSeen(s: State): State {
 
 /** Sitzt-Wert einer Session (0–1) mit Stand vor dem Datum `before` */
 function mastery(s: State, day: number, before: string): number {
-  const ds = dayState(s, day)
-  if (ds.status !== 'fertig' || !ds.completedAt || toDate(ds.completedAt) >= before) return 0
+  const at = dayDoneAt(s, day)
+  if (!at || toDate(at) >= before) return 0
   const parts: { v: number; w: number }[] = []
   const ex = examState(s, day).results.filter((r) => r.score != null && toDate(r.at) < before)
   if (ex.length) parts.push({ v: ex[ex.length - 1].score!, w: 2 })
@@ -128,7 +128,7 @@ export function weekRecap(s: State): Recap {
     accuracy: verdicts.length ? verdicts.reduce((a, b) => a + b, 0) / verdicts.length : null,
     indexNow: knowledgeIndex(s, end),
     indexBefore: knowledgeIndex(s, from),
-    planDone: DAYS.filter((d) => dayState(s, d.day).status === 'fertig').length,
+    planDone: DAYS.filter((d) => dayDone(s, d.day)).length,
     streak: streak(s).days,
     activeDays: active.length,
     next,

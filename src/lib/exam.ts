@@ -1,5 +1,5 @@
 import { DAYS, isBlockMix } from '../data/plan'
-import { parseCheck, sessionScore, VERDICT_SCORE } from './stats'
+import { dayDone, dayDoneAt, parseCheck, sessionScore, VERDICT_SCORE } from './stats'
 import { dayState, examState, type ChatMsg, type State } from './store'
 
 // Pruefungs-Wiederholung: Themen (abgeschlossene Sessions) nach Dringlichkeit sortiert.
@@ -27,7 +27,7 @@ function daysAgo(date: string): number {
 }
 
 export function examTopics(s: State): ExamTopic[] {
-  return DAYS.filter((d) => !isBlockMix(d) && dayState(s, d.day).status === 'fertig')
+  return DAYS.filter((d) => !isBlockMix(d) && dayDone(s, d.day))
     .map((d) => {
       const ds = dayState(s, d.day)
       const ex = examState(s, d.day)
@@ -40,7 +40,7 @@ export function examTopics(s: State): ExamTopic[] {
       if (logs.length) parts.push({ v: logs.filter((l) => l.rating >= 2).length / logs.length, w: 1 })
       const wsum = parts.reduce((a, p) => a + p.w, 0)
       const mastery = wsum ? parts.reduce((a, p) => a + p.v * p.w, 0) / wsum : null
-      const since = daysAgo(last?.at ?? ds.completedAt ?? ds.startedAt ?? '')
+      const since = daysAgo(last?.at ?? dayDoneAt(s, d.day) ?? ds.startedAt ?? '')
       const priority = 0.6 * (1 - (mastery ?? 0.8)) + 0.4 * Math.min(1, since / 28)
       const reason =
         mastery != null && mastery < 0.7

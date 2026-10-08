@@ -1,4 +1,5 @@
 import { AREAS, DAYS, MAP_AREAS, type AreaId } from '../data/plan'
+import { pathOf, type BasisNode } from './path'
 import { dayState, type ChatMsg, type State } from './store'
 
 // Auswertung des Verstaendnischecks: das Modell setzt nach jeder Antwort einen Marker
@@ -53,11 +54,39 @@ export function parseCheck(msgs: ChatMsg[] = []): QA[] {
 
 export const VERDICT_SCORE: Record<Verdict, number> = { richtig: 1, teilweise: 0.5, falsch: 0 }
 
-/** Anteil richtig (0–1) einer Session, null ohne bewertete Antworten */
-export function sessionScore(s: State, day: number): number | null {
-  const qa = parseCheck(dayState(s, day).check).filter((q) => q.verdict)
+function scoreOf(msgs: ChatMsg[] | undefined): number | null {
+  const qa = parseCheck(msgs).filter((q) => q.verdict)
   if (!qa.length) return null
   return qa.reduce((a, q) => a + VERDICT_SCORE[q.verdict!], 0) / qa.length
+}
+
+/** Abgehakte Start-Station der Grundwiederholung, an der die Session haengt */
+export function basisCover(s: State, day: number): BasisNode | undefined {
+  for (const n of pathOf(s)) {
+    if (n.kind === 'basis' && n.variant === 'start' && s.reviews[n.id] && n.days.includes(day)) return n
+  }
+  return undefined
+}
+
+/** Session gilt als gelernt: selbst abgeschlossen oder ueber den Grundcheck ihres Fachs */
+export function dayDone(s: State, day: number): boolean {
+  return dayState(s, day).status === 'fertig' || !!basisCover(s, day)
+}
+
+/** Datum, ab dem die Session als gelernt gilt */
+export function dayDoneAt(s: State, day: number): string | undefined {
+  const ds = dayState(s, day)
+  if (ds.status === 'fertig' && ds.completedAt) return ds.completedAt
+  const b = basisCover(s, day)
+  return b ? s.reviews[b.id] : undefined
+}
+
+/** Anteil richtig (0–1) einer Session, null ohne bewertete Antworten; sonst Ergebnis des Grundchecks */
+export function sessionScore(s: State, day: number): number | null {
+  const own = scoreOf(dayState(s, day).check)
+  if (own != null) return own
+  const b = basisCover(s, day)
+  return b ? scoreOf(s.basis[b.id]) : null
 }
 
 /** Ueberthemen fuer Statistik und Chat (MIX-Tage gehoeren zu keinem Bereich) */
@@ -88,14 +117,22 @@ export function areaStats(s: State, area: AreaId): AreaStats {
   const secs: number[] = []
   const prec: number[] = []
   let done = 0
+  // Grundcheck-Antworten zaehlen einmal je Bereich
+  const stations = new Set<string>()
   for (const d of days) {
-    const qa = parseCheck(dayState(s, d.day).check)
-    for (const q of qa) {
+    const b = basisCover(s, d.day)
+    if (b) stations.add(b.id)
+  }
+  const chats = [...days.map((d) => dayState(s, d.day).check), ...[...stations].map((id) => s.basis[id])]
+  for (const c of chats) {
+    for (const q of parseCheck(c)) {
       if (q.verdict) verdicts.push(VERDICT_SCORE[q.verdict])
       if (q.ms) secs.push(q.ms / 1000)
       if (q.precision) prec.push(q.precision)
     }
-    if (dayState(s, d.day).status !== 'fertig') continue
+  }
+  for (const d of days) {
+    if (!dayDone(s, d.day)) continue
     done++
     // ohne Bewertungen zaehlt eine abgeschlossene Session als gut (Check wurde bestanden)
     const sc = sessionScore(s, d.day) ?? 1

@@ -3,6 +3,7 @@ import { AREAS, getDay } from '../data/plan'
 import { DONE_MARKER, examChat } from '../lib/ai'
 import { useAiReady } from '../lib/cloud'
 import { examScore, examTopics, type ExamTopic } from '../lib/exam'
+import { dayDone } from '../lib/stats'
 import { dayState, examState, getState, updateExam, useStore } from '../lib/store'
 import { Chat } from '../components/Chat'
 import { Coin, COIN_D, COIN_R, CoinBadge } from '../components/Coin'
@@ -141,7 +142,7 @@ function ExamPop({ t, col, go }: { t: ExamTopic; col: number; go: (hash: string)
 function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
   const d = getDay(day)
   const ex = useStore((s) => examState(s, day))
-  const done = useStore((s) => dayState(s, day).status === 'fertig')
+  const done = useStore((s) => dayDone(s, day))
   const summary = useStore((s) => dayState(s, day).summary)
   const hasKey = useAiReady()
   const [gen, setGen] = useState(0)

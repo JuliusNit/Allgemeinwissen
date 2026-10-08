@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AREAS, DAYS, getDay, type AreaId } from '../data/plan'
 import { circle, line, poly, roundRect, sectorPath, type Pt, type Stroke } from '../lib/ink'
-import { areaStats, parseCheck, sessionScore, STAT_AREAS } from '../lib/stats'
+import { areaStats, dayDone, parseCheck, sessionScore, STAT_AREAS } from '../lib/stats'
 import { dayState, useStore } from '../lib/store'
 import { Icon } from '../components/Icons'
 import { Frame, InkPaths, InkScroll } from '../components/Ink'
@@ -89,12 +89,11 @@ function AreaBox({ area, left, open, go }: { area: AreaId; left: boolean; open: 
           <InkScroll className="topic-scroll">
             <ul className="topic-list">
               {days.map((d) => {
-                const ds = dayState(s, d.day)
                 const sc = sessionScore(s, d.day)
                 return (
                   <li key={d.day}>
                     <button onClick={() => go(`/statistik/${area}/${d.day}`)}>
-                      <InkCheck checked={ds.status === 'fertig'} />
+                      <InkCheck checked={dayDone(s, d.day)} />
                       <span>
                         <span className="muted small">Tag {d.day}</span> {d.title.split(/[:(]/)[0].trim()}
                       </span>

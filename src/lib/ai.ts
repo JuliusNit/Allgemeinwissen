@@ -3,7 +3,7 @@ import { FAECHER, fach, topicsUpTo, type Fach, type FachId } from '../data/lehrp
 import { blockName, DAY_FACH, isRepeat, knownUpTo, levelLabel, SCHOOL_GRADE } from '../data/school'
 import type { BasisNode } from './path'
 import { kiProxy } from './cloud'
-import { DONE_MARKER, likesTable, statsTable } from './stats'
+import { dayDone, DONE_MARKER, likesTable, statsTable } from './stats'
 import { dayState, examState, getState, videoNotesText, videosOf, type ChatMsg } from './store'
 
 export { DONE_MARKER }
@@ -401,7 +401,7 @@ ${transcript('Verständnischeck', ds.check)}`
 
 export async function adviseFocus(): Promise<string> {
   const s = getState()
-  const done = DAYS.filter((d) => dayState(s, d.day).status === 'fertig').length
+  const done = DAYS.filter((d) => dayDone(s, d.day)).length
   const system = `${persona()}
 
 Du berätst ${nm()}, worin die Stärken liegen und welche Themen liegen. SEHR KURZ, höchstens 6 Zeilen, keine Einleitung:

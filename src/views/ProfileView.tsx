@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { AREAS, DAYS } from '../data/plan'
 import { adviseFocus, describeError } from '../lib/ai'
-import { areaStats, STAT_AREAS } from '../lib/stats'
+import { areaStats, dayDone, STAT_AREAS } from '../lib/stats'
 import { AfterNinety } from '../components/AfterNinety'
 import { cloud, saveDayVideos, saveLevel, signOut, useAiReady, useAuth } from '../lib/cloud'
 import { DEFAULT_API_URL, DEFAULT_MODEL, dayState, exportJson, getState, videosOf, importJson, resetAll, setState, today, useStore, type Settings } from '../lib/store'
@@ -73,7 +73,7 @@ function Strengths() {
   const hasKey = useAiReady()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const done = DAYS.filter((d) => dayState(s, d.day).status === 'fertig').length
+  const done = DAYS.filter((d) => dayDone(s, d.day)).length
   const rows = STAT_AREAS.map((a) => areaStats(s, a)).filter((x) => x.answers || x.done)
   const allDone = done >= DAYS.length
 
