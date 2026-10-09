@@ -31,8 +31,8 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   `[[BEWERTUNG: richtig|teilweise|falsch | 1-5]]`), Lernzettel + Karten (json_schema), Stärkenberatung, Kanal-Chat.
 - `src/lib/stats.ts` – wertet Marker + Zeitstempel aus (richtig, Antwortzeit, Präzision) je Session/Überthema.
 - `src/lib/path.ts` – Lernpfad je Wissensstand (`buildPath(level)`): beginnt direkt mit dem neuen Stoff, Abruf-Station nach je
-  4 Sessions, am Ende Abschlusswiederholung (`w-ende`, unsicherste Karten). Schulstoff-Sessions stehen nicht im Pfad und gelten
-  als bekannt (`dayDone`). Grundwissen optional über „Auffrischen“ im Anknüpfen-Kasten einer Session, die per `links` auf
+  4 Sessions, am Ende Abschlusswiederholung (`w-ende`, unsicherste Karten). Schulstoff-Sessions stehen nicht im Pfad und zählen
+  als gelernt (`dayDone`: Statistik, Prüfung) erst nach dem Grundcheck ihres Fachs. Grundwissen optional über „Auffrischen“ im Anknüpfen-Kasten einer Session, die per `links` auf
   Schulstoff-Sessions verweist (`refreshChat`, nur deren Stoff, heutiges Thema tabu; Ergebnis in `refresh`), von dort
   „Grundcheck <Fach>“ = Station `g-<fach>` (`basisStations`, nicht im Pfad). Begründung im Kommentar.
   Angezeigt wird nie die Plan-Tagesnummer (nur interne ID), sondern die Position im Pfad: „Session N“ (`sessionNo`),

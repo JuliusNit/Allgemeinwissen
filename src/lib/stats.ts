@@ -67,9 +67,9 @@ export function basisCover(s: State, day: number): BasisNode | undefined {
   return n && s.reviews[n.id] ? n : undefined
 }
 
-/** Session gilt als gelernt: selbst abgeschlossen oder Schulstoff (laut Wissensstand bekannt) */
+/** Session gilt als gelernt: selbst abgeschlossen oder Schulstoff, dessen Grundcheck abgehakt ist */
 export function dayDone(s: State, day: number): boolean {
-  return dayState(s, day).status === 'fertig' || isRepeat(s.level, day)
+  return dayState(s, day).status === 'fertig' || (isRepeat(s.level, day) && !!basisCover(s, day))
 }
 
 /** Datum, ab dem die Session als gelernt gilt */
