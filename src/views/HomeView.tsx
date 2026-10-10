@@ -221,12 +221,8 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
           const basis = p.node.block === BASIS_BLOCK
           const first = i === 0
           const y = p.y - COIN_R - (first ? (basis ? 48 : 30) : 44)
-          const afterSep = !first && blockLabels[i - 1].node.block === BASIS_BLOCK
           return (
             <g key={p.node.block} className="block-label">
-              {!first && !afterSep && (
-                <text x={CX} y={y - 40} textAnchor="middle" className="dots">· · ·</text>
-              )}
               <text x={CX} y={y} textAnchor="middle">{basis ? 'Grundwiederholung' : blockName(BLOCKS[p.node.block], s.level)}</text>
               {basis && (
                 <text x={CX} y={y + 16} textAnchor="middle" className="block-sub">Schulstoff bis Jgst. {knownUpTo(s.level)} · LehrplanPLUS Bayern</text>

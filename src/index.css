@@ -140,7 +140,6 @@ label { display: block; font-size: 0.85rem; color: var(--muted); margin: 10px 0 
 .node.locked .node-label { fill: #888; }
 .node-head { font-weight: 700; font-size: 13.5px; }
 .block-label text { font-size: 13px; font-weight: 700; fill: var(--ink); letter-spacing: 0.02em; }
-.block-label .dots { font-size: 22px; font-weight: 400; letter-spacing: 0.3em; }
 
 /* Session */
 .day-nav { display: flex; align-items: center; gap: 8px; }
