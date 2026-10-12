@@ -14,11 +14,12 @@ import { ProfileView } from './views/ProfileView'
 import { ReviewView } from './views/ReviewView'
 import { BasisView } from './views/BasisView'
 import { StatsView } from './views/StatsView'
+import { TopicView } from './views/TopicView'
 
 type Tab = 'exam' | 'home' | 'chat' | 'stats' | 'profil'
 
 type Route =
-  | { tab: 'home'; day?: number; review?: string; vday?: number; video?: string; at?: number }
+  | { tab: 'home'; day?: number; topic?: number; review?: string; vday?: number; video?: string; at?: number }
   | { tab: 'chat'; channel?: string }
   | { tab: 'stats'; area?: AreaId; day?: number }
   | { tab: 'profil' }
@@ -32,6 +33,7 @@ function parseHash(): Route {
     if (c === 'video' && d) return { tab: 'home', day, video: decodeURIComponent(d), at: e ? Number(e) || 0 : undefined }
     return { tab: 'home', day }
   }
+  if (a === 'thema' && b) return { tab: 'home', topic: Math.min(90, Math.max(1, Number(b) || 1)) }
   if (a === 'wiederholung' && b) {
     if (c === 'video' && d && e) return { tab: 'home', review: b, vday: Math.min(90, Math.max(1, Number(d) || 1)), video: decodeURIComponent(e), at: f ? Number(f) || 0 : undefined }
     return { tab: 'home', review: b }
@@ -97,7 +99,9 @@ export default function App() {
       <HatchDefs />
       <main>
         {route.tab === 'home' &&
-          (route.day ? (
+          (route.topic ? (
+            <TopicView key={route.topic} day={route.topic} go={go} />
+          ) : route.day ? (
             <DayView
               key={route.day}
               day={route.day}

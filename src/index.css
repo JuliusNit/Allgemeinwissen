@@ -141,6 +141,21 @@ label { display: block; font-size: 0.85rem; color: var(--muted); margin: 10px 0 
 .node-head { font-weight: 700; font-size: 13.5px; }
 .block-label text { font-size: 13px; font-weight: 700; fill: var(--ink); letter-spacing: 0.02em; }
 
+/* Themenkarte vor der Session (TopicView) */
+.topic-map { display: block; width: 100%; max-width: 440px; margin: 8px auto 0; height: auto; overflow: visible; }
+.t-title { font-size: 18px; font-weight: 700; fill: var(--ink); letter-spacing: -0.01em; }
+.t-label { font-size: 12.5px; fill: var(--ink); }
+.t-node, .t-start { outline: none; }
+.t-node.link, .t-start { cursor: pointer; }
+.t-node .hit, .t-start .hit { fill: transparent; }
+.t-node:focus-visible .hit, .t-start:focus-visible .hit { stroke: var(--ink); stroke-width: 2; stroke-dasharray: 4 4; }
+.coin-label { font-size: 17px; font-weight: 700; fill: var(--ink); }
+.t-title, .t-node, .t-arrows, .t-start { animation: t-in 380ms ease-out both; }
+.t-arrows { animation-delay: 300ms; }
+.t-start { animation-delay: 420ms; }
+@keyframes t-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .t-title, .t-node, .t-arrows, .t-start { animation: none; } }
+
 /* Session */
 .day-nav { display: flex; align-items: center; gap: 8px; }
 .day-nav .right { display: flex; gap: 2px; }

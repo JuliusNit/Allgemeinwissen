@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { arc, ellipse, line, type Stroke } from '../lib/ink'
 import { IconGroup, type IconName } from './Icons'
 import { InkPaths } from './Ink'
@@ -16,14 +17,17 @@ const R = COIN_R
 const RY = COIN_RY
 const D = COIN_D
 
-const RIM: Stroke[] = (() => {
-  const s: Stroke[] = [arc(0, D, R, 0, 180, undefined, RY), line([R, 0], [R, D]), line([-R, 0], [-R, D])]
-  for (let x = -R + 4.5; x <= R - 4.5; x += 4.5) {
-    const y = COIN_TILT * Math.sqrt(R * R - x * x)
+/** Muenzrand unter einer Oberseite mit Halbachsen rx/ry */
+function rim(rx: number, ry: number): Stroke[] {
+  const s: Stroke[] = [arc(0, D, rx, 0, 180, undefined, ry), line([rx, 0], [rx, D]), line([-rx, 0], [-rx, D])]
+  for (let x = -rx + 4.5; x <= rx - 4.5; x += 4.5) {
+    const y = (ry / rx) * Math.sqrt(rx * rx - x * x)
     s.push(line([x, y + 1.6], [x, y + D - 0.4], 0.42))
   }
   return s
-})()
+}
+
+const RIM = rim(R, RY)
 
 const FACE: Stroke[] = [ellipse(0, 0, R, RY)]
 
@@ -92,6 +96,22 @@ export function Coin({ icon, state, pressed, scale = 1, laurel }: { icon: IconNa
         {state === 'done' && <InkPaths strokes={HATCH} w={2.4} />}
         <InkPaths strokes={FACE} w={3.1} />
         <IconGroup name={icon} w={1.5} transform={`translate(-23.5 ${-23.5 * COIN_TILT}) scale(1.958 ${1.958 * COIN_TILT})`} />
+      </g>
+    </g>
+  )
+}
+
+/** Breiter Muenzknopf mit Beschriftung (Themenkarte: „Session starten“); Oberseite rx × ry, Ursprung = Mitte der Oberseite */
+export function CoinButton({ label, rx, ry, pressed }: { label: string; rx: number; ry: number; pressed: boolean }) {
+  const s = useMemo(() => ({ rim: rim(rx, ry), face: [ellipse(0, 0, rx, ry)], body: `M${-rx} 0V${D}A${rx} ${ry} 0 0 0 ${rx} ${D}V0Z` }), [rx, ry])
+  return (
+    <g className={`coin${pressed ? ' pressed' : ''}`}>
+      <path d={s.body} fill="#fff" />
+      <InkPaths strokes={s.rim} w={2.8} />
+      <g className="coin-face">
+        <ellipse rx={rx} ry={ry} fill="#fff" />
+        <InkPaths strokes={s.face} w={3.1} />
+        <text y={6} textAnchor="middle" className="coin-label">{label}</text>
       </g>
     </g>
   )

@@ -183,7 +183,7 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
     setPressed(n.id)
     window.setTimeout(() => {
       setPressed(null)
-      go(n.kind === 'day' ? `/tag/${n.day}` : `/wiederholung/${n.id}`)
+      go(n.kind === 'day' ? `/thema/${n.day}` : `/wiederholung/${n.id}`)
     }, 150)
   }
 

@@ -62,6 +62,12 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
     Schraffur-Hintergründe auf solchen Elementen über `--hatch` statt `background`. Knöpfe (`.btn`): weiß mit Tusche-Umriss und
     Münzrand darunter (`--pen-rim`, Schattenstriche wie auf Home), nie schwarz gefüllt, kein `box-shadow`; Hauptknopf (`.primary`) nur fette Schrift. CSS-`border`-Kurzform setzt `border-image` zurück – deshalb stehen
     Rand und Hintergrund-Position in `.pen` mit `!important` (sonst versetztes, gekacheltes Tusche-Bild = fette Ecke oben links).
+- `src/views/TopicView.tsx` – Themenkarte `#/thema/N`: Knopf einer Session auf Home öffnet zuerst sie (Abruf-Stationen direkt).
+  Thema in der Mitte, Teilthemen als Wirkungsgefüge im Bogen links → oben → rechts → unten mit Tusche-Pfeilen, vom letzten
+  ein Pfeil zum breiten Münzknopf (`CoinButton` in `Coin.tsx`) „Session starten/fortsetzen/öffnen“ → `#/tag/N` (Status läuft).
+  Teilthema antippen öffnet sein Video. Beschriftung neben dem Thema wird bei langen Wörtern kleiner, nie überlappend
+  (beim Ändern alle 90 Karten auf Überlappung prüfen). Symbole: `src/components/Symbols.tsx` (eigene Tusche-Symbole + alle
+  Icons), Zuordnung je Teilthema in `src/data/symbols.ts` (passend zum Video, `0` = Kreis mit Abspielzeichen).
 - `src/views/ExamView.tsx` + `src/lib/exam.ts` – Prüfungsmodus `#/pruefung[/N]`: abgeschlossene Themen nach Dringlichkeit
   (Schwäche + Zeit seit letztem Abruf), oben Vorschlag, Münze fährt Kasten aus; Test = 1 Verständnis- + 1 Transferaufgabe
   (`examChat`), Ergebnisse in `exams`.
