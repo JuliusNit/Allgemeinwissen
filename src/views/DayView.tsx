@@ -10,6 +10,8 @@ import { dayState, sortNotes, today, updateDay, useStore, videosOf } from '../li
 import { fmtTime } from '../lib/video'
 import { VideoWatch } from '../components/VideoWatch'
 import { VideoList } from '../components/VideoList'
+import { Lernzettel } from '../components/Lernzettel'
+import { hasSheet } from '../data/lernzettel'
 import { Chat } from '../components/Chat'
 import { Markdown } from '../components/Markdown'
 import { CoinBadge } from '../components/Coin'
@@ -59,6 +61,8 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
   const base = repeat ? [] : refreshDays(day)
   const stations = [...new Map(base.map((n) => stationOf(level, n)).filter((n): n is BasisNode => !!n).map((n) => [n.id, n])).values()]
   const streaming = anchorText !== null || refreshText !== null
+  const sheet = !mix && hasSheet(day)
+  const noteNo = mix ? 2 : sheet ? 4 : 3
   const noteCount = Object.values(ds.videoNotes ?? {}).reduce((a, n) => a + n.length, 0)
 
   function setVideos(v: Video[] | null) {
@@ -241,9 +245,21 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
         </Frame>
       )}
 
+      {sheet && (
+        <Frame className="card">
+          <div className="section-head">
+            <h2>3 · Lernzettel</h2>
+            <button className="btn ghost small" onClick={() => updateDay(day, (x) => ({ ...x, sheetClosed: !x.sheetClosed }))}>
+              {ds.sheetClosed ? 'aufklappen' : 'zuklappen'}
+            </button>
+          </div>
+          {!ds.sheetClosed && <Lernzettel day={day} />}
+        </Frame>
+      )}
+
       <Frame className="card">
         <div className="section-head">
-          <h2>{mix ? '2' : '3'} · Notizen</h2>
+          <h2>{noteNo} · Notizen</h2>
           {noteCount > 0 && <span className="muted small">{noteCount} am Video</span>}
         </div>
         {videos.map((v) => {
@@ -278,7 +294,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
 
       <Frame className="card">
         <div className="tabs">
-          <button className={tab === 'fragen' ? 'active' : ''} onClick={() => setTab('fragen')}>{mix ? 'Fragen' : '4 · Deine Fragen'}</button>
+          <button className={tab === 'fragen' ? 'active' : ''} onClick={() => setTab('fragen')}>{mix ? 'Fragen' : `${noteNo + 1} · Deine Fragen`}</button>
           <button className={tab === 'check' ? 'active' : ''} onClick={() => setTab('check')}>Verständnischeck {checkDone && '✓'}</button>
           <button className={tab === 'zusammenfassung' ? 'active' : ''} onClick={() => setTab('zusammenfassung')}>Zusammenfassung {ds.summary && '✓'}</button>
         </div>

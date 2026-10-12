@@ -279,11 +279,85 @@ label { display: block; font-size: 0.85rem; color: var(--muted); margin: 10px 0 
   overflow-x: auto; font: 0.85rem/1.45 ui-monospace, 'Cascadia Mono', Menlo, monospace;
 }
 .table-wrap { overflow-x: auto; margin: 0.5em 0; }
-.md table, table.strengths { border-collapse: collapse; font-size: 0.9rem; min-width: 100%; }
-.md th, .md td, .strengths th, .strengths td { border: 1.5px solid var(--ink); padding: 5px 8px; text-align: left; vertical-align: top; }
+table.strengths { border-collapse: collapse; font-size: 0.9rem; min-width: 100%; }
+.strengths th, .strengths td { border: 1.5px solid var(--ink); padding: 5px 8px; text-align: left; vertical-align: top; }
 .strengths td:first-child { white-space: nowrap; }
 .strengths td:first-child .icon { display: inline-block; vertical-align: -3px; }
+/* Markdown-Tabellen: nur Linien zwischen Zeilen/Spalten, gezeichnet vom Tusche-Stift */
+.md table { border-collapse: separate; border-spacing: 0; font-size: 0.9rem; min-width: 100%; }
+.md th, .md td { border: 0; border-bottom: 1.5px solid var(--ink); padding: 5px 8px; text-align: left; vertical-align: top; }
+.md th { border-bottom-width: 2.5px; }
+.md th + th, .md td + td { border-left: 1.5px solid var(--ink); }
+.md tr:last-child td { border-bottom: 0; }
 .md hr { border: 0; border-top: 1.5px solid var(--ink); margin: 1em 0; }
+.md blockquote { margin: 0.7em 0; padding: 3px 0 3px 14px; border: 0; border-left: 3px solid var(--ink); font-weight: 500; }
+
+/* Lernzettel + Diagramme (components/Diagram.tsx) */
+.lz { margin-top: 4px; }
+.lz .md h3 { margin-top: 1.2em; }
+.dg { position: relative; margin: 0.7em 0 0.9em; font-size: 0.92rem; line-height: 1.4; container-type: inline-size; }
+.dg-t { display: block; font-weight: 600; }
+.dg-s { display: block; font-size: 0.8rem; color: var(--muted); }
+.dg-box { border: 2px solid var(--ink); border-radius: 10px; padding: 6px 10px; text-align: center; background: var(--paper); }
+.dg-kette { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 2px; }
+.dg-kette .dg-box { flex: 0 1 auto; max-width: 15em; }
+.dg-arrow { display: inline-flex; flex-direction: column-reverse; align-items: center; justify-content: center; flex: none; }
+.dg-arrow svg { display: block; overflow: visible; }
+.dg-arrow .v { display: none; }
+.dg-arrow .dg-s { font-size: 0.72rem; text-align: center; max-width: 9em; }
+/* als Spalte: von vornherein (.down) oder wenn der Platz nicht reicht */
+.dg-kette.down { flex-direction: column; flex-wrap: nowrap; align-items: stretch; max-width: 32em; margin-left: auto; margin-right: auto; }
+.dg-kette.down .dg-box { max-width: none; }
+.dg-kette.down .dg-arrow { position: relative; align-self: stretch; }
+.dg-kette.down .dg-arrow .h { display: none; }
+.dg-kette.down .dg-arrow .v { display: block; }
+.dg-kette.down .dg-arrow .dg-s { position: absolute; left: calc(50% + 14px); top: 50%; transform: translateY(-50%); text-align: left; max-width: calc(50% - 16px); }
+@container (max-width: 480px) {
+  .dg-kette { flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
+  .dg-kette .dg-box { max-width: none; }
+  .dg-kette .dg-arrow { position: relative; align-self: stretch; }
+  .dg-kette .dg-arrow .h { display: none; }
+  .dg-kette .dg-arrow .v { display: block; }
+  .dg-kette .dg-arrow .dg-s { position: absolute; left: calc(50% + 14px); top: 50%; transform: translateY(-50%); text-align: left; max-width: calc(50% - 16px); }
+}
+.dg-svg svg { display: block; max-width: 100%; height: auto; margin: 0 auto; overflow: visible; }
+.dg-svg text { fill: var(--ink); font-size: 12px; paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; }
+.dg-svg .dg-tb { font-weight: 600; font-size: 13px; }
+.dg-svg .dg-ts { font-size: 11px; fill: var(--muted); }
+.dg-svg .dg-tl { font-size: 12px; }
+.dg-paper { fill: var(--paper); }
+.dg-dot { fill: var(--ink); }
+.dg-zeit { --zx: 9px; padding-bottom: 24px; }
+.dg-zeit-row { display: flex; gap: 10px; padding: 1px 0 7px 26px; }
+.dg-when { flex: none; min-width: 5.5em; max-width: 42%; }
+.dg-what { flex: 1; min-width: 0; }
+.dg-what .dg-t { font-weight: 400; }
+.dg-node { padding: 1px 0 3px; }
+.dg-baum .dg-t, .dg-baum .dg-s { display: inline; font-weight: 400; }
+.dg-baum .dg-s::before { content: ' – '; }
+.dg-baum .d0 .dg-t { font-weight: 700; }
+.dg-baum .d1 .dg-t { font-weight: 600; }
+.dg-pyr { max-width: 30em; margin-left: auto; margin-right: auto; }
+.dg-pyr.arrow { padding-left: 34px; }
+.dg-pyr-label { position: absolute; left: 20px; top: 0; bottom: 0; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-size: 0.75rem; color: var(--muted); }
+.dg-lvl { min-height: 40px; display: flex; flex-direction: column; justify-content: center; text-align: center; padding: 5px calc(var(--inset) + 10px); }
+.dg-layers { border: 2px solid var(--ink); border-radius: 6px; max-width: 30em; margin: 0 auto; }
+.dg-layer { padding: 5px 10px; text-align: center; }
+.dg-layer + .dg-layer { border-top: 1.5px solid var(--ink); }
+.dg-layer.hatch { --hatch: repeating-linear-gradient(45deg, transparent 0 4px, #0006 4px 5px); background-image: var(--hatch); }
+.dg-layer.hatch .dg-lab { display: inline-block; background: var(--paper); padding: 1px 8px; border-radius: 6px; }
+.dg-gruppen { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; align-items: start; }
+.dg-group { border: 2px solid var(--ink); border-radius: 12px; padding: 8px 12px; }
+.dg-group ul { margin: 2px 0 0; padding-left: 1.1em; font-size: 0.88rem; }
+.dg-group li .dg-s { display: inline; }
+.dg-balken { display: grid; grid-template-columns: fit-content(45%) 1fr; gap: 6px 10px; align-items: center; }
+.dg-bn { font-size: 0.85rem; }
+.dg-bt { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.dg-bar {
+  display: block; flex: none; height: 16px; border: 1.5px solid var(--ink); border-radius: 4px;
+  --hatch: repeating-linear-gradient(45deg, transparent 0 3px, #000a 3px 4px); background-image: var(--hatch);
+}
+.dg-bv { font-size: 0.8rem; white-space: nowrap; }
 
 /* Wiederholung */
 .flash-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }

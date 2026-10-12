@@ -61,6 +61,28 @@ export function InkBorder({ r = 14, w = 3.3 }: { r?: number; w?: number }) {
   )
 }
 
+/** Freie Tusche-Striche ueber dem Elternelement (position: relative); draw bekommt Groesse und Element zum Ausmessen */
+export function InkCanvas({ draw, w = 2.2 }: { draw: (wd: number, ht: number, el: HTMLElement) => Stroke[]; w?: number }) {
+  const ref = useRef<SVGSVGElement>(null)
+  const [size, setSize] = useState<[number, number] | null>(null)
+  useLayoutEffect(() => {
+    const el = ref.current?.parentElement
+    if (!el) return
+    const measure = () => setSize((old) => (old && old[0] === el.offsetWidth && old[1] === el.offsetHeight ? old : [el.offsetWidth, el.offsetHeight]))
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const el = ref.current?.parentElement
+  const strokes = size && el ? draw(size[0], size[1], el) : []
+  return (
+    <svg ref={ref} className="ink-border" aria-hidden>
+      <InkPaths strokes={strokes} w={w} />
+    </svg>
+  )
+}
+
 /** Scrollbereich mit Tusche-Scroller: Schiene als Umriss, Griff schraffiert mit kraeftigerem Rand; ziehbar, Klick auf Schiene springt */
 export function InkScroll({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
