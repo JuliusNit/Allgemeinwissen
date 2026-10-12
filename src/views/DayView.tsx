@@ -4,7 +4,7 @@ import { anchorChat, checkChat, describeError, DONE_MARKER, makeSummary, questio
 import { saveDayVideos, useAiReady, useCanEdit } from '../lib/cloud'
 import { blockName, isRepeat, SCHOOL_GRADE } from '../data/school'
 import { fach, type FachId } from '../data/lehrplan'
-import { stationOf, type BasisNode } from '../lib/path'
+import { pathDays, sessionNo, stationOf, type BasisNode } from '../lib/path'
 import { addCards } from '../lib/srs'
 import { dayState, sortNotes, today, updateDay, useStore, videosOf } from '../lib/store'
 import { fmtTime } from '../lib/video'
@@ -54,6 +54,8 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
   const stars = videos.filter((v) => v.star)
   const starsWatched = stars.filter((v) => watched.has(v.id)).length
   const playing = video ? videos.find((v) => v.id === video) : undefined
+  const order = pathDays(level)
+  const no = sessionNo(level, day)
   const base = repeat ? [] : refreshDays(day)
   const stations = [...new Map(base.map((n) => stationOf(level, n)).filter((n): n is BasisNode => !!n).map((n) => [n.id, n])).values()]
   const streaming = anchorText !== null || refreshText !== null
@@ -123,11 +125,13 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
       <div className="day-head">
         <div className="day-nav">
           <button className="icon-btn" onClick={back} aria-label="Zurück zum Lernpfad"><Icon name="BACK" size={26} /></button>
-          <span className="muted small">Tag {day} / 90 · {blockName(block, level)}</span>
-          <span className="right">
-            <button className="btn ghost small" disabled={day <= 1} onClick={() => openDay(day - 1)} aria-label="Vorheriger Tag">‹</button>
-            <button className="btn ghost small" disabled={day >= 90} onClick={() => openDay(day + 1)} aria-label="Nächster Tag">›</button>
-          </span>
+          <span className="muted small">{no ? `Session ${no} von ${order.length}` : 'Grundwissen'} · {blockName(block, level)}</span>
+          {no && (
+            <span className="right">
+              <button className="btn ghost small" disabled={no <= 1} onClick={() => openDay(order[no - 2])} aria-label="Vorherige Session">‹</button>
+              <button className="btn ghost small" disabled={no >= order.length} onClick={() => openDay(order[no])} aria-label="Nächste Session">›</button>
+            </span>
+          )}
         </div>
         <div className="day-title">
           <CoinBadge icon={d.area} size={60} />
@@ -161,7 +165,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
               return (
                 <button key={n} className={`chip link ${st}`} onClick={() => openDay(n)} title={getDay(n).title}>
                   <Icon name={getDay(n).area} size={16} />
-                  Tag {n} · {getDay(n).title.split(':')[0]}
+                  {getDay(n).title.split(':')[0]}
                 </button>
               )
             })}

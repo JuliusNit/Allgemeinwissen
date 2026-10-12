@@ -160,7 +160,7 @@ export function BasisView({ id, go, vday, video, at, openVideo, closeVideo }: Pr
             return (
               <button key={n} className={`chip link ${st}`} onClick={() => go(`/tag/${n}`)} title={getDay(n).title}>
                 <Icon name={getDay(n).area} size={16} />
-                Tag {n} · {getDay(n).title.split(/[:(]/)[0].trim()} <span className="muted">· Jgst. {SCHOOL_GRADE[n]}</span>
+                {getDay(n).title.split(/[:(]/)[0].trim()} <span className="muted">· Jgst. {SCHOOL_GRADE[n]}</span>
               </button>
             )
           })}

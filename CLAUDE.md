@@ -35,6 +35,8 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   als bekannt (`dayDone`). Grundwissen optional über „Auffrischen“ im Anknüpfen-Kasten einer Session, die per `links` auf
   Schulstoff-Sessions verweist (`refreshChat`, nur deren Stoff, heutiges Thema tabu; Ergebnis in `refresh`), von dort
   „Grundcheck <Fach>“ = Station `g-<fach>` (`basisStations`, nicht im Pfad). Begründung im Kommentar.
+  Angezeigt wird nie die Plan-Tagesnummer (nur interne ID), sondern die Position im Pfad: „Session N“ (`sessionNo`),
+  in der Session „Session x von y“, Stationen „Session a–b“ (`sessionRange`); sonst nur der Titel, auch in KI-Prompts.
   Ansicht der Stationen: `src/views/BasisView.tsx` (Route `#/wiederholung/g-…`), Chat in `basis` im Zustand. Lehrplan-Kasten zeigt je Jgst.
   die Videos der Stationssessions (gleiche Jgst. laut `SCHOOL_GRADE`), abspielbar unter `#/wiederholung/g-…/video/Tag/ID[/Sek.]`.
 - `src/lib/srs.ts` – vereinfachtes SM-2 für Karteikarten.

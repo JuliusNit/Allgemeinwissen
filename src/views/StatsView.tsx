@@ -95,7 +95,7 @@ function AreaBox({ area, left, open, go }: { area: AreaId; left: boolean; open: 
                     <button onClick={() => go(`/statistik/${area}/${d.day}`)}>
                       <InkCheck checked={dayDone(s, d.day)} />
                       <span>
-                        <span className="muted small">Tag {d.day}</span> {d.title.split(/[:(]/)[0].trim()}
+                        {d.title.split(/[:(]/)[0].trim()}
                       </span>
                       {sc != null && <span className={`score ${sc >= 0.7 ? 'good' : 'bad'}`}>{pct(sc)}</span>}
                     </button>
@@ -125,7 +125,7 @@ function TopicDetail({ area, day, go }: { area: AreaId; day: number; go: (hash: 
         <button className="icon-btn" onClick={() => go(`/statistik/${area}`)} aria-label="Zurück zur Übersicht"><Icon name="BACK" size={26} /></button>
         <Icon name={area} size={34} />
         <div>
-          <p className="muted small">{AREAS[area].name} · Tag {d.day}</p>
+          <p className="muted small">{AREAS[area].name}</p>
           <h1>{d.title}</h1>
         </div>
       </div>

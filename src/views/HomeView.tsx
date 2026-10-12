@@ -2,8 +2,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { BLOCKS, getDay } from '../data/plan'
 import { bez, type Stroke } from '../lib/ink'
 import { fach } from '../data/lehrplan'
-import { blockName, isRepeat, knownUpTo, type Level } from '../data/school'
-import { BASIS_BLOCK, currentNode, nodeDone, nodeReady, pathOf, type PathNode } from '../lib/path'
+import { blockName, knownUpTo, type Level } from '../data/school'
+import { BASIS_BLOCK, currentNode, sessionNo, sessionRange, nodeDone, nodeReady, pathOf, type PathNode } from '../lib/path'
 import { basisTitle } from './BasisView'
 import { dueCards } from '../lib/srs'
 import { getState, setState, useStore } from '../lib/store'
@@ -97,9 +97,9 @@ function wrap(t: string, max: number): string[] {
 function label(n: PathNode, level: Level | undefined): { head: string; title: string } {
   if (n.kind === 'basis') return basisTitle(n)
   if (n.kind === 'review' && n.final) return { head: 'Abschluss', title: 'Alle Karten wiederholen' }
-  if (n.kind === 'review') return { head: 'Wiederholung', title: `Tag ${n.days[0]}–${n.days[n.days.length - 1]}` }
+  if (n.kind === 'review') return { head: 'Wiederholung', title: sessionRange(level, n.days) }
   const d = getDay(n.day)
-  return { head: isRepeat(level, d.day) ? `Tag ${d.day} · Wdh.` : `Tag ${d.day}`, title: d.title.split(/[:(]/)[0].trim() }
+  return { head: `Session ${sessionNo(level, d.day)}`, title: d.title.split(/[:(]/)[0].trim() }
 }
 
 function iconOf(n: PathNode): IconName {

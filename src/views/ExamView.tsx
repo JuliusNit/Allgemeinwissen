@@ -81,7 +81,7 @@ function ExamList({ go }: { go: (hash: string) => void }) {
         </button>
         <p className="muted small">Vorschlag · {top.reason}</p>
         <h2>{short(top.day)}</h2>
-        <p className="muted small">{AREAS[getDay(top.day).area].name} · Tag {top.day}</p>
+        <p className="muted small">{AREAS[getDay(top.day).area].name}</p>
         <button className="btn primary" onClick={() => startTest(top.day, go)}>{startLabel(top.day)}</button>
       </Frame>
 
@@ -98,10 +98,10 @@ function ExamList({ go }: { go: (hash: string) => void }) {
                     className={`exam-cell${on ? ' on' : ''}`}
                     onClick={() => setSel(on ? null : { day: t.day, col: ci })}
                     aria-expanded={on}
-                    aria-label={`Tag ${t.day}: ${short(t.day)} – ${t.reason}`}
+                    aria-label={`${short(t.day)} – ${t.reason}`}
                   >
                     <CoinSvg day={t.day} size={78} pressed={on} />
-                    <span className="muted small">Tag {t.day}</span>
+                    <span className="muted small">{short(t.day)}</span>
                   </button>
                 )
               })}
@@ -129,7 +129,7 @@ function ExamPop({ t, col, go }: { t: ExamTopic; col: number; go: (hash: string)
       <Frame className="exam-pop-box">
         <span className="exam-pop-coin"><CoinBadge icon={d.area} size={68} /></span>
         <div className="exam-pop-text">
-          <p className="muted small">{AREAS[d.area].name} · Tag {d.day}</p>
+          <p className="muted small">{AREAS[d.area].name}</p>
           <p className="exam-pop-title">{short(d.day)}</p>
           <p className="muted small">{t.reason}</p>
           <button className="btn primary small" onClick={() => startTest(t.day, go)}>{startLabel(t.day)}</button>
@@ -165,7 +165,7 @@ function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
         <button className="icon-btn" onClick={() => go('/pruefung')} aria-label="Zurück zur Übersicht"><Icon name="BACK" size={26} /></button>
         <CoinBadge icon={d.area} size={52} />
         <div>
-          <p className="muted small">Prüfung · {AREAS[d.area].name} · Tag {d.day}</p>
+          <p className="muted small">Prüfung · {AREAS[d.area].name}</p>
           <h1>{short(day)}</h1>
         </div>
       </div>

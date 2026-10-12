@@ -132,7 +132,7 @@ function clip(s: string, n: number): string {
 }
 
 function dayLine(d: Day): string {
-  return `Tag ${d.day} [${d.area} – ${AREAS[d.area].name}]: ${d.title}`
+  return `[${d.area} – ${AREAS[d.area].name}] ${d.title}`
 }
 
 function earlierSessions(d: Day): string {
@@ -344,7 +344,7 @@ Regeln:
 ${mix ? '- Jede Frage verknüpft mindestens zwei Fächer oder Schulstoff mit einer neuen Session.\n' : ''}- Nach JEDER Antwort beginnt deine Nachricht in der ersten Zeile mit genau einem Marker:
   [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]  (P = Präzision 1–5)
 - Danach kurz bewerten (✅ / 🟡 / ❌). Bei Fehlern kurz erklären, dann eine Nachfrage zum GLEICHEN Punkt. ${FOLLOW_UP}
-- Zum Schluss: Fazit als Tabelle „Lernbereich | sitzt / Lücke“, und für jede Lücke die passende Session nennen („→ Tag N öffnen“). Dann in die letzte Zeile exakt: ${DONE_MARKER}
+- Zum Schluss: Fazit als Tabelle „Lernbereich | sitzt / Lücke“, und für jede Lücke die passende Session nennen („→ <Titel der Session> öffnen“). Dann in die letzte Zeile exakt: ${DONE_MARKER}
 - Schreibe ${DONE_MARKER} niemals vorher.
 ${done.length ? `\nBereits abgeschlossene Sessions (für Verknüpfungen):\n${done.map((d) => `- ${dayLine(d)}`).join('\n')}` : ''}`
   return streamChat(system, history, onText)
@@ -380,7 +380,7 @@ export async function makeSummary(day: number): Promise<SummaryResult> {
 Erstelle nach der abgeschlossenen Session den Lernzettel zum Wiederholen und Karteikarten. Antworte NUR mit JSON.
 
 summary_markdown – NUR Stichpunkte und Grafiken, kein Fließtext:
-# Tag ${d.day} · ${d.area} · <kurzer Titel>
+# <kurzer Titel> · ${AREAS[d.area].name}
 ## Einordnung  (Zeitstrahl/Karte, 1–2 Stichpunkte)
 ## Kernpunkte  (je Teilthema 2–4 knappe Stichpunkte)
 ## Merkgrafik  (eine Grafik als Markdown-Tabelle ODER als einfaches Text-Diagramm in einem \`\`\`-Codeblock, z. B. Ablauf mit Pfeilen → oder Zeitleiste)

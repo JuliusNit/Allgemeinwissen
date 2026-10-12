@@ -94,6 +94,24 @@ export function buildPath(level: Level | undefined): PathNode[] {
   return p
 }
 
+/** Sessions des Pfads in Reihenfolge; ihre Position (1…N) ist die angezeigte Nummer */
+export function pathDays(level: Level | undefined): number[] {
+  return buildPath(level).flatMap((n) => (n.kind === 'day' ? [n.day] : []))
+}
+
+/** Laufende Nummer einer Session im Pfad (1…N), undefined fuer Schulstoff ausserhalb des Pfads */
+export function sessionNo(level: Level | undefined, day: number): number | undefined {
+  const i = pathDays(level).indexOf(day)
+  return i >= 0 ? i + 1 : undefined
+}
+
+/** „Session 3–6“ fuer eine Abruf-Station */
+export function sessionRange(level: Level | undefined, days: number[]): string {
+  const a = sessionNo(level, days[0])
+  const b = sessionNo(level, days[days.length - 1])
+  return a === b ? `Session ${a}` : `Session ${a}–${b}`
+}
+
 export function pathOf(s: State): PathNode[] {
   return buildPath(s.level)
 }

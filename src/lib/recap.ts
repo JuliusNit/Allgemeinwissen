@@ -1,7 +1,7 @@
 import { AREAS, DAYS, getDay, type AreaId } from '../data/plan'
 import { fach } from '../data/lehrplan'
-import { isRepeat } from '../data/school'
-import { currentNode, pathOf, nodeDone, type PathNode } from './path'
+import { isRepeat, type Level } from '../data/school'
+import { currentNode, pathOf, nodeDone, sessionNo, sessionRange, type PathNode } from './path'
 import { dayDone, dayDoneAt, sessionScore, VERDICT_SCORE, type Verdict } from './stats'
 import { activeDates, localDate, streak, toDate } from './streak'
 import { dayState, examState, today, type State } from './store'
@@ -78,9 +78,9 @@ export interface Recap {
   next: string[]
 }
 
-function nodeLabel(n: PathNode): string {
-  if (n.kind === 'day') return `Tag ${n.day} · ${getDay(n.day).title.split(/[:(]/)[0].trim()}`
-  if (n.kind === 'review') return n.final ? 'Abschlusswiederholung' : `Wiederholung Tag ${n.days[0]}–${n.days[n.days.length - 1]}`
+function nodeLabel(n: PathNode, level: Level | undefined): string {
+  if (n.kind === 'day') return `Session ${sessionNo(level, n.day)} · ${getDay(n.day).title.split(/[:(]/)[0].trim()}`
+  if (n.kind === 'review') return n.final ? 'Abschlusswiederholung' : `Wiederholung ${sessionRange(level, n.days)}`
   if (n.variant === 'auffrischung') return 'Auffrischung Grundwissen'
   if (n.variant === 'abschluss') return 'Grundwissen-Check'
   return `Grundcheck ${n.fach === 'mix' ? 'gemischt' : fach(n.fach).name}`
@@ -116,7 +116,7 @@ export function weekRecap(s: State): Recap {
     .slice(path.indexOf(cur))
     .filter((n) => !nodeDone(s, n))
     .slice(0, 3)
-    .map(nodeLabel)
+    .map((n) => nodeLabel(n, s.level))
 
   const active = [...activeDates(s)].filter((d) => d >= from && d < end)
   return {

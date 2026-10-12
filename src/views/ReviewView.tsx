@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { getDay } from '../data/plan'
-import { nodeReady, reviewNode } from '../lib/path'
+import { nodeReady, reviewNode, sessionNo, sessionRange } from '../lib/path'
 import { dueCards, intervalLabel, rateCard, type Rating } from '../lib/srs'
 import { getState, setState, today, useStore } from '../lib/store'
 import { CoinBadge } from '../components/Coin'
@@ -34,6 +34,7 @@ function shuffle<T>(a: T[]): T[] {
 }
 
 export function ReviewView({ id, go }: { id: string; go: (hash: string) => void }) {
+  const level = useStore((s) => s.level)
   const node = useStore((s) => reviewNode(s, id))
   const ready = useStore((s) => (node ? nodeReady(s, node) : true))
   const doneAt = useStore((s) => s.reviews[id])
@@ -44,7 +45,7 @@ export function ReviewView({ id, go }: { id: string; go: (hash: string) => void 
   const shownAt = useRef(0)
   const revealMs = useRef(0)
 
-  const title = node ? (node.final ? 'Abschlusswiederholung' : `Wiederholung · Tag ${node.days[0]}–${node.days[node.days.length - 1]}`) : 'Fällige Karten'
+  const title = node ? (node.final ? 'Abschlusswiederholung' : `Wiederholung · ${sessionRange(level, node.days)}`) : 'Fällige Karten'
   const card = cards.find((c) => c.id === queue[0])
 
   // Zeit bis zum Aufdecken messen, ab dem Moment, in dem die Karte erscheint
@@ -86,7 +87,7 @@ export function ReviewView({ id, go }: { id: string; go: (hash: string) => void 
       <div className="review">
         {head}
         <Frame className="card empty">
-          <p>Diese Station öffnet sich, wenn {node.final ? <b>alle Sessions</b> : <>die Sessions <b>Tag {node.days.join(', ')}</b></>} abgeschlossen sind.</p>
+          <p>Diese Station öffnet sich, wenn {node.final ? <b>alle Sessions</b> : <>die Sessions <b>{node.days.map((n) => sessionNo(level, n)).join(', ')}</b></>} abgeschlossen sind.</p>
         </Frame>
       </div>
     )
@@ -120,7 +121,7 @@ export function ReviewView({ id, go }: { id: string; go: (hash: string) => void 
       <Frame className="card flash">
         <div className="flash-meta">
           <Icon name={d.area} size={22} />
-          <span className="muted small">Tag {d.day} · {d.title.split(/[:(]/)[0].trim()}</span>
+          <span className="muted small">{d.title.split(/[:(]/)[0].trim()}</span>
           <span className="muted small right">noch {queue.length}</span>
         </div>
         <p className="flash-q">{card.q}</p>
