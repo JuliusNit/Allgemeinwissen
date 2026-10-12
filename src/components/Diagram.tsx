@@ -501,7 +501,7 @@ function Kurve({ src }: { src: string }) {
     const s = l.axis === 'y' ? line([L, py(l.v)], [W - R, py(l.v)], 0.55) : line([px(l.v), H - B], [px(l.v), T], 0.55)
     thin.push(...dashes(s, 5, 4))
   })
-  const ends: { x: number; y: number; name: string }[] = []
+  const ends: { x: number; y: number; name: string; anchor: 'start' | 'middle' | 'end' }[] = []
   series.forEach((s, i) => {
     const sc = s.pts.map((p) => [px(p[0]), py(p[1])] as Pt)
     const pts = glatt ? smooth(sc) : sc
@@ -510,7 +510,16 @@ function Kurve({ src }: { src: string }) {
     else strokes.push(st)
     if (s.name === '_') return
     const top = sc.reduce((a, b) => (b[1] < a[1] ? b : a))
-    ends.push(peak ? { x: top[0], y: top[1] - 10, name: s.name } : { x: sc[sc.length - 1][0] + 6, y: sc[sc.length - 1][1] + 4, name: s.name })
+    const end = sc[sc.length - 1]
+    // passt der Name nicht rechts neben das Ende, steht er darueber
+    const fits = W - end[0] - 6 >= tw(s.name, 12)
+    ends.push(
+      peak
+        ? { x: top[0], y: top[1] - 10, name: s.name, anchor: 'middle' }
+        : fits
+          ? { x: end[0] + 6, y: end[1] + 4, name: s.name, anchor: 'start' }
+          : { x: end[0], y: end[1] - 9, name: s.name, anchor: 'end' },
+    )
   })
   if (!peak) {
     ends.sort((a, b) => a.y - b.y)
@@ -529,7 +538,7 @@ function Kurve({ src }: { src: string }) {
             </g>
           ))}
           {ends.map((e, i) => (
-            <text key={i} x={e.x} y={e.y} textAnchor={peak ? 'middle' : 'start'} className="dg-tl">{plain(e.name)}</text>
+            <text key={i} x={e.x} y={e.y} textAnchor={e.anchor} className="dg-tl">{plain(e.name)}</text>
           ))}
           {lines.map((l, i) =>
             l.label ? (
