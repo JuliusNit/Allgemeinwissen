@@ -110,7 +110,7 @@ function Kette({ src }: { src: string }) {
   }
   const down = forced || items.length > 5 || items.some((it) => plain(split(it.text)[0]).length > 26 || it.arrow)
   return (
-    <div className="dg">
+    <div className="dg dg-kc">
       <div className={`dg-kette ${down ? 'down' : ''}`}>
         {items.map((it, i) => (
           <Fragment key={i}>
