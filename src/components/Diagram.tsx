@@ -543,7 +543,11 @@ function Kurve({ src }: { src: string }) {
           {lines.map((l, i) =>
             l.label ? (
               l.axis === 'y' ? (
-                <text key={i} x={W - R + 4} y={py(l.v) + 4} className="dg-ts">{plain(l.label)}</text>
+                tw(l.label, 11) <= R - 4 ? (
+                  <text key={i} x={W - R + 4} y={py(l.v) + 4} className="dg-ts">{plain(l.label)}</text>
+                ) : (
+                  <text key={i} x={W - R} y={py(l.v) - 5} textAnchor="end" className="dg-ts">{plain(l.label)}</text>
+                )
               ) : (
                 <text key={i} x={px(l.v) + 4} y={T + 4} className="dg-ts">{plain(l.label)}</text>
               )

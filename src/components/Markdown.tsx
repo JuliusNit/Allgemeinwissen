@@ -6,7 +6,13 @@ import { inline } from './inline'
 // Merkkaesten (> …) und Tusche-Diagramme (```kette, ```kreis, … – siehe Diagram.tsx).
 
 function splitRow(line: string): string[] {
-  return line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim())
+  // \| im Text = senkrechter Strich, kein Spaltenwechsel
+  return line
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/(?<!\\)\|$/, '')
+    .split(/(?<!\\)\|/)
+    .map((c) => c.trim().replace(/\\\|/g, '|'))
 }
 
 export function Markdown({ text }: { text: string }) {
