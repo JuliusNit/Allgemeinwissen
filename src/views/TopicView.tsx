@@ -27,7 +27,7 @@ const TLH = 22
 const TFS = 18
 const TCH = 10.2
 const BTN_RX = 104
-const BTN_RY = 27
+const BTN_RY = 24
 const BTN_D = 11
 
 type Box = [number, number, number, number]
@@ -235,8 +235,8 @@ export function TopicView({ day, go }: { day: number; go: (hash: string) => void
           onClick={enter}
           onKeyDown={onKey(enter)}
         >
-          <ellipse className="hit" rx={BTN_RX + 6} ry={BTN_RY + 8} cy={BTN_D / 2} />
-          <CoinButton label={label} rx={BTN_RX} ry={BTN_RY} pressed={pressed} />
+          <rect className="hit" x={-BTN_RX - 6} y={-BTN_RY - 6} width={2 * BTN_RX + 12} height={2 * BTN_RY + BTN_D + 12} rx={16} />
+          <CoinButton label={label} hw={BTN_RX} hh={BTN_RY} pressed={pressed} />
         </g>
       </svg>
     </div>

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { arc, ellipse, line, type Stroke } from '../lib/ink'
+import { arc, ellipse, line, roundRect, type Stroke } from '../lib/ink'
 import { IconGroup, type IconName } from './Icons'
 import { InkPaths } from './Ink'
 
@@ -101,15 +101,39 @@ export function Coin({ icon, state, pressed, scale = 1, laurel }: { icon: IconNa
   )
 }
 
-/** Breiter Muenzknopf mit Beschriftung (Themenkarte: „Session starten“); Oberseite rx × ry, Ursprung = Mitte der Oberseite */
-export function CoinButton({ label, rx, ry, pressed }: { label: string; rx: number; ry: number; pressed: boolean }) {
-  const s = useMemo(() => ({ rim: rim(rx, ry), face: [ellipse(0, 0, rx, ry)], body: `M${-rx} 0V${D}A${rx} ${ry} 0 0 0 ${rx} ${D}V0Z` }), [rx, ry])
+/** Rand unter einer abgerundet-rechteckigen Oberseite (halbe Breite hw, halbe Hoehe hh, Eckradius r) */
+function slabRim(hw: number, hh: number, r: number): Stroke[] {
+  const s: Stroke[] = [
+    line([-hw + r, hh + D], [hw - r, hh + D]),
+    arc(hw - r, hh - r + D, r, 0, 90),
+    arc(-hw + r, hh - r + D, r, 90, 180),
+    line([hw, hh - r], [hw, hh - r + D]),
+    line([-hw, hh - r], [-hw, hh - r + D]),
+  ]
+  for (let x = -hw + 4.5; x <= hw - 4.5; x += 4.5) {
+    const dx = Math.max(0, Math.abs(x) - (hw - r))
+    const y = hh - r + Math.sqrt(r * r - dx * dx)
+    s.push(line([x, y + 1.6], [x, y + D - 0.4], 0.42))
+  }
+  return s
+}
+
+/** Breiter Knopf mit Beschriftung (Themenkarte: „Session starten“): abgerundetes Rechteck mit Muenzrand, Oberseite 2·hw × 2·hh, Ursprung = Mitte */
+export function CoinButton({ label, hw, hh, r = 14, pressed }: { label: string; hw: number; hh: number; r?: number; pressed: boolean }) {
+  const s = useMemo(
+    () => ({
+      rim: slabRim(hw, hh, r),
+      face: [roundRect(-hw, -hh, 2 * hw, 2 * hh, r)],
+      body: `M${-hw} 0V${hh - r + D}A${r} ${r} 0 0 0 ${-hw + r} ${hh + D}H${hw - r}A${r} ${r} 0 0 0 ${hw} ${hh - r + D}V0Z`,
+    }),
+    [hw, hh, r],
+  )
   return (
     <g className={`coin${pressed ? ' pressed' : ''}`}>
       <path d={s.body} fill="#fff" />
       <InkPaths strokes={s.rim} w={2.8} />
       <g className="coin-face">
-        <ellipse rx={rx} ry={ry} fill="#fff" />
+        <rect x={-hw} y={-hh} width={2 * hw} height={2 * hh} rx={r} fill="#fff" />
         <InkPaths strokes={s.face} w={3.1} />
         <text y={6} textAnchor="middle" className="coin-label">{label}</text>
       </g>

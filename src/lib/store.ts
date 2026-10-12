@@ -34,8 +34,9 @@ export interface DayState {
   questions?: ChatMsg[]
   check?: ChatMsg[]
   summary?: string
-  /** Lernzettel-Kasten zugeklappt */
-  sheetClosed?: boolean
+  /** Lernvideo- und Lernzettel-Kasten aufgeklappt (Standard: zu) */
+  videosOpen?: boolean
+  sheetOpen?: boolean
   startedAt?: string
   completedAt?: string
 }

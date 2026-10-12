@@ -222,9 +222,14 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
         <Frame className="card">
           <div className="section-head">
             <h2>2 · Lernvideos{repeat ? ' (optional)' : ''}</h2>
-            <span className="muted">{starsWatched}/{stars.length} ★ gesehen · ~{Math.round(videos.length * 9)} min</span>
+            <span className="head-side">
+              <span className="muted">{starsWatched}/{stars.length} ★ · ~{Math.round(videos.length * 9)} min</span>
+              <button className="btn ghost small" onClick={() => updateDay(day, (x) => ({ ...x, videosOpen: !x.videosOpen }))}>
+                {ds.videosOpen ? 'zuklappen' : 'aufklappen'}
+              </button>
+            </span>
           </div>
-          <VideoList
+          {ds.videosOpen && <VideoList
             videos={videos}
             watched={watched}
             onToggleWatched={(id) =>
@@ -241,7 +246,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
             noteCounts={Object.fromEntries(Object.entries(ds.videoNotes ?? {}).map(([k, n]) => [k, n.length]))}
             onReset={() => setVideos(null)}
             day={day}
-          />
+          />}
         </Frame>
       )}
 
@@ -249,11 +254,11 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
         <Frame className="card">
           <div className="section-head">
             <h2>3 · Lernzettel</h2>
-            <button className="btn ghost small" onClick={() => updateDay(day, (x) => ({ ...x, sheetClosed: !x.sheetClosed }))}>
-              {ds.sheetClosed ? 'aufklappen' : 'zuklappen'}
+            <button className="btn ghost small" onClick={() => updateDay(day, (x) => ({ ...x, sheetOpen: !x.sheetOpen }))}>
+              {ds.sheetOpen ? 'zuklappen' : 'aufklappen'}
             </button>
           </div>
-          {!ds.sheetClosed && <Lernzettel day={day} />}
+          {ds.sheetOpen && <Lernzettel day={day} title={d.title} />}
         </Frame>
       )}
 

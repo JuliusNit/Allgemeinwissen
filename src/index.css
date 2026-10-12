@@ -624,3 +624,20 @@ span.star { cursor: default; }
 .mode-list .level-opt:disabled { cursor: default; opacity: 0.55; }
 .after90-home { margin: 8px 0 16px; }
 .after90-home h1 { font-size: 1.6rem; margin: 0 0 6px; }
+
+/* Lernzettel: Vollbild, Teilen, Drucken */
+.head-side { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+.section-head h2 { white-space: nowrap; }
+.lz.open-full { cursor: zoom-in; }
+.sheet-full { position: fixed; inset: 0; z-index: 30; background: #fff; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.sheet-bar { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: max(8px, env(safe-area-inset-top)) 12px 8px; background: #fff; }
+.sheet-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.sheet-page { max-width: 760px; margin: 0 auto; padding: 8px 16px 32px; background: #fff; }
+.sheet-page h1 { margin: 0 0 8px; }
+body.sheet-full-on { overflow: hidden; }
+@media print {
+  body.sheet-full-on #root, .sheet-bar { display: none !important; }
+  body.sheet-full-on { overflow: visible; }
+  .sheet-full { position: static; overflow: visible; }
+  .sheet-page { max-width: none; padding: 0; }
+}

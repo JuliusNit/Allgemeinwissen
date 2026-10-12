@@ -16,8 +16,8 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   `links` (frühere Sessions zum Anknüpfen). Phase-2-Teilthemen und Verknüpfungen wurden ergänzt, nicht von Julius vorgegeben.
   Videos: pro Teilthema ein ausgewähltes YouTube-Video aus `src/data/videos.ts` (per Suche gefunden, von Hand gewählt,
   per oEmbed auf „existiert + einbettbar“ geprüft; bevorzugt Studyflix, simpleclub, MrWissen2go, Terra X, Kurzgesagt).
-- `src/data/lernzettel/NN.md` – Lernzettel je Session (Kasten „3 · Lernzettel“ zwischen Videos und Notizen, zuklappbar über
-  `sheetClosed`, lädt lazy über `src/data/lernzettel.ts`). Geschrieben nach den Transkripten (YouTube-Untertitel) der Videos aus
+- `src/data/lernzettel/NN.md` – Lernzettel je Session (Kasten „3 · Lernzettel“ zwischen Videos und Notizen, standardmäßig zu wie die Videos
+  (`sheetOpen`, `videosOpen`); Antippen → Vollbild mit Teilen/Bild speichern (PNG über html-to-image)/PDF (Drucken); lädt lazy über `src/data/lernzettel.ts`). Geschrieben nach den Transkripten (YouTube-Untertitel) der Videos aus
   `videos.ts`, nach Thema gegliedert, nicht nach Video; max. 2 Seiten, Stichpunkte + Diagramme. Ohne Untertitel (nach Titel,
   Beschreibung, Fachwissen): 45-2, 63-1, 67-2, 76-2, 76-3, 85-0, 85-2. Wird ein Video getauscht, Lernzettel prüfen.
   Diagramme = Markdown-Codeblöcke ```kette/kreis/zeitstrahl/baum/gruppen/pyramide/schichten/kurve/balken
@@ -64,7 +64,7 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
     Rand und Hintergrund-Position in `.pen` mit `!important` (sonst versetztes, gekacheltes Tusche-Bild = fette Ecke oben links).
 - `src/views/TopicView.tsx` – Themenkarte `#/thema/N`: Knopf einer Session auf Home öffnet zuerst sie (Abruf-Stationen direkt).
   Thema in der Mitte, Teilthemen als Wirkungsgefüge im Bogen links → oben → rechts → unten mit Tusche-Pfeilen, vom letzten
-  ein Pfeil zum breiten Münzknopf (`CoinButton` in `Coin.tsx`) „Session starten/fortsetzen/öffnen“ → `#/tag/N` (Status läuft).
+  ein Pfeil zum breiten Knopf (abgerundetes Rechteck mit Münzrand, `CoinButton` in `Coin.tsx`) „Session starten/fortsetzen/öffnen“ → `#/tag/N` (Status läuft).
   Teilthema antippen öffnet sein Video. Beschriftung neben dem Thema wird bei langen Wörtern kleiner, nie überlappend
   (beim Ändern alle 90 Karten auf Überlappung prüfen). Symbole: `src/components/Symbols.tsx` (eigene Tusche-Symbole + alle
   Icons), Zuordnung je Teilthema in `src/data/symbols.ts` (passend zum Video, `0` = Kreis mit Abspielzeichen).
