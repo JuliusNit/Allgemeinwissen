@@ -71,7 +71,7 @@ h2 { font-size: 1.05rem; margin: 0 0 0.6rem; }
 .card { padding: 18px; margin-bottom: 16px; background: var(--paper); }
 .card.empty { text-align: center; padding: 32px 18px; }
 .big { font-size: 1.2rem; font-weight: 700; margin: 0 0 4px; }
-.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
 .row.end { justify-content: flex-end; }
 
@@ -626,7 +626,7 @@ span.star { cursor: default; }
 .after90-home h1 { font-size: 1.6rem; margin: 0 0 6px; }
 
 /* Lernzettel: Vollbild, Teilen, Drucken */
-.head-side { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+.head-side { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; margin-left: auto; }
 .section-head h2 { white-space: nowrap; }
 .lz.open-full { cursor: zoom-in; }
 .sheet-full { position: fixed; inset: 0; z-index: 30; background: #fff; overflow-y: auto; -webkit-overflow-scrolling: touch; }
