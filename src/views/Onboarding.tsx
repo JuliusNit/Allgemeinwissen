@@ -250,34 +250,33 @@ function AgeChart() {
 
 // ---------- Formulare ----------
 
-function passwordChecks(pw: string) {
-  return [
-    { ok: pw.length >= 8, label: 'mindestens 8 Zeichen' },
-    { ok: /[a-zäöüß]/.test(pw) && /[A-ZÄÖÜ]/.test(pw), label: 'Klein- und Großbuchstaben' },
-    { ok: /\d/.test(pw), label: 'eine Zahl' },
-    { ok: /[^A-Za-zÄÖÜäöüß0-9]/.test(pw), label: 'ein Sonderzeichen' },
-  ]
+const PW_MIN = 8
+
+/** Pflicht ist nur die Länge; Groß/klein, Zahl, Sonderzeichen und 12+ Zeichen erhöhen nur die angezeigte Stärke. */
+function passwordScore(pw: string) {
+  if (pw.length < PW_MIN) return 0
+  return 1
+    + (/[a-zäöüß]/.test(pw) && /[A-ZÄÖÜ]/.test(pw) ? 1 : 0)
+    + (/\d/.test(pw) ? 1 : 0)
+    + (/[^A-Za-zÄÖÜäöüß0-9]/.test(pw) ? 1 : 0)
+    + (pw.length >= 12 ? 1 : 0)
 }
 
-const STRENGTH = ['sehr schwach', 'sehr schwach', 'schwach', 'mittel', 'gut', 'stark']
+const STRENGTH = ['zu kurz', 'schwach', 'mittel', 'gut', 'stark', 'sehr stark']
 
 function PasswordStrength({ pw }: { pw: string }) {
-  const checks = passwordChecks(pw)
-  const score = checks.filter((c) => c.ok).length + (pw.length >= 12 && checks.every((c) => c.ok) ? 1 : 0)
+  const score = passwordScore(pw)
   return (
     <div className="pw-strength" aria-live="polite">
       <div className="pw-bar" aria-hidden>
         {Array.from({ length: 5 }, (_, k) => <span key={k} className={k < score ? 'on' : ''} />)}
       </div>
       <span className="small">{pw ? `Stärke: ${STRENGTH[score]}` : 'Stärke'}</span>
-      <ul className="pw-checks small">
-        {checks.map((c) => (
-          <li key={c.label} className={c.ok ? 'ok' : ''}>{c.ok ? '✓' : '○'} {c.label}</li>
-        ))}
-      </ul>
     </div>
   )
 }
+
+const tooShort = (pw: string) => `Das Passwort ist zu kurz: ${pw.length} von mindestens ${PW_MIN} Zeichen.`
 
 function PasswordField({ value, onChange, label, autoComplete }: { value: string; onChange: (v: string) => void; label: string; autoComplete: string }) {
   const [show, setShow] = useState(false)
@@ -343,7 +342,7 @@ function Register({ onDone, onLogin }: { onDone: (mail: string) => void; onLogin
   const [error, setError] = useState<string | null>(null)
   const [tried, setTried] = useState(false)
 
-  const pwOk = passwordChecks(pw).every((c) => c.ok)
+  const pwOk = pw.length >= PW_MIN
   const same = pw === pw2
   const mailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
   const valid = mailOk && pwOk && same && !!name.trim() && !!level
@@ -385,6 +384,7 @@ function Register({ onDone, onLogin }: { onDone: (mail: string) => void; onLogin
         <LevelPicker value={level} onChange={setLevel} />
         {tried && !level && <p className="field-err small">Bitte deinen Wissensstand wählen.</p>}
 
+        {tried && !pwOk && <div className="chat-error">{tooShort(pw)}</div>}
         {error && <div className="chat-error">{error}</div>}
         <button className="btn primary wide spaced" type="submit" disabled={busy}>{busy ? 'Wird angelegt …' : 'Registrieren'}</button>
         <button type="button" className="btn ghost small center" onClick={onLogin}>Schon ein Konto? Anmelden</button>
@@ -487,7 +487,7 @@ function NewPassword() {
   const [pw2, setPw2] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-  const ok = passwordChecks(pw).every((c) => c.ok) && pw === pw2
+  const ok = pw.length >= PW_MIN && pw === pw2
   return (
     <Frame className="card onb-form">
       <form
@@ -504,6 +504,7 @@ function NewPassword() {
         <PasswordStrength pw={pw} />
         <PasswordField label="Passwort wiederholen" value={pw2} onChange={setPw2} autoComplete="new-password" />
         {pw2 && pw !== pw2 && <p className="field-err small">Die Passwörter stimmen nicht überein.</p>}
+        {pw2 && pw.length < PW_MIN && <div className="chat-error">{tooShort(pw)}</div>}
         {error && <div className="chat-error">{error}</div>}
         <button className="btn primary wide spaced" type="submit" disabled={!ok || busy}>Speichern</button>
       </form>

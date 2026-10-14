@@ -80,7 +80,7 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   (`breit` | `spezial:<Fach>` | `hybrid:<Fach>`). Großer Kasten oben auf Home, sobald Tag 90 fertig ist (danach eine Zeile), auch im Profil.
   Die eigentlichen Pfade A/B/C sind noch nicht gebaut.
 - `src/views/Onboarding.tsx` – erster Start: 5 Slides (fluide vs. kristalline Intelligenz), dann Konto anlegen
-  (E-Mail, Name, Passwort mit Stärke – Pflicht: 8+ Zeichen, klein/groß, Zahl, Sonderzeichen – + Wiederholung) und Wissensstand.
+  (E-Mail, Name, Passwort mit Stärke-Skala – Pflicht nur 8+ Zeichen, sonst rote Meldung über „Registrieren“ – + Wiederholung) und Wissensstand.
   Ohne Supabase nur Name + Wissensstand lokal.
 - `src/data/school.ts` – Wissensstand (Schule + Klasse / Studium / Ausbildung-Beruf), `SCHOOL_GRADE` (Jahrgangsstufe je Tag nach
   bayerischem LehrplanPLUS, Gymnasium G9) und `DAY_FACH` (Schulfach je Schulstoff-Tag). `src/data/lehrplan.ts` – Lernbereiche
