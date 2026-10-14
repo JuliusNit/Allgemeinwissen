@@ -250,12 +250,16 @@ function Dots({ n, t }: { n: number; t: number }) {
 const BOLT: Pt[] = ([[14, 2.4], [5, 13.6], [11.4, 13.6], [9.8, 21.6], [19, 10], [12.6, 10]] as Pt[]).map(([x, y]) => [x - 12, y - 12])
 const CRYSTAL: Pt[] = ([[12, 2.4], [18, 7.6], [17, 17.4], [12, 21.6], [7, 17.4], [6, 7.6]] as Pt[]).map(([x, y]) => [x - 12, y - 12])
 
+/** Schraffur-Abstand fuer Formen, deren Groesse in die Punkte eingerechnet ist: waechst mit, damit die Schraffur an der
+ *  Form haftet (bei Bewegung ueber Gruppen-Transformationen haftet das globale Muster ohnehin) */
+const hatchGap = (s: number) => Math.max(0.8, (3.2 * s) / 5)
+
 function BoltArt({ x, y, s, o = 1 }: { x: number; y: number; s: number; o?: number }) {
   if (s <= 0.02 || o <= 0) return null
   const p = scaled(BOLT, s)
   return (
     <g transform={`translate(${x} ${y})`} opacity={o}>
-      <path d={pd(p)} className="hatch" />
+      <LocalHatch pts={p} c={[0, 0]} u={[1, 0]} gap={hatchGap(s)} />
       <Ink s={edges(p)} w={2.6} />
     </g>
   )
@@ -267,11 +271,11 @@ function crystalStrokes(s: number): Stroke[] {
   return [...edges(p), seg(p[5], m), seg(m, p[1]), seg(m, [0, 9.6 * s], 0.9), seg(p[0], m, 0.7)]
 }
 
-function CrystalArt({ x, y, s, o = 1, w = 2.6 }: { x: number; y: number; s: number; o?: number; w?: number }) {
+function CrystalArt({ x, y, s, o = 1, w = 2.6, gap }: { x: number; y: number; s: number; o?: number; w?: number; gap?: number }) {
   if (s <= 0.02 || o <= 0) return null
   return (
     <g transform={`translate(${x} ${y})`} opacity={o}>
-      <path d={pd(scaled(CRYSTAL, s))} className="hatch" />
+      <LocalHatch pts={scaled(CRYSTAL, s)} c={[0, 0]} u={[1, 0]} gap={gap ?? hatchGap(s)} />
       <Ink s={crystalStrokes(s)} w={w} />
     </g>
   )
@@ -475,7 +479,7 @@ function Shatter({ t }: { t: number }) {
       <>
         <BoltArt x={COL_L} y={122} s={2.8 * (1 - easeIn(prog(t, 0, 250)))} o={0.6} />
         <g transform={`translate(${cx.toFixed(1)} ${cy.toFixed(1)})`}>
-          <path d={pd(scaled(CRYSTAL, s))} className="hatch" />
+          <LocalHatch pts={scaled(CRYSTAL, s)} c={[0, 0]} u={[1, 0]} gap={hatchGap(s)} />
           <Ink s={crystalStrokes(s)} w={2.6} />
           <Ink s={cracks} w={2} />
         </g>
@@ -497,10 +501,11 @@ function Shatter({ t }: { t: number }) {
         const start = add([170, 200], mul(p.c, 13))
         const ring = add([170, 200], mul(dir(p.ang + spin), 122))
         const pos = mix(mix(start, ring, f), [X0, Y0], conv)
-        const pts = scaled(p.poly, lerp(lerp(13, 5.8, f), 0.4, conv))
+        const sc = lerp(lerp(13, 5.8, f), 0.4, conv)
+        const pts = scaled(p.poly, sc)
         return (
           <g key={i} transform={`translate(${pos[0].toFixed(1)} ${pos[1].toFixed(1)}) rotate(${(p.rot * f + 200 * conv).toFixed(1)})`} opacity={1 - prog(t, 2600, 100)}>
-            <path d={pd(pts)} className="hatch" />
+            <LocalHatch pts={pts} c={mul(p.c, -sc)} u={[1, 0]} gap={hatchGap(sc)} />
             <Ink s={edges(pts)} w={2.2} />
           </g>
         )
@@ -671,7 +676,7 @@ function orect(c: Pt, u: Pt, len: number, wid: number, r: number): Pt[] {
 function LocalHatch({ pts, c, u, gap = 3.2, o = 1 }: { pts: Pt[]; c: Pt; u: Pt; gap?: number; o?: number }) {
   const id = 'lh' + useId().replace(/[^a-zA-Z0-9]/g, '')
   const R = Math.max(...pts.map((p) => dist(p, c))) + gap
-  const a = Math.atan2(u[1], u[0]) + Math.PI / 4
+  const a = Math.atan2(u[1], u[0]) - Math.PI / 4
   const along: Pt = [Math.cos(a), Math.sin(a)]
   const across: Pt = [-along[1], along[0]]
   let d = ''
@@ -1080,7 +1085,7 @@ function HowItWorks() {
   const lp = pop(prog(t, 150, 450))
   const logo = (
     <svg viewBox="-24 -24 48 48" aria-hidden style={{ transform: `scale(${lp.toFixed(3)}) translateY(${(Math.sin(t / 650) * 1.5).toFixed(2)}px)` }}>
-      <CrystalArt x={0} y={0} s={1.75} w={1.9} />
+      <CrystalArt x={0} y={0} s={1.75} w={1.9} gap={2.6} />
     </svg>
   )
   return (
