@@ -676,6 +676,8 @@ function Part({ d, s, hatch, w = 2.2 }: { d: string; s: Stroke[]; hatch?: number
   )
 }
 
+const DB_TILT = 35
+
 /** Muskel-Kristall mit Hantel; curl 0 = Arm gestreckt, 1 = gebeugt. Ursprung = Koerpermitte, Fuesse bei y = 66 */
 function Muki({ curl }: { curl: number }) {
   const body = scaled(CRYSTAL, 5)
@@ -691,7 +693,32 @@ function Muki({ curl }: { curl: number }) {
   const v: Pt = [-uf[1], uf[0]]
   const upperR = muscle(Sr, Er, (s) => 6.5 + 2 * bump(s, 0.1, 0.13) + (2.5 + 6 * curl) * bump(s, 0.55, 0.2) - s, (s) => 6 + 1.5 * bump(s, 0.35, 0.22) - 1.2 * s, 1)
   const foreR = muscle(Er, Wr, (s) => 5.6 + 1.6 * bump(s, 0.25, 0.22) - 1.8 * s, (s) => 5 + 0.6 * bump(s, 0.2, 0.2) - 1.4 * s, 1, true)
-  const plates = [-1, 1].flatMap((sg) => [orect(add(Hr, mul(v, sg * 12)), uf, 28, 7, 2.2), orect(add(Hr, mul(v, sg * 18)), uf, 21, 5, 1.6), orect(add(Hr, mul(v, sg * 22.5)), uf, 8, 3, 1)])
+  // Hantel-Achse zeigt schraeg zum Betrachter (DB_TILT aus der Bildebene): die Scheiben sind Zylinder auf der Stange,
+  // man sieht ihre Vorderseite als Ellipse; das nahe Ende (+v) ist etwas groesser und liegt vor der Faust
+  const vp = mul(v, Math.cos(rad(DB_TILT)))
+  const squeeze = Math.sin(rad(DB_TILT))
+  const disc = (d: number, r: number, thick: number, hub: boolean) => {
+    const k = 1 + d * 0.007
+    const c = add(Hr, mul(vp, d))
+    const ell = (cc: Pt, a0: number, a1: number): Pt[] =>
+      Array.from({ length: 19 }, (_, i) => {
+        const a = a0 + ((a1 - a0) * i) / 18
+        return add(cc, add(mul(uf, Math.cos(a) * r * k), mul(v, Math.sin(a) * r * k * squeeze)))
+      })
+    const back = add(c, mul(vp, -thick / 2))
+    const front = add(c, mul(vp, thick / 2))
+    const hull = [...ell(back, Math.PI, 2 * Math.PI), ...ell(front, 0, Math.PI)]
+    const face = ell(front, 0, 2 * Math.PI).slice(0, -1)
+    return { hull, face, front, hub }
+  }
+  const discs = [disc(-22.5, 4.5, 3, false), disc(-18, 10.5, 5, false), disc(-12, 14, 7, false), disc(12, 14, 7, false), disc(18, 10.5, 5, false), disc(22.5, 4.5, 3, true)]
+  const discArt = (x: ReturnType<typeof disc>, i: number) => (
+    <g key={i}>
+      <Part d={pd(x.hull)} s={edges(x.hull)} hatch={1} w={1.9} />
+      <Part d={pd(x.face)} s={edges(x.face)} hatch={0.35} w={1.7} />
+      {x.hub && <Ink s={[ringS(x.front, 1.8)]} w={1.6} />}
+    </g>
+  )
   const fistR = orect(Hr, uf, 12, 13, 4.2)
   // linker Arm: Hand an der Huefte
   const Sl: Pt = [-26, -16]
@@ -724,10 +751,11 @@ function Muki({ curl }: { curl: number }) {
       {faces.map((f, i) => <path key={i} d={pd(f.p)} className="hatch" opacity={f.h} />)}
       <Ink s={[...edges(body), seg(body[5], M, 0.9), seg(M, body[1], 0.9), seg(body[0], M, 0.7), seg(M, body[3], 0.7)]} w={2.6} />
       {/* Unterarm und Hantel vor dem Koerper: beim Curl liegt die Hantel vorn */}
-      <Ink s={[seg(add(Hr, mul(v, -24)), add(Hr, mul(v, 24)), 1.5)]} w={2.2} />
-      {plates.map((p, i) => <Part key={i} d={pd(p)} s={edges(p)} hatch={i % 3 === 2 ? 0 : 1} w={1.9} />)}
+      {discs.slice(0, 3).map(discArt)}
+      <Ink s={[seg(add(Hr, mul(vp, -21)), add(Hr, mul(vp, 21)), 1.5)]} w={2.2} />
       <Part d={foreR.d} s={[foreR.s]} />
       <Part d={pd(fistR)} s={[...edges(fistR), ...[-3.6, 0, 3.6].map((o) => seg(add(Hr, add(mul(uf, 6), mul(v, o))), add(Hr, add(mul(uf, 2), mul(v, o))), 0.5)), seg(add(Hr, add(mul(uf, -3), mul(v, 6.5))), add(Hr, add(mul(uf, 2.5), mul(v, 3))), 0.6)]} w={2} />
+      {discs.slice(3).map((x, i) => discArt(x, i + 3))}
       <Part d={pd(fistL)} s={[...edges(fistL), ...[-3.2, 0, 3.2].map((o) => seg(add(Wl, add(mul(ul, 8.5), mul([-ul[1], ul[0]], o))), add(Wl, add(mul(ul, 5), mul([-ul[1], ul[0]], o))), 0.5))]} w={2} />
       {eyes.map((e, i) => <Part key={i} d={pd(e)} s={edges(e)} w={1.8} />)}
       <circle cx={-10} cy={6.6} r={2.2} className="solid" />
@@ -907,13 +935,16 @@ const PIECES: { art: Art[]; bottom: number; mid: number; tilt: number }[] = [
   { art: [drum(195, 58)], bottom: 260, mid: 220, tilt: 6 },
   { art: capital(195), bottom: 198, mid: 176, tilt: -7 },
 ]
-const FALL = [200, 850, 1450, 2050, 2600]
+// Jeder Baustein faellt frueher und schneller als der vorige: Wer schon etwas weiss, kann Neues schneller anknuepfen
+const FALL = [200, 900, 1400, 1760, 2020]
+const FALL_DUR = [420, 350, 290, 240, 200]
 const STEPS: ReactNode[] = [
-  <><b>Gerüste</b>Zeitstrahl, Weltkarte, Größenordnungen</>,
-  <><b>Verknüpfen</b>Epoche ↔ Kunststil ↔ Philosoph</>,
-  <><b>Abrufen</b>statt Wiederlesen, in wachsenden Abständen</>,
-  <><b>Jedes Thema</b>ein Stück mehr</>,
+  <><b>Gerüst bauen</b>Zeitstrahl, Weltkarte, Größenordnungen</>,
+  <><b>Anknüpfen</b>Neues hängt sich an Bekanntes</>,
+  <><b>Verknüpfen</b>Fächer greifen ineinander</>,
+  <><b>Abrufen</b>hält fest, was schon steht</>,
 ]
+const PILLAR_END = FALL[4] + FALL_DUR[4]
 const STEP_X = 178
 
 const PieceArt = memo(function PieceArt({ art }: { art: Art[] }) {
@@ -937,9 +968,9 @@ function Pillar() {
       <Stage
         label="Eine Säule wird Stück für Stück gebaut: Sockel, Trommeln, Kapitell"
         svg={PIECES.map((p, i) => {
-          const f = prog(t, FALL[i], 360)
+          const f = prog(t, FALL[i], FALL_DUR[i])
           if (f <= 0) return null
-          const land = FALL[i] + 360
+          const land = FALL[i] + FALL_DUR[i]
           const b = prog(t, land, 180)
           const dy = -(p.bottom + 30) * (1 - f * f) - 5 * Math.sin(Math.PI * b) * (1 - b)
           const dust = prog(t, land, 320)
@@ -969,11 +1000,14 @@ function Pillar() {
         })}
       >
         {STEPS.map((s, i) => {
-          const o = prog(t, FALL[i] + 380, 250)
+          const o = prog(t, FALL[i] + FALL_DUR[i] + 20, 220)
           return (
             <Txt key={i} x={STEP_X} y={PIECES[i].mid} w={156} left mid o={o} dx={(1 - o) * 8} className="step">{s}</Txt>
           )
         })}
+        <Txt x={STEP_X} y={150} w={156} left mid o={prog(t, PILLAR_END + 250, 300)} dy={(1 - prog(t, PILLAR_END + 250, 300)) * 6} className="lead">
+          Jeder Baustein macht den nächsten leichter.
+        </Txt>
       </Stage>
     </>
   )
