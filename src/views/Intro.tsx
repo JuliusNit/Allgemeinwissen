@@ -1131,9 +1131,57 @@ function HowItWorks() {
   )
 }
 
+// ---------- Folie 6: Aufruf ----------
+
+const START_C: Pt = [170, 170]
+/** Strahlen um den Kristall und funkelnde Sterne drumherum */
+const START_RAYS: Stroke[] = Array.from({ length: 12 }, (_, i) => {
+  const a = i * 30 + 15
+  return seg(add(START_C, mul(dir(a), 96)), add(START_C, mul(dir(a), i % 2 ? 106 : 114)), 0.8)
+})
+const START_STARS: { c: Pt; r: number; d: number }[] = [
+  { c: [58, 92], r: 7, d: 0 },
+  { c: [288, 120], r: 6, d: 500 },
+  { c: [76, 246], r: 5, d: 900 },
+  { c: [270, 238], r: 7, d: 1300 },
+]
+
+function Start() {
+  const t = useClock()
+  const p = pop(prog(t, 200, 550))
+  const breathe = t > 750 ? 1 + 0.035 * Math.sin((t - 750) / 650) : 1
+  const rays = easeOut(prog(t, 650, 450))
+  return (
+    <>
+      <Head text="Jetzt bist du dran" o={prog(t, 0, 300)} />
+      <Stage
+        svg={
+          <>
+            {rays > 0 && <Ink s={START_RAYS.flatMap((r) => reveal([r], rays))} w={2} />}
+            {START_STARS.map((s, i) => {
+              const k = t < 900 + s.d ? 0 : Math.max(0, Math.sin(((t - 900 - s.d) / 1700) * 2 * Math.PI))
+              return k > 0 ? (
+                <g key={i} transform={`translate(${s.c[0]} ${s.c[1]}) scale(${k.toFixed(3)})`}>
+                  <Ink s={[seg([-s.r, 0], [s.r, 0], 0.7), seg([0, -s.r], [0, s.r], 0.7)]} w={2} />
+                </g>
+              ) : null
+            })}
+            <CrystalArt x={START_C[0]} y={START_C[1]} s={7 * p * breathe} w={3} />
+          </>
+        }
+      >
+        <Txt x={170} y={300} w={310} o={prog(t, 900, 350)} dy={(1 - prog(t, 900, 350)) * 8} className="cta">
+          <b>Erweitere auch du jetzt dein Wissen.</b>
+          Geschichte, Physik, Kunst, Wirtschaft – Thema für Thema, und es bleibt.
+        </Txt>
+      </Stage>
+    </>
+  )
+}
+
 // ---------- Ablauf ----------
 
-const SLIDES: ((p: { via: boolean }) => ReactNode)[] = [TwoKinds, Ages, Trainable, Pillar, HowItWorks]
+const SLIDES: ((p: { via: boolean }) => ReactNode)[] = [TwoKinds, Ages, Trainable, Pillar, HowItWorks, Start]
 
 export function Intro({ onRegister, onLogin }: { onRegister: () => void; onLogin: () => void }) {
   const [v, setV] = useState({ i: 0, via: false, n: 0 })
