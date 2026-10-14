@@ -57,6 +57,9 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Icons – sieht aus wie die Münzen auf Home: kräftiger, handgezeichneter Tusche-Strich (Federwinkel + Pinsel-Druckwechsel),
   nie ein glatter CSS-Rand/-Schatten. Umsetzung:
   - Kästen: `Frame`/`InkBorder` (`components/Ink.tsx`), freie Formen: `InkPaths` mit Strichen aus `lib/ink.ts`.
+  - Schraffur haftet immer an ihrer Form, nie am Bild: Bewegt/dreht sich etwas, über eine SVG-Gruppen-Transformation
+    (dann wandert `url(#hatch)` mit). Sind Lage oder Größe in die Punkte eingerechnet, `LocalHatch` (`views/Intro.tsx`)
+    mit Anker und Richtung der Form verwenden – sonst rutscht das Muster sichtbar durch.
   - Alle übrigen CSS-Ränder zeichnet `src/lib/pen.ts` automatisch als Tusche (liest Breite/Farbe/Radius/gestrichelt aus dem CSS,
     Strich = Randbreite × 1,45). Neues Element mit Rand → Selektor in `SELECTOR` ergänzen oder `data-pen` setzen.
     Schraffur-Hintergründe auf solchen Elementen über `--hatch` statt `background`. Knöpfe (`.btn`): weiß mit Tusche-Umriss und
