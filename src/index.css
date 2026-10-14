@@ -487,24 +487,28 @@ details summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
 .onb-brand { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1.25rem; margin: 18px 0 16px; }
 .onb-slides { min-height: calc(100dvh - 44px); display: flex; flex-direction: column; padding-top: 8px; }
 .onb-top { display: flex; align-items: center; justify-content: space-between; min-height: 34px; }
-.onb-slide { flex: 1; margin: 8px 0 14px; animation: onb-in 220ms ease-out; }
-.onb-slide h1 { font-size: 1.55rem; margin-bottom: 14px; }
 @keyframes onb-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .onb-slide { animation: none; } }
-.onb-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 12px; }
-.onb-feature { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 12px 6px; border: 2px solid var(--ink); border-radius: 14px; }
-.onb-feature p { margin: 0; }
-.onb-chart { width: 100%; height: auto; display: block; margin: 4px 0 10px; }
-.chart-t { font-size: 11px; fill: var(--muted); }
-.chart-l { font-size: 13px; font-weight: 700; fill: var(--ink); }
-.onb-rating { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1.5px solid var(--faint); }
-.onb-rating p { margin: 2px 0 0; }
-.onb-rating-head { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
-.dots { display: inline-flex; gap: 4px; }
-.dots span { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ink); }
-.dots span.on { background: var(--ink); }
-.onb-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
-.onb-list li { display: flex; gap: 12px; align-items: flex-start; }
+/* Einfuehrung (src/views/Intro.tsx): Buehne 340 × 430 mit SVG, Texte absolut darueber */
+body:has(.onb-intro) { overflow-x: clip; }
+.onb-head { display: flex; align-items: center; gap: 12px; min-height: 58px; margin: 2px 0 4px; }
+.onb-head h1 { flex: 1; font-size: 1.5rem; margin: 0; }
+.onb-head svg { width: 58px; height: 58px; flex: none; overflow: visible; }
+.onb-stage { position: relative; width: min(100%, calc((100dvh - 250px) * 340 / 430)); aspect-ratio: 340 / 430; margin: 0 auto 10px; }
+.onb-stage > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.onb-intro .paper { fill: var(--paper); }
+.onb-intro .hatch { fill: url(#hatch); }
+.onb-intro .solid { fill: var(--ink); }
+.onb-ct { font-size: 12px; fill: var(--muted); }
+.onb-cl { font-size: 15px; font-weight: 700; fill: var(--ink); }
+.onb-txt { position: absolute; font-size: 14px; line-height: 1.4; }
+.onb-txt b.l { display: block; font-size: 16px; margin-bottom: 4px; }
+.onb-txt.note { font-size: 12px; color: var(--muted); }
+.onb-txt.step, .onb-txt.circle { font-size: 13px; line-height: 1.32; }
+.onb-txt.step b, .onb-txt.circle b { display: block; font-size: 14px; }
+.onb-txt.circle b { font-size: 13.5px; }
+.onb-rate { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 0 6px; color: var(--muted); font-size: 13px; }
+.onb-rate svg { width: 84px; height: 16px; overflow: visible; }
+.onb-intro .onb-dots { margin-top: auto; }
 .onb-dots { display: flex; justify-content: center; gap: 10px; margin-bottom: 14px; }
 .onb-dots button { width: 12px; height: 12px; padding: 0; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); cursor: pointer; }
 .onb-dots button.on { --hatch: repeating-linear-gradient(45deg, var(--ink) 0 1.5px, transparent 1.5px 3.5px); background-image: var(--hatch); width: 26px; border-radius: 8px; }

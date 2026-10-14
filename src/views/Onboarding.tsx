@@ -1,10 +1,10 @@
-import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { GRADES, levelLabel, repeatDays, type Level } from '../data/school'
 import { cloud, resendConfirmation, saveLevel, sendReset, setNewPassword, signIn, signUp, useAuth } from '../lib/cloud'
-import { curve, line, arrowHead, type Stroke } from '../lib/ink'
 import { setState, useStore } from '../lib/store'
-import { Icon, type IconName } from '../components/Icons'
-import { Frame, InkPaths } from '../components/Ink'
+import { Icon } from '../components/Icons'
+import { Frame } from '../components/Ink'
+import { Intro } from './Intro'
 
 // Erster Start: Einfuehrung (fluide vs. kristalline Intelligenz) → Konto anlegen bzw. anmelden.
 // Ohne Server (keine .env) nur Name + Wissensstand, alles lokal.
@@ -25,7 +25,7 @@ export function Onboarding() {
     setStep(s)
   }
 
-  if (step === 'slides') return <Slides onRegister={() => toForms('register')} onLogin={() => toForms('login')} />
+  if (step === 'slides') return <Intro onRegister={() => toForms('register')} onLogin={() => toForms('login')} />
   return (
     <Shell>
       {step === 'register' && (cloud ? <Register onDone={(m) => { setMail(m); setStep('sent') }} onLogin={() => setStep('login')} /> : <LocalStart />)}
@@ -48,203 +48,6 @@ function Shell({ children }: { children: ReactNode }) {
       </div>
       {children}
     </div>
-  )
-}
-
-// ---------- Slides ----------
-
-interface Slide {
-  title: string
-  body: ReactNode
-}
-
-const SLIDES: Slide[] = [
-  {
-    title: 'Zwei Arten, klug zu sein',
-    body: (
-      <>
-        <div className="onb-pair">
-          <Feature icon="BOLT" head="Fluide Intelligenz">Neue Probleme lösen, Muster erkennen, schnell umdenken – ohne Vorwissen.</Feature>
-          <Feature icon="CRYSTAL" head="Kristalline Intelligenz">Alles, was du weißt und verstanden hast: Wissen, Begriffe, Zusammenhänge.</Feature>
-        </div>
-        <p className="muted small">Unterscheidung nach Raymond Cattell (1963). Beide zusammen machen aus, wie gut du denkst.</p>
-      </>
-    ),
-  },
-  {
-    title: 'Die eine sinkt, die andere wächst',
-    body: (
-      <>
-        <AgeChart />
-        <p>Die fluide Intelligenz ist mit Mitte zwanzig am stärksten und lässt danach langsam nach. Die kristalline wächst weiter – der Wortschatz zum Beispiel bis über 60.</p>
-        <p className="muted small">Schematisch, nach Salthouse (2009) und Hartshorne &amp; Germine (2015).</p>
-      </>
-    ),
-  },
-  {
-    title: 'Was sich trainieren lässt',
-    body: (
-      <>
-        <Rating icon="BOLT" head="Fluide" score={1}>Gehirnjogging macht vor allem in der geübten Aufgabe besser – kaum im Denken allgemein (Simons et al. 2016).</Rating>
-        <Rating icon="CRYSTAL" head="Kristalline" score={5}>Wächst mit jedem Thema, das du wirklich verstehst – ein Leben lang.</Rating>
-        <p><b>Und:</b> Wer viel weiß, lernt Neues schneller. Vorwissen ist der Haken, an dem Neues hängen bleibt.</p>
-      </>
-    ),
-  },
-  {
-    title: 'So trainierst du sie',
-    body: (
-      <ul className="onb-list">
-        <Item icon="GESCH">Gerüste bauen: <b>Zeitstrahl, Weltkarte, Größenordnungen</b> – alles Neue bekommt einen Platz.</Item>
-        <Item icon="MIX">Verknüpfen: Epoche ↔ Kunststil ↔ Philosoph – Wissen über Fächer hinweg.</Item>
-        <Item icon="REVIEW">Abrufen statt Wiederlesen, in wachsenden Abständen – so bleibt es.</Item>
-      </ul>
-    ),
-  },
-  {
-    title: 'Genau dafür ist diese App',
-    body: (
-      <ul className="onb-list">
-        <Item icon="HOME">90 Tage Lernpfad mit kurzen, ausgewählten Videos – quer durch alle Bereiche.</Item>
-        <Item icon="CHECK">Verständnischeck mit KI: Fragen, die verknüpfen statt abfragen.</Item>
-        <Item icon="REVIEW">Karteikarten und Wiederholungs-Stationen im richtigen Abstand.</Item>
-        <Item icon="STATS">Statistik: Was liegt dir? Darauf kannst du dich später spezialisieren.</Item>
-      </ul>
-    ),
-  },
-]
-
-function Slides({ onRegister, onLogin }: { onRegister: () => void; onLogin: () => void }) {
-  const [i, setI] = useState(0)
-  const touch = useRef<number | null>(null)
-  const last = i === SLIDES.length - 1
-  const go = (n: number) => setI(Math.max(0, Math.min(SLIDES.length - 1, n)))
-  const s = SLIDES[i]
-
-  return (
-    <div
-      className="onb onb-slides"
-      onTouchStart={(e) => (touch.current = e.touches[0].clientX)}
-      onTouchEnd={(e) => {
-        if (touch.current === null) return
-        const dx = e.changedTouches[0].clientX - touch.current
-        touch.current = null
-        if (Math.abs(dx) > 50) go(i + (dx < 0 ? 1 : -1))
-      }}
-    >
-      <div className="onb-top">
-        <span className="muted small">{i + 1} / {SLIDES.length}</span>
-        {!last && <button className="btn ghost small" onClick={() => go(SLIDES.length - 1)}>Überspringen</button>}
-      </div>
-      <Frame className="card onb-slide" key={i}>
-        <h1>{s.title}</h1>
-        {s.body}
-      </Frame>
-      <div className="onb-dots" role="tablist" aria-label="Folien">
-        {SLIDES.map((_, k) => (
-          <button key={k} className={k === i ? 'on' : ''} onClick={() => go(k)} aria-label={`Folie ${k + 1}`} aria-selected={k === i} role="tab" />
-        ))}
-      </div>
-      {last ? (
-        <div className="onb-actions">
-          <button className="btn primary wide" onClick={onRegister}>{cloud ? 'Konto anlegen' : 'Loslegen'}</button>
-          {cloud && <button className="btn ghost" onClick={onLogin}>Ich habe schon ein Konto</button>}
-        </div>
-      ) : (
-        <div className="onb-actions row">
-          <button className="btn" disabled={i === 0} onClick={() => go(i - 1)}>Zurück</button>
-          <button className="btn primary right" onClick={() => go(i + 1)}>Weiter</button>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function Feature({ icon, head, children }: { icon: IconName; head: string; children: ReactNode }) {
-  return (
-    <div className="onb-feature">
-      <Icon name={icon} size={52} hatched w={1.4} />
-      <b>{head}</b>
-      <p className="small">{children}</p>
-    </div>
-  )
-}
-
-function Rating({ icon, head, score, children }: { icon: IconName; head: string; score: number; children: ReactNode }) {
-  return (
-    <div className="onb-rating">
-      <Icon name={icon} size={40} hatched w={1.4} />
-      <div>
-        <div className="onb-rating-head">
-          <b>{head}</b>
-          <span className="small muted right">trainierbar</span>
-          <span className="dots" aria-label={`trainierbar: ${score} von 5`}>
-            {Array.from({ length: 5 }, (_, k) => <span key={k} className={k < score ? 'on' : ''} />)}
-          </span>
-        </div>
-        <p className="small">{children}</p>
-      </div>
-    </div>
-  )
-}
-
-function Item({ icon, children }: { icon: IconName; children: ReactNode }) {
-  return (
-    <li>
-      <Icon name={icon} size={30} />
-      <span>{children}</span>
-    </li>
-  )
-}
-
-/** Schematischer Verlauf beider Intelligenzen ueber das Lebensalter */
-function AgeChart() {
-  const W = 300
-  const H = 170
-  const x0 = 34
-  const y0 = 140
-  const xa = (age: number) => x0 + ((age - 15) / 70) * (W - x0 - 14)
-  const ya = (v: number) => y0 - v * 118
-  const fluid = (a: number) => (a < 25 ? 0.62 + 0.26 * ((a - 15) / 10) : 0.88 - 0.5 * Math.pow((a - 25) / 55, 1.25))
-  const cryst = (a: number) => 0.2 + 0.68 * (1 - Math.exp(-(a - 15) / 17)) - (a > 68 ? 0.004 * (a - 68) : 0)
-  const age = (t: number) => 15 + t * 67
-
-  const { axes, crystal, fluidDashes, area } = useMemo(() => {
-    const yAxis = line([x0, y0 + 4], [x0, 14])
-    const xAxis = line([x0 - 4, y0], [W - 6, y0])
-    const axes: Stroke[] = [yAxis, xAxis, ...arrowHead(yAxis, 5), ...arrowHead(xAxis, 5)]
-    for (const a of [20, 40, 60, 80]) axes.push(line([xa(a), y0], [xa(a), y0 + 5], 0.8))
-    const crystal = curve((t) => [xa(age(t)), ya(cryst(age(t)))], 80)
-    // fluide gestrichelt: einzelne kurze Kurvenstuecke
-    const fluidDashes: Stroke[] = []
-    const n = 22
-    for (let k = 0; k < n; k++) {
-      const t0 = k / n
-      const t1 = t0 + 0.6 / n
-      fluidDashes.push(curve((t) => {
-        const a = age(t0 + (t1 - t0) * t)
-        return [xa(a), ya(fluid(a))]
-      }, 6))
-    }
-    const pts = crystal.pts.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`)
-    const area = `M${x0} ${y0} L${pts.join(' L')} L${crystal.pts[crystal.pts.length - 1][0].toFixed(1)} ${y0} Z`
-    return { axes, crystal: [crystal], fluidDashes, area }
-  }, [])
-
-  return (
-    <svg className="onb-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Fluide Intelligenz sinkt ab Mitte zwanzig, kristalline steigt bis ins hohe Alter">
-      <path d={area} fill="url(#hatch)" opacity={0.55} />
-      <InkPaths strokes={axes} w={1.8} />
-      <InkPaths strokes={crystal} w={3} />
-      <InkPaths strokes={fluidDashes} w={2.2} />
-      {[20, 40, 60, 80].map((a) => (
-        <text key={a} x={xa(a)} y={y0 + 17} textAnchor="middle" className="chart-t">{a}</text>
-      ))}
-      <text x={W - 8} y={y0 - 6} textAnchor="end" className="chart-t">Alter</text>
-      <text x={x0 + 6} y={18} className="chart-t">Leistung</text>
-      <text x={xa(70)} y={ya(cryst(70)) - 10} textAnchor="middle" className="chart-l">kristallin</text>
-      <text x={xa(66)} y={ya(fluid(66)) + 20} textAnchor="middle" className="chart-l">fluide</text>
-    </svg>
   )
 }
 

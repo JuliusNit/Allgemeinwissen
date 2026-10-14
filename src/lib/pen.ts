@@ -16,7 +16,6 @@ const SELECTOR = [
   '.notice',
   '.advice',
   '.level-opt',
-  '.onb-feature',
   '.status',
   '.stamp',
   '.msg',
@@ -32,7 +31,6 @@ const SELECTOR = [
   '.dg-layers',
   '.dg-layer',
   '.pw-bar span',
-  '.dots span',
   '.onb-dots button',
   '.video-play',
   '.player',
@@ -52,7 +50,6 @@ const SELECTOR = [
   '.vnotes li',
   '.qa-list > li',
   '.friend-row',
-  '.onb-rating',
   '.lp li',
 ].join(',')
 

@@ -79,7 +79,11 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Empfehlung per Regel (gern + Können → A breit / B spezialisieren / C Hybrid 70/30 + Erhaltungsmodus), Wahl in `focus.choice`
   (`breit` | `spezial:<Fach>` | `hybrid:<Fach>`). Großer Kasten oben auf Home, sobald Tag 90 fertig ist (danach eine Zeile), auch im Profil.
   Die eigentlichen Pfade A/B/C sind noch nicht gebaut.
-- `src/views/Onboarding.tsx` – erster Start: 5 Slides (fluide vs. kristalline Intelligenz), dann Konto anlegen
+- `src/views/Intro.tsx` – Einführung beim ersten Start: 5 animierte Folien (Tusche-Striche pro Bild aus einer Uhr je Folie,
+  Bühne 340 × 430, Texte als HTML darüber): Blitz/Kristall → Kristall zerspringt zum Ring → Altersdiagramm zeichnet sich →
+  Kurven schlängeln aus dem Bild → erschöpfter Blitz läuft (trainierbar 1/5) → Muskel-Kristall mit Hantel (5/5) → Säule aus
+  fallenden Bausteinen → App-Funktionen in Kreisen + Logo. Übergänge nur mit „Weiter“, nicht zurück/über die Punkte.
+- `src/views/Onboarding.tsx` – erster Start: Einführung (`Intro`), dann Konto anlegen
   (E-Mail, Name, Passwort mit Stärke-Skala – Pflicht nur 8+ Zeichen, sonst rote Meldung über „Registrieren“ – + Wiederholung) und Wissensstand.
   Ohne Supabase nur Name + Wissensstand lokal.
 - `src/data/school.ts` – Wissensstand (Schule + Klasse / Studium / Ausbildung-Beruf), `SCHOOL_GRADE` (Jahrgangsstufe je Tag nach
