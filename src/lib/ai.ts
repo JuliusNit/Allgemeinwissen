@@ -448,8 +448,8 @@ export function channelChat(area: AreaId | null, history: { author: 'ich' | 'ki'
   const system = `${persona()}
 
 Du bist im Themen-Chat der App als „KI“ dabei. ${topic}
-Antworte wie in einem Chat: kurz (max. 6 Zeilen), locker, sachlich korrekt. Verweise nur auf Sessions aus dieser Liste (Tag-Nummer), erfinde keine:
-${DAYS.filter((d) => !area || d.area === area).map(dayLine).join('\n')}`
+Antworte wie in einem Chat: kurz (max. 6 Zeilen), locker, sachlich korrekt. Verweise nur auf Sessions aus dieser Liste und nenne sie nur beim Titel (ohne Nummer, Kürzel oder Klammern), erfinde keine:
+${DAYS.filter((d) => !area || d.area === area).map((d) => `- ${d.title}`).join('\n')}`
   const msgs: ChatMsg[] = history.slice(-20).map((m) => ({ role: m.author === 'ich' ? 'user' : 'assistant', content: m.text }))
   return streamChat(system, msgs, onText, 1500)
 }

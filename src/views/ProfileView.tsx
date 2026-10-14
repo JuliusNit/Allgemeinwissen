@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { AREAS, DAYS } from '../data/plan'
 import { adviseFocus, describeError } from '../lib/ai'
 import { areaStats, dayDone, STAT_AREAS } from '../lib/stats'
+import { pathDays } from '../lib/path'
 import { AfterNinety } from '../components/AfterNinety'
 import { cloud, saveDayVideos, saveLevel, signOut, useAiReady, useAuth } from '../lib/cloud'
 import { DEFAULT_API_URL, DEFAULT_MODEL, dayState, exportJson, getState, videosOf, importJson, resetAll, setState, today, useStore, type Settings } from '../lib/store'
@@ -76,6 +77,8 @@ function Strengths() {
   const done = DAYS.filter((d) => dayDone(s, d.day)).length
   const rows = STAT_AREAS.map((a) => areaStats(s, a)).filter((x) => x.answers || x.done)
   const allDone = done >= DAYS.length
+  // Offene Sessions im eigenen Pfad (Schulstoff steht nicht im Pfad)
+  const open = pathDays(s.level).filter((d) => !dayDone(s, d)).length
 
   async function advise() {
     setBusy(true)
@@ -128,7 +131,7 @@ function Strengths() {
       <button className="btn" onClick={advise} disabled={busy || !hasKey}>{busy ? 'KI wertet aus …' : focus.advice ? 'Neu einschätzen lassen' : 'KI-Einschätzung: was liegt mir?'}</button>
 
       <h2 className="spaced">Nach den 90 Tagen</h2>
-      {!allDone && <p className="muted small">Noch {DAYS.length - done} Sessions</p>}
+      {!allDone && open > 0 && <p className="muted small">Noch {open} Sessions</p>}
       <AfterNinety />
     </Frame>
   )
