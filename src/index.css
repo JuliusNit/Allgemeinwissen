@@ -498,6 +498,7 @@ body:has(.onb-intro) { overflow-x: clip; }
 .onb-intro .paper { fill: var(--paper); }
 .onb-intro .hatch { fill: url(#hatch); }
 .onb-intro .solid { fill: var(--ink); }
+.onb-intro .hatch-line { fill: none; stroke: var(--ink); stroke-width: 0.9; }
 .onb-ct { font-size: 12px; fill: var(--muted); }
 .onb-cl { font-size: 15px; font-weight: 700; fill: var(--ink); }
 .onb-txt { position: absolute; font-size: 14px; line-height: 1.4; }

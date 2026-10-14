@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { memo, useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { outline, type Pt, type Stroke } from '../lib/ink'
 import { cloud } from '../lib/cloud'
 import { IconGroup, type IconName } from '../components/Icons'
@@ -666,6 +666,31 @@ function orect(c: Pt, u: Pt, len: number, wid: number, r: number): Pt[] {
   return pts
 }
 
+/** Schraffur, die an einer bewegten Form haftet (das globale Muster liegt fest im Bild und wuerde durchrutschen):
+ *  Linien unter 45° zur Richtung u, verankert an c, auf das Polygon zugeschnitten */
+function LocalHatch({ pts, c, u, gap = 3.2, o = 1 }: { pts: Pt[]; c: Pt; u: Pt; gap?: number; o?: number }) {
+  const id = 'lh' + useId().replace(/[^a-zA-Z0-9]/g, '')
+  const R = Math.max(...pts.map((p) => dist(p, c))) + gap
+  const a = Math.atan2(u[1], u[0]) + Math.PI / 4
+  const along: Pt = [Math.cos(a), Math.sin(a)]
+  const across: Pt = [-along[1], along[0]]
+  let d = ''
+  for (let k = -Math.ceil(R / gap); k <= Math.ceil(R / gap); k++) {
+    const m = add(c, mul(across, k * gap))
+    const p = add(m, mul(along, -R))
+    const q = add(m, mul(along, R))
+    d += `M${p[0].toFixed(1)} ${p[1].toFixed(1)}L${q[0].toFixed(1)} ${q[1].toFixed(1)}`
+  }
+  return (
+    <>
+      <clipPath id={id}>
+        <path d={pd(pts)} />
+      </clipPath>
+      <path d={d} className="hatch-line" clipPath={`url(#${id})`} opacity={o} />
+    </>
+  )
+}
+
 function Part({ d, s, hatch, w = 2.2 }: { d: string; s: Stroke[]; hatch?: number; w?: number }) {
   return (
     <>
@@ -714,8 +739,12 @@ function Muki({ curl }: { curl: number }) {
   const discs = [disc(-22.5, 4.5, 3, false), disc(-18, 10.5, 5, false), disc(-12, 14, 7, false), disc(12, 14, 7, false), disc(18, 10.5, 5, false), disc(22.5, 4.5, 3, true)]
   const discArt = (x: ReturnType<typeof disc>, i: number) => (
     <g key={i}>
-      <Part d={pd(x.hull)} s={edges(x.hull)} hatch={1} w={1.9} />
-      <Part d={pd(x.face)} s={edges(x.face)} hatch={0.35} w={1.7} />
+      <path d={pd(x.hull)} className="paper" />
+      <LocalHatch pts={x.hull} c={x.front} u={uf} />
+      <Ink s={edges(x.hull)} w={1.9} />
+      <path d={pd(x.face)} className="paper" />
+      <LocalHatch pts={x.face} c={x.front} u={uf} o={0.4} />
+      <Ink s={edges(x.face)} w={1.7} />
       {x.hub && <Ink s={[ringS(x.front, 1.8)]} w={1.6} />}
     </g>
   )
@@ -752,7 +781,7 @@ function Muki({ curl }: { curl: number }) {
       <Ink s={[...edges(body), seg(body[5], M, 0.9), seg(M, body[1], 0.9), seg(body[0], M, 0.7), seg(M, body[3], 0.7)]} w={2.6} />
       {/* Unterarm und Hantel vor dem Koerper: beim Curl liegt die Hantel vorn */}
       {discs.slice(0, 3).map(discArt)}
-      <Ink s={[seg(add(Hr, mul(vp, -21)), add(Hr, mul(vp, 21)), 1.5)]} w={2.2} />
+      <Ink s={[seg(add(Hr, mul(vp, -8.5)), add(Hr, mul(vp, 10)), 1.5)]} w={2.2} />
       <Part d={foreR.d} s={[foreR.s]} />
       <Part d={pd(fistR)} s={[...edges(fistR), ...[-3.6, 0, 3.6].map((o) => seg(add(Hr, add(mul(uf, 6), mul(v, o))), add(Hr, add(mul(uf, 2), mul(v, o))), 0.5)), seg(add(Hr, add(mul(uf, -3), mul(v, 6.5))), add(Hr, add(mul(uf, 2.5), mul(v, 3))), 0.6)]} w={2} />
       {discs.slice(3).map((x, i) => discArt(x, i + 3))}
