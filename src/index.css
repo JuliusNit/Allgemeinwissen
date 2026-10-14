@@ -503,6 +503,8 @@ body:has(.onb-intro) { overflow-x: clip; }
 .onb-txt { position: absolute; font-size: 14px; line-height: 1.4; }
 .onb-txt b.l { display: block; font-size: 16px; margin-bottom: 4px; }
 .onb-txt.note { font-size: 12px; color: var(--muted); }
+.onb-txt.cmp { font-size: 15px; line-height: 1.2; color: var(--muted); }
+.onb-txt.cmp.good { color: var(--ink); font-weight: 700; }
 .onb-txt.step, .onb-txt.circle { font-size: 13px; line-height: 1.32; }
 .onb-txt.step b, .onb-txt.circle b { display: block; font-size: 14px; }
 .onb-txt.circle b { font-size: 13.5px; }
