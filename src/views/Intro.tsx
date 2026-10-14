@@ -680,22 +680,23 @@ function Part({ d, s, hatch, w = 2.2 }: { d: string; s: Stroke[]; hatch?: number
 function Muki({ curl }: { curl: number }) {
   const body = scaled(CRYSTAL, 5)
   const M: Pt = [0, -8]
-  // rechter Arm: Hantel-Curl
-  const Sr: Pt = [26, -16]
-  const Er: Pt = [60, 2]
-  const th = lerp(75, -95, curl)
+  // rechter Arm: Hantel-Curl. Oberarm haengt seitlich am Koerper, der Ellbogen bewegt sich nur zwischen fast gestreckt
+  // (Unterarm in Verlaengerung des Oberarms, 57°) und voll gebeugt (gut 135° Beugung) – nie ueberstreckt
+  const Sr: Pt = [26, -14]
+  const Er: Pt = [43, 14]
+  const th = lerp(57, -80, curl)
   const uf = dir(th)
   const Wr = add(Er, mul(uf, 23))
   const Hr = add(Wr, mul(uf, 4.5))
   const v: Pt = [-uf[1], uf[0]]
   const upperR = muscle(Sr, Er, (s) => 6.5 + 2 * bump(s, 0.1, 0.13) + (2.5 + 6 * curl) * bump(s, 0.55, 0.2) - s, (s) => 6 + 1.5 * bump(s, 0.35, 0.22) - 1.2 * s, 1)
   const foreR = muscle(Er, Wr, (s) => 5.6 + 1.6 * bump(s, 0.25, 0.22) - 1.8 * s, (s) => 5 + 0.6 * bump(s, 0.2, 0.2) - 1.4 * s, 1, true)
-  const plates = [-1, 1].flatMap((sg) => [orect(add(Hr, mul(v, sg * 14)), uf, 30, 7, 2.2), orect(add(Hr, mul(v, sg * 20.5)), uf, 22, 5, 1.6), orect(add(Hr, mul(v, sg * 25.5)), uf, 8, 3, 1)])
+  const plates = [-1, 1].flatMap((sg) => [orect(add(Hr, mul(v, sg * 12)), uf, 28, 7, 2.2), orect(add(Hr, mul(v, sg * 18)), uf, 21, 5, 1.6), orect(add(Hr, mul(v, sg * 22.5)), uf, 8, 3, 1)])
   const fistR = orect(Hr, uf, 12, 13, 4.2)
   // linker Arm: Hand an der Huefte
   const Sl: Pt = [-26, -16]
-  const El: Pt = [-56, 4]
-  const Wl: Pt = [-31, 18]
+  const El: Pt = [-50, 6]
+  const Wl: Pt = [-29, 19]
   const ul = unit(dif(Wl, El))
   const upperL = muscle(Sl, El, (s) => 6.5 + 2 * bump(s, 0.1, 0.13) + 3.5 * bump(s, 0.55, 0.2) - s, (s) => 6 + 1.5 * bump(s, 0.35, 0.22) - 1.2 * s, -1)
   const foreL = muscle(El, Wl, (s) => 5.6 + 1.6 * bump(s, 0.25, 0.22) - 1.8 * s, (s) => 5 + 0.6 * bump(s, 0.2, 0.2) - 1.4 * s, 1, true)
@@ -719,13 +720,14 @@ function Muki({ curl }: { curl: number }) {
       <Part d={upperL.d} s={[upperL.s]} />
       <Part d={foreL.d} s={[foreL.s]} />
       <Part d={upperR.d} s={[upperR.s]} />
-      <Ink s={[seg(add(Hr, mul(v, -27)), add(Hr, mul(v, 27)), 1.5)]} w={2.2} />
-      {plates.map((p, i) => <Part key={i} d={pd(p)} s={edges(p)} hatch={i % 3 === 2 ? 0 : 1} w={1.9} />)}
-      <Part d={foreR.d} s={[foreR.s]} />
-      <Part d={pd(fistR)} s={[...edges(fistR), ...[-3.6, 0, 3.6].map((o) => seg(add(Hr, add(mul(uf, 6), mul(v, o))), add(Hr, add(mul(uf, 2), mul(v, o))), 0.5)), seg(add(Hr, add(mul(uf, -3), mul(v, 6.5))), add(Hr, add(mul(uf, 2.5), mul(v, 3))), 0.6)]} w={2} />
       <path d={pd(body)} className="paper" />
       {faces.map((f, i) => <path key={i} d={pd(f.p)} className="hatch" opacity={f.h} />)}
       <Ink s={[...edges(body), seg(body[5], M, 0.9), seg(M, body[1], 0.9), seg(body[0], M, 0.7), seg(M, body[3], 0.7)]} w={2.6} />
+      {/* Unterarm und Hantel vor dem Koerper: beim Curl liegt die Hantel vorn */}
+      <Ink s={[seg(add(Hr, mul(v, -24)), add(Hr, mul(v, 24)), 1.5)]} w={2.2} />
+      {plates.map((p, i) => <Part key={i} d={pd(p)} s={edges(p)} hatch={i % 3 === 2 ? 0 : 1} w={1.9} />)}
+      <Part d={foreR.d} s={[foreR.s]} />
+      <Part d={pd(fistR)} s={[...edges(fistR), ...[-3.6, 0, 3.6].map((o) => seg(add(Hr, add(mul(uf, 6), mul(v, o))), add(Hr, add(mul(uf, 2), mul(v, o))), 0.5)), seg(add(Hr, add(mul(uf, -3), mul(v, 6.5))), add(Hr, add(mul(uf, 2.5), mul(v, 3))), 0.6)]} w={2} />
       <Part d={pd(fistL)} s={[...edges(fistL), ...[-3.2, 0, 3.2].map((o) => seg(add(Wl, add(mul(ul, 8.5), mul([-ul[1], ul[0]], o))), add(Wl, add(mul(ul, 5), mul([-ul[1], ul[0]], o))), 0.5))]} w={2} />
       {eyes.map((e, i) => <Part key={i} d={pd(e)} s={edges(e)} w={1.8} />)}
       <circle cx={-10} cy={6.6} r={2.2} className="solid" />
@@ -1013,13 +1015,11 @@ const NODE_T = (i: number) => 350 + i * 600
 function HowItWorks() {
   const t = useClock()
   const lp = pop(prog(t, 150, 450))
-  const runner = t > NODE_T(4) ? (t - NODE_T(4)) / 3600 : -1
   const logo = (
     <svg viewBox="-24 -24 48 48" aria-hidden style={{ transform: `scale(${lp.toFixed(3)}) translateY(${(Math.sin(t / 650) * 1.5).toFixed(2)}px)` }}>
       <CrystalArt x={0} y={0} s={1.75} w={1.9} />
     </svg>
   )
-  const dot = runner >= 0 ? loopAt(-90 + (runner % 1) * 360) : null
   return (
     <>
       <Head text="So funktioniert die App" o={prog(t, 0, 300)} logo={logo} />
@@ -1031,13 +1031,6 @@ function HowItWorks() {
               const k = easeOut(prog(t, NODE_T(i) + 300, 320))
               return k > 0 ? <Ink key={`a${i}`} s={k >= 1 ? LOOP_ARROWS[i] : reveal([LOOP_ARROWS[i][0]], k)} w={2.2} /> : null
             })}
-            {dot && (
-              <g transform={`translate(${dot[0].toFixed(1)} ${dot[1].toFixed(1)})`}>
-                <circle r={6} className="paper" />
-                <circle r={6} className="hatch" />
-                <Ink s={[ringS([0, 0], 6)]} w={2} />
-              </g>
-            )}
             {NODES.map((n, i) => {
               const c = loopAt(n.a)
               const k = pop(prog(t, NODE_T(i), 380))
