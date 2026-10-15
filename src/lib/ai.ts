@@ -36,8 +36,8 @@ function body(messages: Msg[], maxTokens: number, extra: Record<string, unknown>
 
 async function post(payload: unknown): Promise<Response> {
   const { apiUrl, apiKey } = getState().settings
-  // eigener Key → direkt; sonst ueber den KI-Proxy des Servers (Key liegt nur dort)
-  const proxy = apiKey ? null : await kiProxy()
+  // angemeldet → immer ueber den KI-Proxy des Servers (Key liegt nur dort); eigener Key nur ohne Konto
+  const proxy = await kiProxy()
   if (!apiKey && !proxy) throw new ApiError('Für die KI bitte anmelden – oder unter „Profil → KI“ einen eigenen Key eintragen.')
   let res: Response
   try {

@@ -140,12 +140,14 @@ function Strengths() {
 
 function AiSettings() {
   const settings = useStore((s) => s.settings)
+  const auth = useAuth()
   const [show, setShow] = useState(false)
   const patch = (p: Partial<Settings>) => setState((s) => ({ ...s, settings: { ...s.settings, ...p } }))
   return (
     <Frame className="card">
       <h2>KI</h2>
-      {cloud && <p className="muted small">Mit Konto läuft die KI über den App-Server – kein eigener Key nötig.</p>}
+      {/* Mit Konto laeuft die KI immer ueber den Server (lib/ai.ts → post), ein eigener Key gilt nur ohne Konto */}
+      {!(cloud && auth.user) && (
       <details className="own-ai" open={!cloud || !!settings.apiKey}>
       <summary className="small">Eigener KI-Zugang {cloud ? '(optional)' : ''}</summary>
       <label>API-Key</label>
@@ -164,6 +166,7 @@ function AiSettings() {
       </datalist>
       <button className="btn ghost small" onClick={() => patch({ apiUrl: DEFAULT_API_URL, model: DEFAULT_MODEL })}>Standard wiederherstellen</button>
       </details>
+      )}
       <label className="check-label">
         <input type="checkbox" checked={settings.thinking} onChange={(e) => patch({ thinking: e.target.checked })} />
         Denkmodus – gründlicher, aber langsamer
