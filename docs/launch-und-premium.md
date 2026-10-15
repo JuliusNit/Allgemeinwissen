@@ -57,7 +57,7 @@ Getestet im lokalen Dev-Server (mobil, 375 × 812) mit frischem Zustand und mit 
 | 10 | **Fortschritt im Konto speichern** | Heute nur localStorage: Handywechsel oder Neuinstallation = alles weg (Export/Import gibt es, findet aber kaum jemand). In einer nativen App kann iOS den WebView-Speicher bei Platzmangel leeren. Tabelle `progress` (JSON je Konto, RLS) + Sync beim Start/Schließen. | 2–3 Tage |
 
 **Stand 15.10.2026:** 3 (Konto löschen), 5 (Melden/Blockieren, `is_ki` nur über den Server) und 6 (Ohne Konto starten) sind im Code,
-dazu die Error-Boundary. Auf dem Server fehlen noch `supabase/005_melden_blockieren.sql` und die Edge Functions `ki-chat`, `delete-account`.
+dazu die Error-Boundary. `005_melden_blockieren.sql`, `ki-chat` und `delete-account` sind auf dem Server eingerichtet.
 
 ### Stark empfohlen
 
