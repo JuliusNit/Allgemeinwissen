@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js'
 import { parseLevel, type Level } from '../data/school'
 import type { Video } from '../data/plan'
-import { getState, resetAll, setState, useStore } from './store'
+import { getState, resetAll, setState, useStore, wipeAll } from './store'
 
 // Supabase: Konten (E-Mail + Passwort), Rollen (user | editor), Austausch-Chat und die vom Editor
 // gepflegten Videolisten. Adresse + Publishable Key kommen beim Bauen aus der lokalen .env
@@ -119,6 +119,7 @@ async function afterLogin(user: User) {
     ...x,
     owner: user.id,
     onboarded: true,
+    guest: false,
     level: parseLevel(meta.level) ?? x.level,
     profile: p ? { name: p.name, avatar: p.avatar ?? x.profile.avatar } : { ...x.profile, name: x.profile.name || meta.name || '' },
   }))
@@ -171,6 +172,28 @@ export async function signIn(email: string, password: string) {
 
 export async function signOut() {
   await need().auth.signOut()
+  setAuth({ user: null, role: 'user', recovery: false })
+}
+
+/** Ohne Konto gestartet → zurueck zu Registrierung/Anmeldung (Fortschritt bleibt und geht ins Konto ueber) */
+export function askAccount() {
+  setState((s) => ({ ...s, guest: false }))
+}
+
+/** Konto endgueltig loeschen (Edge Function "delete-account"), danach alles Lokale */
+export async function deleteAccount() {
+  const fn = await functionCall('delete-account')
+  if (!fn) throw new Error('Bitte anmelden.')
+  let res: Response
+  try {
+    res = await fetch(fn.url, { method: 'POST', headers: { ...fn.headers, 'Content-Type': 'application/json' }, body: '{}' })
+  } catch {
+    throw new Error('Keine Verbindung zum Server.')
+  }
+  if (res.status === 404) throw new Error('Konto löschen ist auf dem Server noch nicht eingerichtet (Edge Function „delete-account“ fehlt).')
+  if (!res.ok) throw new Error(((await res.json().catch(() => ({}))) as { error?: string }).error ?? `Fehler ${res.status}`)
+  await need().auth.signOut({ scope: 'local' }).catch(() => {})
+  wipeAll()
   setAuth({ user: null, role: 'user', recovery: false })
 }
 
@@ -268,10 +291,11 @@ export async function fetchMessages(channel: string, limit = 150): Promise<Cloud
 }
 
 /** Oeffentlicher Kanal – oder mit `to` Direktnachricht an einen Freund (channel 'dm') */
-export async function postMessage(channel: string, text: string, isKi = false, to?: string): Promise<CloudMsg> {
+// KI-Antworten schreibt nur der Server (Edge Function "ki-chat", lib/ai.ts → channelChatCloud)
+export async function postMessage(channel: string, text: string, to?: string): Promise<CloudMsg> {
   const c = need()
   const uid = await ensureUser()
-  const row = { channel: to ? 'dm' : channel, text: text.slice(0, 4000), is_ki: isKi, user_id: uid, ...(to ? { recipient: to } : {}) }
+  const row = { channel: to ? 'dm' : channel, text: text.slice(0, 4000), user_id: uid, ...(to ? { recipient: to } : {}) }
   const { data, error } = await c.from('messages').insert(row).select().single()
   if (error) throw new Error(`Senden fehlgeschlagen: ${missingSql(error.message) ?? error.message}`)
   return data as CloudMsg
@@ -291,9 +315,65 @@ export async function fetchDirect(me: string, friend: string, limit = 150): Prom
   return ((data ?? []) as CloudMsg[]).reverse()
 }
 
-/** Hinweis, falls supabase/004_freunde.sql noch nicht ausgefuehrt wurde */
+/** Hinweis, falls supabase/004_freunde.sql bzw. 005_melden_blockieren.sql noch nicht ausgefuehrt wurde */
 function missingSql(m: string): string | null {
+  if (/blocks|reports|is_blocked/i.test(m)) return 'Melden und Blockieren sind auf dem Server noch nicht eingerichtet (supabase/005_melden_blockieren.sql ausführen).'
   return /friendships|recipient|are_friends|schema cache/i.test(m) ? 'Freunde sind auf dem Server noch nicht eingerichtet (supabase/004_freunde.sql ausführen).' : null
+}
+
+// ---------- Blockieren + Melden ----------
+
+/** IDs der Konten, die ich blockiert habe (leer, solange 005 fehlt) */
+export async function fetchBlocks(): Promise<string[]> {
+  if (!cloud || !auth.user) return []
+  const { data, error } = await cloud.from('blocks').select('blocked')
+  if (error) return []
+  return ((data ?? []) as { blocked: string }[]).map((r) => r.blocked)
+}
+
+/** Blockieren: Nachrichten verschwinden, Freundschaft endet (Trigger in 005) */
+export async function blockUser(id: string) {
+  const uid = await ensureUser()
+  const { error } = await need().from('blocks').insert({ blocker: uid, blocked: id })
+  if (error && !/duplicate|unique/i.test(error.message)) throw new Error(missingSql(error.message) ?? `Blockieren fehlgeschlagen: ${error.message}`)
+}
+
+export async function unblockUser(id: string) {
+  const { error } = await need().from('blocks').delete().eq('blocker', auth.user?.id ?? '').eq('blocked', id)
+  if (error) throw new Error(`Freigeben fehlgeschlagen: ${error.message}`)
+}
+
+export const REPORT_REASONS = { beleidigung: 'Beleidigung', spam: 'Spam', unangemessen: 'Unangemessen', sonstiges: 'Sonstiges' } as const
+export type ReportReason = keyof typeof REPORT_REASONS
+
+export async function reportMessage(id: number, reason: ReportReason) {
+  await ensureUser()
+  const { error } = await need().from('reports').insert({ message_id: id, reason })
+  if (error && /duplicate|unique/i.test(error.message)) throw new Error('Schon gemeldet.')
+  if (error) throw new Error(missingSql(error.message) ?? `Melden fehlgeschlagen: ${error.message}`)
+}
+
+export interface Report {
+  id: number
+  reporter: string
+  message_id: number | null
+  reported: string | null
+  channel: string | null
+  text: string
+  reason: ReportReason
+  created_at: string
+}
+
+/** Nur der Editor sieht Meldungen (RLS) */
+export async function fetchReports(): Promise<Report[]> {
+  const { data, error } = await need().from('reports').select('*').order('created_at', { ascending: false }).limit(200)
+  if (error) throw new Error(missingSql(error.message) ?? `Meldungen konnten nicht geladen werden: ${error.message}`)
+  return (data ?? []) as Report[]
+}
+
+export async function resolveReport(id: number) {
+  const { error } = await need().from('reports').delete().eq('id', id)
+  if (error) throw new Error(`Erledigen fehlgeschlagen: ${error.message}`)
 }
 
 // ---------- Freunde ----------
@@ -415,12 +495,17 @@ export async function saveDayVideos(day: number, videos: Video[] | null) {
 // ---------- KI ueber den Server ----------
 
 /** Zugang zum KI-Proxy (Edge Function "ki") fuer angemeldete Konten; null ohne Server/Konto */
-export async function kiProxy(): Promise<{ url: string; headers: Record<string, string> } | null> {
+export function kiProxy() {
+  return functionCall('ki')
+}
+
+/** Adresse + Anmelde-Header fuer eine Edge Function; null ohne Server/Konto */
+export async function functionCall(name: string): Promise<{ url: string; headers: Record<string, string> } | null> {
   if (!cloud || !url || !key || !auth.user) return null
   const { data } = await cloud.auth.getSession()
   const token = data.session?.access_token
   if (!token) return null
-  return { url: `${url.replace(/\/$/, '')}/functions/v1/ki`, headers: { Authorization: `Bearer ${token}`, apikey: key } }
+  return { url: `${url.replace(/\/$/, '')}/functions/v1/${name}`, headers: { Authorization: `Bearer ${token}`, apikey: key } }
 }
 
 /** KI nutzbar: eigener Key – oder angemeldet mit Server (dann ueber den Proxy) */

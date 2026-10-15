@@ -1183,7 +1183,7 @@ function Start() {
 
 const SLIDES: ((p: { via: boolean }) => ReactNode)[] = [TwoKinds, Ages, Trainable, Pillar, HowItWorks, Start]
 
-export function Intro({ onRegister, onLogin }: { onRegister: () => void; onLogin: () => void }) {
+export function Intro({ onRegister, onLogin, onGuest }: { onRegister: () => void; onLogin: () => void; onGuest?: () => void }) {
   const [v, setV] = useState({ i: 0, via: false, n: 0 })
   const touch = useRef<number | null>(null)
   const last = v.i === SLIDES.length - 1
@@ -1229,6 +1229,7 @@ export function Intro({ onRegister, onLogin }: { onRegister: () => void; onLogin
         <div className="onb-actions">
           <button className="btn primary wide" onClick={onRegister}>{cloud ? 'Konto anlegen' : 'Loslegen'}</button>
           {cloud && <button className="btn ghost" onClick={onLogin}>Ich habe schon ein Konto</button>}
+          {cloud && onGuest && <button className="btn ghost" onClick={onGuest}>Ohne Konto starten</button>}
         </div>
       ) : (
         <div className="onb-actions row">

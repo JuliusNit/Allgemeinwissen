@@ -5,6 +5,7 @@ import { cloud, useAuth } from './lib/cloud'
 import { useStore } from './lib/store'
 import { Icon, type IconName } from './components/Icons'
 import { HatchDefs } from './components/Ink'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { CommunityView } from './views/CommunityView'
 import { DayView } from './views/DayView'
 import { ExamView } from './views/ExamView'
@@ -63,6 +64,7 @@ export default function App() {
   const [route, setRoute] = useState<Route>(parseHash)
   const due = useStore((s) => dueCards(s.cards).length)
   const hasLevel = useStore((s) => !!s.level)
+  const guest = useStore((s) => !!s.guest)
   const auth = useAuth()
 
   useEffect(() => {
@@ -83,13 +85,15 @@ export default function App() {
     location.hash = hash
   }
 
-  // Erst Einfuehrung + Konto (mit Server) bzw. Wissensstand (ohne Server)
+  // Erst Einfuehrung + Konto (mit Server, ausser "Ohne Konto starten") bzw. Wissensstand
   if (!auth.ready) return <div className="app"><HatchDefs /></div>
-  if ((cloud && (!auth.user || auth.recovery)) || !hasLevel) {
+  if ((cloud && (auth.recovery || (!auth.user && !guest))) || !hasLevel) {
     return (
       <div className="app onboarding">
         <HatchDefs />
-        <Onboarding />
+        <ErrorBoundary>
+          <Onboarding />
+        </ErrorBoundary>
       </div>
     )
   }
@@ -98,6 +102,7 @@ export default function App() {
     <div className={`app tab-${route.tab}`}>
       <HatchDefs />
       <main>
+        <ErrorBoundary resetKey={location.hash}>
         {route.tab === 'home' &&
           (route.topic ? (
             <TopicView key={route.topic} day={route.topic} go={go} />
@@ -158,6 +163,7 @@ export default function App() {
         {route.tab === 'stats' && <StatsView area={route.area} day={route.day} go={go} />}
         {route.tab === 'profil' && <ProfileView />}
         {route.tab === 'exam' && <ExamView day={route.day} go={go} />}
+        </ErrorBoundary>
       </main>
       <nav className="bottom">
         {NAV.map((n) => {

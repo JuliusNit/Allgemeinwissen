@@ -2,7 +2,7 @@ import { AREAS, BLOCKS, DAYS, getDay, isBlockMix, type AreaId, type Day } from '
 import { FAECHER, fach, topicsUpTo, type Fach, type FachId } from '../data/lehrplan'
 import { blockName, DAY_FACH, isRepeat, knownUpTo, levelLabel, SCHOOL_GRADE } from '../data/school'
 import type { BasisNode } from './path'
-import { kiProxy } from './cloud'
+import { functionCall, kiProxy, type CloudMsg } from './cloud'
 import { dayDone, DONE_MARKER, likesTable, statsTable } from './stats'
 import { dayState, examState, getState, videoNotesText, videosOf, type ChatMsg } from './store'
 
@@ -75,6 +75,11 @@ async function streamChat(system: string, messages: ChatMsg[], onText: (t: strin
   const res = await post(
     body([{ role: 'system', content: system }, ...messages.map((m) => ({ role: m.role, content: m.content }))], maxTokens, { stream: true }),
   )
+  return readStream(res, onText)
+}
+
+/** SSE-Stream lesen; Ereignisse ohne `choices` (z. B. von ki-chat) gehen an onEvent */
+async function readStream(res: Response, onText: (t: string) => void, onEvent?: (e: Record<string, unknown>) => void): Promise<string> {
   if (!res.body) throw new ApiError('Leere Antwort vom Server.')
   const reader = res.body.getReader()
   const dec = new TextDecoder()
@@ -94,6 +99,7 @@ async function streamChat(system: string, messages: ChatMsg[], onText: (t: strin
       if (data === '[DONE]') continue
       try {
         const j = JSON.parse(data)
+        if (!j.choices && onEvent) onEvent(j)
         const ch = j.choices?.[0]
         if (ch?.delta?.content) {
           acc += ch.delta.content
@@ -452,6 +458,36 @@ Antworte wie in einem Chat: kurz (max. 6 Zeilen), locker, sachlich korrekt. Verw
 ${DAYS.filter((d) => !area || d.area === area).map((d) => `- ${d.title}`).join('\n')}`
   const msgs: ChatMsg[] = history.slice(-20).map((m) => ({ role: m.author === 'ich' ? 'user' : 'assistant', content: m.text }))
   return streamChat(system, msgs, onText, 1500)
+}
+
+/** Mit Server: Antwort schreibt die Edge Function "ki-chat" (liest den Verlauf selbst, speichert als KI) */
+export async function channelChatCloud(area: AreaId | null, channel: string, to: string | undefined, onText: (t: string) => void): Promise<CloudMsg> {
+  const fn = await functionCall('ki-chat')
+  if (!fn) throw new ApiError('Für die KI bitte anmelden.')
+  const titles = DAYS.filter((d) => !area || d.area === area).map((d) => d.title)
+  let res: Response
+  try {
+    res = await fetch(fn.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...fn.headers },
+      body: JSON.stringify({ channel, to, topic: area ? AREAS[area].name : '', titles }),
+    })
+  } catch {
+    throw new ApiError('Keine Verbindung zum KI-Server.')
+  }
+  if (res.status === 404) throw new ApiError('KI im Austausch ist auf dem Server noch nicht eingerichtet (Edge Function „ki-chat“ fehlt).', 404)
+  if (!res.ok) throw new ApiError(((await res.json().catch(() => ({}))) as { error?: string }).error ?? `KI-Fehler ${res.status}`, res.status)
+  let saved = null as CloudMsg | null
+  let failed = ''
+  await readStream(res, onText, (e) => {
+    if (e.saved) saved = e.saved as CloudMsg
+    if (typeof e.error === 'string') failed = e.error
+  }).catch((e) => {
+    if (!failed) throw e
+  })
+  if (failed) throw new ApiError(failed)
+  if (!saved) throw new ApiError('Antwort konnte nicht gespeichert werden.')
+  return saved
 }
 
 export function describeError(e: unknown): string {

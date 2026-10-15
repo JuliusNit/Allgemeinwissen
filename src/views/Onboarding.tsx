@@ -1,37 +1,47 @@
 import { useState, type ReactNode } from 'react'
 import { GRADES, levelLabel, repeatDays, type Level } from '../data/school'
-import { cloud, resendConfirmation, saveLevel, sendReset, setNewPassword, signIn, signUp, useAuth } from '../lib/cloud'
+import { askAccount, cloud, resendConfirmation, saveLevel, sendReset, setNewPassword, signIn, signUp, useAuth } from '../lib/cloud'
 import { setState, useStore } from '../lib/store'
 import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
 import { Intro } from './Intro'
 
 // Erster Start: Einfuehrung (fluide vs. kristalline Intelligenz) → Konto anlegen bzw. anmelden.
-// Ohne Server (keine .env) nur Name + Wissensstand, alles lokal.
+// Ohne Server (keine .env) nur Name + Wissensstand, alles lokal. Mit Server geht "Ohne Konto starten" genauso
+// (State.guest); ein Konto braucht es erst fuer KI und Austausch.
 
 type Step = 'slides' | 'register' | 'login' | 'forgot' | 'sent'
 
 export function Onboarding() {
   const auth = useAuth()
   const onboarded = useStore((s) => !!s.onboarded)
+  const guest = useStore((s) => !!s.guest)
   const [step, setStep] = useState<Step>(onboarded ? 'login' : 'slides')
   const [mail, setMail] = useState('')
 
   if (auth.recovery) return <Shell><NewPassword /></Shell>
   if (auth.user) return <Shell><LevelOnly /></Shell>
+  if (guest) return <Shell><LocalStart /></Shell>
 
   const toForms = (s: Step) => {
     setState((x) => ({ ...x, onboarded: true }))
     setStep(s)
   }
+  const startGuest = () => {
+    setState((x) => ({ ...x, onboarded: true, guest: true }))
+    setStep('register')
+  }
 
-  if (step === 'slides') return <Intro onRegister={() => toForms('register')} onLogin={() => toForms('login')} />
+  if (step === 'slides') return <Intro onRegister={() => toForms('register')} onLogin={() => toForms('login')} onGuest={startGuest} />
   return (
     <Shell>
       {step === 'register' && (cloud ? <Register onDone={(m) => { setMail(m); setStep('sent') }} onLogin={() => setStep('login')} /> : <LocalStart />)}
       {step === 'login' && (cloud ? <Login onRegister={() => setStep('register')} onForgot={(m) => { setMail(m); setStep('forgot') }} /> : <LocalStart />)}
       {step === 'forgot' && <Forgot initial={mail} back={() => setStep('login')} />}
       {step === 'sent' && <Sent mail={mail} onLogin={() => setStep('login')} />}
+      {cloud && (step === 'register' || step === 'login') && (
+        <button className="btn ghost small center" onClick={startGuest}>Ohne Konto starten</button>
+      )}
       {step !== 'register' && step !== 'sent' && (
         <button className="btn ghost small center" onClick={() => setStep('slides')}>Einführung ansehen</button>
       )}
@@ -333,7 +343,7 @@ function LevelOnly() {
   )
 }
 
-/** Ohne Server: nur Name + Wissensstand, alles bleibt auf dem Geraet */
+/** Ohne Server oder ohne Konto: nur Name + Wissensstand, alles bleibt auf dem Geraet */
 function LocalStart() {
   const storedName = useStore((s) => s.profile.name)
   const storedLevel = useStore((s) => s.level)
@@ -342,7 +352,7 @@ function LocalStart() {
   return (
     <Frame className="card onb-form">
       <h1>Los geht's</h1>
-      <p className="notice small">Kein Server eingerichtet – Konto nicht möglich, alles bleibt auf diesem Gerät.</p>
+      {!cloud && <p className="notice small">Kein Server eingerichtet – Konto nicht möglich, alles bleibt auf diesem Gerät.</p>}
       <label>Name</label>
       <input value={name} onChange={(e) => setName(e.target.value)} maxLength={40} />
       <h2 className="spaced">Dein Wissensstand</h2>
@@ -350,6 +360,7 @@ function LocalStart() {
       <button className="btn primary wide spaced" disabled={!level || !name.trim()} onClick={() => setState((s) => ({ ...s, level, profile: { ...s.profile, name: name.trim() } }))}>
         Starten{level ? ` · ${levelLabel(level)}` : ''}
       </button>
+      {cloud && <button className="btn ghost small center" onClick={askAccount}>Doch mit Konto</button>}
     </Frame>
   )
 }

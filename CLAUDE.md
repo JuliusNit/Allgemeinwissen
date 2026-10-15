@@ -91,7 +91,8 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Übergänge nur mit „Weiter“, nicht zurück/über die Punkte.
 - `src/views/Onboarding.tsx` – erster Start: Einführung (`Intro`), dann Konto anlegen
   (E-Mail, Name, Passwort mit Stärke-Skala – Pflicht nur 8+ Zeichen, sonst rote Meldung über „Registrieren“ – + Wiederholung) und Wissensstand.
-  Ohne Supabase nur Name + Wissensstand lokal.
+  Ohne Supabase nur Name + Wissensstand lokal. Mit Supabase auch „Ohne Konto starten“ (`guest` im Zustand, Name + Wissensstand lokal);
+  Konto erst für KI und Austausch (`AccountButton` in `components/NeedAccount.tsx` → `askAccount`, Fortschritt geht ins Konto über).
 - `src/data/school.ts` – Wissensstand (Schule + Klasse / Studium / Ausbildung-Beruf), `SCHOOL_GRADE` (Jahrgangsstufe je Tag nach
   bayerischem LehrplanPLUS, Gymnasium G9) und `DAY_FACH` (Schulfach je Schulstoff-Tag). `src/data/lehrplan.ts` – Lernbereiche
   je Fach und Jgst. 5–13 aus lehrplanplus.bayern.de (gekürzt), Grundlage für Grundcheck und Stationsseite. Studium/Beruf: aller Schulstoff = Wiederholungstag; Schule Kl. G: Stoff < G.
@@ -100,7 +101,13 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Videolisten (✎, ★, + Video, „anderes Video“) – gespeichert in `day_videos` für alle; darf außerdem jede Chat-Nachricht löschen.
 - Austausch: Kanäle ohne „#“ (IDs bleiben Slugs), Freunde (Suche nach Name, Anfrage → annehmen) + Direktnachrichten
   (`messages.channel = 'dm'` + `recipient`, nur unter Freunden lesbar/schreibbar) – `supabase/004_freunde.sql`.
-  Routen `#/chat/freunde`, `#/chat/dm-<konto-id>`.
+  Routen `#/chat/freunde`, `#/chat/dm-<konto-id>`. Melden + Blockieren (`supabase/005_melden_blockieren.sql`): „…“ an fremden
+  Nachrichten → Melden (Grund) / Blockieren (Nachrichten ausgeblendet per RLS, Freundschaft endet); Liste „Blockiert“ unter Freunde;
+  Meldungen sieht nur der Editor (`#/chat/meldungen`). `is_ki = true` dürfen Nutzer nicht schreiben – KI-Antworten im Austausch
+  schreibt die Edge Function `ki-chat` (liest Verlauf selbst, streamt, speichert); ohne Server bleibt der Chat lokal wie bisher.
+- Konto löschen (Profil → Konto, E-Mail eintippen): Edge Function `delete-account` löscht `auth.users` → Kaskade, danach `wipeAll()`.
+  Edge Functions teilen CORS/Kontoprüfung über `supabase/functions/_shared/auth.ts`.
+- `src/components/ErrorBoundary.tsx` – um Onboarding und alle Views (`resetKey` = Hash, Routenwechsel versucht neu), Knopf „Neu laden“.
 - `src/lib/cloud.ts` + `supabase/schema.sql` + `supabase/002_konten_rollen.sql` – Konten (E-Mail/Passwort, implicit flow – Bestätigungslink meldet auch in anderem Browser an; Site URL = Pages-Adresse),
   Austausch-Chat (RLS, Realtime), Editor-Inhalte. Name/Wissensstand liegen in den user_metadata, Fortschritt bleibt lokal.
   Konfiguration beim Bauen aus der lokalen `.env` (gitignored): `VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY` (Publishable Key).

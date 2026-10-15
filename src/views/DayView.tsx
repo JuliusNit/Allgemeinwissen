@@ -17,6 +17,7 @@ import { Markdown } from '../components/Markdown'
 import { CoinBadge } from '../components/Coin'
 import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
+import { AccountButton } from '../components/NeedAccount'
 
 type Tab = 'fragen' | 'check' | 'zusammenfassung'
 
@@ -157,7 +158,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
       {repeat && ds.status !== 'fertig' && (
         <div className="notice">Kennst du aus der Schule. Die Videos sind nur zum Auffrischen – du kannst direkt mit Anknüpfen und Verständnischeck starten. Der Check sucht Lücken und verknüpft den Stoff mit Neuem.</div>
       )}
-      {!hasKey && <div className="notice">Für Anknüpfen, Fragen und Verständnischeck bitte anmelden – oder unter <b>Profil → KI</b> einen eigenen Key eintragen.</div>}
+      {!hasKey && <div className="notice">Für Anknüpfen, Fragen und Verständnischeck bitte anmelden – oder unter <b>Profil → KI</b> einen eigenen Key eintragen. <AccountButton /></div>}
       {error && <div className="chat-error">{error}</div>}
 
       <Frame className="card">
@@ -323,7 +324,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
         {tab === 'check' && (
           <>
             {(ds.check?.length ?? 0) === 0 && !hasKey ? (
-              <p className="muted">KI nicht verfügbar – bitte anmelden.</p>
+              <p className="muted">KI nicht verfügbar – bitte anmelden. <AccountButton /></p>
             ) : (
               <Chat
                 key={`c-${day}-${checkGen}`}

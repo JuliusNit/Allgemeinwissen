@@ -1,5 +1,11 @@
-# Nur fuer "npx supabase functions deploy". Das Konto wird in der Funktion selbst geprueft.
+# Nur fuer "npx supabase functions deploy". Das Konto wird in den Funktionen selbst geprueft.
 project_id = "allgemeinwissen"
 
 [functions.ki]
+verify_jwt = false
+
+[functions.ki-chat]
+verify_jwt = false
+
+[functions.delete-account]
 verify_jwt = false

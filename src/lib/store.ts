@@ -118,6 +118,8 @@ export interface State {
   onboarded?: boolean
   /** Konto, dem der Fortschritt auf diesem Gerät gehört */
   owner?: string
+  /** Mit Server, aber ohne Konto gestartet: Lernpfad lokal, Konto erst für KI und Austausch */
+  guest?: boolean
   /** Videolisten vom Editor (Supabase), Tag → Videos; lokal zwischengespeichert für offline */
   content: Record<number, Video[]>
 }
@@ -290,5 +292,10 @@ export function importJson(text: string) {
 }
 
 export function resetAll() {
-  setState((s) => ({ ...initial, settings: s.settings, profile: s.profile, level: s.level, onboarded: s.onboarded, owner: s.owner, content: s.content }))
+  setState((s) => ({ ...initial, settings: s.settings, profile: s.profile, level: s.level, onboarded: s.onboarded, owner: s.owner, guest: s.guest, content: s.content }))
+}
+
+/** Nach dem Löschen des Kontos: alles Persönliche weg, nur Einstellungen und die öffentlichen Videolisten bleiben */
+export function wipeAll() {
+  setState((s) => ({ ...initial, settings: { ...s.settings, apiKey: DEV_KEY }, onboarded: s.onboarded, content: s.content }))
 }

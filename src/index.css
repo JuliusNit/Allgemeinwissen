@@ -649,3 +649,13 @@ body.sheet-full-on { overflow: hidden; }
   .sheet-full { position: static; overflow: visible; }
   .sheet-page { max-width: none; padding: 0; }
 }
+
+/* Melden / Blockieren / Absturz / Konto loeschen */
+.cmsg-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
+.cmsg-actions .chat-error { flex-basis: 100%; }
+.card.report { padding: 12px 14px; margin-bottom: 10px; }
+.card.report p { margin: 6px 0 10px; overflow-wrap: anywhere; }
+.crash { margin: 24px auto; max-width: 460px; }
+.crash-icon { display: flex; justify-content: center; }
+.crash-msg { overflow-wrap: anywhere; }
+.danger-box { margin-top: 14px; margin-bottom: 0; }

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { AREAS, type AreaId } from '../data/plan'
-import { channelChat, describeError } from '../lib/ai'
+import { channelChat, channelChatCloud, describeError } from '../lib/ai'
 import {
-  acceptFriend, cloud, deleteMessage, ensureUser, fetchDirect, fetchFriendships, fetchMessages, loadProfiles, postMessage,
-  removeFriend, requestFriend, searchProfiles, subscribe, subscribeFriends, useAuth, type CloudMsg, type CloudProfile, type Friendship,
+  acceptFriend, blockUser, cloud, deleteMessage, ensureUser, fetchBlocks, fetchDirect, fetchFriendships, fetchMessages, fetchReports, loadProfiles,
+  postMessage, removeFriend, reportMessage, REPORT_REASONS, requestFriend, resolveReport, searchProfiles, subscribe, subscribeFriends, unblockUser,
+  useAuth, type CloudMsg, type CloudProfile, type Friendship, type Report, type ReportReason,
 } from '../lib/cloud'
 import { STAT_AREAS } from '../lib/stats'
 import { setState, useStore, type CommunityMsg } from '../lib/store'
@@ -11,10 +12,12 @@ import { Avatar } from '../components/Avatar'
 import { Icon, type IconName } from '../components/Icons'
 import { Frame } from '../components/Ink'
 import { Markdown } from '../components/Markdown'
+import { AccountButton } from '../components/NeedAccount'
 
 // Austausch: ein Kanal pro Ueberthema, dazu Freunde mit Direktnachrichten (nur mit Server/Konto).
 // Mit Supabase (lib/cloud) geteilt und live, sonst nur auf diesem Geraet. @KI antwortet im Chat.
-// Routen: #/chat/<kanal>, #/chat/freunde, #/chat/dm-<konto-id>
+// Fremde Nachrichten lassen sich melden (Editor sieht sie unter #/chat/meldungen) und ihre Absender blockieren.
+// Routen: #/chat/<kanal>, #/chat/freunde, #/chat/dm-<konto-id>, #/chat/meldungen
 
 interface Channel {
   id: string
@@ -31,6 +34,8 @@ interface ViewMsg {
   mine: boolean
   at: number
   text: string
+  /** nur mit Server: Absender (bei KI der Fragende) */
+  userId?: string
 }
 
 type Names = Map<string, CloudProfile>
@@ -51,21 +56,29 @@ const time = (ms: number) => new Date(ms).toLocaleString('de-DE', { day: '2-digi
 export function CommunityView({ channel, go }: { channel?: string; go: (hash: string) => void }) {
   const auth = useAuth()
   const me = cloud ? auth.user?.id ?? null : null
+  const editor = !!me && auth.role === 'editor'
   const fr = useFriends(me)
+  const bl = useBlocks(me)
   const ch = CHANNELS.find((c) => c.id === channel)
   const dmId = channel?.startsWith('dm-') ? channel.slice(3) : null
-  const open = !!ch || channel === 'freunde' || !!dmId
+  const open = !!ch || channel === 'freunde' || !!dmId || channel === 'meldungen'
   const incoming = fr.rows.filter((f) => f.status === 'pending' && f.addressee === me).length
+  const block = async (id: string) => {
+    await blockUser(id)
+    await Promise.all([bl.reload(), fr.reload()])
+  }
 
   let main: ReactNode = <div className="channel-empty muted">Kanal oder Freund wählen</div>
-  if (ch) main = cloud ? <CloudChat key={ch.id} title={ch.name} area={ch.area} channel={ch.id} go={go} /> : <LocalChannel key={ch.id} ch={ch} go={go} />
-  else if (channel === 'freunde') main = me ? <FriendsPane me={me} fr={fr} go={go} /> : <NeedServer go={go} />
+  if (cloud && !me && open) main = <NeedAccount go={go} />
+  else if (ch) main = cloud ? <CloudChat key={ch.id} title={ch.name} area={ch.area} channel={ch.id} blocked={bl.ids} onBlock={block} editor={editor} go={go} /> : <LocalChannel key={ch.id} ch={ch} go={go} />
+  else if (channel === 'freunde') main = me ? <FriendsPane me={me} fr={fr} bl={bl} go={go} /> : <NeedServer go={go} />
+  else if (channel === 'meldungen' && editor) main = <ReportsPane go={go} />
   else if (dmId) {
     const p = fr.names.get(dmId)
     main = !me ? (
       <NeedServer go={go} />
     ) : fr.friends.includes(dmId) ? (
-      <CloudChat key={dmId} title={p?.name ?? '…'} avatar={p?.avatar ?? undefined} area={null} channel="dm" to={dmId} go={go} />
+      <CloudChat key={dmId} title={p?.name ?? '…'} avatar={p?.avatar ?? undefined} area={null} channel="dm" to={dmId} blocked={bl.ids} onBlock={block} editor={editor} go={go} />
     ) : (
       <section className="channel">
         <ChatHead go={go}>Direktnachricht</ChatHead>
@@ -112,6 +125,19 @@ export function CommunityView({ channel, go }: { channel?: string; go: (hash: st
                 )
               })}
             </ul>
+            {editor && (
+              <>
+                <h2 className="side-head">Editor</h2>
+                <ul>
+                  <li>
+                    <button className={channel === 'meldungen' ? 'active' : ''} onClick={() => go('/chat/meldungen')}>
+                      <Icon name="CHAT" size={18} />
+                      Meldungen
+                    </button>
+                  </li>
+                </ul>
+              </>
+            )}
           </>
         )}
         <p className="muted small">
@@ -131,6 +157,37 @@ function NeedServer({ go }: { go: (hash: string) => void }) {
       <p className="muted">Freunde gibt es nur mit Konto auf dem App-Server.</p>
     </section>
   )
+}
+
+/** Mit Server, aber ohne Konto gestartet */
+function NeedAccount({ go }: { go: (hash: string) => void }) {
+  return (
+    <section className="channel">
+      <ChatHead go={go}>Austausch</ChatHead>
+      <Frame className="card empty">
+        <p>Für den Austausch brauchst du ein Konto.</p>
+        <AccountButton className="btn primary" />
+      </Frame>
+    </section>
+  )
+}
+
+// ---------- Blockieren ----------
+
+interface BlocksState {
+  ids: string[]
+  reload: () => Promise<void>
+}
+
+function useBlocks(me: string | null): BlocksState {
+  const [ids, setIds] = useState<string[]>([])
+  const reload = useCallback(async () => {
+    if (me) setIds(await fetchBlocks())
+  }, [me])
+  useEffect(() => {
+    void reload()
+  }, [reload])
+  return { ids, reload }
 }
 
 // ---------- Freunde ----------
@@ -183,7 +240,11 @@ function useFriends(me: string | null): FriendsState {
   return { rows, names, friends, loaded, error, reload }
 }
 
-function FriendsPane({ me, fr, go }: { me: string; fr: FriendsState; go: (hash: string) => void }) {
+function FriendsPane({ me, fr, bl, go }: { me: string; fr: FriendsState; bl: BlocksState; go: (hash: string) => void }) {
+  const [blockedNames, setBlockedNames] = useState<Names>(new Map())
+  useEffect(() => {
+    void loadProfiles(bl.ids).then((p) => setBlockedNames(new Map(p)))
+  }, [bl.ids])
   const [q, setQ] = useState('')
   const [hits, setHits] = useState<CloudProfile[]>([])
   const [searching, setSearching] = useState(false)
@@ -247,7 +308,7 @@ function FriendsPane({ me, fr, go }: { me: string; fr: FriendsState; go: (hash: 
           <input type="search" value={q} placeholder="Name suchen …" onChange={(e) => setQ(e.target.value)} />
           {q.trim().length >= 2 && !searching && hits.length === 0 && <p className="muted small">Niemand gefunden.</p>}
           <ul className="friend-list">
-            {hits.map((h) => {
+            {hits.filter((h) => !bl.ids.includes(h.id)).map((h) => {
               const r = relation(h.id)
               const actions = !r ? (
                 <button className="btn small" disabled={busy} onClick={() => void act(() => requestFriend(h.id))}>Hinzufügen</button>
@@ -307,6 +368,91 @@ function FriendsPane({ me, fr, go }: { me: string; fr: FriendsState; go: (hash: 
             })}
           </ul>
         </div>
+
+        {bl.ids.length > 0 && (
+          <div>
+            <h3>Blockiert</h3>
+            <ul className="friend-list">
+              {bl.ids.map((id) => {
+                const p = blockedNames.get(id)
+                return (
+                  <li key={id} className="friend-row">
+                    <Avatar src={p?.avatar ?? undefined} name={p?.name ?? '?'} size={34} />
+                    <b>{p?.name ?? '…'}</b>
+                    <span className="friend-actions">
+                      <button className="btn ghost small" disabled={busy} onClick={() => void act(async () => { await unblockUser(id); await bl.reload() })}>Freigeben</button>
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+// ---------- Meldungen (nur Editor) ----------
+
+function ReportsPane({ go }: { go: (hash: string) => void }) {
+  const [list, setList] = useState<Report[] | null>(null)
+  const [names, setNames] = useState<Names>(new Map())
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  const load = useCallback(async () => {
+    try {
+      const r = await fetchReports()
+      const p = await loadProfiles(r.flatMap((x) => [x.reporter, x.reported ?? '']).filter(Boolean))
+      setList(r)
+      setNames(new Map(p))
+      setError(null)
+    } catch (e) {
+      setError(describeError(e))
+    }
+  }, [])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  async function act(fn: () => Promise<void>) {
+    setBusy(true)
+    try {
+      await fn()
+      await load()
+    } catch (e) {
+      setError(describeError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const name = (id: string | null) => (id ? names.get(id)?.name ?? '…' : 'gelöschtes Konto')
+  const where = (c: string | null) => (c === 'dm' ? 'Direktnachricht' : CHANNELS.find((x) => x.id === c)?.name ?? c ?? '')
+
+  return (
+    <section className="channel">
+      <ChatHead go={go}><b>Meldungen</b></ChatHead>
+      <div className="channel-log">
+        {error && <div className="chat-error">{error}</div>}
+        {list === null && !error && <p className="muted small">lade …</p>}
+        {list?.length === 0 && <p className="muted small">Keine offenen Meldungen.</p>}
+        {list?.map((r) => (
+          <Frame key={r.id} className="card report" r={12}>
+            <div className="cmsg-meta">
+              <b>{REPORT_REASONS[r.reason] ?? r.reason}</b> <span className="muted small">{time(Date.parse(r.created_at))} · {where(r.channel)} · von {name(r.reporter)}</span>
+            </div>
+            <p><b>{name(r.reported)}:</b> {r.text}</p>
+            <div className="row">
+              {r.message_id != null && (
+                <button className="btn danger small" disabled={busy} onClick={() => confirm('Nachricht löschen?') && void act(async () => { await deleteMessage(r.message_id!); await resolveReport(r.id) })}>Nachricht löschen</button>
+              )}
+              <button className="btn small" disabled={busy} onClick={() => void act(() => resolveReport(r.id))}>Erledigt</button>
+            </div>
+          </Frame>
+        ))}
       </div>
     </section>
   )
@@ -337,7 +483,7 @@ function LocalChannel({ ch, go }: { ch: Channel; go: (hash: string) => void }) {
       go={go}
       msgs={msgs}
       onSend={async (t) => add('ich', t)}
-      onKi={async (t) => add('ki', t)}
+      askKi={async (history, onText) => add('ki', await channelChat(ch.area, history, onText))}
       onDelete={(id) => setState((s) => ({ ...s, community: s.community.filter((m) => m.id !== id) }))}
     />
   )
@@ -346,7 +492,19 @@ function LocalChannel({ ch, go }: { ch: Channel; go: (hash: string) => void }) {
 // ---------- Supabase ----------
 
 /** Kanal – oder mit `to` Direktnachrichten mit einem Freund */
-function CloudChat({ title, avatar, area, channel, to, go }: { title: string; avatar?: string; area: AreaId | null; channel: string; to?: string; go: (hash: string) => void }) {
+function CloudChat({
+  title, avatar, area, channel, to, blocked, onBlock, editor, go,
+}: {
+  title: string
+  avatar?: string
+  area: AreaId | null
+  channel: string
+  to?: string
+  blocked: string[]
+  onBlock: (id: string) => Promise<void>
+  editor: boolean
+  go: (hash: string) => void
+}) {
   const [raw, setRaw] = useState<CloudMsg[]>([])
   const [names, setNames] = useState<Names>(new Map())
   const [me, setMe] = useState<string | null>(null)
@@ -396,7 +554,7 @@ function CloudChat({ title, avatar, area, channel, to, go }: { title: string; av
     }
   }, [channel, to])
 
-  const msgs: ViewMsg[] = raw.map((m) => {
+  const msgs: ViewMsg[] = raw.filter((m) => !blocked.includes(m.user_id)).map((m) => {
     const mine = m.user_id === me
     const p = names.get(m.user_id)
     const name = mine ? profile.name || 'Ich' : p?.name ?? '…'
@@ -408,13 +566,12 @@ function CloudChat({ title, avatar, area, channel, to, go }: { title: string; av
       mine,
       at: Date.parse(m.created_at),
       text: m.text,
+      userId: m.user_id,
     }
   })
 
-  const insert = async (t: string, ki: boolean) => {
-    const m = await postMessage(channel, t, ki, to)
-    setRaw((r) => (r.some((x) => x.id === m.id) ? r : [...r, m]))
-  }
+  const add = (m: CloudMsg) => setRaw((r) => (r.some((x) => x.id === m.id) ? r : [...r, m]))
+  const remove = (id: string) => void deleteMessage(Number(id)).then(() => setRaw((r) => r.filter((x) => String(x.id) !== id)), (e) => setStatus(describeError(e)))
 
   return (
     <ChannelPane
@@ -424,9 +581,14 @@ function CloudChat({ title, avatar, area, channel, to, go }: { title: string; av
       go={go}
       msgs={msgs}
       status={status}
-      onSend={(t) => insert(t, false)}
-      onKi={(t) => insert(t, true)}
-      onDelete={(id) => void deleteMessage(Number(id)).catch((e) => setStatus(describeError(e)))}
+      onSend={async (t) => add(await postMessage(channel, t, to))}
+      askKi={async (_, onText) => add(await channelChatCloud(area, channel, to, onText))}
+      onDelete={remove}
+      moderation={{
+        report: (id, reason) => reportMessage(Number(id), reason),
+        block: (m) => onBlock(m.userId!),
+        remove: editor ? remove : undefined,
+      }}
     />
   )
 }
@@ -442,8 +604,15 @@ function ChatHead({ go, children }: { go: (hash: string) => void; children: Reac
   )
 }
 
+/** Melden, Blockieren, Loeschen durch den Editor (nur mit Server) */
+interface Moderation {
+  report: (id: string, reason: ReportReason) => Promise<void>
+  block: (m: ViewMsg) => Promise<void>
+  remove?: (id: string) => void
+}
+
 function ChannelPane({
-  title, avatar, area, go, msgs, status, onSend, onKi, onDelete,
+  title, avatar, area, go, msgs, status, onSend, askKi, onDelete, moderation,
 }: {
   title: string
   /** gesetzt (auch leer) = Direktnachricht: Bild statt Bereichs-Symbol */
@@ -453,8 +622,10 @@ function ChannelPane({
   msgs: ViewMsg[]
   status?: string | null
   onSend: (t: string) => Promise<void>
-  onKi: (t: string) => Promise<void>
+  /** KI-Antwort erzeugen und ablegen (lokal im Geraet, mit Server ueber die Edge Function) */
+  askKi: (history: { author: 'ich' | 'ki'; text: string }[], onText: (t: string) => void) => Promise<void>
   onDelete: (id: string) => void
+  moderation?: Moderation
 }) {
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState<string | null>(null)
@@ -483,8 +654,7 @@ function ChannelPane({
     setStreaming('')
     try {
       const history = [...msgs, { ki: false, text: t }].map((m) => ({ author: m.ki ? ('ki' as const) : ('ich' as const), text: m.text }))
-      const reply = await channelChat(area, history, (x) => setStreaming(x))
-      await onKi(reply)
+      await askKi(history, (x) => setStreaming(x))
     } catch (e) {
       setError(describeError(e))
     } finally {
@@ -504,7 +674,12 @@ function ChannelPane({
           <p className="muted small">{dm ? `Noch keine Nachrichten mit ${title}.` : `Noch keine Nachrichten in „${title}“.`} Schreib etwas – oder frag mit @KI.</p>
         )}
         {msgs.map((m) => (
-          <Message key={m.id} m={m} onDelete={m.mine ? () => confirm('Nachricht löschen?') && onDelete(m.id) : undefined} />
+          <Message
+            key={m.id}
+            m={m}
+            onDelete={m.mine ? () => confirm('Nachricht löschen?') && onDelete(m.id) : undefined}
+            moderation={!m.mine && m.userId ? moderation : undefined}
+          />
         ))}
         {streaming !== null && <Message m={{ id: 'stream', who: 'KI', ki: true, mine: false, at: 0, text: streaming || '…' }} />}
         {error && <div className="chat-error">{error}</div>}
@@ -528,7 +703,26 @@ function ChannelPane({
   )
 }
 
-function Message({ m, onDelete }: { m: ViewMsg; onDelete?: () => void }) {
+function Message({ m, onDelete, moderation }: { m: ViewMsg; onDelete?: () => void; moderation?: Moderation }) {
+  const [menu, setMenu] = useState<'zu' | 'auf' | 'melden' | 'gemeldet'>('zu')
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  async function run(fn: () => Promise<void>, next: typeof menu) {
+    setBusy(true)
+    setError(null)
+    try {
+      await fn()
+      setMenu(next)
+    } catch (e) {
+      setError(describeError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const person = m.ki ? m.who.replace(/^KI · für /, '') : m.who
+
   return (
     <div className="cmsg">
       <Avatar src={m.avatar} name={m.who} size={38} ki={m.ki} />
@@ -536,8 +730,37 @@ function Message({ m, onDelete }: { m: ViewMsg; onDelete?: () => void }) {
         <div className="cmsg-meta">
           <b>{m.who}</b> {m.at > 0 && <span className="muted small">{time(m.at)}</span>}
           {onDelete && <button className="btn ghost small cmsg-del" onClick={onDelete}>löschen</button>}
+          {moderation && (
+            <button className="btn ghost small cmsg-del" aria-expanded={menu !== 'zu'} onClick={() => setMenu(menu === 'zu' ? 'auf' : 'zu')}>
+              {menu === 'zu' ? '…' : 'schließen'}
+            </button>
+          )}
         </div>
         {m.ki ? <Markdown text={m.text} /> : <p>{m.text}</p>}
+        {moderation && menu !== 'zu' && (
+          <div className="cmsg-actions">
+            {menu === 'auf' && (
+              <>
+                <button className="btn small" onClick={() => setMenu('melden')}>Melden</button>
+                <button className="btn small" disabled={busy} onClick={() => confirm(`${person} blockieren? Du siehst dann keine Nachrichten mehr von ${person}.`) && void run(() => moderation.block(m), 'zu')}>
+                  {person} blockieren
+                </button>
+                {moderation.remove && <button className="btn danger small" onClick={() => confirm('Nachricht löschen?') && moderation.remove!(m.id)}>löschen</button>}
+              </>
+            )}
+            {menu === 'melden' &&
+              (Object.keys(REPORT_REASONS) as ReportReason[]).map((r) => (
+                <button key={r} className="btn small" disabled={busy} onClick={() => void run(() => moderation.report(m.id, r), 'gemeldet')}>{REPORT_REASONS[r]}</button>
+              ))}
+            {menu === 'gemeldet' && (
+              <>
+                <span className="small">Gemeldet ✓</span>
+                <button className="btn small" disabled={busy} onClick={() => confirm(`${person} blockieren?`) && void run(() => moderation.block(m), 'zu')}>{person} blockieren</button>
+              </>
+            )}
+            {error && <div className="chat-error">{error}</div>}
+          </div>
+        )}
       </div>
     </div>
   )

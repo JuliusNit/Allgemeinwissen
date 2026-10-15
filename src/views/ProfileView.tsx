@@ -4,13 +4,14 @@ import { adviseFocus, describeError } from '../lib/ai'
 import { areaStats, dayDone, STAT_AREAS } from '../lib/stats'
 import { pathDays } from '../lib/path'
 import { AfterNinety } from '../components/AfterNinety'
-import { cloud, saveDayVideos, saveLevel, signOut, useAiReady, useAuth } from '../lib/cloud'
+import { cloud, deleteAccount, saveDayVideos, saveLevel, signOut, useAiReady, useAuth } from '../lib/cloud'
 import { DEFAULT_API_URL, DEFAULT_MODEL, dayState, exportJson, getState, videosOf, importJson, resetAll, setState, today, useStore, type Settings } from '../lib/store'
 import { Avatar } from '../components/Avatar'
 import { Streak } from '../components/Streak'
 import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
 import { Markdown } from '../components/Markdown'
+import { AccountButton } from '../components/NeedAccount'
 import { LevelPicker } from './Onboarding'
 
 async function resizeImage(f: File, px = 192): Promise<string> {
@@ -211,6 +212,7 @@ function Account() {
   const auth = useAuth()
   const level = useStore((s) => s.level)
   const [msg, setMsg] = useState<string | null>(null)
+  const [erase, setErase] = useState(false)
   return (
     <Frame className="card">
       <h2>Konto</h2>
@@ -218,6 +220,11 @@ function Account() {
         <p className="small">
           {auth.user.email} {auth.role === 'editor' && <span className="chip">Editor</span>}
         </p>
+      ) : cloud ? (
+        <>
+          <p className="small">Ohne Konto</p>
+          <AccountButton />
+        </>
       ) : (
         <p className="muted small">Ohne Server – alles bleibt auf diesem Gerät.</p>
       )}
@@ -225,8 +232,45 @@ function Account() {
       <LevelPicker value={level} onChange={(l) => { setMsg(null); saveLevel(l).catch((e: Error) => setMsg(e.message)) }} />
       {msg && <div className="chat-error">{msg}</div>}
       {auth.user && (
-        <button className="btn small spaced" onClick={() => confirm('Abmelden? Der Fortschritt bleibt auf diesem Gerät.') && void signOut()}>Abmelden</button>
+        <div className="row spaced">
+          <button className="btn small" onClick={() => confirm('Abmelden? Der Fortschritt bleibt auf diesem Gerät.') && void signOut()}>Abmelden</button>
+          {!erase && <button className="btn danger small" onClick={() => setErase(true)}>Konto löschen</button>}
+        </div>
       )}
+      {auth.user && erase && <DeleteAccount email={auth.user.email ?? ''} cancel={() => setErase(false)} />}
+    </Frame>
+  )
+}
+
+/** Konto endgueltig loeschen: E-Mail-Adresse zur Bestaetigung eintippen */
+function DeleteAccount({ email, cancel }: { email: string; cancel: () => void }) {
+  const [typed, setTyped] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const ok = typed.trim().toLowerCase() === email.toLowerCase()
+
+  async function run() {
+    setBusy(true)
+    setError(null)
+    try {
+      await deleteAccount()
+    } catch (e) {
+      setError(describeError(e))
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Frame className="card danger-box" r={12}>
+      <h3>Konto endgültig löschen?</h3>
+      <p className="small">Konto, Profil, Nachrichten und Freundschaften werden gelöscht, der Fortschritt auf diesem Gerät auch.</p>
+      <label>E-Mail-Adresse zur Bestätigung</label>
+      <input type="email" value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={email} autoComplete="off" />
+      {error && <div className="chat-error">{error}</div>}
+      <div className="row spaced">
+        <button className="btn danger" disabled={!ok || busy} onClick={() => void run()}>{busy ? 'Lösche …' : 'Endgültig löschen'}</button>
+        <button className="btn ghost" disabled={busy} onClick={cancel}>Abbrechen</button>
+      </div>
     </Frame>
   )
 }

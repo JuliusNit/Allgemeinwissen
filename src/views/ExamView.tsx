@@ -9,6 +9,7 @@ import { Chat } from '../components/Chat'
 import { Coin, COIN_D, COIN_R, CoinBadge } from '../components/Coin'
 import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
+import { AccountButton } from '../components/NeedAccount'
 import { Markdown } from '../components/Markdown'
 
 // Pruefungs-Wiederholung: oben der dringendste Vorschlag, darunter alle Themen als Muenzen
@@ -177,7 +178,7 @@ function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
         </Frame>
       ) : (
         <>
-          {!hasKey && <div className="notice">Für die Prüfung bitte anmelden – oder unter <b>Profil → KI</b> einen eigenen Key eintragen.</div>}
+          {!hasKey && <div className="notice">Für die Prüfung bitte anmelden – oder unter <b>Profil → KI</b> einen eigenen Key eintragen. <AccountButton /></div>}
           <Frame className="card">
             {(hasKey || chat.length > 0) && (
               <Chat

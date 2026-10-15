@@ -9,6 +9,7 @@ import { Chat } from '../components/Chat'
 import { CoinBadge } from '../components/Coin'
 import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
+import { AccountButton } from '../components/NeedAccount'
 import { VideoWatch } from '../components/VideoWatch'
 import { VideoList } from '../components/VideoList'
 import type { ChatMsg } from '../lib/store'
@@ -91,7 +92,7 @@ export function BasisView({ id, go, vday, video, at, openVideo, closeVideo }: Pr
         <Frame className="card">
           <h2>Grundcheck {checkDone && '✓'}</h2>
           {history.length === 0 && !hasKey ? (
-            <p className="muted">KI nicht verfügbar – bitte anmelden.</p>
+            <p className="muted">KI nicht verfügbar – bitte anmelden. <AccountButton /></p>
           ) : (
             <Chat
               key={`b-${id}-${history.length === 0 ? 0 : 1}`}

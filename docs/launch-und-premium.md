@@ -56,6 +56,9 @@ Getestet im lokalen Dev-Server (mobil, 375 × 812) mit frischem Zustand und mit 
 | 9 | **Privacy Manifest + Store-Angaben** | `PrivacyInfo.xcprivacy`, Datenschutz-Etiketten, Screenshots (6,9″ + 6,5″, iPad falls unterstützt), Support-URL, Beschreibung, Altersfragebogen. | 1 Tag |
 | 10 | **Fortschritt im Konto speichern** | Heute nur localStorage: Handywechsel oder Neuinstallation = alles weg (Export/Import gibt es, findet aber kaum jemand). In einer nativen App kann iOS den WebView-Speicher bei Platzmangel leeren. Tabelle `progress` (JSON je Konto, RLS) + Sync beim Start/Schließen. | 2–3 Tage |
 
+**Stand 15.10.2026:** 3 (Konto löschen), 5 (Melden/Blockieren, `is_ki` nur über den Server) und 6 (Ohne Konto starten) sind im Code,
+dazu die Error-Boundary. Auf dem Server fehlen noch `supabase/005_melden_blockieren.sql` und die Edge Functions `ki-chat`, `delete-account`.
+
 ### Stark empfohlen
 
 - **Error-Boundary + Absturzmeldungen** (Sentry o. ä., datensparsam).
