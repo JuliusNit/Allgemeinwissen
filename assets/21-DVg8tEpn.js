@@ -1,0 +1,98 @@
+var e=`## Zeitleiste Griechenland
+
+\`\`\`zeitstrahl
+~1200–750 v. Chr. | „Dunkle Jahrhunderte“: Adel herrscht durch Landbesitz (Welt Homers)
+ab ~750 v. Chr. | **Kolonisation**: Griechen gründen Tochterstädte rund ums Mittelmeer und Schwarze Meer
+7. Jh. v. Chr. | Kämpfe zwischen Adel und Nichtadligen → mehr Mitsprache, geschriebene Regeln
+508/507 v. Chr. | **Kleisthenes**: Reformen → Beginn der Demokratie in Athen
+490–479 v. Chr. | **Perserkriege**
+461–429 v. Chr. | **Perikleisches Zeitalter**: Höhepunkt der Demokratie, Bau der Akropolis
+431–404 v. Chr. | Peloponnesischer Krieg: Sparta besiegt Athen
+338 v. Chr. | Philipp II. von Makedonien beherrscht Griechenland
+336–323 v. Chr. | **Alexander der Große** → **Hellenismus**
+146 v. Chr. | Griechenland wird römisch
+\`\`\`
+
+## Die Polis – Stadtstaat
+
+- **Polis** = selbstständiger Stadtstaat: eigenes Militär, eigene Währung, eigene Götter und Feste; Griechenland blieb jahrhundertelang **ohne Zentralherrscher**
+- Grund: Gebirge zerteilen das Land in abgeschlossene, fruchtbare Täler → überschaubare Gemeinwesen
+
+\`\`\`gruppen
+Akropolis
+  befestigte Oberstadt, Heiligtümer
+Agora
+  zentraler Platz: Markt, Politik, Gerichte, Kultur
+Stadtmauer
+  Schutz
+Umland
+  Dörfer und Felder gehören dazu
+\`\`\`
+
+- typische Institutionen: **Volksversammlung**, **Rat** (meist Adlige), **Amtsträger** (Magistrate); Einfluss oft nach **Vermögensklassen**
+- Bürger = nur **freie, erwachsene Männer** der eigenen Polis; ausgeschlossen: Frauen, Sklaven, Fremde (auch aus der Nachbarstadt)
+- Kolonien blieben mit ihrer **Mutterstadt** (*Metropolis*) verbunden
+- bis heute in Wörtern: **Politik**, **Polizei**, **Metropole**
+
+## Athen vs. Sparta
+
+| | Athen | Sparta |
+|---|---|---|
+| Staatsform | **Demokratie** (ab 508 v. Chr.) | **Oligarchie** mit zwei Königen und Ältestenrat |
+| Stärke | **Seemacht**, Handel | **Landmacht**, beste Infanterie |
+| Gesellschaft | Bürger, Fremde (Metöken), Sklaven | kleine Kriegerkaste, Mehrheit unfreie **Heloten** |
+| Lebensideal | Philosophie, Theater, Kunst | Disziplin, Härte, militärische Erziehung ab 7 Jahren |
+
+## Die attische Demokratie
+
+\`\`\`kette
+Volksversammlung | alle Bürger, beschließt Gesetze, Krieg, Frieden
+Rat der 500 | per **Los** bestimmt, bereitet Beschlüsse vor
+Ämter | meist ausgelost, kurze Amtszeit
+Volksgerichte | Hunderte ausgeloste Geschworene
+\`\`\`
+
+- **direkte** Demokratie: Bürger entscheiden selbst, statt Abgeordnete zu wählen
+- **Scherbengericht** (Ostrakismos): Bürger ritzen Namen auf Tonscherben → zu mächtige Politiker müssen für 10 Jahre ins Exil
+- **Ephialtes** entmachtet 461 v. Chr. den Adelsrat **Areopag** → Rechte gehen an Rat der 500 und Volksversammlung
+- **Perikles** (Adliger, glänzender Redner): Zugang zu Ämtern auch für ärmere Klassen und **Diäten** (Bezahlung) → auch Arme können mitregieren; enorme Macht allein durch Wahl, Charisma und Rhetorik, nie durch Sonderrechte
+- Grenzen: nur ~10–15 % der Bewohner durften mitbestimmen
+
+> Unterschied zu heute: Athen = direkt, Los, nur männliche Vollbürger · heute = repräsentativ, Wahl, alle Erwachsenen
+
+## Perserkriege
+
+\`\`\`kette
+!senkrecht
+500–494 v. Chr.: **Ionischer Aufstand** | griechische Städte in Kleinasien gegen Persien; Athen schickt 25 Schiffe → Milet zerstört
+490 v. Chr.: **Marathon** | ~10 000 athenische Hopliten schlagen ~20 000 Perser; Läufer bringt die Siegesnachricht (Legende → Marathonlauf, 42 km)
+480 v. Chr.: Xerxes greift mit Riesenheer und über 500 Schiffen an
+**Thermopylen** | Leonidas hält mit 300 Spartanern und Verbündeten den Pass bis zum Tod
+Athen wird erobert und niedergebrannt (Bewohner geflohen)
+480 v. Chr.: **Salamis** | Themistokles' Flotte besiegt die Perser in der Meerenge
+479 v. Chr.: Plataiai | endgültiger Sieg zu Land
+\`\`\`
+
+- **Phalanx**: Hopliten (Bürger in Rüstung, kein Söldnerheer) bilden eine Wand aus Schilden und Speeren; bei Marathon kesseln die stärkeren Flanken die Perser ein
+- Strategie des **Themistokles**: Griechen haben nur zur See eine Chance → Athen baut eine Flotte
+- Folgen: Griechenland bleibt unabhängig, das **klassische Griechenland** blüht auf; Athen wird Seemacht neben Sparta → Rivalität → **Peloponnesischer Krieg** (Sparta siegt)
+- später als „Freiheit gegen Despotie“, „Europa gegen Asien“ gedeutet – je nach Blickwinkel (Film „300“)
+
+## Alexander der Große (356–323 v. Chr.)
+
+\`\`\`zeitstrahl
+356 v. Chr. | geboren, Sohn Philipps II. von Makedonien; Lehrer: **Aristoteles**
+336 v. Chr. | König mit 20; zerstört das aufständische **Theben** → Griechen unterwerfen sich
+334 v. Chr. | Feldzug gegen Persien; in Gordion durchschlägt er den **Gordischen Knoten**
+333 v. Chr. | **Issos**: Sieg über Dareios III.
+332/331 v. Chr. | Ägypten fällt kampflos, Alexander wird Pharao, gründet **Alexandria**
+331 v. Chr. | **Gaugamela**: Persien besiegt; 330 v. Chr. Persepolis
+326 v. Chr. | Indus/Pakistan – erschöpftes Heer erzwingt die Umkehr
+324 v. Chr. | **Massenhochzeit von Susa**: Makedonen heiraten Perserinnen
+323 v. Chr. | stirbt mit 32 in Babylon
+\`\`\`
+
+- rücksichtsloser Eroberer, Quellen erst lange nach seinem Tod geschrieben → vieles Legende
+- Folge: **Hellenismus** – griechische Sprache und Kultur verbreiten sich von Ägypten bis Indien und prägen den Osten noch unter den Römern
+- „den Gordischen Knoten durchschlagen“ = ein verzwicktes Problem mit einem überraschenden Schritt lösen
+`;export{e as default};

@@ -1,0 +1,95 @@
+var e=`## Drei abrahamitische Religionen
+
+- alle drei sind **monotheistisch** (ein Gott) und berufen sich auf **Abraham** als Stammvater
+
+\`\`\`baum
+Abraham | ~1800 v. Chr. (Überlieferung), Bund mit dem einen Gott
+  Isaak → Jakob (Israel) → 12 Stämme | Judentum
+    Jesus von Nazaret | Christentum, entsteht aus dem Judentum
+  Ismael | nach islamischer Überlieferung Stammvater der Araber
+    Mohammed | Islam
+\`\`\`
+
+| | Judentum | Christentum | Islam |
+|---|---|---|---|
+| Entstehung | ~2000–1000 v. Chr. | ~30 n. Chr. | 610 n. Chr. (erste Offenbarung) |
+| Gott | JHWH / Elohim | **Dreifaltigkeit**: Vater, Sohn, Heiliger Geist | **Allah** (arab. „Gott“) |
+| zentrale Person | **Mose** (Tora, Zehn Gebote) | **Jesus Christus** = Sohn Gottes, Messias | **Mohammed** = letzter Prophet (nicht göttlich) |
+| heilige Schrift | **Tanach** (darin die Tora) + Talmud | **Bibel**: Altes + Neues Testament | **Koran** (gilt nur auf Arabisch als unverfälscht) |
+| Gotteshaus | Synagoge | Kirche | Moschee |
+| Geistliche | Rabbiner | Priester, Pfarrer, Pastor | Imam |
+| Ruhetag | **Sabbat** (Fr.abend–Sa.abend) | Sonntag | Freitagsgebet |
+| wichtige Feste | Pessach, **Jom Kippur** (Versöhnung), **Chanukka** (Lichterfest) | **Weihnachten**, **Ostern**, Pfingsten | **Ramadan** + Fest des Fastenbrechens, **Opferfest** |
+| heiliger Ort | Klagemauer (Jerusalem) | Jerusalem, Rom (Petersdom) | **Kaaba in Mekka**, Medina, Jerusalem |
+| Anhänger | ~15 Mio. | ~2,4 Mrd. (größte) | ~1,9 Mrd. (zweitgrößte) |
+| größte Gruppe in | Israel, USA | USA, Brasilien | **Indonesien** – nur ~15–20 % der Muslime sind Araber |
+
+- Jesus gilt im Islam als großer **Prophet**, nicht als Gottes Sohn; Judentum erwartet den Messias noch
+- **Jerusalem** ist allen drei heilig → bis heute Konfliktstoff
+
+## Judentum
+
+- „Mutter“ der monotheistischen Religionen; Kern: **Bund** zwischen Gott und dem Volk Israel; Exodus aus Ägypten mit Mose, Zehn Gebote am Sinai
+- **schriftliche Tora** (5 Bücher Mose) + **mündliche Tora** (rabbinische Auslegung, Talmud) → Religionsgesetz **Halacha**
+
+\`\`\`gruppen
+orthodox
+  Halacha streng im Alltag
+  **koscher** essen (kein Schwein, Tiere geschächtet, Milch und Fleisch getrennt)
+  Sabbat: keinerlei Arbeit
+konservativ
+  Mittelweg: Tradition bewahren, behutsam modernisieren
+liberal
+  Gebote von Menschen gemacht, neu auslegbar
+  vor allem ethische Gebote zählen
+\`\`\`
+
+- Bräuche: dreimal täglich beten, Männer mit **Kippa**, Gebetsmantel (Tallit), Gebetsriemen (Tefillin); **Beschneidung** am 8. Tag (Bund Abrahams); Bar/Bat Mizwa mit 13/12
+- **Antisemitismus** begleitet die Geschichte: Vertreibung durch Römer (70 n. Chr. Tempel zerstört → Diaspora), Pogrome bei Kreuzzügen und Pest („Brunnenvergifter“), Luthers Judenhass, Höhepunkt **Schoa/Holocaust**: 6 Mio. ermordete Juden
+- **14. Mai 1948**: Staatsgründung **Israel** – Zufluchtsort; jede Jüdin und jeder Jude kann Staatsbürger werden; ~75 % der Bevölkerung jüdisch
+
+## Christentum
+
+- **Jesus von Nazaret**: jüdischer Wanderprediger, geboren ~4 v. Chr., predigt Gottes Liebe und **Nächstenliebe**, setzt sich für Arme ein; ~30 n. Chr. von den Römern gekreuzigt
+- Christen glauben an seine **Auferstehung** und die Erlösung von den Sünden
+
+\`\`\`zeitstrahl
+Weihnachten | Geburt Jesu
+Karfreitag | Kreuzigung
+Ostern | Auferstehung am dritten Tag – wichtigstes Fest
+Christi Himmelfahrt | 40 Tage nach Ostern
+Pfingsten | Heiliger Geist kommt auf die Jünger → „Geburtstag der Kirche“
+\`\`\`
+
+- **Paulus** verbreitet den Glauben im Römischen Reich; 380 Staatsreligion
+
+\`\`\`baum
+Christentum
+  orthodoxe Kirchen | seit 1054 (Schisma), Osteuropa, Griechenland, Russland
+  römisch-katholische Kirche | Papst in Rom, größte Konfession
+    evangelische (protestantische) Kirchen | seit der **Reformation** 1517 (Luther: Kritik an Ablass und Papstmacht)
+\`\`\`
+
+- dunkle Kapitel: **Kreuzzüge**, **Inquisition** (Folter, Scheiterhaufen für „Ketzer“ und „Hexen“), Ablasshandel
+- Deutschland heute: je gut 20 Mio. Katholiken und Protestanten, Zahl sinkt stark
+
+## Islam
+
+- „Islam“ = **Hingabe** an Gott; **Muslim** = wer sich Gott hingibt
+- **Mohammed** (~570–632) aus **Mekka**, Karawanenführer; mit 40 Jahren Offenbarung durch den Erzengel **Gabriel** („Trag vor!“)
+- **622 Hidschra**: Auswanderung nach **Medina** = Beginn der islamischen Zeitrechnung; dort Gemeinschaft (**Umma**) statt Stämme; 630 Eroberung Mekkas
+- Spaltung nach seinem Tod (kein Nachfolger bestimmt): **Sunniten** (~85–90 %, folgten Abu Bakr) vs. **Schiiten** (~10–15 %, folgten Schwiegersohn **Ali**; v. a. Iran, Irak)
+
+\`\`\`gruppen
+Die fünf Säulen
+  **Glaubensbekenntnis** (Schahada): kein Gott außer Gott, Mohammed ist sein Prophet
+  **Gebet** (Salat): fünfmal täglich Richtung Mekka
+  **Almosen** (Zakat): ~2,5 % des Vermögens für Bedürftige
+  **Fasten** im Ramadan: von Sonnenauf- bis -untergang
+  **Pilgerfahrt** (Hadsch) nach Mekka einmal im Leben, wenn möglich
+\`\`\`
+
+- **Koran** von Anhängern aus Mohammeds Offenbarungen in **Suren** zusammengestellt
+- **Scharia** = islamisches Recht und Lebensordnung, sehr unterschiedlich ausgelegt
+- islamisches Goldenes Zeitalter brachte Wissenschaft (Sternwarten, Medizin, Mathematik) – heute prägen Terroranschläge von Extremisten das Bild, obwohl die große Mehrheit friedlich lebt
+`;export{e as default};

@@ -1,0 +1,98 @@
+var e=`## Aufbau der Bibel
+
+\`\`\`gruppen
+Altes Testament | hebräische Bibel, ~39 Bücher
+  Tora: 5 Bücher Mose (Genesis, Exodus …)
+  Geschichtsbücher: Könige, Richter
+  Weisheit: Psalmen, Hiob, Sprüche
+  Propheten: Jesaja, Jeremia …
+Neues Testament | griechisch, 27 Bücher
+  4 Evangelien: Matthäus, Markus, Lukas, Johannes
+  Apostelgeschichte
+  Briefe (v. a. Paulus)
+  Offenbarung (Apokalypse)
+\`\`\`
+
+- AT = heilige Schrift auch des **Judentums**; das NT erzählt von **Jesus** und den ersten Christen
+- über ~1000 Jahre von vielen Autoren geschrieben; prägt Kunst, Literatur, Recht und Sprache Europas → auch ohne Glauben ein **Schlüsseltext der Kultur**
+- **Luther** übersetzte sie 1522/1534 ins Deutsche → Grundlage der neuhochdeutschen Schriftsprache
+
+## Genesis 1–11: die Urgeschichte
+
+- **Schöpfung**: Gott ordnet eine wüste, chaotische Welt (**Tohuwabohu**) in sieben Tagen zu einer guten Welt; der Mensch (*adam*) als **Ebenbild Gottes**, soll die Welt bewahren und gestalten
+- **Baum der Erkenntnis von Gut und Böse**: Wahl zwischen Vertrauen und Selbstbestimmung
+
+\`\`\`kette
+!senkrecht
+**Sündenfall**: Schlange verführt, Adam und Eva essen die Frucht | Scham, Schuldzuweisung, Vertreibung aus dem Paradies
+**Kain** erschlägt seinen Bruder **Abel** | erster Mord aus Eifersucht
+Lamech: Gewalt und Rache wachsen | Welt voller Unrecht
+**Sintflut**: Gott rettet nur **Noah**, seine Familie und die Tiere in der **Arche** | Regenbogen als Bund
+**Turmbau zu Babel**: Menschen wollen bis zum Himmel bauen | Gott verwirrt die Sprachen, zerstreut die Völker
+\`\`\`
+
+- Kernaussage der Urgeschichte: Die Welt ist gut geschaffen, der Mensch zerstört sie immer wieder – eine Abwärtsspirale; ab Kapitel 12 beginnt mit **Abraham** die Geschichte eines Volkes, durch das die Welt gesegnet werden soll
+- ähnliche Flutgeschichten gibt es im mesopotamischen **Gilgamesch-Epos** → Bibel steht im Austausch mit älteren Kulturen
+
+## Abraham, Mose und der Exodus
+
+\`\`\`zeitstrahl
+Erzväter | **Abraham** zieht auf Gottes Ruf nach Kanaan, soll Isaak opfern (Gott verhindert es); Isaak, **Jakob** (= Israel) mit 12 Söhnen → 12 Stämme
+Josef | von Brüdern verkauft, steigt in Ägypten auf, holt die Familie nach
+~400 Jahre | Israeliten werden in Ägypten zu Sklaven
+**Exodus** | Mose führt das Volk aus Ägypten
+Sinai | Gott gibt die **Zehn Gebote**
+40 Jahre Wüste | dann Einzug ins „Gelobte Land“
+\`\`\`
+
+- **Mose**: als Baby im Körbchen auf dem Nil ausgesetzt, von der Pharaonentochter aufgezogen; flieht nach Totschlag in die Wüste; Gott spricht aus dem **brennenden Dornbusch** („Ich bin, der ich bin“)
+- **zehn Plagen** (Blut, Frösche, Mücken, Heuschrecken, Finsternis …); in der letzten sterben die Erstgeborenen der Ägypter → Israeliten essen das **Passahlamm**, Blut am Türrahmen schützt sie → bis heute jüdisches **Pessach**
+- Zug durchs **Schilfmeer**, das sich teilt; Manna und Wachteln in der Wüste
+- **Zehn Gebote** auf zwei Steintafeln: keine anderen Götter, keine Götzenbilder, Gottes Namen nicht missbrauchen, Sabbat heiligen, Eltern ehren, nicht töten, nicht ehebrechen, nicht stehlen, nicht falsch aussagen, nicht begehren, was dem Nächsten gehört
+- **Goldenes Kalb**: Volk betet während Moses Abwesenheit ein Götzenbild an → Mose zerschmettert die Tafeln
+- „Auge um Auge“ war ursprünglich eine **Begrenzung** der Rache (nicht mehr als den Schaden)
+- historisch: Für einen Auszug von 600 000 Männern gibt es keine archäologischen Belege – eine Gründungserzählung
+
+## Jesus: Gleichnisse und Passion
+
+- **Jesus von Nazaret** (~4 v. Chr. – ~30 n. Chr.), jüdischer Wanderprediger in der römischen Provinz Judäa; verkündet das nahe **Reich Gottes**
+- **Gleichnisse** = kurze Bildgeschichten, die nicht alles erklären, sondern zum Nachdenken herausfordern:
+
+| Gleichnis | Aussage |
+|---|---|
+| Senfkorn, Sauerteig | aus winzigem Anfang wird Großes – Gottes Reich wächst unscheinbar |
+| Perle | für das Wichtigste gibt man alles |
+| Arbeiter im Weinberg | alle bekommen denselben Lohn – Gnade statt Leistung, „die Letzten werden die Ersten sein“ |
+| böse Weingärtner | Warnung an die Mächtigen, die den Sohn des Besitzers töten |
+| barmherziger Samariter | der Verachtete hilft – Nächstenliebe kennt keine Grenzen |
+| verlorener Sohn | Vater nimmt den reuigen Sohn mit offenen Armen auf |
+
+\`\`\`kette
+!senkrecht
+Einzug in Jerusalem (Palmsonntag)
+**Abendmahl** mit den zwölf Jüngern (Gründonnerstag)
+**Judas** verrät ihn mit einem Kuss; Gefangennahme
+Prozess; der römische Statthalter **Pontius Pilatus** „wäscht seine Hände in Unschuld“
+**Kreuzigung** (Karfreitag)
+**Auferstehung** am dritten Tag (Ostern) – Kern des christlichen Glaubens
+\`\`\`
+
+## Biblische Redewendungen
+
+| Ausdruck | Herkunft | Bedeutung |
+|---|---|---|
+| **Tohuwabohu** | Gen 1,2 (hebr. „wüst und leer“) | heilloses Durcheinander |
+| **Kainsmal** | Zeichen an Kain | Schandmal |
+| babylonische Sprachverwirrung | Turmbau zu Babel | niemand versteht den anderen |
+| **ums goldene Kalb tanzen** | Exodus | Geld anbeten |
+| **Sündenbock** | Ritual: Bock trägt die Sünden in die Wüste | einer, dem alle Schuld zugeschoben wird |
+| **Hiobsbotschaft** | Buch Hiob, Unglück folgt auf Unglück | schlimme Nachricht |
+| **David gegen Goliath** | Hirtenjunge besiegt Riesen mit der Steinschleuder | Kleiner besiegt Übermächtigen |
+| salomonisches Urteil | König Salomo und die zwei Mütter | weise Entscheidung |
+| **Menetekel** | Flammenschrift beim Gastmahl Belsazars | Warnzeichen |
+| sein Licht unter den Scheffel stellen | Bergpredigt | eigene Fähigkeiten verstecken |
+| Perlen vor die Säue werfen | Bergpredigt | Wertvolles an Unwürdige verschwenden |
+| **Judaskuss** | Verrat an Jesus | heuchlerische Freundlichkeit |
+| seine Hände in Unschuld waschen | Pilatus | jede Verantwortung abstreiten |
+| Wolf im Schafspelz | Warnung Jesu vor falschen Propheten | getarnter Böser |
+`;export{e as default};

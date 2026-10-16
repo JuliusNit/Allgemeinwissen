@@ -1,0 +1,80 @@
+var e=`## Die Zeitleiste der Stile
+
+\`\`\`zeitstrahl
+~800 v. Chr.–500 n. Chr. | **Antike**: Griechen und Römer – Säulen, Ideal des Menschen
+~1000–1250 | **Romanik**: dicke Mauern, Rundbogen
+~1150–1500 | **Gotik**: Spitzbogen, Licht, Höhe
+~1400–1600 | **Renaissance**: Ordnung, Perspektive, Proportion
+~1600–1750 | **Barock**: Drama, Licht und Schatten
+~1720–1780 | **Rokoko**: verspielt, Pastell
+~1770–1840 | **Klassizismus**: zurück zur Antike, Vernunft
+~1790–1840 | **Romantik**: Gefühl, Natur, Sehnsucht
+~1830–1880 | **Realismus**: Alltag, wie er ist
+~1870–1945 | **Moderne**: Impressionismus, Expressionismus, Kubismus, Surrealismus
+nach 1945 | Abstraktion, Pop Art, Fluxus, Performance, Postmoderne
+\`\`\`
+
+> Stile pendeln: **Ordnung** (Renaissance, Klassizismus) und **Gefühl** (Barock, Romantik) lösen sich ab – jede Epoche reagiert auf die vorige.
+
+## Romanik und Gotik
+
+| | Romanik | Gotik |
+|---|---|---|
+| Zeit | ~1000 – Anfang 13. Jh. | ~1150–1500 (in Dtl. bis ~1550) |
+| Bogen | **Rundbogen** | **Spitzbogen** |
+| Wände | dick, schwer, gedrungen | dünn, Last über Strebepfeiler abgeleitet |
+| Fenster | klein, Räume dunkel | riesig, bunte Glasfenster, lichtdurchflutet |
+| Wirkung | Gottesburg, wehrhaft | strebt zum Himmel, leicht |
+| Beispiel | Stiftskirche Gernrode (ottonisch, ~1000), Speyerer Dom | Kölner Dom, Notre-Dame (Paris) |
+
+- Übergang fließend: Dom zu Nordhausen – Türme romanisch, Rest gotisch
+
+## Renaissance, Barock, Rokoko – an drei Zeichen erkennen
+
+| | Renaissance | Barock | Rokoko |
+|---|---|---|---|
+| Schlüsselwort | **Ausgewogenheit** | **Drama** | **Spaß** |
+| Licht | gleichmäßig, klar wie Tageslicht | **Chiaroscuro**: tiefe Schatten, Scheinwerfer | hell, luftig, **Pastell** |
+| Bewegung | ruhig, symmetrisch, Dreieck-Aufbau | Diagonalen, Wirbel, verdrehte Körper | leicht, verspielt |
+| Stimmung | würdevoll, posierend | Leid, Ekstase, Gefühl pur | Flirt, Garten, Luxus |
+| Merkbild | Mittag · Fotoshooting | Mitternacht · Opern-Höhepunkt | Frühlingsmorgen · Champagner-Picknick |
+| Beispiel | Leonardo: Mona Lisa, Abendmahl | Caravaggio, Rubens | Fragonard: Die Schaukel |
+
+- Renaissance = „Wiedergeburt“ der Antike: **Zentralperspektive**, Proportion, ideale Schönheit
+- Barock = Kunst der **Gegenreformation** und des Absolutismus: Die Kirche will die Gefühle der Menschen gewinnen
+- Rokoko = Kunst des französischen Adels – die Feier endet mit der **Französischen Revolution**
+- im Zweifel: dem stärksten Signal trauen (eher ruhig oder dramatisch? eher dunkel oder pastellig?)
+
+## Klassizismus, Romantik, Realismus
+
+| | Klassizismus | Romantik | Realismus |
+|---|---|---|---|
+| Haltung | Vernunft, Klarheit, Antike als Vorbild | Gefühl, Fantasie, Natur, Unheimliches | die Welt **ungeschönt** zeigen |
+| Gegen … | den überladenen Barock | Industrialisierung, Nützlichkeitsdenken | romantische Verklärung |
+| Bild | scharfe Konturen, Geometrie, kühle Farben | kein einheitlicher Stil, eher warme Farben | Arbeiter, Bauern, Alltag; kontrastreich |
+| Künstler | J.-L. David („Schwur der Horatier“), Canova | C. D. Friedrich, Turner, Constable, Delacroix, Goya | Courbet, Menzel, Millet |
+
+## Kunst nach 1945
+
+- nach Holocaust und Atombombe scheinen alte Werte hinfällig → Flucht in die **Ungegenständlichkeit**; der alte Stilbegriff löst sich auf: alles kann Kunst sein
+
+\`\`\`gruppen
+Abstraktion
+  Informel | Europa: Wols, Hans Hartung
+  Action Painting | Jackson Pollock tropft Farbe auf die liegende Leinwand
+  Yves Klein | monochromes Blau (IKB), Körperabdrücke
+Kunst = Leben
+  Rauschenberg | Combine Paintings mit Alltagsgegenständen
+  Fluxus | ab 1962: Aktionen, Musik, Geräusche
+  Joseph Beuys | Filz, Fett; „Jeder Mensch ist ein Künstler“
+  Pop Art | Andy Warhol: Bilder aus Werbung und Medien
+Neue Formen
+  Performance, Videokunst | Nam June Paik, John Cage
+  Land Art, Verhüllung | Christo + Jeanne-Claude: Reichstag 1995
+  Neue Wilde (1980) | grelle Farben: Immendorff, Penck
+\`\`\`
+
+- Ostblock: nur **Sozialistischer Realismus** erlaubt; Moskau 1974: nicht genehmigte Ausstellung mit Bulldozern zerstört
+- Architektur: **Postmoderne** zitiert alte Stile (Frankfurter Messeturm, Säulen), Glas und Transparenz (Reichstagskuppel von Norman Foster, Sony Center von Helmut Jahn); Gefahr: austauschbarer Einheitslook der Metropolen
+- Beuys-Legende (Tataren retten ihn mit Fett und Filz) ist so nicht belegt – Beispiel für Selbstinszenierung
+`;export{e as default};

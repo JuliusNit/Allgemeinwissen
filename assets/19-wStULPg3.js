@@ -1,0 +1,79 @@
+var e=`## Newtons drei Gesetze
+
+- **Isaac Newton** (1643–1727), Hauptwerk *Principia Mathematica* (1687): drei Prinzipien beschreiben **jede** Bewegung → Grundgesetze der Mechanik
+
+\`\`\`gruppen
+1 · Trägheitsprinzip
+  Ein Körper bleibt in Ruhe oder in gleichförmiger Bewegung, solange keine Kraft wirkt
+  Maß der Trägheit = **Masse**
+  Kanonenkugel kaum, Tischtennisball leicht zu bewegen
+2 · Aktionsprinzip
+  Kraft ändert die Bewegung: **F = m · a**
+  Beschleunigung in Richtung der Kraft
+  Kraft kann auch verformen
+3 · Wechselwirkungsprinzip
+  **actio = reactio**: Kräfte treten immer paarweise auf
+  gleich groß, entgegengesetzt, an **verschiedenen** Körpern
+  Ball werfen auf dem Longboard → man rollt zurück
+\`\`\`
+
+| | Kraft und Gegenkraft (3. Gesetz) | Kräftegleichgewicht |
+|---|---|---|
+| greifen an … | **zwei verschiedenen** Körpern an | **demselben** Körper an |
+| Folge | beide Körper werden beschleunigt (der leichtere stärker) | Kräfte heben sich auf → keine Wirkung |
+| Beispiel | nur einer zieht am Seil – beide Longboarder rollen zur Mitte | zwei ziehen gleich stark an einer Pflanze |
+
+## Rechnen mit F = m · a
+
+> **1 Newton = 1 kg · m/s²** – vor dem Rechnen alles in kg, m, s umwandeln
+
+| Aufgabe | Rechnung | Ergebnis |
+|---|---|---|
+| Radfahrer + Rad 100 kg, a = 3 m/s² | 100 kg · 3 m/s² | **300 N** |
+| Auto + Fahrer 1,5 t, a = 10 m/s² | 1500 kg · 10 m/s² | **15 000 N** |
+| Gewichtskraft einer 1-kg-Tafel auf der Erde | 1 kg · 9,81 m/s² | **≈ 10 N** |
+
+- umgestellt: a = F / m (gleiche Kraft, doppelte Masse → halbe Beschleunigung) · m = F / a
+
+## Gravitation und Planetenbahnen
+
+- Newtons Einsicht: **dieselbe Kraft** lässt den Apfel fallen und hält den Mond auf seiner Bahn
+- **Gravitationsgesetz**: F = G · m₁ · m₂ / r² → doppelte Entfernung = nur noch **ein Viertel** der Kraft
+- Fallbeschleunigung auf der Erde **g ≈ 9,81 m/s²**; ohne Luftwiderstand fallen alle Körper gleich schnell
+
+\`\`\`balken
+Mond: 1.62 | 1,6 m/s²
+Mars: 3.71 | 3,7 m/s²
+Erde: 9.81 | 9,8 m/s²
+Jupiter: 24.8 | 24,8 m/s²
+\`\`\`
+
+**Keplers Gesetze** (Johannes Kepler, ~1609–1619) – Newton konnte sie später aus seiner Gravitation ableiten:
+
+\`\`\`kette
+1 · Ellipsen | Planeten laufen auf Ellipsen; die Sonne sitzt in **einem Brennpunkt**, nicht in der Mitte
+2 · Flächensatz | in gleichen Zeiten gleiche Flächen → **nah an der Sonne schneller**, fern langsamer
+3 · Umlaufzeiten | T² / a³ ist für alle Planeten gleich → **weiter draußen = viel längeres Jahr**
+\`\`\`
+
+- Erde: 1 Jahr; Saturn: ~29,5 Jahre
+- Die Erde ist im **Nordwinter** der Sonne am nächsten und läuft schneller → das Sommerhalbjahr der Nordhalbkugel ist gut eine Woche länger
+- Jahreszeiten entstehen aber **nicht** durch den Abstand, sondern durch die **geneigte Erdachse** (23,4°)
+
+## Impuls und Impulserhaltung
+
+> **Impuls p = m · v** (Einheit kg · m/s) – „Wucht“ einer Bewegung, mit Richtung
+
+- Auto, 1000 kg, 50 m/s → p = 50 000 kg · m/s
+- **Impulserhaltungssatz**: In einem abgeschlossenen System ist der Gesamtimpuls **vor und nach** einem Stoß gleich (wie bei der Energieerhaltung)
+- **Billard**: Weiße Kugel trifft schwarze gerade → Weiße bleibt liegen, Schwarze rollt mit dem ganzen Impuls weiter (elastischer Stoß); ebenso das **Kugelstoßpendel**
+
+\`\`\`kette
+vorher: Pfeil 0,2 kg · 10 m/s, Apfel ruht | p = 2 kg·m/s
+Pfeil steckt im Apfel | gemeinsame Masse 0,3 kg
+nachher: v = 2 / 0,3 ≈ 6,7 m/s | Impuls bleibt 2 kg·m/s
+\`\`\`
+
+- Anwendungen: Rückstoß (Rakete, Gewehr), Unfallanalyse, Sport
+- Impulserhaltung folgt direkt aus dem 3. Gesetz: Was der eine Körper an Impuls gewinnt, verliert der andere
+`;export{e as default};

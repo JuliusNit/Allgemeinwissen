@@ -1,0 +1,94 @@
+var e=`## Zehnerpotenzen und wissenschaftliche Schreibweise
+
+- **wissenschaftliche Schreibweise** = Zahl mit **genau einer Ziffer ≠ 0 vor dem Komma** × Zehnerpotenz → sehr große und sehr kleine Zahlen übersichtlich und vergleichbar
+- 10⁶ = 1 mit 6 Nullen = 1 000 000 · 10⁻⁶ = 0,000001 · 10⁰ = 1
+
+| Richtung | Regel | Beispiel |
+|---|---|---|
+| Potenz → Zahl, positiver Exponent | Komma um n Stellen **nach rechts** | 5,41 · 10⁶ = 5 410 000 |
+| Potenz → Zahl, negativer Exponent | Komma um n Stellen **nach links** | 5,41 · 10⁻⁶ = 0,00000541 |
+| große Zahl → Potenz | Komma nach links, Exponent **+** | 623 000 = 6,23 · 10⁵ |
+| kleine Zahl → Potenz | Komma nach rechts, Exponent **–** | 0,00623 = 6,23 · 10⁻³ |
+
+- Taschenrechner zeigt „E“: 2,5E16 = 2,5 · 10¹⁶
+- Vorsilben: **Nano** 10⁻⁹ · **Mikro** 10⁻⁶ · **Milli** 10⁻³ · **Kilo** 10³ · **Mega** 10⁶ · **Giga** 10⁹ · **Tera** 10¹²
+- ein Schritt in der Potenz = **Faktor 10**; 10³ vs. 10⁶ ist nicht „doppelt“, sondern **tausendmal** so viel
+
+## Die Größenleiter des Universums
+
+\`\`\`zeitstrahl
+10⁻¹⁵ m | Atomkern
+10⁻¹⁰ m | Atom (0,1 nm)
+10⁻⁹ m | Molekül, DNA-Strang ~2 nm breit
+10⁻⁶ m | Bakterium (1–2 µm)
+10⁻⁵ m | menschliche Zelle (10–30 µm)
+10⁻⁴ m | Haar dick, Sandkorn (0,1 mm)
+10⁰ m | Mensch
+10⁴ m | Mount Everest (8,8 km)
+10⁷ m | Erde (12 742 km Durchmesser)
+10⁹ m | Sonne (1,4 Mio. km = 109 Erden)
+10¹¹ m | Erde–Sonne: 150 Mio. km = **1 AE**, Licht braucht 8 Minuten
+10¹⁶ m | **1 Lichtjahr** ≈ 9,5 Billionen km
+10²¹ m | Milchstraße (~100 000 Lichtjahre)
+10²⁶ m | beobachtbares Universum (~93 Mrd. Lichtjahre)
+\`\`\`
+
+> Von Atomkern bis Universum sind es rund **41 Zehnerpotenzen** – der Mensch liegt grob in der Mitte.
+
+## Wie klein ist ein Atom?
+
+- Grapefruit aus Stickstoffatomen: Bläst man jedes Atom auf **Blaubeergröße** auf, wird die Grapefruit so groß wie die **Erde**
+- **Atomkern** (Protonen + Neutronen) in der Mitte, **Elektronen** außen; Atom so groß wie ein **Fußballstadion** → Kern = **Murmel** in der Mitte
+- dazwischen: **leerer Raum** (nur elektromagnetische Felder) – Materie ist fast leer
+- fast die gesamte **Masse steckt im Kern** → Dichte ~4 · 10¹⁷ kg/m³: die Atomkerne von ~6 Mrd. Autos in einer 30-cm-Kiste
+- Schulbild-Atome sind nicht maßstabsgetreu
+
+## Unser Sonnensystem im Stadion (Harald Lesch)
+
+- Stadionrand = **Kuipergürtel** (Rand der Planetenzone) → Sonne = **Murmel von 2,8 cm**, Erde = **0,3 mm**, Planeten Zehntelmillimeter
+- das Sonnensystem ist fast nur **leerer Raum**
+
+\`\`\`zeitstrahl
+0,4 AE | **Merkur** – ~500 °C, Blei würde schmelzen
+0,7 AE | **Venus** – fast so groß wie die Erde, 450 °C, 95-facher Luftdruck
+1 AE | **Erde**
+1,5 AE | **Mars** – kann weder Wasser noch Atmosphäre halten
+2–3,3 AE | Asteroidengürtel (Ceres, Vesta) – zusammen etwa Mondmasse
+5,2 AE | **Jupiter** – 317 Erdmassen, schwerer als alle anderen Planeten zusammen
+9,5 AE | **Saturn** – Ringsystem
+19 AE | **Uranus** – 1781 von Herschel entdeckt, Achse um ~90° gekippt
+30 AE | **Neptun** – 1846 aus Bahnstörungen des Uranus errechnet
+30–50 AE | Kuipergürtel – Zwergplaneten wie Pluto
+~120 AE | **Heliopause**: Sonnenwind endet (Grenze zum interstellaren Raum)
+bis ~100 000 AE | **Oortsche Wolke**: Ende der Sonnen-Schwerkraft – im Stadion-Maßstab „bis Mainz“
+\`\`\`
+
+- Merksatz der Reihenfolge: **M**ein **V**ater **e**rklärt **m**ir **j**eden **S**onntag **u**nseren **N**achthimmel
+- innere Planeten: klein, felsig · äußere: **Gasriesen** (Jupiter, Saturn) und **Eisriesen** (Uranus, Neptun)
+
+\`\`\`balken
+Mond: 3474 | 3 474 km
+Mars: 6779 | 6 779 km
+Erde: 12742 | 12 742 km
+Neptun: 49244 | 49 244 km
+Saturn: 116460 | 116 460 km
+Jupiter: 139820 | 139 820 km
+\`\`\`
+
+## Sterne, Galaxien, Universum
+
+- die **Sonne** ist ein eher **kleiner Stern**: Polarstern ~37-mal, Beteigeuze rund 700- bis 1000-mal so groß im Durchmesser
+- **Schwarze Löcher**: M87 – 2019 erstes Foto eines Schwarzen Lochs, ~38 Mrd. km; je mehr Masse, desto größer
+- **Nebel** (Gas- und Staubwolken, Sternentstehung): von unter 1 bis über 1000 Lichtjahre (Tarantelnebel ~650 Lj)
+
+\`\`\`kette
+Sonnensystem
+Milchstraße | Spiralgalaxie, ~100 000 Lj, 100–400 Mrd. Sterne
+Lokale Gruppe | Galaxienhaufen mit Andromeda, ~10 Mio. Lj
+Laniakea-Superhaufen | unser Superhaufen
+kosmische Netzstruktur | „Mauern“ aus Galaxien, Milliarden Lj
+\`\`\`
+
+- **Lichtjahr** = Strecke, nicht Zeit: was Licht in einem Jahr zurücklegt
+- Blick in die Ferne = **Blick in die Vergangenheit**: Licht vom Rand der Milchstraße ist zehntausende Jahre alt
+`;export{e as default};

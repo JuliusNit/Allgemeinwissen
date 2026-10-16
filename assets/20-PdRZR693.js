@@ -1,0 +1,78 @@
+var e=`## Die Götter des Olymp
+
+\`\`\`baum
+Uranos (Himmel) + Gaia (Erde)
+  Kronos + Rhea | Titanen – Kronos verschlingt seine Kinder aus Angst vor dem Sturz
+    Zeus | Rhea rettet ihn mit einem Stein; er zwingt Kronos, die Geschwister auszuspucken
+    Hera, Poseidon, Hades, Demeter, Hestia | Geschwister des Zeus
+      Titanenkampf (Titanomachie): 11 Jahre, gewonnen mit Blitz und Donner
+      Zeus, Poseidon, Hades losen: Himmel/Erde · Meer · Unterwelt
+\`\`\`
+
+| Gott (römisch) | zuständig für | Kennzeichen, Geschichte |
+|---|---|---|
+| **Zeus** (Jupiter) | Himmel, Wetter, Göttervater | Blitz; unzählige Liebschaften, verwandelt sich (als Stier entführt er **Europa**) |
+| **Hera** (Juno) | Ehe, Geburt | Schwester und Frau des Zeus, eifersüchtig; verfolgt Herakles (Milchstraße = ihre verspritzte Milch) |
+| **Poseidon** (Neptun) | Meer, Erdbeben | Dreizack; Vater von Polyphem und Pegasus |
+| **Athene** (Minerva) | Weisheit, Handwerk, kluger Krieg | aus dem Kopf des Zeus geboren; Eule, Ölbaum → Schutzgöttin Athens („Eulen nach Athen tragen“) |
+| **Ares** (Mars) | wilder Krieg | wenig verehrt; Areopag = Gerichtshügel Athens |
+| **Dionysos** (Bacchus) | Wein, Rausch, Ekstase | aus dem Schenkel des Zeus geboren; aus seinen Festen entsteht das **Theater** |
+| **Hades** (Pluto) | Unterwelt | kein Teufel; Fährmann **Charon** über den Styx (Obolus), Höllenhund **Kerberos**; raubt **Persephone** |
+| Apollon · Artemis · Hermes · Aphrodite · Hephaistos · Demeter | Licht/Musik · Jagd · Bote · Liebe · Schmiede · Getreide | zusammen die **zwölf Olympier** |
+
+- Persephone muss halb im Jahr in die Unterwelt → Mutter **Demeter** trauert, nichts wächst → Mythos erklärt die **Jahreszeiten**
+
+## Wozu Mythen?
+
+- **Naturkräfte als Personen**: Blitz = Zeus, Sturm und Flut = Poseidon → Unerklärliches wird erklärbar
+- **Opfer** als Tauschgeschäft: „Ich gebe dir eine Ziege, du hilfst mir“
+- griechische Götter sind **menschlich**: eitel, launisch, eifersüchtig, verliebt – nicht allmächtig, nicht allwissend (Gegensatz zum Gott von Judentum, Christentum, Islam)
+- Zeus ist kein Schöpfer, sondern **Ordnungsstifter**: Sieg über die Titanen = Ordnung besiegt das Chaos
+
+## Helden
+
+| Held | Geschichte | Ende |
+|---|---|---|
+| **Herakles** (Herkules) | Sohn des Zeus; **zwölf Arbeiten** (Nemeischer Löwe, Hydra …) | qualvoller Tod, wird in den Olymp aufgenommen |
+| **Jason** | holt mit den **Argonauten** (Schiff Argo) das **Goldene Vlies**; bringt Medea mit | verlässt Medea → sie tötet aus Rache die gemeinsamen Kinder |
+| **Achill** | fast unverwundbar (Mutter Thetis tauchte ihn in den Styx), nur die **Ferse** nicht; Held der *Ilias* | Pfeil des Paris, von Apollon in die Ferse gelenkt |
+| **Hektor** | stärkster Trojaner, Bruder des Paris | von Achill im Zweikampf getötet |
+| **Odysseus** | König von Ithaka, listig: erfindet das **Trojanische Pferd** | 10 Jahre Irrfahrt (*Odyssee*), besiegt die Freier seiner Frau Penelope |
+| **Perseus** | schlägt der **Medusa** den Kopf ab (Blick in den Spiegelschild) | rettet Andromeda |
+| **Theseus** | tötet den **Minotaurus** im Labyrinth von Kreta – mit dem **Faden der Ariadne** | König von Athen |
+
+## Der Trojanische Krieg
+
+\`\`\`kette
+!senkrecht
+Paris entführt **Helena**, Frau des Menelaos von Sparta
+Griechen unter **Agamemnon** (Mykene) belagern Troja 10 Jahre
+Achill zürnt Agamemnon, kämpft nicht – Hektor tötet Achills Freund **Patroklos**
+Achill tötet Hektor, schleift die Leiche, gibt sie dann an Priamos zurück | Ende der *Ilias*
+Achill fällt durch Paris' Pfeil
+Trojanisches Pferd: Griechen im Inneren öffnen die Tore – Troja fällt
+Odysseus irrt 10 Jahre heim | *Odyssee*
+\`\`\`
+
+- **Homer** (um 8. Jh. v. Chr., Person unsicher) schrieb auf, was Sänger jahrhundertelang mündlich überliefert hatten
+- historischer Kern: **Heinrich Schliemann** gräbt ab 1870 auf dem Hügel **Hisarlik** (Türkei) – über zehn Siedlungsschichten, eine davon im **13./12. Jh. v. Chr.** gewaltsam zerstört; Lage an den Dardanellen = reiche Handelsstadt
+- Schliemann grub auch **Mykene** aus (Gräber, Palast); hethitische Texte nennen ein Volk „Aḫḫijawa“ = wohl Homers **Achaier**
+- Ob es den Krieg so gab, ist offen: Mythos mit historischem Kern, vermischt mit der Welt Homers
+
+## Mythen in unserer Sprache
+
+| Redewendung | Herkunft | Bedeutung |
+|---|---|---|
+| **Achillesferse** | Achills einzige verwundbare Stelle | Schwachpunkt |
+| **Büchse der Pandora** | Pandora öffnet das Gefäß, alle Übel entweichen, nur die Hoffnung bleibt | Quelle vieler Übel |
+| **Sisyphusarbeit** | Sisyphos rollt ewig einen Stein den Berg hinauf | endlose, vergebliche Mühe |
+| **Odyssee** | Irrfahrt des Odysseus | lange, mühsame Reise |
+| **Trojanisches Pferd** | List vor Troja | getarnte Gefahr (auch Schadsoftware) |
+| **Tantalusqualen** | Tantalos steht im Wasser unter Früchten, die zurückweichen | Qual, das Ersehnte nie zu erreichen |
+| **Narzisst** | Narziss verliebt sich in sein Spiegelbild | selbstverliebter Mensch |
+| **Ariadnefaden** | Faden führt Theseus aus dem Labyrinth | rettender Leitfaden |
+| **Hochmut kommt vor dem Fall** | **Ikarus** fliegt zu nah an die Sonne, das Wachs seiner Flügel schmilzt („halte die Mitte der Bahn“, Ovid) | Selbstüberschätzung rächt sich |
+| **Panik** | Hirtengott Pan erschreckt Menschen | plötzliche Angst |
+| **Zankapfel** | Eris wirft den goldenen Apfel „der Schönsten“ → Parisurteil → Krieg | Streitobjekt |
+| **Kassandrarufe** | Kassandra sieht Trojas Fall voraus, niemand glaubt ihr | ungehörte Warnungen |
+`;export{e as default};
