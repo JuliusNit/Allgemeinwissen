@@ -122,7 +122,13 @@ export interface State {
   guest?: boolean
   /** Videolisten vom Editor (Supabase), Tag → Videos; lokal zwischengespeichert für offline */
   content: Record<number, Video[]>
+  /** Zeitpunkt der letzten Änderung am Fortschritt (Abgleich mit dem Konto, lib/cloud.ts) */
+  progressAt?: string
 }
+
+/** Teil des Zustands, der ins Konto wandert – ohne Einstellungen/API-Key, Editor-Videolisten, Profil (eigene Tabelle) und Geräte-Flags */
+export const PROGRESS_KEYS = ['days', 'cards', 'cardLog', 'reviews', 'basis', 'exams', 'community', 'focus', 'recapSeen'] as const
+export type Progress = Pick<State, (typeof PROGRESS_KEYS)[number]>
 
 const KEY = 'allgemeinwissen-v1'
 
@@ -194,13 +200,22 @@ function persist() {
 }
 
 export function setState(fn: (s: State) => State) {
-  state = fn(state)
+  const prev = state
+  let next = fn(state)
+  // Fortschritt geaendert → Zeitstempel fuer den Abgleich, ausser der Aufruf setzt ihn selbst (Stand aus dem Konto)
+  if (next.progressAt === prev.progressAt && PROGRESS_KEYS.some((k) => next[k] !== prev[k])) next = { ...next, progressAt: new Date().toISOString() }
+  state = next
   persist()
   listeners.forEach((l) => l())
 }
 
 export function getState(): State {
   return state
+}
+
+export function subscribeStore(cb: () => void): () => void {
+  listeners.add(cb)
+  return () => listeners.delete(cb)
 }
 
 export function useStore<T>(select: (s: State) => T): T {
@@ -288,7 +303,25 @@ export function importJson(text: string) {
   if (parsed.version !== 1 || typeof parsed.days !== 'object') throw new Error('Keine gültige Sicherung')
   // API-Key des Geraets behalten, wenn die Sicherung keinen hat
   const apiKey = parsed.settings?.apiKey || state.settings.apiKey
-  setState((s) => normalize({ ...parsed, settings: { ...parsed.settings, apiKey }, owner: s.owner, content: s.content }))
+  setState((s) => normalize({ ...parsed, settings: { ...parsed.settings, apiKey }, owner: s.owner, guest: s.guest, content: s.content, progressAt: new Date().toISOString() }))
+}
+
+export function progressOf(s: State): Progress {
+  return Object.fromEntries(PROGRESS_KEYS.map((k) => [k, s[k]])) as Progress
+}
+
+/** Stand aus dem Konto uebernehmen (Zeitstempel = der des Kontos, damit er nicht gleich wieder hochgeladen wird) */
+export function applyProgress(p: Partial<Progress>, at: string) {
+  setState((s) => normalize({ ...s, ...Object.fromEntries(PROGRESS_KEYS.map((k) => [k, p[k] ?? initial[k]])), progressAt: at }))
+}
+
+/** abgeschlossene Sessions eines Fortschritts */
+export function doneCount(p: Partial<Progress>): number {
+  return Object.values(p.days ?? {}).filter((d) => d?.status === 'fertig').length
+}
+
+export function progressEmpty(p: Partial<Progress>): boolean {
+  return !Object.keys(p.days ?? {}).length && !p.cards?.length && !Object.keys(p.reviews ?? {}).length
 }
 
 export function resetAll() {

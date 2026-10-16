@@ -59,6 +59,13 @@ Getestet im lokalen Dev-Server (mobil, 375 × 812) mit frischem Zustand und mit 
 **Stand 15.10.2026:** 3 (Konto löschen), 5 (Melden/Blockieren, `is_ki` nur über den Server) und 6 (Ohne Konto starten) sind im Code,
 dazu die Error-Boundary. `005_melden_blockieren.sql`, `ki-chat` und `delete-account` sind auf dem Server eingerichtet.
 
+**Stand 16.10.2026:** 4 (Datenschutzerklärung + Impressum als Seiten `#/datenschutz`, `#/impressum`, verlinkt im Profil und unter
+„Registrieren“ – **Entwurf mit Platzhaltern, vor dem Launch rechtlich prüfen**), 7 (Geburtsjahr beim Kontoanlegen, bestehende Konten
+werden einmal gefragt; unter 16 keine öffentlichen Kanäle, per RLS und in `ki-chat`) und 10 (Fortschritt im Konto, Tabelle `progress`)
+sind im Code. Auf dem Server fehlt noch: `006_fortschritt.sql` ausführen, `ki-chat` neu deployen.
+Offen bleiben bei 7 die Rechtsklärung (Einwilligung der Eltern unter 16, Art. 8 DSGVO) und die Altersfreigabe im Store, bei 8 der
+Vertrag mit dem KI-Anbieter (Platzhalter in der Datenschutzerklärung).
+
 ### Stark empfohlen
 
 - **Error-Boundary + Absturzmeldungen** (Sentry o. ä., datensparsam).

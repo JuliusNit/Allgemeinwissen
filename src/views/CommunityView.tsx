@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { AREAS, type AreaId } from '../data/plan'
 import { channelChat, channelChatCloud, describeError } from '../lib/ai'
 import {
-  acceptFriend, blockUser, cloud, deleteMessage, ensureUser, fetchBlocks, fetchDirect, fetchFriendships, fetchMessages, fetchReports, loadProfiles,
+  acceptFriend, blockUser, cloud, deleteMessage, ensureUser, fetchBlocks, fetchDirect, fetchFriendships, fetchMessages, fetchReports, loadProfiles, over16,
   postMessage, removeFriend, reportMessage, REPORT_REASONS, requestFriend, resolveReport, searchProfiles, subscribe, subscribeFriends, unblockUser,
   useAuth, type CloudMsg, type CloudProfile, type Friendship, type Report, type ReportReason,
 } from '../lib/cloud'
@@ -57,6 +57,8 @@ export function CommunityView({ channel, go }: { channel?: string; go: (hash: st
   const auth = useAuth()
   const me = cloud ? auth.user?.id ?? null : null
   const editor = !!me && auth.role === 'editor'
+  // unter 16 (oder ohne Geburtsjahr) nur Freunde + Direktnachrichten; der Server sperrt dasselbe per RLS (006)
+  const publicOk = !me || over16(auth.birthYear)
   const fr = useFriends(me)
   const bl = useBlocks(me)
   const ch = CHANNELS.find((c) => c.id === channel)
@@ -70,6 +72,7 @@ export function CommunityView({ channel, go }: { channel?: string; go: (hash: st
 
   let main: ReactNode = <div className="channel-empty muted">Kanal oder Freund wählen</div>
   if (cloud && !me && open) main = <NeedAccount go={go} />
+  else if (ch && !publicOk) main = <Under16 go={go} />
   else if (ch) main = cloud ? <CloudChat key={ch.id} title={ch.name} area={ch.area} channel={ch.id} blocked={bl.ids} onBlock={block} editor={editor} go={go} /> : <LocalChannel key={ch.id} ch={ch} go={go} />
   else if (channel === 'freunde') main = me ? <FriendsPane me={me} fr={fr} bl={bl} go={go} /> : <NeedServer go={go} />
   else if (channel === 'meldungen' && editor) main = <ReportsPane go={go} />
@@ -91,17 +94,21 @@ export function CommunityView({ channel, go }: { channel?: string; go: (hash: st
     <div className={`community ${open ? 'in-channel' : ''}`}>
       <aside className="channels">
         <h1>Austausch</h1>
-        <h2 className="side-head">Kanäle</h2>
-        <ul>
-          {CHANNELS.map((c) => (
-            <li key={c.id}>
-              <button className={c.id === ch?.id ? 'active' : ''} onClick={() => go(`/chat/${c.id}`)}>
-                {c.area ? <Icon name={c.area as IconName} size={18} /> : <Icon name="CHAT" size={18} />}
-                {c.name}
-              </button>
-            </li>
-          ))}
-        </ul>
+        {publicOk && (
+          <>
+            <h2 className="side-head">Kanäle</h2>
+            <ul>
+              {CHANNELS.map((c) => (
+                <li key={c.id}>
+                  <button className={c.id === ch?.id ? 'active' : ''} onClick={() => go(`/chat/${c.id}`)}>
+                    {c.area ? <Icon name={c.area as IconName} size={18} /> : <Icon name="CHAT" size={18} />}
+                    {c.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
         {cloud && (
           <>
             <h2 className="side-head">Freunde</h2>
@@ -141,7 +148,7 @@ export function CommunityView({ channel, go }: { channel?: string; go: (hash: st
           </>
         )}
         <p className="muted small">
-          {cloud ? 'Live mit allen, die die App nutzen. ' : 'Noch lokal auf diesem Gerät (kein Server eingerichtet). '}
+          {cloud ? (publicOk ? 'Live mit allen, die die App nutzen. ' : '') : 'Noch lokal auf diesem Gerät (kein Server eingerichtet). '}
           Mit <b>@KI</b> antwortet die KI im Chat.
         </p>
       </aside>
@@ -155,6 +162,19 @@ function NeedServer({ go }: { go: (hash: string) => void }) {
     <section className="channel">
       <ChatHead go={go}>Freunde</ChatHead>
       <p className="muted">Freunde gibt es nur mit Konto auf dem App-Server.</p>
+    </section>
+  )
+}
+
+/** Oeffentlicher Kanal, aber unter 16 */
+function Under16({ go }: { go: (hash: string) => void }) {
+  return (
+    <section className="channel">
+      <ChatHead go={go}>Austausch</ChatHead>
+      <Frame className="card empty">
+        <p>Öffentliche Kanäle gibt es ab 16. Mit Freunden kannst du dich direkt austauschen.</p>
+        <button className="btn primary" onClick={() => go('/chat/freunde')}>Freunde</button>
+      </Frame>
     </section>
   )
 }

@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { GRADES, levelLabel, repeatDays, type Level } from '../data/school'
-import { askAccount, cloud, resendConfirmation, saveLevel, sendReset, setNewPassword, signIn, signUp, useAuth } from '../lib/cloud'
+import { askAccount, cloud, resendConfirmation, saveBirthYear, saveLevel, sendReset, setNewPassword, signIn, signUp, useAuth } from '../lib/cloud'
 import { setState, useStore } from '../lib/store'
 import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
@@ -20,6 +20,7 @@ export function Onboarding() {
   const [mail, setMail] = useState('')
 
   if (auth.recovery) return <Shell><NewPassword /></Shell>
+  if (auth.user && auth.birthYear === null) return <Shell><BirthYearOnly /></Shell>
   if (auth.user) return <Shell><LevelOnly /></Shell>
   if (guest) return <Shell><LocalStart /></Shell>
 
@@ -151,6 +152,7 @@ function Register({ onDone, onLogin }: { onDone: (mail: string) => void; onLogin
   const storedLevel = useStore((s) => s.level)
   const [name, setName] = useState(storedName)
   const [level, setLevel] = useState<Level | undefined>(storedLevel)
+  const [born, setBorn] = useState<number | undefined>()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [tried, setTried] = useState(false)
@@ -158,16 +160,16 @@ function Register({ onDone, onLogin }: { onDone: (mail: string) => void; onLogin
   const pwOk = pw.length >= PW_MIN
   const same = pw === pw2
   const mailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-  const valid = mailOk && pwOk && same && !!name.trim() && !!level
+  const valid = mailOk && pwOk && same && !!name.trim() && !!level && !!born
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setTried(true)
-    if (!valid || !level) return
+    if (!valid || !level || !born) return
     setBusy(true)
     setError(null)
     try {
-      const loggedIn = await signUp(email.trim(), pw, name.trim(), level)
+      const loggedIn = await signUp(email.trim(), pw, name.trim(), level, born)
       if (!loggedIn) onDone(email.trim())
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
@@ -188,6 +190,9 @@ function Register({ onDone, onLogin }: { onDone: (mail: string) => void; onLogin
         <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" maxLength={40} required />
         {tried && !name.trim() && <p className="field-err small">Bitte einen Namen eingeben.</p>}
 
+        <BirthYearField value={born} onChange={setBorn} />
+        {tried && !born && <p className="field-err small">Bitte dein Geburtsjahr wählen.</p>}
+
         <PasswordField label="Passwort" value={pw} onChange={setPw} autoComplete="new-password" />
         <PasswordStrength pw={pw} />
         <PasswordField label="Passwort wiederholen" value={pw2} onChange={setPw2} autoComplete="new-password" />
@@ -201,6 +206,7 @@ function Register({ onDone, onLogin }: { onDone: (mail: string) => void; onLogin
         {error && <div className="chat-error">{error}</div>}
         <button className="btn primary wide spaced" type="submit" disabled={busy}>{busy ? 'Wird angelegt …' : 'Registrieren'}</button>
         <button type="button" className="btn ghost small center" onClick={onLogin}>Schon ein Konto? Anmelden</button>
+        <LegalLinks />
       </form>
     </Frame>
   )
@@ -321,6 +327,57 @@ function NewPassword() {
         {error && <div className="chat-error">{error}</div>}
         <button className="btn primary wide spaced" type="submit" disabled={!ok || busy}>Speichern</button>
       </form>
+    </Frame>
+  )
+}
+
+const YEAR = new Date().getFullYear()
+const YEARS = Array.from({ length: 95 }, (_, k) => YEAR - 5 - k)
+
+function BirthYearField({ value, onChange }: { value: number | undefined; onChange: (y: number) => void }) {
+  return (
+    <>
+      <label>Geburtsjahr</label>
+      <select value={value ?? ''} onChange={(e) => onChange(Number(e.target.value))} required>
+        <option value="" disabled>–</option>
+        {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+      </select>
+    </>
+  )
+}
+
+/** Datenschutzerklärung + Impressum (Routen ausserhalb des Onboardings, App.tsx haelt das Formular solange offen) */
+export function LegalLinks() {
+  return (
+    <div className="row center legal-links">
+      <a className="btn ghost small" href="#/datenschutz">Datenschutz</a>
+      <a className="btn ghost small" href="#/impressum">Impressum</a>
+    </div>
+  )
+}
+
+/** Konto von vor der Altersabfrage: Geburtsjahr einmal nachtragen */
+function BirthYearOnly() {
+  const [born, setBorn] = useState<number | undefined>()
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  return (
+    <Frame className="card onb-form">
+      <h1>Wann bist du geboren?</h1>
+      <BirthYearField value={born} onChange={setBorn} />
+      {error && <div className="chat-error">{error}</div>}
+      <button
+        className="btn primary wide spaced"
+        disabled={!born || busy}
+        onClick={() => {
+          if (!born) return
+          setBusy(true)
+          setError(null)
+          saveBirthYear(born).catch((e: Error) => setError(e.message)).finally(() => setBusy(false))
+        }}
+      >
+        Weiter
+      </button>
     </Frame>
   )
 }

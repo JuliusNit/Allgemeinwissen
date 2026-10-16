@@ -91,7 +91,8 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Auswerten mit Pfeilen + Logo → Aufruf „Erweitere auch du jetzt dein Wissen.“ mit Kristall in der Mitte und Konto-Knöpfen.
   Übergänge nur mit „Weiter“, nicht zurück/über die Punkte.
 - `src/views/Onboarding.tsx` – erster Start: Einführung (`Intro`), dann Konto anlegen
-  (E-Mail, Name, Passwort mit Stärke-Skala – Pflicht nur 8+ Zeichen, sonst rote Meldung über „Registrieren“ – + Wiederholung) und Wissensstand.
+  (E-Mail, Name, Geburtsjahr, Passwort mit Stärke-Skala – Pflicht nur 8+ Zeichen, sonst rote Meldung über „Registrieren“ – + Wiederholung) und Wissensstand.
+  Unter „Registrieren“ und im Profil: Links auf `#/datenschutz` und `#/impressum` (`LegalLinks`). Konten ohne Geburtsjahr fragt `BirthYearOnly` einmal.
   Ohne Supabase nur Name + Wissensstand lokal. Mit Supabase auch „Ohne Konto starten“ (`guest` im Zustand, Name + Wissensstand lokal);
   Konto erst für KI und Austausch (`AccountButton` in `components/NeedAccount.tsx` → `askAccount`, Fortschritt geht ins Konto über).
 - `src/data/school.ts` – Wissensstand (Schule + Klasse / Studium / Ausbildung-Beruf), `SCHOOL_GRADE` (Jahrgangsstufe je Tag nach
@@ -106,11 +107,20 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Nachrichten → Melden (Grund) / Blockieren (Nachrichten ausgeblendet per RLS, Freundschaft endet); Liste „Blockiert“ unter Freunde;
   Meldungen sieht nur der Editor (`#/chat/meldungen`). `is_ki = true` dürfen Nutzer nicht schreiben – KI-Antworten im Austausch
   schreibt die Edge Function `ki-chat` (liest Verlauf selbst, streamt, speichert); ohne Server bleibt der Chat lokal wie bisher.
+  Öffentliche Kanäle erst ab 16 (`supabase/006_fortschritt.sql`: `birth_years`, nach dem Eintragen fest, `over_16()` in der RLS von
+  `messages` und in `ki-chat`; nur Jahr bekannt → erst ab Jahr − Geburtsjahr ≥ 17, ohne Geburtsjahr gesperrt). Darunter nur Freunde + DMs.
 - Konto löschen (Profil → Konto, E-Mail eintippen): Edge Function `delete-account` löscht `auth.users` → Kaskade, danach `wipeAll()`.
   Edge Functions teilen CORS/Kontoprüfung über `supabase/functions/_shared/auth.ts`.
+- `src/data/legal.ts` + `src/views/LegalView.tsx` – Datenschutzerklärung + Impressum (`#/datenschutz`, `#/impressum`, auch vor der
+  Anmeldung: das Onboarding bleibt darunter versteckt offen). **Entwurf**, persönliche Angaben als `[PLATZHALTER: …]`, vor dem Launch
+  rechtlich prüfen. Ändert sich der Datenfluss (Anbieter, Tabelle, Tracking), Text nachziehen.
 - `src/components/ErrorBoundary.tsx` – um Onboarding und alle Views (`resetKey` = Hash, Routenwechsel versucht neu), Knopf „Neu laden“.
 - `src/lib/cloud.ts` + `supabase/schema.sql` + `supabase/002_konten_rollen.sql` – Konten (E-Mail/Passwort, implicit flow – Bestätigungslink meldet auch in anderem Browser an; Site URL = Pages-Adresse),
-  Austausch-Chat (RLS, Realtime), Editor-Inhalte. Name/Wissensstand liegen in den user_metadata, Fortschritt bleibt lokal.
+  Austausch-Chat (RLS, Realtime), Editor-Inhalte. Name/Wissensstand/Geburtsjahr liegen in den user_metadata.
+  Fortschritt im Konto (`progress`, 006): `PROGRESS_KEYS` in `store.ts` (ohne Einstellungen/API-Key, `content`, Profil, Geräte-Flags),
+  `setState` stempelt `progressAt` bei jeder Änderung daran. Beim Anmelden `pullProgress`: neuerer Zeitstempel gewinnt, ein leerer
+  Stand ersetzt nie einen mit Fortschritt, weniger abgeschlossene Sessions nur nach Rückfrage; danach Hochladen 5 s nach der letzten
+  Änderung, beim Verlassen der Seite per `fetch` mit `keepalive`. Gast-Fortschritt geht so beim ersten Anmelden ins Konto über.
   Konfiguration beim Bauen aus der lokalen `.env` (gitignored): `VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY` (Publishable Key).
   Ohne Werte läuft der Chat nur lokal – vor `npm run deploy` prüfen. `VITE_DEV_LLM_KEY` gilt nur für `npm run dev`
   und darf nie in den Build gelangen (nach dem Build `dist/` auf `sk-` prüfen).

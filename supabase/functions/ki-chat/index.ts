@@ -42,6 +42,10 @@ Deno.serve(async (req) => {
     const { data: friends } = await admin.rpc('are_friends', { a: user.id, b: to })
     const { data: blocked } = await admin.rpc('is_blocked', { a: user.id, b: to })
     if (!friends || blocked) return fail(403, 'Ihr seid nicht befreundet.')
+  } else {
+    // öffentliche Kanäle erst ab 16 (006_fortschritt.sql); ohne 006 gibt es die Funktion noch nicht → kein Fehler
+    const { data: adult, error: ageErr } = await admin.rpc('over_16', { uid: user.id })
+    if (!ageErr && !adult) return fail(403, 'Öffentliche Kanäle gibt es erst ab 16.')
   }
 
   // Verlauf aus der Datenbank (ohne Blockierte), nicht vom Geraet

@@ -458,6 +458,10 @@ details summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
 
 /* Profil */
 .profile-head { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+.legal { max-width: 720px; margin: 0 auto; }
+.legal .md h2 { font-size: 1.05rem; margin: 18px 0 6px; }
+.legal .md h2:first-child { margin-top: 0; }
+.legal-links { margin-top: 10px; }
 .avatar-btn { background: none; border: 0; padding: 0; cursor: pointer; position: relative; }
 .avatar-edit { position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); background: var(--paper); border: 1.5px solid var(--ink); border-radius: 999px; font-size: 0.72rem; padding: 0 8px; }
 .name-input { font-size: 1.35rem; font-weight: 700; border: 0; border-bottom: 2px solid var(--ink); border-radius: 0; padding: 4px 2px; }

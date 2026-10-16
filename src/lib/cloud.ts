@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js'
 import { parseLevel, type Level } from '../data/school'
 import type { Video } from '../data/plan'
-import { getState, resetAll, setState, useStore, wipeAll } from './store'
+import { applyProgress, doneCount, getState, progressEmpty, progressOf, resetAll, setState, subscribeStore, useStore, wipeAll, type Progress } from './store'
 
 // Supabase: Konten (E-Mail + Passwort), Rollen (user | editor), Austausch-Chat und die vom Editor
 // gepflegten Videolisten. Adresse + Publishable Key kommen beim Bauen aus der lokalen .env
@@ -26,6 +26,8 @@ export interface Auth {
   role: Role
   /** Rueckkehr ueber den "Passwort vergessen"-Link → neues Passwort setzen */
   recovery: boolean
+  /** Geburtsjahr des Kontos: undefined = noch nicht geladen, null = fehlt (wird einmal abgefragt) */
+  birthYear?: number | null
 }
 
 const RESET_FLAG = 'aw-reset'
@@ -84,11 +86,16 @@ if (cloud) {
     // fruehere anonyme Sitzungen zaehlen nicht als Konto
     const user = u && !u.is_anonymous ? u : null
     const recovery = !!user && (event === 'PASSWORD_RECOVERY' || recoveryFlag())
-    setAuth({ ready: true, user, role: user && user.id === auth.user?.id ? auth.role : 'user', recovery })
+    const same = !!user && user.id === auth.user?.id
+    setAuth({ ready: true, user, role: same ? auth.role : 'user', birthYear: same ? auth.birthYear : undefined, recovery })
+    token = session?.access_token ?? ''
     if (/code=|reset=|token_hash=/.test(location.search)) history.replaceState(null, '', location.pathname + location.hash)
     // Supabase-Aufrufe nicht direkt im Callback abwarten (Sperre im Client)
     if (user && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) window.setTimeout(() => void afterLogin(user), 0)
-    if (!user) syncedProfile = ''
+    if (!user) {
+      syncedProfile = ''
+      stopSync()
+    }
   })
 
   // Bestaetigungs-Mail mit ?token_hash=…&type=… (E-Mail-Vorlage in Supabase): meldet direkt an –
@@ -112,7 +119,7 @@ async function afterLogin(user: User) {
     const hasProgress = Object.keys(s.days).length > 0 || s.cards.length > 0
     if (hasProgress && confirm('Auf diesem Gerät liegt der Fortschritt eines anderen Kontos. Für dieses Konto neu beginnen?\n(Abbrechen = Fortschritt übernehmen)')) resetAll()
   }
-  const meta = user.user_metadata as { name?: string; level?: unknown }
+  const meta = user.user_metadata as { name?: string; level?: unknown; birth_year?: unknown }
   const { data: row } = await cloud.from('profiles').select('name,avatar,role').eq('id', user.id).maybeSingle()
   const p = row as { name: string; avatar: string | null; role?: Role } | null
   setState((x) => ({
@@ -124,6 +131,8 @@ async function afterLogin(user: User) {
     profile: p ? { name: p.name, avatar: p.avatar ?? x.profile.avatar } : { ...x.profile, name: x.profile.name || meta.name || '' },
   }))
   setAuth({ role: p?.role === 'editor' ? 'editor' : 'user' })
+  await loadBirthYear(user).catch(() => setAuth({ birthYear: birthYearOf(meta) }))
+  await pullProgress(user.id).catch(() => {})
   await syncProfile().catch(() => {})
   await loadContent().catch(() => {})
 }
@@ -152,11 +161,11 @@ function need(): SupabaseClient {
 }
 
 /** Registrieren. Rueckgabe: true = direkt angemeldet, false = Bestaetigungs-Mail unterwegs */
-export async function signUp(email: string, password: string, name: string, level: Level): Promise<boolean> {
+export async function signUp(email: string, password: string, name: string, level: Level, birthYear: number): Promise<boolean> {
   const { data, error } = await need().auth.signUp({
     email,
     password,
-    options: { data: { name, level }, emailRedirectTo: baseUrl() },
+    options: { data: { name, level, birth_year: birthYear }, emailRedirectTo: baseUrl() },
   })
   if (error) throw authError(error)
   // bei aktivierter Bestaetigung meldet Supabase bekannte Adressen nicht als Fehler, sondern ohne Identitaet
@@ -171,6 +180,8 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signOut() {
+  await pushProgress().catch(() => {})
+  stopSync()
   await need().auth.signOut()
   setAuth({ user: null, role: 'user', recovery: false })
 }
@@ -192,6 +203,7 @@ export async function deleteAccount() {
   }
   if (res.status === 404) throw new Error('Konto löschen ist auf dem Server noch nicht eingerichtet (Edge Function „delete-account“ fehlt).')
   if (!res.ok) throw new Error(((await res.json().catch(() => ({}))) as { error?: string }).error ?? `Fehler ${res.status}`)
+  stopSync()
   await need().auth.signOut({ scope: 'local' }).catch(() => {})
   wipeAll()
   setAuth({ user: null, role: 'user', recovery: false })
@@ -225,6 +237,149 @@ export async function saveLevel(level: Level) {
     const { error } = await cloud.auth.updateUser({ data: { level } })
     if (error) throw authError(error)
   }
+}
+
+// ---------- Alter (006_fortschritt.sql) ----------
+// Steht im Konto (user_metadata.birth_year) und in public.birth_years – dort fest und Grundlage der RLS
+// (oeffentliche Kanaele erst ab 16). Ohne 006 auf dem Server gilt nur das Feld im Konto.
+
+/** Sicher 16 oder aelter: mit nur dem Geburtsjahr erst im Jahr nach dem 16. (wie public.over_16) */
+export function over16(year: number | null | undefined): boolean {
+  return !!year && new Date().getFullYear() - year >= 17
+}
+
+function birthYearOf(meta: { birth_year?: unknown }): number | null {
+  const y = Number(meta.birth_year)
+  return Number.isInteger(y) && y > 1900 ? y : null
+}
+
+async function loadBirthYear(user: User) {
+  const c = need()
+  const meta = birthYearOf(user.user_metadata as { birth_year?: unknown })
+  const { data, error } = await c.from('birth_years').select('year').eq('user_id', user.id).maybeSingle()
+  if (error) throw error
+  const row = (data as { year: number } | null)?.year ?? null
+  // Registrierung schreibt nur ins Konto (ohne Sitzung) → beim ersten Anmelden in die Tabelle uebernehmen
+  if (!row && meta) await c.from('birth_years').insert({ user_id: user.id, year: meta })
+  setAuth({ birthYear: row ?? meta })
+}
+
+/** Geburtsjahr einmalig nachtragen (Konten von vor der Altersabfrage) */
+export async function saveBirthYear(year: number) {
+  const c = need()
+  const user = auth.user
+  if (!user) throw new Error('Bitte anmelden.')
+  const { error } = await c.auth.updateUser({ data: { birth_year: year } })
+  if (error) throw authError(error)
+  const { error: rowErr } = await c.from('birth_years').insert({ user_id: user.id, year })
+  // schon eingetragen → der Wert dort gilt; Tabelle fehlt (006 nicht ausgefuehrt) → nur im Konto
+  if (rowErr && /duplicate|unique/i.test(rowErr.message)) await loadBirthYear(user).catch(() => setAuth({ birthYear: year }))
+  else setAuth({ birthYear: year })
+}
+
+// ---------- Fortschritt im Konto (006_fortschritt.sql) ----------
+// Beim Anmelden: Stand aus public.progress mit dem Geraet abgleichen – neuerer Zeitstempel gewinnt, ein leerer Stand
+// ersetzt nie einen mit Fortschritt, weniger abgeschlossene Sessions nur nach Rueckfrage. Danach jede Aenderung
+// 5 s nach der letzten hochladen, beim Verlassen der Seite sofort. Fehlt die Tabelle, bleibt alles lokal.
+
+const SYNC_DELAY = 5000
+let token = ''
+let syncUser: string | null = null
+let uploaded = ''
+let seenAt = ''
+let timer = 0
+
+function stopSync() {
+  syncUser = null
+  window.clearTimeout(timer)
+  timer = 0
+}
+
+const time = (iso: string | undefined) => (iso ? Date.parse(iso) || 0 : 0)
+
+/** Gilt der Stand des Kontos? Neuerer gewinnt – ausser er ist leer oder hat weniger abgeschlossene Sessions (Rueckfrage) */
+function pickRemote(local: Progress, localAt: string | undefined, remote: Progress, remoteAt: string): boolean {
+  const remoteNewer = time(remoteAt) > time(localAt)
+  const [newer, older] = remoteNewer ? [remote, local] : [local, remote]
+  if (progressEmpty(newer) && !progressEmpty(older)) return !remoteNewer
+  const n = doneCount(newer)
+  const o = doneCount(older)
+  if (n >= o) return remoteNewer
+  const takeNewer = remoteNewer
+    ? confirm(`Im Konto liegt ein neuerer Stand mit ${n} abgeschlossenen Sessions, auf diesem Gerät sind es ${o}.\nKonto-Stand laden?\n(Abbrechen = Stand dieses Geräts behalten)`)
+    : confirm(`Auf diesem Gerät liegt ein neuerer Stand mit ${n} abgeschlossenen Sessions, im Konto sind es ${o}.\nStand dieses Geräts ins Konto übernehmen?\n(Abbrechen = Konto-Stand laden)`)
+  return takeNewer === remoteNewer
+}
+
+async function pullProgress(uid: string) {
+  const c = need()
+  stopSync()
+  const { data, error } = await c.from('progress').select('data,updated_at').eq('user_id', uid).maybeSingle()
+  if (error) return
+  const row = data as { data: Progress; updated_at: string } | null
+  const s = getState()
+  const local = progressOf(s)
+  if (row && time(row.updated_at) === time(s.progressAt)) uploaded = s.progressAt ?? ''
+  else if (row && pickRemote(local, s.progressAt, row.data, row.updated_at)) {
+    applyProgress(row.data, row.updated_at)
+    uploaded = row.updated_at
+  } else if (progressEmpty(local)) uploaded = s.progressAt ?? ''
+  else {
+    // lokaler Stand gilt; ohne Zeitstempel (vor dem Abgleich entstanden) jetzt einen setzen
+    if (!s.progressAt) setState((x) => ({ ...x, progressAt: new Date().toISOString() }))
+    uploaded = ''
+  }
+  syncUser = uid
+  seenAt = getState().progressAt ?? ''
+  if (seenAt !== uploaded) await pushProgress()
+}
+
+/** Aktuellen Stand hochladen, falls er sich seit dem letzten Hochladen geaendert hat */
+async function pushProgress() {
+  window.clearTimeout(timer)
+  timer = 0
+  const s = getState()
+  const uid = syncUser
+  const at = s.progressAt
+  if (!cloud || !uid || !at || at === uploaded || s.owner !== uid) return
+  const { error } = await cloud.from('progress').upsert({ user_id: uid, data: progressOf(s), updated_at: at })
+  if (!error) uploaded = at
+}
+
+/** Beim Verlassen der Seite: fetch mit keepalive ueberlebt das Schliessen (bis 64 KB) */
+function flushProgress() {
+  const s = getState()
+  const uid = syncUser
+  const at = s.progressAt
+  if (!url || !key || !token || !uid || !at || at === uploaded || s.owner !== uid) return
+  window.clearTimeout(timer)
+  timer = 0
+  const body = JSON.stringify({ user_id: uid, data: progressOf(s), updated_at: at })
+  void fetch(`${url.replace(/\/$/, '')}/rest/v1/progress?on_conflict=user_id`, {
+    method: 'POST',
+    keepalive: body.length < 60000,
+    headers: { apikey: key, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
+    body,
+  }).then(
+    (r) => {
+      if (r.ok) uploaded = at
+    },
+    () => {},
+  )
+}
+
+if (cloud) {
+  subscribeStore(() => {
+    const at = getState().progressAt ?? ''
+    if (!syncUser || at === seenAt) return
+    seenAt = at
+    window.clearTimeout(timer)
+    timer = window.setTimeout(() => void pushProgress().catch(() => {}), SYNC_DELAY)
+  })
+  addEventListener('pagehide', flushProgress)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushProgress()
+  })
 }
 
 // ---------- Profil + Chat ----------

@@ -16,6 +16,7 @@ import { ReviewView } from './views/ReviewView'
 import { BasisView } from './views/BasisView'
 import { StatsView } from './views/StatsView'
 import { TopicView } from './views/TopicView'
+import { LegalView, type LegalPage } from './views/LegalView'
 
 type Tab = 'exam' | 'home' | 'chat' | 'stats' | 'profil'
 
@@ -23,7 +24,7 @@ type Route =
   | { tab: 'home'; day?: number; topic?: number; review?: string; vday?: number; video?: string; at?: number }
   | { tab: 'chat'; channel?: string }
   | { tab: 'stats'; area?: AreaId; day?: number }
-  | { tab: 'profil' }
+  | { tab: 'profil'; legal?: LegalPage }
   | { tab: 'exam'; day?: number }
 
 function parseHash(): Route {
@@ -45,6 +46,7 @@ function parseHash(): Route {
     return { tab: 'stats', area, day: area && c ? Number(c) || undefined : undefined }
   }
   if (a === 'profil') return { tab: 'profil' }
+  if (a === 'datenschutz' || a === 'impressum') return { tab: 'profil', legal: a }
   if (a === 'pruefung') return { tab: 'exam', day: b ? Math.min(90, Math.max(1, Number(b) || 1)) : undefined }
   return { tab: 'home' }
 }
@@ -87,12 +89,17 @@ export default function App() {
 
   // Erst Einfuehrung + Konto (mit Server, ausser "Ohne Konto starten") bzw. Wissensstand
   if (!auth.ready) return <div className="app"><HatchDefs /></div>
-  if ((cloud && (auth.recovery || (!auth.user && !guest))) || !hasLevel) {
+  const legal = route.tab === 'profil' ? route.legal : undefined
+  if ((cloud && (auth.recovery || (!auth.user && !guest) || (auth.user && auth.birthYear === null))) || !hasLevel) {
+    // Rechtstexte ueber dem Formular; das Onboarding bleibt darunter offen, damit Eingaben erhalten bleiben
     return (
       <div className="app onboarding">
         <HatchDefs />
         <ErrorBoundary>
-          <Onboarding />
+          {legal && <LegalView page={legal} />}
+          <div hidden={!!legal}>
+            <Onboarding />
+          </div>
         </ErrorBoundary>
       </div>
     )
@@ -161,7 +168,7 @@ export default function App() {
           ))}
         {route.tab === 'chat' && <CommunityView channel={route.channel} go={go} />}
         {route.tab === 'stats' && <StatsView area={route.area} day={route.day} go={go} />}
-        {route.tab === 'profil' && <ProfileView />}
+        {route.tab === 'profil' && (route.legal ? <LegalView page={route.legal} /> : <ProfileView />)}
         {route.tab === 'exam' && <ExamView day={route.day} go={go} />}
         </ErrorBoundary>
       </main>

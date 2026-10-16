@@ -12,7 +12,7 @@ import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
 import { Markdown } from '../components/Markdown'
 import { AccountButton } from '../components/NeedAccount'
-import { LevelPicker } from './Onboarding'
+import { LegalLinks, LevelPicker } from './Onboarding'
 
 async function resizeImage(f: File, px = 192): Promise<string> {
   const url = URL.createObjectURL(f)
@@ -65,6 +65,7 @@ export function ProfileView() {
       <Strengths />
       <AiSettings />
       <Backup />
+      <LegalLinks />
     </div>
   )
 }
