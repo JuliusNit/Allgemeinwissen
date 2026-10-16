@@ -21,16 +21,19 @@ Fragen zum Datenschutz und alle Anträge (Auskunft, Löschung …) an diese Adre
 
 ## 3 · Bereitstellung der App (Hosting)
 
-Die App wird über **GitHub Pages** (GitHub Inc., USA) ausgeliefert. Beim Aufruf verarbeitet GitHub technisch nötige Verbindungsdaten (IP-Adresse, Zeitpunkt, abgerufene Datei, Browser). Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (sichere Auslieferung). Übermittlung in die USA auf Grundlage des EU-US Data Privacy Framework bzw. von Standardvertragsklauseln.
+Die Web-Version wird über **GitHub Pages** (GitHub Inc., USA) ausgeliefert. Beim Aufruf verarbeitet GitHub technisch nötige Verbindungsdaten (IP-Adresse, Zeitpunkt, abgerufene Datei, Browser). Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (sichere Auslieferung). Übermittlung in die USA auf Grundlage des EU-US Data Privacy Framework bzw. von Standardvertragsklauseln.
+
+Die App für iPhone und Android kommt über den **App Store** (Apple) bzw. **Google Play** (Google). Für Download und Updates gelten deren Datenschutzbestimmungen; Absturzberichte und Nutzungsstatistiken des Stores bekommen wir nur, wenn du sie in den Einstellungen deines Geräts freigibst, und nur ohne Bezug zu deiner Person.
 
 ## 4 · Speicher auf deinem Gerät
 
-Im Browser-Speicher (localStorage) liegen:
+Im Speicher der App bzw. des Browsers (localStorage) liegen:
 
 - Lernfortschritt: Sessions, Notizen, Video-Notizen und -Positionen, Karteikarten, Chatverläufe mit der KI, Prüfungsergebnisse, Wissensstand
 - Name und Profilbild
 - ein eigener KI-Schlüssel, falls du ohne Konto einen einträgst (verlässt das Gerät nur in Richtung der eingetragenen KI-Adresse)
 - mit Konto: die Anmeldung (Sitzungs-Token von Supabase)
+- in der App: die tägliche Erinnerung (an/aus, Uhrzeit). Sie wird nur auf dem Gerät geplant, ohne Server.
 
 Dieser Speicher ist für die Funktion der App unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Du kannst ihn jederzeit löschen: Profil → „Fortschritt löschen“ oder über die Browser-Einstellungen.
 

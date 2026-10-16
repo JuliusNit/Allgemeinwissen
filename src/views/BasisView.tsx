@@ -5,6 +5,7 @@ import { basisChat, DONE_MARKER } from '../lib/ai'
 import { useAiReady } from '../lib/cloud'
 import { basisNode, nodeDone, nodeReady, type BasisNode } from '../lib/path'
 import { dayState, setState, today, updateDay, useStore, videosOf, type State } from '../lib/store'
+import { haptic } from '../lib/native'
 import { Chat } from '../components/Chat'
 import { CoinBadge } from '../components/Coin'
 import { Icon } from '../components/Icons'
@@ -66,7 +67,7 @@ export function BasisView({ id, go, vday, video, at, openVideo, closeVideo }: Pr
   const checkDone = history.some((m) => m.role === 'assistant' && m.content.includes(DONE_MARKER))
   const playVideos = vday ? videosOf(state, vday) : []
   const playing = video ? playVideos.find((v) => v.id === video) : undefined
-  const markDone = () => setState((s) => ({ ...s, reviews: { ...s.reviews, [id]: s.reviews[id] ?? today() } }))
+  const markDone = () => (haptic('erfolg'), setState((s) => ({ ...s, reviews: { ...s.reviews, [id]: s.reviews[id] ?? today() } })))
 
   return (
     <div className="review basis">

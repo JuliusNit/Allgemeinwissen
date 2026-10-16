@@ -66,16 +66,24 @@ sind im Code, `006_fortschritt.sql` und das neue `ki-chat` sind auf dem Server e
 Offen bleiben bei 7 die Rechtsklärung (Einwilligung der Eltern unter 16, Art. 8 DSGVO) und die Altersfreigabe im Store, bei 8 der
 Vertrag mit dem KI-Anbieter (Platzhalter in der Datenschutzerklärung).
 
+**Stand 16.10.2026 (Teil 3):** 1 (Capacitor 8, Projekte `ios/` + `android/`, `npm run cap:sync`), 2 (tägliche Erinnerung mit lokalen
+Mitteilungen, natives Teilen/Speichern/Bild-PDF für Lernzettel und Sicherung, Haptik, Statusleiste + sichere Ränder, externe Links im
+In-App-Browser, Konto-Mails per URL-Schema `de.allgemeinwissen.app://auth`) und 9 (`PrivacyInfo.xcprivacy`, Entwurf der Store-Texte und
+Datenschutz-Angaben in `docs/store-eintrag.md`) sind im Code; Icons/Splash schwarz auf weiß. `tsc`, Web-Build und `npx cap sync` laufen.
+**Nicht gebaut/getestet:** kein Xcode und kein Android SDK auf dem Windows-Rechner – die App lief noch auf keinem Gerät. Erst-Test auf
+dem Gerät: Erinnerung, Teilen/PDF, Deep Link aus der Bestätigungs-Mail, YouTube-Einbettung im WebView (iOS `capacitor://`-Herkunft),
+Abstände unter Uhr/Notch und Home-Leiste. Offen bei 9: Screenshots, Altersfragebogen, Eintragen in App Store Connect / Play Console.
+
 ### Stark empfohlen
 
-- **Error-Boundary + Absturzmeldungen** (Sentry o. ä., datensparsam).
-- **Push-Erinnerung** „Deine Session wartet“ – wichtigster Hebel für einen 90-Tage-Plan (Capacitor Local Notifications, ohne Server).
-- **Teilen / PDF nativ:** `window.print()` tut im iOS-WebView nichts, `navigator.share` mit Dateien ist unsicher → Capacitor Share + Filesystem.
-- **Statusleiste oben:** `viewport-fit=cover` ist gesetzt, `.app` hat oben aber keinen `safe-area-inset-top` → im nativen Build prüfen, ob die Seitenköpfe unter die Uhr rutschen.
+- **Error-Boundary + Absturzmeldungen** (Sentry o. ä., datensparsam). Error-Boundary ✓ (Teil 1), Absturzmeldungen offen
+- **Push-Erinnerung** „Deine Session wartet“ – wichtigster Hebel für einen 90-Tage-Plan (Capacitor Local Notifications, ohne Server). ✓ im Code (Teil 3, `src/lib/reminder.ts`)
+- **Teilen / PDF nativ:** `window.print()` tut im iOS-WebView nichts, `navigator.share` mit Dateien ist unsicher → Capacitor Share + Filesystem. ✓ im Code (Teil 3, `src/lib/native.ts`, `src/lib/pdf.ts`)
+- **Statusleiste oben:** `viewport-fit=cover` ist gesetzt, `.app` hat oben aber keinen `safe-area-inset-top` → im nativen Build prüfen, ob die Seitenköpfe unter die Uhr rutschen. ✓ im Code (Teil 3: `--sa-top` u. a. in `index.css`), auf dem Gerät noch prüfen
 - **Supabase auf bezahlten Plan:** Free-Projekte pausieren bei Inaktivität, Backups fehlen.
-- **Passwort-vergessen-Ablauf** im nativen Build testen (Deep Link statt Pages-URL als Site URL).
+- **Passwort-vergessen-Ablauf** im nativen Build testen (Deep Link statt Pages-URL als Site URL). Deep Link ✓ im Code (Teil 3), Test auf dem Gerät offen
 - **Inhalte für alle:** Wissensstand ist auf Gymnasium Bayern (LehrplanPLUS G9) zugeschnitten. Für den Store mindestens „anderes Bundesland / andere Schulart“ abfangen (grob nach Jahrgang statt Lehrplan).
-- **Eigener-Key-Feld** im Store-Build ausblenden (verwirrt, und Apple könnte es als Umgehung des In-App-Kaufs werten, sobald es Premium gibt).
+- **Eigener-Key-Feld** im Store-Build ausblenden (verwirrt, und Apple könnte es als Umgehung des In-App-Kaufs werten, sobald es Premium gibt). ✓ in der App ausgeblendet (Teil 3)
 
 ### Grobe Reihenfolge
 

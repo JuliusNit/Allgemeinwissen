@@ -3,6 +3,8 @@ import { AREAS, DAYS } from '../data/plan'
 import { adviseFocus, describeError } from '../lib/ai'
 import { areaStats, dayDone, STAT_AREAS } from '../lib/stats'
 import { pathDays } from '../lib/path'
+import { NATIVE, saveFile, shareFile } from '../lib/native'
+import { DEFAULT_REMINDER, setReminder } from '../lib/reminder'
 import { AfterNinety } from '../components/AfterNinety'
 import { cloud, deleteAccount, saveDayVideos, saveLevel, signOut, useAiReady, useAuth } from '../lib/cloud'
 import { DEFAULT_API_URL, DEFAULT_MODEL, dayState, exportJson, getState, videosOf, importJson, resetAll, setState, today, useStore, type Settings } from '../lib/store'
@@ -61,6 +63,7 @@ export function ProfileView() {
       </div>
 
       <Account />
+      {NATIVE && <ReminderSettings />}
       <Editor />
       <Strengths />
       <AiSettings />
@@ -147,8 +150,9 @@ function AiSettings() {
   return (
     <Frame className="card">
       <h2>KI</h2>
-      {/* Mit Konto laeuft die KI immer ueber den Server (lib/ai.ts → post), ein eigener Key gilt nur ohne Konto */}
-      {!(cloud && auth.user) && (
+      {/* Mit Konto laeuft die KI immer ueber den Server (lib/ai.ts → post), ein eigener Key gilt nur ohne Konto –
+          und nie in der Store-App (Apple 3.1.1: kein Umgehen kuenftiger In-App-Kaeufe) */}
+      {!NATIVE && !(cloud && auth.user) && (
       <details className="own-ai" open={!cloud || !!settings.apiKey}>
       <summary className="small">Eigener KI-Zugang {cloud ? '(optional)' : ''}</summary>
       <label>API-Key</label>
@@ -176,17 +180,38 @@ function AiSettings() {
   )
 }
 
+function ReminderSettings() {
+  const r = useStore((s) => s.reminder) ?? DEFAULT_REMINDER
+  const [err, setErr] = useState('')
+  const change = async (p: Parameters<typeof setReminder>[0]) => setErr(await setReminder(p).catch(() => 'Erinnerung konnte nicht geplant werden.'))
+  return (
+    <Frame className="card">
+      <h2>Erinnerung</h2>
+      <div className="row">
+        <label className="check-label">
+          <input type="checkbox" checked={r.on} onChange={(e) => void change({ on: e.target.checked })} />
+          Täglich um
+        </label>
+        <input type="time" className="time-input" value={r.time} onChange={(e) => e.target.value && void change({ time: e.target.value })} aria-label="Uhrzeit der Erinnerung" />
+      </div>
+      {err && <p className="chat-error">{err}</p>}
+    </Frame>
+  )
+}
+
 function Backup() {
   const [msg, setMsg] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  function download() {
+  // App: Teilen-Menue (In Dateien sichern, AirDrop, Mail …), Web: Download
+  async function download() {
     const blob = new Blob([exportJson()], { type: 'application/json' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `allgemeinwissen-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(a.href)
+    const name = `allgemeinwissen-${new Date().toISOString().slice(0, 10)}.json`
+    try {
+      await (NATIVE ? shareFile(blob, name, 'Allgemeinwissen – Sicherung') : saveFile(blob, name))
+    } catch {
+      setMsg('Export fehlgeschlagen')
+    }
   }
 
   async function upload(f: File) {

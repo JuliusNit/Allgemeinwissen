@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Allgemeinwissen</string>
+    <string name="title_activity_main">Allgemeinwissen</string>
+    <string name="package_name">de.allgemeinwissen.app</string>
+    <string name="custom_url_scheme">de.allgemeinwissen.app</string>
+</resources>

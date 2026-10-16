@@ -3,6 +3,7 @@ import { getDay } from '../data/plan'
 import { nodeReady, reviewNode, sessionNo, sessionRange } from '../lib/path'
 import { dueCards, intervalLabel, rateCard, type Rating } from '../lib/srs'
 import { getState, setState, today, useStore } from '../lib/store'
+import { haptic } from '../lib/native'
 import { CoinBadge } from '../components/Coin'
 import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
@@ -67,6 +68,7 @@ export function ReviewView({ id, go }: { id: string; go: (hash: string) => void 
     const next = r === 0 ? [...rest, card.id] : rest
     setQueue(next)
     setFlipped(false)
+    haptic(!next.length && node ? 'erfolg' : 'leicht')
     if (!next.length && node) setState((s) => ({ ...s, reviews: { ...s.reviews, [id]: s.reviews[id] ?? today() } }))
   }
 

@@ -1,0 +1,47 @@
+# iOS-Build ohne Mac: Codemagic (codemagic.io) baut auf einem Mac in der Cloud und laedt nach TestFlight hoch.
+# Einrichten (einmalig, nur Julius – Zugangsdaten liegen nur bei Codemagic, nie im Repo):
+#   1. Codemagic-Konto mit GitHub verbinden, Repo "Allgemeinwissen" hinzufuegen
+#   2. Teams → Integrations → App Store Connect: API-Schluessel (App Store Connect → Benutzer und Zugriff → Integrationen,
+#      Rolle "App Manager") unter dem Namen "AppStoreConnect" hinterlegen
+#   3. Code signing identities → iOS: Zertifikat "Apple Distribution" erzeugen/hochladen lassen (Codemagic kann es ueber den
+#      API-Schluessel anlegen), Profil fuer de.allgemeinwissen.app holen lassen
+#   4. Environment variables → Gruppe "supabase": VITE_SUPABASE_URL, VITE_SUPABASE_KEY (wie in der lokalen .env)
+#      und APP_STORE_APPLE_ID (numerische Apple-ID der App aus App Store Connect → App-Informationen)
+#   5. Build starten (Workflow "iOS → TestFlight")
+workflows:
+  ios-testflight:
+    name: iOS → TestFlight
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: AppStoreConnect
+    environment:
+      groups:
+        - supabase
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: de.allgemeinwissen.app
+      node: 22
+      xcode: latest
+    scripts:
+      - name: Abhaengigkeiten
+        script: npm ci
+      - name: Web-Build pruefen und in ios/ kopieren
+        script: |
+          printf 'VITE_SUPABASE_URL=%s\nVITE_SUPABASE_KEY=%s\n' "$VITE_SUPABASE_URL" "$VITE_SUPABASE_KEY" > .env
+          npm run cap:sync -- ios
+      - name: Signierung
+        script: xcode-project use-profiles
+      - name: Build-Nummer
+        script: |
+          cd ios/App
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" 2>/dev/null || echo 0)
+          agvtool new-version -all $((LATEST + 1))
+      - name: IPA bauen
+        script: xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App"
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

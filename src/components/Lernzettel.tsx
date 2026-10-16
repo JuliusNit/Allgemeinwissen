@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom'
 import { toBlob } from 'html-to-image'
 import { loadSheet } from '../data/lernzettel'
 import { line } from '../lib/ink'
+import { NATIVE, saveFile, shareFile } from '../lib/native'
+import { imagePdf } from '../lib/pdf'
 import { HatchDefs, InkPaths } from './Ink'
 import { Markdown } from './Markdown'
 
@@ -34,11 +36,12 @@ export function Lernzettel({ day, title }: { day: number; title: string }) {
   )
 }
 
-/** Lernzettel im Vollbild: als Bild teilen (Teilen-Menue: Fotos, Dateien, Nachrichten …), als PNG speichern oder als PDF drucken */
+/** Lernzettel im Vollbild: als Bild teilen (Teilen-Menue: Fotos, Dateien, Nachrichten …), als PNG speichern oder als PDF (Web: drucken, App: Bild-PDF teilen) */
 function SheetFull({ text, title, onClose }: { text: string; title: string; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null)
   const [file, setFile] = useState<File | null>(null)
   const [err, setErr] = useState('')
+  const [msg, setMsg] = useState('')
   const [tries, setTries] = useState(0)
   const name = `Lernzettel ${title}`.replace(/[\\/:*?"<>|]/g, '')
 
@@ -78,22 +81,31 @@ function SheetFull({ text, title, onClose }: { text: string; title: string; onCl
     }
   }, [name, tries])
 
-  const save = () => {
+  const save = async () => {
     if (!file) return
-    const url = URL.createObjectURL(file)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = file.name
-    a.click()
-    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    try {
+      const where = await saveFile(file, file.name)
+      if (where) setMsg(`Gespeichert: ${where}`)
+    } catch {
+      setErr('Speichern nicht möglich.')
+    }
   }
   const share = async () => {
     if (!file) return
-    if (!navigator.canShare?.({ files: [file] })) return save()
     try {
-      await navigator.share({ files: [file], title: name })
-    } catch (e) {
-      if ((e as Error).name !== 'AbortError') setErr('Teilen nicht möglich.')
+      await shareFile(file, file.name, name)
+    } catch {
+      setErr('Teilen nicht möglich.')
+    }
+  }
+  // Web: drucken (Schrift bleibt Vektor); der WebView der App druckt nicht → Bild-PDF ueber das Teilen-Menue
+  const pdf = async () => {
+    if (!NATIVE) return window.print()
+    if (!file) return
+    try {
+      await shareFile(await imagePdf(file, name), `${name}.pdf`, name)
+    } catch {
+      setErr('PDF konnte nicht erzeugt werden.')
     }
   }
 
@@ -108,9 +120,10 @@ function SheetFull({ text, title, onClose }: { text: string; title: string; onCl
         <span className="sheet-actions">
           <button className="btn small" onClick={share} disabled={!file}>Teilen</button>
           <button className="btn small" onClick={save} disabled={!file}>Bild speichern</button>
-          <button className="btn small" onClick={() => window.print()}>PDF</button>
+          <button className="btn small" onClick={pdf} disabled={NATIVE && !file}>PDF</button>
         </span>
       </div>
+      {msg && <p className="small sheet-msg">{msg}</p>}
       {err && (
         <p className="chat-error">
           {err}{' '}

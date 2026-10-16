@@ -17,7 +17,7 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Videos: pro Teilthema ein ausgewähltes YouTube-Video aus `src/data/videos.ts` (per Suche gefunden, von Hand gewählt,
   per oEmbed auf „existiert + einbettbar“ geprüft; bevorzugt Studyflix, simpleclub, MrWissen2go, Terra X, Kurzgesagt).
 - `src/data/lernzettel/NN.md` – Lernzettel je Session (Kasten „3 · Lernzettel“ zwischen Videos und Notizen, standardmäßig zu wie die Videos
-  (`sheetOpen`, `videosOpen`); Antippen → Vollbild mit Teilen/Bild speichern (PNG über html-to-image)/PDF (Drucken); lädt lazy über `src/data/lernzettel.ts`). Geschrieben nach den Transkripten (YouTube-Untertitel) der Videos aus
+  (`sheetOpen`, `videosOpen`); Antippen → Vollbild mit Teilen/Bild speichern (PNG über html-to-image)/PDF (Web: Drucken, App: Bild-PDF aus `src/lib/pdf.ts` übers Teilen-Menü); lädt lazy über `src/data/lernzettel.ts`). Geschrieben nach den Transkripten (YouTube-Untertitel) der Videos aus
   `videos.ts`, nach Thema gegliedert, nicht nach Video; max. 2 Seiten, Stichpunkte + Diagramme. Ohne Untertitel (nach Titel,
   Beschreibung, Fachwissen): 45-2, 63-1, 67-2, 76-2, 76-3, 85-0, 85-2. Wird ein Video getauscht, Lernzettel prüfen.
   Diagramme = Markdown-Codeblöcke ```kette/kreis/zeitstrahl/baum/gruppen/pyramide/schichten/kurve/balken
@@ -32,7 +32,7 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 - `src/lib/ai.ts` – OpenAI-kompatibler Endpunkt per fetch/SSE direkt aus dem Browser. Angemeldet geht jede Anfrage über den
   KI-Proxy `supabase/functions/ki` (Edge Function, Key als Secret `LLM_KEY`, nur für angemeldete Konten, Tageslimit
   `KI_DAILY_LIMIT` über `003_ki_limit.sql`) – auch wenn ein eigener Key gespeichert ist. Eigener Key (Profil → KI) nur ohne Konto,
-  das Feld ist mit Konto ausgeblendet. Standard: Qwen `qwen3.8-27b` auf
+  das Feld ist mit Konto und in der nativen App ausgeblendet. Standard: Qwen `qwen3.8-27b` auf
   `ai.inference2.corpus.music` (vLLM, CORS offen). **Key nie ins Repo.**
   Modi: Anknüpfen, Fragen, Verständnischeck (Ende über `[[SESSION_ABGESCHLOSSEN]]`, Bewertung je Antwort über
   `[[BEWERTUNG: richtig|teilweise|falsch | 1-5]]`), Lernzettel + Karten (json_schema), Stärkenberatung, Kanal-Chat.
@@ -125,7 +125,28 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Ohne Werte läuft der Chat nur lokal – vor `npm run deploy` prüfen. `VITE_DEV_LLM_KEY` gilt nur für `npm run dev`
   und darf nie in den Build gelangen (nach dem Build `dist/` auf `sk-` prüfen).
 - `src/components/Markdown.tsx` – eigener Renderer ohne innerHTML.
-- `scripts/icons.mjs` – erzeugt PWA-Icons; `scripts/deploy.mjs` – Deploy auf gh-pages.
+- `scripts/icons.mjs` – erzeugt PWA-Icons (public/, dunkel/orange) und die nativen Vorlagen (assets/, schwarz auf weiß);
+  `scripts/deploy.mjs` – Deploy auf gh-pages.
+- **Native App (Capacitor 8):** `capacitor.config.ts` (App-ID `de.allgemeinwissen.app` – Vorschlag, vor der ersten Einreichung
+  bestätigen), Projekte `ios/` (Swift Package Manager, kein CocoaPods) und `android/` im Repo; `ios/App/App/public` und
+  `android/app/src/main/assets/public` sind Build-Kopien (gitignored). `npm run cap:sync [-- ios|android]` = `scripts/native.mjs`:
+  entfernt `dist/.git` (Rest vom Deploy), baut, prüft auf `sk-`, `npx cap sync`. `npm run cap:assets` erzeugt Icons/Splash neu
+  (`@capacitor/assets` aus `assets/`). iOS-Build ohne Mac: `codemagic.yaml` (TestFlight), Android: Android Studio (`npm run cap:android`).
+  Derselbe Web-Build läuft überall; Unterschiede nur über `NATIVE` aus `src/lib/native.ts` (`Capacitor.isNativePlatform()`), immer mit Web-Fallback:
+  - Service Worker nur im Web (`main.tsx`, `injectRegister: false` in `vite.config.ts`).
+  - `shareFile`/`saveFile`: Share + Filesystem statt `navigator.share`/Download (Lernzettel, Sicherung im Profil).
+  - `haptic`: Karte bewertet (leicht), Session/Station abgeschlossen (Erfolg).
+  - Statusleiste dunkel auf weiß, Seite reicht unter die Uhr. Abstände nur über `--sa-top/-bottom/-left/-right` aus `index.css`, nie
+    `env(safe-area-inset-*)` direkt (Android-WebView < 140 liefert die Werte nur als `--safe-area-inset-*` von Capacitor).
+  - Externe Links (`a[href]` mit fremder http-Adresse) per Klick-Abfang im In-App-Browser (`@capacitor/browser`), `openExternal`.
+  - Erinnerung `src/lib/reminder.ts`: `reminder` im Zustand (Geräte-Einstellung, nicht im Konto), Profil → „Erinnerung“ nur in der App.
+    Plant lokale Mitteilungen für 30 Tage; heute entfällt, wenn schon eine Session/Station fertig ist; neu geplant bei Start,
+    Rückkehr in die App und Änderungen. Android: ungenaue Alarme (`SCHEDULE_EXACT_ALARM` im Manifest entfernt), Symbol `ic_stat_notify.xml`.
+  - Konto-Mails: `redirectTo`/`emailRedirectTo` = `de.allgemeinwissen.app://auth` bzw. `…?reset=1` (Info.plist `CFBundleURLTypes`,
+    AndroidManifest `intent-filter`); `openAuthLink` in `cloud.ts` löst `#access_token=…` (Umweg über Supabase /verify) oder
+    `?token_hash=…` ein. Beide Adressen stehen in Supabase → Auth → Redirect URLs (`de.allgemeinwissen.app://**`).
+  - `ios/App/App/PrivacyInfo.xcprivacy` (im Xcode-Projekt eingetragen) + `docs/store-eintrag.md` (Store-Texte, Datenschutz-Angaben,
+    Altersfreigabe): bei geändertem Datenfluss beide und `legal.ts` nachziehen.
 
 ## Regeln aus dem Lernplan (in den Prompts umgesetzt)
 
@@ -138,5 +159,6 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 ## Hinweise
 
 - Claude Code blockiert das öffentliche Veröffentlichen (Repo öffentlich machen, Pages einschalten) – das erledigt Julius selbst.
-- Tokens/Zugangsdaten nie selbst setzen; `gh auth login` macht Julius.
+- Tokens/Zugangsdaten nie selbst setzen; `gh auth login` macht Julius. Ebenso Apple-/Google-Konten, Zertifikate, Codemagic.
+- Auf diesem Windows-Rechner: kein Xcode, kein Android SDK (nur Java 8) – native Builds nicht hier, keine JDK/SDK selbst installieren.
 - Antworten an Julius auf Deutsch, knapp.

@@ -7,6 +7,7 @@ import { fach, type FachId } from '../data/lehrplan'
 import { pathDays, sessionNo, stationOf, type BasisNode } from '../lib/path'
 import { addCards } from '../lib/srs'
 import { dayState, sortNotes, today, updateDay, useStore, videosOf } from '../lib/store'
+import { haptic } from '../lib/native'
 import { fmtTime } from '../lib/video'
 import { VideoWatch } from '../components/VideoWatch'
 import { VideoList } from '../components/VideoList'
@@ -108,6 +109,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
       const r = await makeSummary(day)
       const firstTime = ds.status !== 'fertig'
       updateDay(day, (x) => ({ ...x, summary: r.summary_markdown, status: 'fertig', completedAt: x.completedAt ?? today() }))
+      if (firstTime) haptic('erfolg')
       if (firstTime || confirm('Neue Karteikarten zusätzlich zu den vorhandenen anlegen?')) addCards(day, r.cards)
       setTab('zusammenfassung')
     } catch (e) {

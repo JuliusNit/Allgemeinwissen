@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { DAYS, defaultVideos, getDay, upgradeVideos, type Video } from '../data/plan'
 import { parseLevel, type Level } from '../data/school'
+import type { Reminder } from './reminder'
 import { fmtTime } from './video'
 
 export interface ChatMsg {
@@ -124,6 +125,8 @@ export interface State {
   content: Record<number, Video[]>
   /** Zeitpunkt der letzten Änderung am Fortschritt (Abgleich mit dem Konto, lib/cloud.ts) */
   progressAt?: string
+  /** Tägliche Erinnerung der nativen App (lib/reminder.ts), Geräte-Einstellung */
+  reminder?: Reminder
 }
 
 /** Teil des Zustands, der ins Konto wandert – ohne Einstellungen/API-Key, Editor-Videolisten, Profil (eigene Tabelle) und Geräte-Flags */
@@ -325,10 +328,10 @@ export function progressEmpty(p: Partial<Progress>): boolean {
 }
 
 export function resetAll() {
-  setState((s) => ({ ...initial, settings: s.settings, profile: s.profile, level: s.level, onboarded: s.onboarded, owner: s.owner, guest: s.guest, content: s.content }))
+  setState((s) => ({ ...initial, settings: s.settings, profile: s.profile, level: s.level, onboarded: s.onboarded, owner: s.owner, guest: s.guest, content: s.content, reminder: s.reminder }))
 }
 
 /** Nach dem Löschen des Kontos: alles Persönliche weg, nur Einstellungen und die öffentlichen Videolisten bleiben */
 export function wipeAll() {
-  setState((s) => ({ ...initial, settings: { ...s.settings, apiKey: DEV_KEY }, onboarded: s.onboarded, content: s.content }))
+  setState((s) => ({ ...initial, settings: { ...s.settings, apiKey: DEV_KEY }, onboarded: s.onboarded, content: s.content, reminder: s.reminder }))
 }

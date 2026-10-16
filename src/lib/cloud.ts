@@ -1,6 +1,8 @@
 import { useSyncExternalStore } from 'react'
-import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js'
+import { createClient, type EmailOtpType, type SupabaseClient, type User } from '@supabase/supabase-js'
+import { App as NativeApp } from '@capacitor/app'
 import { parseLevel, type Level } from '../data/school'
+import { AUTH_SCHEME, AUTH_URL, NATIVE } from './native'
 import type { Video } from '../data/plan'
 import { applyProgress, doneCount, getState, progressEmpty, progressOf, resetAll, setState, subscribeStore, useStore, wipeAll, type Progress } from './store'
 
@@ -40,6 +42,14 @@ if (startRecovery) {
   }
 }
 
+function setResetFlag() {
+  try {
+    sessionStorage.setItem(RESET_FLAG, '1')
+  } catch {
+    // ohne sessionStorage: PASSWORD_RECOVERY-Ereignis reicht
+  }
+}
+
 function recoveryFlag(): boolean {
   try {
     return startRecovery || sessionStorage.getItem(RESET_FLAG) === '1'
@@ -76,8 +86,50 @@ export function useCanEdit(): boolean {
   return !cloud || a.role === 'editor'
 }
 
-function baseUrl(): string {
-  return location.origin + location.pathname
+/**
+ * Ruecksprung aus Konto-Mails (Bestaetigung, Passwort vergessen). Web: die eigene Adresse.
+ * Native App: eigenes URL-Schema (lib/native.ts) – location.origin ist dort capacitor://localhost bzw.
+ * https://localhost und aus einer Mail nicht erreichbar. Beide Adressen stehen in Supabase → Auth → Redirect URLs.
+ */
+function redirectUrl(reset = false): string {
+  const base = NATIVE ? AUTH_URL : location.origin + location.pathname
+  return reset ? `${base}?reset=1` : base
+}
+
+const OTP_TYPES = ['email', 'signup', 'recovery', 'magiclink', 'email_change']
+
+/** Link mit ?token_hash=…&type=… (E-Mail-Vorlage) einloesen */
+function verifyTokenHash(c: SupabaseClient, tokenHash: string, type: string) {
+  return c.auth.verifyOtp({ token_hash: tokenHash, type: (type === 'signup' ? 'email' : type) as EmailOtpType }).then(({ error }) => {
+    if (error) alert('Bestätigungslink ungültig oder abgelaufen – bitte anmelden oder neuen Link anfordern.')
+  })
+}
+
+/**
+ * Native App, geoeffnet ueber de.allgemeinwissen.app://auth…: entweder ?token_hash=…&type=… (eigene Vorlage)
+ * oder – nach dem Umweg ueber Supabase /verify – #access_token=…&refresh_token=…&type=… (Implicit Flow).
+ */
+let lastLink = ''
+async function openAuthLink(c: SupabaseClient, link: string) {
+  if (!link.startsWith(`${AUTH_SCHEME}:`) || link === lastLink) return
+  lastLink = link
+  const u = new URL(link)
+  const q = u.searchParams
+  const h = new URLSearchParams(u.hash.slice(1))
+  const type = q.get('type') ?? h.get('type') ?? ''
+  if (q.get('reset') === '1' || type === 'recovery') setResetFlag()
+  if (h.get('error') || q.get('error')) {
+    alert('Bestätigungslink ungültig oder abgelaufen – bitte anmelden oder neuen Link anfordern.')
+    return
+  }
+  const tokenHash = q.get('token_hash')
+  if (tokenHash && OTP_TYPES.includes(type)) return verifyTokenHash(c, tokenHash, type)
+  const access_token = h.get('access_token')
+  const refresh_token = h.get('refresh_token')
+  if (access_token && refresh_token) {
+    const { error } = await c.auth.setSession({ access_token, refresh_token })
+    if (error) alert('Anmeldung über den Link fehlgeschlagen – bitte anmelden.')
+  }
 }
 
 if (cloud) {
@@ -102,12 +154,16 @@ if (cloud) {
   // anders als ?code=… (PKCE) auch, wenn der Link in einem anderen Browser aufgeht als die Registrierung
   const q = new URLSearchParams(location.search)
   const tokenHash = q.get('token_hash')
-  const type = q.get('type')
-  if (tokenHash && (type === 'email' || type === 'signup' || type === 'recovery' || type === 'magiclink' || type === 'email_change')) {
-    void cloud.auth.verifyOtp({ token_hash: tokenHash, type: type === 'signup' ? 'email' : type }).then(({ error }) => {
-      history.replaceState(null, '', location.pathname + location.hash)
-      if (error) alert('Bestätigungslink ungültig oder abgelaufen – bitte anmelden oder neuen Link anfordern.')
-    })
+  const type = q.get('type') ?? ''
+  if (tokenHash && OTP_TYPES.includes(type)) {
+    history.replaceState(null, '', location.pathname + location.hash)
+    void verifyTokenHash(cloud, tokenHash, type)
+  }
+
+  if (NATIVE) {
+    const c = cloud
+    void NativeApp.addListener('appUrlOpen', ({ url }) => void openAuthLink(c, url))
+    void NativeApp.getLaunchUrl().then((r) => (r?.url ? openAuthLink(c, r.url) : undefined)).catch(() => {})
   }
 }
 
@@ -165,7 +221,7 @@ export async function signUp(email: string, password: string, name: string, leve
   const { data, error } = await need().auth.signUp({
     email,
     password,
-    options: { data: { name, level, birth_year: birthYear }, emailRedirectTo: baseUrl() },
+    options: { data: { name, level, birth_year: birthYear }, emailRedirectTo: redirectUrl() },
   })
   if (error) throw authError(error)
   // bei aktivierter Bestaetigung meldet Supabase bekannte Adressen nicht als Fehler, sondern ohne Identitaet
@@ -210,7 +266,7 @@ export async function deleteAccount() {
 }
 
 export async function sendReset(email: string) {
-  const { error } = await need().auth.resetPasswordForEmail(email, { redirectTo: `${baseUrl()}?reset=1` })
+  const { error } = await need().auth.resetPasswordForEmail(email, { redirectTo: redirectUrl(true) })
   if (error) throw authError(error)
 }
 
@@ -226,7 +282,7 @@ export async function setNewPassword(password: string) {
 }
 
 export async function resendConfirmation(email: string) {
-  const { error } = await need().auth.resend({ type: 'signup', email, options: { emailRedirectTo: baseUrl() } })
+  const { error } = await need().auth.resend({ type: 'signup', email, options: { emailRedirectTo: redirectUrl() } })
   if (error) throw authError(error)
 }
 

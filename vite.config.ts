@@ -8,6 +8,8 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Registrierung in main.tsx – nur im Web, nicht in der nativen App (Capacitor liefert die Dateien selbst aus)
+      injectRegister: false,
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Allgemeinwissen – 90-Tage-Lernplan',
