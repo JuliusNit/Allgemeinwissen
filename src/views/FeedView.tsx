@@ -372,15 +372,7 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
               </button>
             )}
           </div>
-          <p className="bite-credits small muted">
-            {b.images.length > 0 && (
-              <>
-                Bilder: {[...new Set(b.images.map((im) => `${im.author} (${im.license})`))].join(' · ')}, Wikimedia Commons
-                <br />
-              </>
-            )}
-            {b.sources.join(' · ')}
-          </p>
+          <p className="bite-credits small muted">{b.sources.join(' · ')}</p>
           <div className="bite-next" aria-hidden>
             <Chevron />
           </div>

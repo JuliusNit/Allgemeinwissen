@@ -49,7 +49,7 @@ function parseHash(): Route {
     return { tab: 'stats', area, day: area && c ? Number(c) || undefined : undefined }
   }
   if (a === 'profil') return { tab: 'profil', section: parseSection(b) }
-  if (a === 'datenschutz' || a === 'impressum') return { tab: 'profil', legal: a }
+  if (a === 'datenschutz' || a === 'impressum' || a === 'bildnachweis') return { tab: 'profil', legal: a }
   if (a === 'pruefung') return { tab: 'exam', day: b ? Math.min(90, Math.max(1, Number(b) || 1)) : undefined }
   return { tab: 'home' }
 }

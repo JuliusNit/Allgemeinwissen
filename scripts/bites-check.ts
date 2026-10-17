@@ -1,0 +1,199 @@
+// Prüfseite für die Häppchen (nur Entwicklung, scripts/bites-check.mjs): rendert alle Szenen eines Häppchens im
+// Endzustand nebeneinander und sucht Überschneidungen – Text auf Tusche-Strich, Schraffur oder Bild, Text auf Text,
+// Grafik außerhalb der Bühne oder unter Bereichs-Marke/Ton-Knopf. Aufruf: /scripts/bites-check.html?id=<id>
+import '../src/index.css'
+import { loadBites, type Bite } from '../src/data/feed'
+import { ScenePlayer, STAGE_H, STAGE_W } from '../src/lib/scene'
+
+export interface Issue {
+  scene: number
+  kind: string
+  what: string
+}
+
+type R = { x: number; y: number; w: number; h: number }
+
+const finish = (root: ParentNode & { getAnimations?: Element['getAnimations'] }) => {
+  for (const a of document.getAnimations()) {
+    const t = a.effect?.getComputedTiming()
+    if (t && Number.isFinite(Number(t.endTime))) a.finish()
+  }
+  void root
+}
+
+/** Sichtbarkeit inkl. Vorfahren (Zustandsklassen blenden über opacity/scale aus) */
+function visible(e: Element, stop: Element): boolean {
+  for (let n: Element | null = e; n && n !== stop; n = n.parentElement) {
+    const cs = getComputedStyle(n)
+    if (Number(cs.opacity) < 0.05 || cs.display === 'none' || cs.visibility === 'hidden') return false
+    if (n instanceof HTMLElement && n.classList.contains('out')) return false
+  }
+  const r = e.getBoundingClientRect()
+  return r.width > 0.5 && r.height > 0.5
+}
+
+const rel = (r: DOMRect, o: DOMRect): R => ({ x: r.left - o.left, y: r.top - o.top, w: r.width, h: r.height })
+const hit = (a: R, b: R) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
+const label = (s: string | null | undefined) => (s ?? '').trim().slice(0, 40)
+
+function check(stage: HTMLElement, scene: number): Issue[] {
+  const out: Issue[] = []
+  const o = stage.getBoundingClientRect()
+  const add = (kind: string, what: string) => out.push({ scene, kind, what })
+
+  const texts: { r: R; name: string; halo: boolean; svg: boolean; sc: R[] }[] = []
+  // HTML-Text Wort für Wort
+  for (const t of stage.querySelectorAll<HTMLElement>('.st-txt')) {
+    if (!visible(t, stage)) continue
+    const card = t.classList.contains('card')
+    for (const w of t.querySelectorAll<HTMLElement>('.w')) {
+      for (const cr of w.getClientRects()) {
+        const r = rel(cr, o)
+        texts.push({ r, name: `„${label(w.textContent)}“`, halo: card, svg: false, sc: [{ x: r.x + 1, y: r.y + r.h * 0.18, w: r.w - 2, h: r.h * 0.64 }] })
+      }
+    }
+    if (card) texts.push({ r: rel(t.getBoundingClientRect(), o), name: 'Textkasten', halo: true, svg: false, sc: [] })
+  }
+  for (const t of stage.querySelectorAll<SVGTextElement>('.st-gfx text')) {
+    if (!visible(t, stage) || !t.textContent?.trim()) continue
+    const r = rel(t.getBoundingClientRect(), o)
+    texts.push({ r, name: `„${label(t.textContent)}“`, halo: t.classList.contains('halo'), svg: true, sc: [{ x: r.x + 1, y: r.y + r.h * 0.22, w: r.w - 2, h: r.h * 0.6 }] })
+  }
+
+  // Text auf Text
+  for (let i = 0; i < texts.length; i++)
+    for (let j = i + 1; j < texts.length; j++) {
+      const a = texts[i]
+      const b = texts[j]
+      if (a.name === 'Textkasten' || b.name === 'Textkasten') continue
+      if (!a.svg && !b.svg) continue
+      const ia = a.sc[0] ?? a.r
+      const ib = b.sc[0] ?? b.r
+      if (hit(ia, ib)) add('Text×Text', `${a.name} / ${b.name}`)
+    }
+  // HTML-Text untereinander (verschiedene Textblöcke)
+  const blocks = [...stage.querySelectorAll<HTMLElement>('.st-txt')].filter((t) => visible(t, stage))
+  for (let i = 0; i < blocks.length; i++)
+    for (let j = i + 1; j < blocks.length; j++) {
+      const a = rel(blocks[i].getBoundingClientRect(), o)
+      const b = rel(blocks[j].getBoundingClientRect(), o)
+      if (hit({ x: a.x, y: a.y + 3, w: a.w, h: a.h - 6 }, { x: b.x, y: b.y + 3, w: b.w, h: b.h - 6 })) add('Text×Text', `${label(blocks[i].textContent)} / ${label(blocks[j].textContent)}`)
+    }
+
+  // Text auf Bild
+  for (const p of stage.querySelectorAll<HTMLElement>('.st-pic')) {
+    if (!visible(p, stage)) continue
+    const pr = rel(p.getBoundingClientRect(), o)
+    for (const t of texts) if (!t.halo && t.sc.some((s) => hit(s, pr))) add('Text×Bild', t.name)
+  }
+
+  // Text auf Strich / Schraffur
+  const paths = [...stage.querySelectorAll<SVGPathElement>('.st-gfx path')].filter((p) => !p.closest('mask') && visible(p, stage))
+  // weiße Flächen verdecken, was vor ihnen gezeichnet wurde
+  const blanks = paths.filter((p) => p.getAttribute('fill') === '#fff')
+  const covered = (p: SVGPathElement, sx: number, sy: number) =>
+    blanks.some((b) => {
+      if (!(p.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)) return false
+      const bm = b.getScreenCTM()?.inverse()
+      return !!bm && b.isPointInFill(new DOMPoint(sx, sy).matrixTransform(bm))
+    })
+  for (const p of paths) {
+    const hatchFill = (p.getAttribute('fill') ?? '').startsWith('url(')
+    const white = p.getAttribute('fill') === '#fff'
+    if (white) continue
+    const pr = rel(p.getBoundingClientRect(), o)
+    const m = p.getScreenCTM()?.inverse()
+    if (!m) continue
+    for (const t of texts) {
+      if (hatchFill && t.halo) continue
+      for (const s of t.sc) {
+        if (!hit(s, pr)) continue
+        let n = 0
+        for (let x = s.x + 1; x < s.x + s.w; x += 2)
+          for (let y = s.y + 1; y < s.y + s.h; y += 2) {
+            if (x < pr.x || x > pr.x + pr.w || y < pr.y || y > pr.y + pr.h) continue
+            const q = new DOMPoint(x + o.left, y + o.top).matrixTransform(m)
+            if (p.isPointInFill(q) && !covered(p, x + o.left, y + o.top)) n++
+          }
+        if (n > (hatchFill ? 6 : 1)) add(hatchFill ? 'Text×Schraffur' : 'Text×Strich', `${t.name} (${n})`)
+      }
+    }
+  }
+
+  // Rand: außerhalb der Bühne oder unter Bereichs-Marke (oben links) / Ton-Knopf (oben rechts)
+  const zones: [R, string][] = [
+    [{ x: 0, y: 0, w: 150, h: 44 }, 'unter der Bereichs-Marke'],
+    [{ x: 312, y: 0, w: 48, h: 54 }, 'unter dem Ton-Knopf'],
+  ]
+  const things: [R, string][] = [
+    ...texts.filter((t) => t.name !== 'Textkasten').map((t) => [t.sc[0] ?? t.r, t.name] as [R, string]),
+    ...[...stage.querySelectorAll<HTMLElement>('.st-pic')].filter((p) => visible(p, stage)).map((p) => [rel(p.getBoundingClientRect(), o), 'Bild'] as [R, string]),
+  ]
+  for (const [r, n] of things) {
+    if (r.x < -2 || r.y < -2 || r.x + r.w > STAGE_W + 2 || r.y + r.h > STAGE_H + 2) add('Rand', `${n} ragt aus der Bühne (${Math.round(r.x)},${Math.round(r.y)} ${Math.round(r.w)}×${Math.round(r.h)})`)
+    for (const [z, zn] of zones) if (hit(r, z)) add('Rand', `${n} ${zn}`)
+  }
+  return [...new Map(out.map((x) => [`${x.kind}|${x.what}`, x])).values()]
+}
+
+async function run(b: Bite): Promise<Issue[]> {
+  const sheet = document.getElementById('sheet')!
+  sheet.style.cssText = 'display:flex;flex-wrap:wrap;gap:14px;padding:10px;width:' + (6 * (STAGE_W + 14) + 10) + 'px;font:600 13px system-ui'
+  const players: [ScenePlayer, HTMLElement][] = []
+  for (let i = 0; i < b.scenes.length; i++) {
+    const cell = document.createElement('div')
+    cell.innerHTML = `<div style="height:18px">${i + 1}</div>`
+    const host = document.createElement('div')
+    host.style.cssText = `position:relative;width:${STAGE_W}px;height:${STAGE_H}px;outline:1px solid #bbb;overflow:hidden`
+    cell.appendChild(host)
+    sheet.appendChild(cell)
+    const p = new ScenePlayer(host, b)
+    players.push([p, host])
+    for (let k = 0; k <= i; k++) {
+      p.show(k)
+      finish(host)
+    }
+  }
+  // countUp und verzögerte Kamerafahrten laufen über Timer
+  await new Promise((r) => setTimeout(r, 2600))
+  finish(sheet)
+  await new Promise((r) => setTimeout(r, 900))
+  finish(sheet)
+  return players.flatMap(([, host], i) => check(host.querySelector('.stage') as HTMLElement, i + 1))
+}
+
+/** Dauer je Szene (ms), wie beim Abspielen gemessen: vorige Szenen im Endzustand, dann Szene i zeigen */
+async function durations(b: Bite): Promise<number[]> {
+  const host = document.createElement('div')
+  host.style.cssText = `position:absolute;left:-2000px;width:${STAGE_W}px;height:${STAGE_H}px`
+  document.body.appendChild(host)
+  const out: number[] = []
+  for (let i = 0; i < b.scenes.length; i++) {
+    const p = new ScenePlayer(host, b)
+    for (let k = 0; k < i; k++) {
+      p.show(k)
+      finish(host)
+    }
+    out.push(p.show(i))
+    p.destroy()
+  }
+  host.remove()
+  return out
+}
+
+declare global {
+  interface Window {
+    biteIds: (neu?: boolean) => Promise<string[]>
+    checkBite: (id: string) => Promise<Issue[]>
+    biteDurations: (id: string) => Promise<number[]>
+  }
+}
+
+window.biteDurations = async (id) => durations((await loadBites()).find((x) => x.id === id)!)
+
+window.biteIds = async (neu) => (neu ? (await import('../src/data/bites')).AHA : await loadBites()).map((b) => b.id)
+window.checkBite = async (id) => {
+  const b = (await loadBites()).find((x) => x.id === id)
+  if (!b) throw new Error(`Häppchen ${id} fehlt`)
+  return run(b)
+}

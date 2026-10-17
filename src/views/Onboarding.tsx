@@ -352,6 +352,7 @@ export function LegalLinks() {
     <div className="row center legal-links">
       <a className="btn ghost small" href="#/datenschutz">Datenschutz</a>
       <a className="btn ghost small" href="#/impressum">Impressum</a>
+      <a className="btn ghost small" href="#/bildnachweis">Bildnachweis</a>
     </div>
   )
 }
