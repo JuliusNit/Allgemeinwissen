@@ -351,7 +351,7 @@ export const AHA_NERVEN: Bite[] = [
         const bee = E(260, 420, 26, 16)
         hatch(g, bee, 1100, true)
         ink(g, bee, { w: 2.4, d: 900, t: 300 })
-        for (const k of [-1, 1]) ink(g, E(256, 400 + k * 0, 14, 10, 180, 360), { w: 1.8, d: 1100, t: 200 })
+        ink(g, E(256, 400, 14, 10, 180, 360), { w: 1.8, d: 1100, t: 200 })
         text(g, 260, 500, 'merkt sich Blüten besser', { anchor: 'middle', cls: 's', d: 1300 })
       },
       tassen(g) {

@@ -564,7 +564,7 @@ export const AHA_PSYCHE: Bite[] = [
         fig(g, 100, 500, 2.4, { d: 300 })
         ink(g, RR(200, 380, 120, 150, 10), { w: 2.8, d: 200, t: 600 })
         ink(g, RR(236, 420, 48, 30, 6), { w: 2, d: 500, t: 300 })
-        for (let i = 0; i < 3; i++) ink(g, E(260, 470 + i * 0, 12 + i * 10, 12 + i * 10, -40, 40), { w: 1.6, d: 800 + i * 150, t: 200 })
+        for (let i = 0; i < 3; i++) ink(g, E(260, 470, 12 + i * 10, 12 + i * 10, -40, 40), { w: 1.6, d: 800 + i * 150, t: 200 })
         text(g, 180, 590, 'Notfall über die Gegensprechanlage', { anchor: 'middle', cls: 's', d: 1100 })
       },
       zahlen(g) {
