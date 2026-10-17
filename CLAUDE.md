@@ -66,8 +66,8 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Startwert + Feed-Verhalten + Lernverhalten (eigene Fragen, Notizen, Antwortlänge, Präzision, Reaktion auf Fehler,
   freiwillige Prüfungen; richtig/falsch nur leicht), alles relativ zum eigenen Schnitt. Erst ein anderes Thema als die
   letzte Session, dann eins daraus, Zufall nach Unsicherheit, jede 4. Stelle erkunden, nie 3× dasselbe Überthema.
-  Premium-Funktion: ohne Premium 3 neue Häppchen am Tag (`feed.daily`), danach Premium-Kasten; Premium gibt es noch
-  nicht zu kaufen – `isPremium` ist bis dahin nur für Editor und `npm run dev` offen. `feed` gehört zu `PROGRESS_KEYS`.
+  Später Premium-Funktion: ohne Premium 3 neue Häppchen am Tag (`feed.daily`), danach Premium-Kasten. **Vorerst für alle
+  frei** (`PREMIUM_LIMIT = false` in `lib/feed.ts`), bis Premium zu kaufen ist. `feed` gehört zu `PROGRESS_KEYS`.
 - **Profil** (`#/profil[/bereich]`): links immer das Menü (Ich · Konto · Wissensstand · Stärken · Nach Tag 90 · Gemerkt ·
   KI · Erinnerung (App) · Sicherung · Editor · Rechtliches), rechts der Bereich. „Ich“ = Bild, Name, Streak, Kennzahlen.
 - **Regel keine Erklärtexte (gilt für jede Änderung):** Keine hellgrauen Hinweis-/Erklärzeilen (`muted small` o. ä.), die

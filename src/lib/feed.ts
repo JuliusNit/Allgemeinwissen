@@ -267,7 +267,9 @@ export function markOpened(s: State, id: string): State {
   return { ...s, feed: { ...s.feed, daily: { date: d.date, ids: [...d.ids, id] } } }
 }
 
-/** Premium gibt es noch nicht zu kaufen (docs/launch-und-premium.md) – bis dahin für Editor und Entwicklung offen */
+/** Premium-Grenze an? Vorerst aus: alles für alle frei, bis Premium zu kaufen ist (docs/launch-und-premium.md) */
+const PREMIUM_LIMIT = false
+
 export function isPremium(role: string | null | undefined): boolean {
-  return role === 'editor' || import.meta.env.DEV
+  return !PREMIUM_LIMIT || role === 'editor' || import.meta.env.DEV
 }
