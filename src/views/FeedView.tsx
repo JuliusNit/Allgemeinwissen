@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode, type WheelEvent as RWheelEvent } from 'react'
-import { biteDur, imgUrl, loadBites, sceneDur, type Bite, type Mood } from '../data/feed'
+import { biteDur, imgUrl, loadBites, type Bite, type Mood } from '../data/feed'
 import { AREAS } from '../data/plan'
 import { canOpen, isPremium, markOpened, mergeVisit, pickNext, toggleSaved, type Visit } from '../lib/feed'
 import { useAuth } from '../lib/cloud'
@@ -9,11 +9,11 @@ import { duck, setSound, sfx, startBite, stopAll } from '../lib/sound'
 import { getState, setState, useStore } from '../lib/store'
 import { Icon } from '../components/Icons'
 import { Frame, InkPaths } from '../components/Ink'
-import { bez } from '../lib/ink'
+import { bez, line } from '../lib/ink'
 import { ScenePlayer } from '../lib/scene'
 
 // Entdecken: Wissenshäppchen wie kurze Videos. Hoch/runter wischen = nächstes/voriges Häppchen,
-// links/rechts (oder tippen) = vor/zurück innerhalb, Finger halten = Pause. Die Szenen spielt lib/scene.ts ab,
+// links/rechts wischen oder an den Rändern tippen = vor/zurück innerhalb, Mitte tippen oder Finger halten = Pause. Die Szenen spielt lib/scene.ts ab,
 // danach kommt die Zusammenfassung mit Merken / Session / Quellen.
 
 const PAYWALL = '__premium'
@@ -181,11 +181,12 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
   const [hidden, setHidden] = useState(document.hidden)
   const saved = useStore((s) => s.feed.saved.includes(b.id))
   const level = useStore((s) => s.level)
-  const paused = hold || hidden
+  const [stopped, setStopped] = useState(false)
+  const [dur, setDur] = useState(Infinity)
+  const paused = hold || hidden || stopped
   const visit = useRef<Visit>({ ms: 0, dur: biteDur(b), frac: 0, done: false, back: 0, holds: 0, link: 0 })
   const host = useRef<HTMLDivElement>(null)
   const player = useRef<ScenePlayer | null>(null)
-  const dur = step < N ? sceneDur(b, step) : Infinity
 
   // Start: Musik + Begrüßung, als geöffnet zählen; beim Verlassen Verhalten speichern
   useEffect(() => {
@@ -209,9 +210,9 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
 
   // Bühne
   useEffect(() => {
-    const p = new ScenePlayer(host.current!, b, { words: () => sfx.pluck(b.mood), key: () => sfx.stroke(), stamp: () => sfx.stamp() })
+    const p = new ScenePlayer(host.current!, b, { words: () => sfx.pluck(b.mood), key: () => sfx.stroke() })
     player.current = p
-    p.show(0)
+    setDur(p.show(0))
     return () => {
       p.destroy()
       player.current = null
@@ -252,9 +253,10 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
       if (!forward) visit.current.back++
       setStep(n)
       setT(0)
-      player.current?.show(n)
+      setStopped(false)
+      setDur(player.current?.show(n) ?? Infinity)
       if (n === N) sfx.outro(b.mood)
-      else if (!b.scenes[n].verdict) sfx.whoosh(forward)
+      else sfx.whoosh(forward)
     },
     [N, b, step],
   )
@@ -280,7 +282,7 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
       else if (e.key === 'ArrowUp') prev()
       else if (e.key === ' ') {
         e.preventDefault()
-        setHold((h) => !h)
+        setStopped((h) => !h)
       } else return
     }
     window.addEventListener('keydown', key)
@@ -301,7 +303,16 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
     down: prev,
     left: () => goStep(step + 1),
     right: () => goStep(step - 1),
-    tap: (x, w) => goStep(x < w * 0.3 ? step - 1 : step + 1),
+    // Ränder: vor/zurück, Mitte: Pause an/aus
+    tap: (x, w) => {
+      if (x < w * 0.25) goStep(step - 1)
+      else if (x > w * 0.75) goStep(step + 1)
+      else
+        setStopped((on) => {
+          if (!on) visit.current.holds++
+          return !on
+        })
+    },
     hold: (on) => {
       setHold(on)
       if (on) visit.current.holds++
@@ -314,6 +325,13 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
   return (
     <div className={`bite feed-in-${dir}${paused ? ' paused' : ''}`} {...swipe} onWheel={onWheel}>
       <div className="bite-stage" ref={host} />
+      {stopped && (
+        <div className="bite-pause" aria-label="Pause">
+          <svg viewBox="0 0 24 24" aria-hidden>
+            <InkPaths strokes={PAUSE} w={2.6} />
+          </svg>
+        </div>
+      )}
       <div className="bite-area">
         <Icon name={b.area} size={20} />
         <span>{AREAS[b.area].name}</span>
@@ -436,6 +454,8 @@ function Words({ text, delay, step, sound }: { text: string; delay: number; step
   }
   return <>{nodes}</>
 }
+
+const PAUSE = [line([8.5, 5], [8.5, 19]), line([15.5, 5], [15.5, 19])]
 
 const UNDERLINE = [bez([1, 5.4], [30, 2.6], [64, 6.4], [99, 3.4], 1.25)]
 

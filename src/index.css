@@ -714,6 +714,9 @@ body.sheet-full-on { overflow: hidden; }
 }
 @keyframes area-in { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
 
+.bite-pause { position: absolute; z-index: 5; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; pointer-events: none; animation: st-fadein 0.25s ease both; }
+.bite-pause svg { width: 100%; height: 100%; }
+
 /* Bühne der Häppchen (lib/scene.ts): 360 × 680, skaliert */
 .bite-stage { position: absolute; inset: 0; overflow: hidden; }
 .stage { position: absolute; left: 0; top: 0; width: 360px; height: 680px; transform-origin: 0 0; }
@@ -743,8 +746,6 @@ body.sheet-full-on { overflow: hidden; }
 @keyframes st-gy { from { transform: scaleY(0); } }
 .st-gfx .grow-x { transform-box: fill-box; transform-origin: 0 50%; animation: st-gx 1.2s var(--d, 0s) cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @keyframes st-gx { from { transform: scaleX(0); } }
-.st-gfx .slam { transform-box: fill-box; transform-origin: 50% 50%; animation: st-slam 0.5s var(--d, 0s) cubic-bezier(0.3, 1.5, 0.5, 1) both; }
-@keyframes st-slam { from { transform: scale(2.6); opacity: 0; } }
 .st-gfx .sway { transform-box: fill-box; animation: st-sway 2.4s var(--d, 0s) ease-in-out infinite alternate; }
 @keyframes st-sway { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
 .st-gfx .float { animation: st-float 3s var(--d, 0s) ease-in-out infinite alternate; }
@@ -756,7 +757,6 @@ body.sheet-full-on { overflow: hidden; }
 .st-gfx .tx.b { font-size: 22px; font-weight: 800; }
 .st-gfx .tx.serif { font-family: Georgia, 'Times New Roman', serif; }
 .st-gfx .tx.it { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 400; }
-.st-gfx .stampw { font-size: 38px; font-weight: 800; letter-spacing: 0.08em; }
 .st-gfx .bigt { font-weight: 700; fill: url(#sh); stroke: var(--ink); stroke-width: 2.6px; paint-order: stroke; animation: st-wipein 1s var(--d, 0s) cubic-bezier(0.4, 0, 0.2, 1) backwards; }
 @keyframes st-wipein { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 .st-txt { z-index: 3; }

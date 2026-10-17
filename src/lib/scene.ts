@@ -2,8 +2,10 @@
 // Was in zwei Szenen vorkommt, gleitet an seinen neuen Platz (Größe, Lage, Ausschnitt, Zustandsklassen der Grafik),
 // Neues wird gezeichnet oder eingeblendet, Fehlendes blendet aus – so geht alles ineinander über statt Folie für Folie.
 // Bühne 360 × 680, skaliert auf die verfügbare Fläche.
-import { imgUrl, VERDICT_LABEL, sceneDur, type Bite, type GfxState, type PicState, type Scene, type TextState } from '../data/feed'
-import { B, E, RR, dashes, ink, mk, text } from './inkdraw'
+// Dauer je Szene: bis alles gezeichnet ist und der Text gelesen (READ_MS je Wort), dazu Zeit, die Grafik anzusehen
+// (Grundzeit + ihre Beschriftungen) – komplexe Szenen stehen länger, einfache kürzer.
+import { imgUrl, READ_MS, type Bite, type GfxState, type PicState, type Scene, type TextState } from '../data/feed'
+import { B, E, RR, ink, mk } from './inkdraw'
 
 export const STAGE_W = 360
 export const STAGE_H = 680
@@ -11,12 +13,22 @@ export const STAGE_H = 680
 export interface SceneSound {
   words?: () => void
   key?: () => void
-  stamp?: () => void
 }
 
 type El = HTMLElement | SVGSVGElement
 
 const words = (s: string) => s.split(/\s+/).filter(Boolean).length
+/** Beschriftungswörter einer Grafik; einzelne Ziffern (Achsen, Skalen) liest man nicht Wort für Wort */
+const svgWords = (els: Iterable<Element>) => {
+  let n = 0
+  for (const e of els) n += (e.textContent ?? '').split(/\s+/).filter((w) => /[A-Za-zÄÖÜäöüß]{2,}|\d{3,}/.test(w)).length
+  return n
+}
+
+/** Zeit, um eine neue Grafik / einen neuen Zustand / ein neues Bild zu erfassen (ms), dazu je Beschriftungswort READ_MS */
+const LOOK_GFX = 1100
+const LOOK_STATE = 500
+const LOOK_PIC = 500
 
 export class ScenePlayer {
   private stage: HTMLDivElement
@@ -24,6 +36,9 @@ export class ScenePlayer {
   private gone = new Map<string, number>()
   private timers: number[] = []
   private ro: ResizeObserver
+  private read = 0
+  private look = 0
+  private dur = 8000
 
   private host: HTMLElement
   private bite: Bite
@@ -69,24 +84,20 @@ export class ScenePlayer {
     this.timers.push(window.setTimeout(f, ms))
   }
 
-  /** Szene i zeigen; i = Anzahl Szenen → alles ausblenden (Zusammenfassung) */
-  show(i: number) {
+  /** Szene i zeigen und ihre Dauer (ms) zurückgeben; i = Anzahl Szenen → alles ausblenden (Zusammenfassung) */
+  show(i: number): number {
     this.timers.forEach(clearTimeout)
     this.timers = []
+    this.read = 0
+    this.look = 0
     const sc: Scene = this.bite.scenes[i] ?? {}
-    const dur = i < this.bite.scenes.length ? sceneDur(this.bite, i) : 8000
     const want = new Map<string, () => void>()
 
     for (const [id, p] of Object.entries(sc.pics ?? {})) {
-      want.set(`p:${id}`, () => this.pic(`p:${id}`, p, dur))
+      want.set(`p:${id}`, () => this.pic(`p:${id}`, p))
       if (p.cap) want.set(`c:${id}`, () => this.text(`c:${id}`, { text: p.cap, x: p.x + 2, y: p.y + p.h + 6, w: p.w, kind: 'cap' }, p.o))
     }
     for (const [id, g] of Object.entries(sc.gfx ?? {})) want.set(`g:${id}`, () => this.gfx(`g:${id}`, g.draw ?? id, g))
-    if (sc.verdict) {
-      const v = sc.verdict
-      want.set('g:__stamp', () => this.gfx('g:__stamp', '__stamp', { args: [v.y] }))
-      if (!sc.t) want.set('t:main', () => this.text('t:main', { text: this.bite.why, x: 20, y: v.ty ?? v.y + 74, w: 320, kind: 'mid' }))
-    }
     if (sc.t) want.set('t:main', () => this.text('t:main', { ...sc.t!, text: sc.t!.text ?? this.bite.hook }))
 
     for (const [id, e] of this.els) {
@@ -100,6 +111,19 @@ export class ScenePlayer {
       this.gone.set(id, window.setTimeout(() => e.remove(), 800))
     }
     want.forEach((f) => f())
+    this.dur = i >= this.bite.scenes.length ? Infinity : (sc.dur ?? this.measure())
+    return this.dur
+  }
+
+  /** Bis alles gezeichnet und gelesen ist, plus Zeit zum Ansehen von Grafik und Bild */
+  private measure(): number {
+    void this.stage.offsetWidth
+    let end = 0
+    for (const a of this.stage.getAnimations({ subtree: true })) {
+      const e = Number(a.effect?.getComputedTiming().endTime)
+      if (Number.isFinite(e)) end = Math.max(end, e - Number(a.currentTime ?? 0))
+    }
+    return Math.round(Math.max(end + 500, this.read) + this.look)
   }
 
   private box(e: HTMLElement, p: { x?: number; y?: number; w?: number; h?: number; o?: number }) {
@@ -110,9 +134,10 @@ export class ScenePlayer {
     e.style.opacity = String(p.o ?? 1)
   }
 
-  private pic(id: string, p: PicState, dur: number) {
+  private pic(id: string, p: PicState) {
     let e = this.els.get(id) as HTMLDivElement | undefined
     const fresh = !e
+    if (fresh) this.look = Math.max(this.look, LOOK_PIC)
     const radius = p.r === 'oval' ? '50%' : `${p.r ?? 14}px`
     if (!e) {
       clearTimeout(this.gone.get(id))
@@ -144,7 +169,7 @@ export class ScenePlayer {
     if (p.cam) this.cam(img, p.cam, fresh ? 0 : 1200)
     if (p.cam2) {
       const c2 = p.cam2
-      this.later(fresh ? 40 : 1200, () => this.cam(img, c2, Math.max(1600, dur - (fresh ? 0 : 1200) + 900)))
+      this.later(fresh ? 40 : 1200, () => this.cam(img, c2, Math.max(1600, (Number.isFinite(this.dur) ? this.dur : 8000) - (fresh ? 0 : 1200) + 900)))
     }
   }
 
@@ -163,10 +188,18 @@ export class ScenePlayer {
       const root = mk('g', {}, e)
       this.stage.appendChild(e)
       this.els.set(id, e)
-      if (name === '__stamp') this.drawStamp(root, ...(g.args as [number]))
-      else (this.bite.draw?.[name] as ((g: SVGGElement, ...a: unknown[]) => void) | undefined)?.(root, ...(g.args ?? []))
+      ;(this.bite.draw?.[name] as ((g: SVGGElement, ...a: unknown[]) => void) | undefined)?.(root, ...(g.args ?? []))
       this.tf(e, g.from ? { ...g, ...g.from } : g, '')
       void e.getBoundingClientRect()
+      this.look += LOOK_GFX + svgWords(e.querySelectorAll('text')) * READ_MS
+    } else {
+      // neue Zustände (a1 … a6): Zeit für das, was dazukommt
+      const old = new Set((e.getAttribute('class') ?? '').split(/\s+/))
+      const added = (g.cls ?? '').split(/\s+/).filter((c) => /^a\d$/.test(c) && !old.has(c))
+      if (added.length) {
+        const sel = added.flatMap((c) => [`.x${c[1]} text`, `.f${c[1]} text`]).join(',')
+        this.look += LOOK_STATE + svgWords(e.querySelectorAll(sel)) * READ_MS
+      }
     }
     this.tf(e, g, g.cls ?? '')
   }
@@ -176,21 +209,6 @@ export class ScenePlayer {
     e.style.transform = `translate(${x}px, ${y}px) scale(${s})`
     e.style.opacity = String(g.o ?? 1)
     if (cls != null) e.setAttribute('class', `st-gfx ${cls}`)
-  }
-
-  private drawStamp(g: SVGGElement, y: number) {
-    const v = this.bite.verdict
-    const label = VERDICT_LABEL[v].toUpperCase()
-    const fs = label.length > 6 ? 30 : 38
-    const wd = Math.max(190, label.length * fs * 0.8 + 50)
-    const rot = mk('g', { style: `transform: rotate(-7deg); transform-origin: 180px ${y}px` }, g)
-    const st = mk('g', { class: 'slam', style: '--d:250ms' }, rot)
-    const r = RR(180 - wd / 2, y - 40, wd, 78, 14)
-    if (v === 'hype') dashes(st, r, { w: 4.2, t: 0, dash: 16, gap: 9 })
-    else ink(st, r, { w: 4.2, t: 0 })
-    if (v === 'umstritten') ink(st, B([180 - wd / 2 + 16, y + 26], [140, y + 34], [220, y + 18], [180 + wd / 2 - 16, y + 26]), { w: 2.4, t: 0 })
-    text(st, 180, y + fs * 0.38, label, { anchor: 'middle', cls: 'stampw', fade: false, size: fs })
-    this.later(450, () => this.sound.stamp?.())
   }
 
   private text(id: string, p: TextState, o?: number) {
@@ -216,6 +234,7 @@ export class ScenePlayer {
     const keys = this.words(e, s, delay, step)
     this.stage.appendChild(e)
     this.els.set(id, e)
+    if (p.kind !== 'cap') this.read = Math.max(this.read, delay + words(s.replace(/[*_]/g, '')) * READ_MS)
     if (p.kind !== 'cap' && !hook) {
       this.later(delay, () => this.sound.words?.())
       keys.slice(0, 3).forEach((ms) => this.later(ms, () => this.sound.key?.()))
