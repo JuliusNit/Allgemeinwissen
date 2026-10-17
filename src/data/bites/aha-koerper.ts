@@ -1,0 +1,1819 @@
+import type { Bite } from '../feed'
+import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, check, clock, countUp, cross, crowd, dashes, eye, fig, hatch, hbars, ink, letter, lie, question, rays, st, text, timeline, vbars, type P } from './draw'
+import { axes, ball, box, bullets, carrow, dot, drop, earth, flame, heart, lens, pie, plot, rad, sun, thermo, tree, waveP } from './kit'
+
+// Leben & Körper: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
+
+/** Blatt mit Mittelrippe, Spitze nach rechts oben */
+function leaf(g: Element, cx: number, cy: number, s = 1, d = 0): P[] {
+  const P = (a: number, b: number): P => [cx + a * s, cy + b * s]
+  const o = [...B(P(-80, 40), P(-60, -30), P(20, -60), P(80, -40)), ...B(P(80, -40), P(60, 30), P(-20, 60), P(-80, 40)).slice(1)]
+  blank(g, o)
+  hatch(g, o, d + 600)
+  ink(g, o, { w: 3, d, t: 800 })
+  ink(g, B(P(-80, 40), P(-30, 10), P(30, -20), P(76, -38)), { w: 2, d: d + 500, t: 600 })
+  return o
+}
+
+/** Mitochondrium: Kapsel mit gefalteter Innenhaut */
+function mito(g: Element, cx: number, cy: number, s = 1, d = 0): void {
+  const w = 60 * s
+  const h = 30 * s
+  blank(g, RR(cx - w / 2, cy - h / 2, w, h, h / 2))
+  ink(g, RR(cx - w / 2, cy - h / 2, w, h, h / 2), { w: 2.4, d, t: 400 })
+  const pts: P[] = []
+  for (let i = 0; i <= 8; i++) pts.push([cx - w / 2 + 8 * s + i * ((w - 16 * s) / 8), cy + (i % 2 ? -1 : 1) * h * 0.28])
+  ink(g, pts, { w: 1.6, d: d + 300, t: 400 })
+}
+
+/** Bakterium (Stäbchen mit Geißel) */
+function bact(g: Element, x: number, y: number, s = 1, d = 0, fill = false): void {
+  blank(g, RR(x - 20 * s, y - 8 * s, 40 * s, 16 * s, 8 * s))
+  if (fill) hatch(g, RR(x - 20 * s, y - 8 * s, 40 * s, 16 * s, 8 * s), d + 200, true)
+  ink(g, RR(x - 20 * s, y - 8 * s, 40 * s, 16 * s, 8 * s), { w: 2.2, d, t: 300 })
+  ink(g, B([x + 20 * s, y], [x + 28 * s, y - 6 * s], [x + 32 * s, y + 6 * s], [x + 40 * s, y]), { w: 1.4, d: d + 200, t: 200 })
+}
+
+/** Virus: Kugel mit Stacheln */
+function virus(g: Element, cx: number, cy: number, r: number, d = 0): void {
+  ball(g, cx, cy, r, { d, fill: 'hell', w: 2.4 })
+  for (let k = 0; k < 10; k++) {
+    const a = rad(k * 36)
+    ink(g, L([cx + Math.cos(a) * r, cy + Math.sin(a) * r], [cx + Math.cos(a) * (r + 9), cy + Math.sin(a) * (r + 9)]), { w: 1.8, d: d + 300, t: 100 })
+    dot(g, cx + Math.cos(a) * (r + 11), cy + Math.sin(a) * (r + 11), 2.6, d + 400)
+  }
+}
+
+/** Antikörper (Y), Fuß bei (x, y), Drehung in Grad */
+function antibody(g: Element, x: number, y: number, s = 1, deg = 0, d = 0): void {
+  const r = ([a, b]: P): P => [x + a * s * Math.cos(rad(deg)) - b * s * Math.sin(rad(deg)), y + a * s * Math.sin(rad(deg)) + b * s * Math.cos(rad(deg))]
+  ink(g, [r([0, 0]), r([0, -18])], { w: 2.6, d, t: 200 })
+  ink(g, [r([0, -18]), r([-12, -32])], { w: 2.6, d: d + 150, t: 200 })
+  ink(g, [r([0, -18]), r([12, -32])], { w: 2.6, d: d + 150, t: 200 })
+}
+
+/** DNA als Strickleiter (waagerecht) */
+function ladder(g: Element, x0: number, x1: number, y: number, h = 30, d = 0, t = 800): void {
+  ink(g, L([x0, y - h / 2], [x1, y - h / 2]), { w: 2.6, d, t })
+  ink(g, L([x0, y + h / 2], [x1, y + h / 2]), { w: 2.6, d, t })
+  for (let x = x0 + 8; x < x1 - 4; x += 14) ink(g, L([x, y - h / 2 + 3], [x, y + h / 2 - 3]), { w: 1.6, d: d + ((x - x0) / (x1 - x0)) * t, t: 80 })
+}
+
+/** Zelle mit Kern */
+function cell(g: Element, cx: number, cy: number, rx: number, ry: number, d = 0, nucleus = true): void {
+  const o = [...B([cx - rx, cy], [cx - rx, cy - ry * 1.2], [cx + rx * 0.4, cy - ry * 1.1], [cx + rx, cy - ry * 0.3]), ...B([cx + rx, cy - ry * 0.3], [cx + rx * 1.1, cy + ry * 0.8], [cx - rx * 0.3, cy + ry * 1.2], [cx - rx, cy]).slice(1)]
+  blank(g, o)
+  ink(g, o, { w: 3, d, t: 900 })
+  if (nucleus) {
+    hatch(g, E(cx - rx * 0.1, cy, rx * 0.26, ry * 0.3), d + 700, true)
+    ink(g, E(cx - rx * 0.1, cy, rx * 0.26, ry * 0.3), { w: 2.4, d: d + 500, t: 500 })
+  }
+}
+
+/** Hautquerschnitt: Oberfläche (mit Beule, wenn up), Haarbalg, Haar, Haaraufrichter-Muskel; Haar tritt bei (x, y) aus */
+function skin(g: Element, x: number, y: number, up: boolean, d = 0, s = 1): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const surf: P[] = up ? [...L(P(-140, 0), P(10, 0)), ...B(P(10, 0), P(16, -20), P(40, -20), P(46, 0)).slice(1), ...L(P(46, 0), P(140, 0)).slice(1)] : L(P(-140, 0), P(140, 0))
+  ink(g, surf, { w: 3, d, t: 600 })
+  ink(g, L(P(-7, 2), P(10, 98)), { w: 2.2, d: d + 300, t: 400 })
+  ink(g, L(P(7, 2), P(26, 98)), { w: 2.2, d: d + 300, t: 400 })
+  ball(g, x + 18 * s, y + 110 * s, 12 * s, { d: d + 600, fill: 'dicht', w: 2, t: 300 })
+  ink(g, up ? L(P(14, 98), P(0, -110)) : [...L(P(14, 98), P(0, 0)), ...B(P(0, 0), P(-4, -14), P(-40, -36), P(-110, -40)).slice(1)], { w: 2.4, d: d + 700, t: 600 })
+  const m: [P, P] = up ? [P(22, 70), P(52, 26)] : [P(24, 76), P(70, 22)]
+  const mid: P = [(m[0][0] + m[1][0]) / 2, (m[0][1] + m[1][1]) / 2]
+  const nx = (m[1][1] - m[0][1]) * (up ? 0.22 : 0.12)
+  const ny = -(m[1][0] - m[0][0]) * (up ? 0.22 : 0.12)
+  const spindle: P[] = [...B(m[0], [mid[0] + nx, mid[1] + ny], [mid[0] + nx, mid[1] + ny], m[1]), ...B(m[1], [mid[0] - nx, mid[1] - ny], [mid[0] - nx, mid[1] - ny], m[0]).slice(1)]
+  hatch(g, spindle, d + 1000, true)
+  ink(g, spindle, { w: 1.8, d: d + 900, t: 300 })
+}
+
+/** Aufgewickelter Faden: Spirale nach innen (kreuzt sich nicht) */
+function coil(g: Element, cx: number, cy: number, r: number, d = 0): void {
+  const pts: P[] = []
+  for (let a = 0; a < Math.PI * 2 * 7; a += 0.12) {
+    const rr = r * (1 - a / (Math.PI * 2 * 7.4))
+    pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.85])
+  }
+  ink(g, pts, { w: 1.4, d, t: 1600 })
+}
+
+/** Leiterstück zwischen zwei Punkten (schräg) */
+function lad(g: Element, a: P, b: P, h = 26, d = 0): void {
+  const len = Math.hypot(b[0] - a[0], b[1] - a[1])
+  const ux = (b[0] - a[0]) / len
+  const uy = (b[1] - a[1]) / len
+  const nx = -uy * (h / 2)
+  const ny = ux * (h / 2)
+  ink(g, L([a[0] + nx, a[1] + ny], [b[0] + nx, b[1] + ny]), { w: 2.4, d, t: 600 })
+  ink(g, L([a[0] - nx, a[1] - ny], [b[0] - nx, b[1] - ny]), { w: 2.4, d, t: 600 })
+  for (let t = 10; t < len - 4; t += 14) {
+    const x = a[0] + ux * t
+    const y = a[1] + uy * t
+    ink(g, L([x + nx * 0.8, y + ny * 0.8], [x - nx * 0.8, y - ny * 0.8]), { w: 1.4, d: d + (t / len) * 600, t: 80 })
+  }
+}
+
+/** Schneeflocke: sechs Speichen vom Mittelpunkt */
+function snow(g: Element, cx: number, cy: number, r: number, d = 0): void {
+  for (let k = 0; k < 6; k++) {
+    const a = rad(k * 60 - 90)
+    ink(g, L([cx, cy], [cx + Math.cos(a) * r, cy + Math.sin(a) * r]), { w: 2.2, d: d + k * 60, t: 150 })
+    const m: P = [cx + Math.cos(a) * r * 0.6, cy + Math.sin(a) * r * 0.6]
+    for (const s of [-1, 1]) ink(g, L(m, [m[0] + Math.cos(a + s * 0.8) * r * 0.3, m[1] + Math.sin(a + s * 0.8) * r * 0.3]), { w: 1.6, d: d + 300 + k * 60, t: 100 })
+  }
+}
+
+/** Kleiner Drehregler */
+function regler0(g: Element, cx: number, cy: number, d = 0): void {
+  ink(g, E(cx, cy, 30), { w: 2.6, d, t: 500 })
+  ink(g, L([cx, cy], [cx + 18, cy - 16]), { w: 3, d: d + 400, t: 200 })
+  dot(g, cx, cy, 4, d + 400)
+}
+
+export const AHA_KOERPER: Bite[] = [
+  {
+    id: 'baum-aus-luft',
+    area: 'BIO',
+    day: 33,
+    hook: 'Woraus besteht eigentlich ein Baum?',
+    mood: 'ruhig',
+    ambience: 'wind',
+    images: [],
+    draw: {
+      baum(g) {
+        ink(g, L([20, 440], [340, 440]), { w: 3, t: 500 })
+        tree(g, 180, 440, 1.9, 200)
+      },
+      gewicht(g) {
+        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
+        tree(g, 110, 620, 1.6, 200)
+        text(g, 270, 470, '? t', { anchor: 'middle', size: 60, d: 900 })
+      },
+      boden(g) {
+        ink(g, L([20, 480], [340, 480]), { w: 3, t: 500 })
+        hatch(g, RR(20, 482, 320, 170, 4), 300)
+        tree(g, 180, 480, 1.2, 200)
+        for (const [a, b] of [[[176, 484], [140, 560]], [[184, 484], [220, 570]], [[180, 486], [182, 590]]] as const) ink(g, L(a as P, b as P), { w: 2.2, d: 700, t: 300 })
+        for (const x of [120, 240]) arrow(g, L([x, 620], [x, 540]), { w: 2.4, d: 1000, t: 400, head: 9 })
+        text(g, 180, 646, 'aus dem Boden?', { anchor: 'middle', cls: 'halo', d: 1200 })
+      },
+      topf(g) {
+        const pot: P[] = [[100, 520], [260, 520], [240, 640], [120, 640], [100, 520]]
+        blank(g, pot)
+        ink(g, pot, { w: 3, t: 600 })
+        hatch(g, [[106, 540], [254, 540], [244, 600], [116, 600]], 400)
+        const small = st(g, 'h1')
+        ink(small, L([180, 540], [180, 470]), { w: 2.4, d: 600, t: 300 })
+        ink(small, B([180, 490], [200, 470], [214, 470], [222, 476]), { w: 2, d: 800, t: 300 })
+        ink(small, B([180, 480], [160, 462], [148, 462], [140, 468]), { w: 2, d: 900, t: 300 })
+        const big = st(g, 'x1', '--o: 180px 540px')
+        tree(big, 180, 540, 1.3, 0)
+        text(g, 30, 470, 'Erde: 90,7 kg', { cls: 's', d: 1000 })
+        text(st(g, 'f1', '--dl:500ms'), 340, 330, 'Weide: 2,3 → 76,7 kg', { anchor: 'end', cls: 's', fade: false })
+        text(st(g, 'f2'), 30, 496, 'Erde: nur 57 g weniger', { cls: 's', fade: false })
+      },
+      wasser(g) {
+        drop(g, 120, 470, 2.4)
+        text(g, 120, 580, 'Wasser?', { anchor: 'middle', d: 600 })
+        question(g, 260, 470, 1.4, 800)
+      },
+      kohlenstoff(g) {
+        pie(g, 180, 450, 110, 0.5)
+        text(g, 180, 600, 'Holz, trocken: etwa die Hälfte Kohlenstoff', { anchor: 'middle', cls: 's', d: 1000 })
+      },
+      blatt(g) {
+        leaf(g, 200, 520, 1.3)
+        for (const [x, y] of [[150, 500], [210, 470], [250, 530]] as const) ink(g, E(x, y, 7, 3.5), { w: 1.6, d: 900, t: 200 })
+        ;[[50, 330], [130, 310], [250, 320]].forEach(([x, y], i) => {
+          ball(g, x - 9, y, 6, { d: 1100 + i * 200, w: 1.6, t: 0 })
+          ball(g, x + 9, y, 6, { d: 1100 + i * 200, w: 1.6, t: 0 })
+          ball(g, x, y, 8, { d: 1150 + i * 200, fill: 'dicht', w: 1.8, t: 0 })
+        })
+        arrow(g, L([130, 330], [150, 470]), { w: 2, d: 1600, t: 400, head: 8 })
+        text(g, 300, 330, 'CO₂', { d: 1400 })
+      },
+      formel(g) {
+        box(g, 30, 340, 80, 50, 'CO₂', { size: 18 })
+        text(g, 124, 372, '+', { anchor: 'middle', size: 22, d: 200 })
+        box(g, 140, 340, 80, 50, 'Wasser', { size: 16, d: 200 })
+        text(g, 234, 372, '+', { anchor: 'middle', size: 22, d: 400 })
+        sun(g, 290, 365, 16, 400, 10)
+        arrow(g, L([180, 410], [180, 470]), { w: 3, d: 900, t: 300, head: 10 })
+        box(g, 60, 490, 110, 50, 'Zucker', { size: 18, fill: true, d: 1100 })
+        text(g, 196, 522, '+', { anchor: 'middle', size: 22, d: 1300 })
+        box(g, 220, 490, 80, 50, 'O₂', { size: 18, d: 1300 })
+      },
+      bilanz(g) {
+        box(g, 30, 420, 120, 70, ['1 kg', 'Holz'], { size: 18, fill: true })
+        arrow(g, L([250, 455], [158, 455]), { w: 3, d: 500, t: 400, head: 10 })
+        box(g, 256, 420, 90, 70, ['1,8 kg', 'CO₂'], { size: 18, d: 300 })
+        text(g, 180, 560, 'aus der Luft geholt', { anchor: 'middle', cls: 's', d: 900 })
+      },
+      verdunsten(g) {
+        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
+        tree(g, 180, 620, 1.5, 200)
+        for (const [x, y, d] of [[80, 330, 900], [180, 300, 1000], [280, 330, 1100]] as const) {
+          drop(g, x, y, 0.6, d, false)
+          arrow(g, L([x, y - 20], [x, y - 56]), { w: 1.8, d: d + 200, t: 200, head: 7 })
+        }
+      },
+      zellulose(g) {
+        for (let i = 0; i < 5; i++) {
+          const cx = 50 + i * 65
+          const cy = 470 + (i % 2 ? 14 : -14)
+          const hx: P[] = Array.from({ length: 7 }, (_, k) => [cx + Math.cos(rad(k * 60 + 30)) * 24, cy + Math.sin(rad(k * 60 + 30)) * 24])
+          hatch(g, hx, 400 + i * 150)
+          ink(g, hx, { w: 2.6, d: i * 150, t: 400 })
+          if (i < 4) ink(g, L([cx + 21, cy + (i % 2 ? -12 : 12) * 0.5], [cx + 44, cy + (i % 2 ? -8 : 8)]), { w: 2, d: 300 + i * 150, t: 150 })
+        }
+        text(g, 180, 580, 'Zellulose: Zucker an Zucker', { anchor: 'middle', d: 1200 })
+      },
+      sauerstoff(g) {
+        leaf(g, 170, 520, 1.3)
+        ;[[90, 340], [200, 330], [300, 370]].forEach(([x, y], i) => {
+          ball(g, x - 8, y, 8, { d: 1000 + i * 200, w: 1.8, t: 0 })
+          ball(g, x + 8, y, 8, { d: 1000 + i * 200, w: 1.8, t: 0 })
+        })
+        for (const [a, b] of [[[120, 450], [96, 362]], [[200, 440], [200, 356]], [[250, 470], [290, 392]]] as const) arrow(g, L(a as P, b as P), { w: 2, d: 900, t: 400, head: 8 })
+        text(g, 180, 300, 'O₂ als Abfall', { anchor: 'middle', d: 1500 })
+      },
+      anteile(g) {
+        hbars(g, [
+          { label: 'Kohlenstoff + Sauerstoff, aus CO₂', v: 93, fmt: (v) => `${Math.round(v)} %` },
+          { label: 'Wasserstoff, aus Wasser', v: 6, fmt: (v) => `${Math.round(v)} %` },
+          { label: 'Mineralien, aus dem Boden', v: 1, fmt: () => '≈ 1 %', dense: true },
+        ], { y: 340, gap: 100, max: 100 })
+      },
+      feuer(g) {
+        flame(g, 140, 600, 1.2)
+        for (const x of [100, 140, 180]) arrow(g, L([x, 470], [x + 10, 380]), { w: 2.2, d: 900, t: 400, head: 8 })
+        text(g, 150, 360, 'CO₂ zurück in die Luft', { anchor: 'middle', cls: 's', d: 1200 })
+        const ash: P[] = [...B([230, 620], [250, 580], [290, 580], [310, 620])]
+        hatch(g, [...ash, [230, 620]], 1500, true)
+        ink(g, ash, { w: 2.4, d: 1300, t: 400 })
+        ink(g, L([200, 622], [340, 622]), { w: 2.6, d: 1200, t: 300 })
+        text(g, 270, 650, 'Asche', { anchor: 'middle', cls: 's', d: 1600 })
+      },
+      luftbaum(g) {
+        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
+        tree(g, 180, 620, 1.7, 200)
+        for (const [a, b] of [[[30, 330], [86, 380]], [[330, 330], [274, 380]], [[40, 460], [82, 450]], [[320, 460], [278, 450]]] as const) arrow(g, L(a as P, b as P), { w: 2.4, d: 1200, t: 400, head: 9 })
+      },
+      wald(g) {
+        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
+        ;[[70, 0.8], [180, 0.9], [290, 0.8]].forEach(([x, s], i) => tree(g, x, 620, s, 200 + i * 200))
+        text(g, 180, 330, 'Kohlenstoffspeicher', { anchor: 'middle', d: 1300 })
+      },
+      kette(g) {
+        text(g, 50, 470, 'Luft', { anchor: 'middle', size: 20 })
+        arrow(g, L([80, 464], [116, 464]), { w: 2.6, d: 300, t: 300, head: 9 })
+        leaf(g, 180, 470, 0.55, 400)
+        arrow(g, L([234, 464], [270, 464]), { w: 2.6, d: 800, t: 300, head: 9 })
+        fig(g, 310, 500, 2, { d: 1000 })
+        text(g, 310, 540, 'du', { anchor: 'middle', cls: 's', d: 1200 })
+      },
+      ende(g) {
+        tree(g, 180, 600, 1.4)
+      },
+    },
+    scenes: [
+      { t: HOOK(476), gfx: { baum: {} } },
+      { t: T('Ein großer Baum kann **viele Tonnen** wiegen. Doch woher kommt all diese Masse eigentlich?', 64), gfx: { gewicht: {} } },
+      { t: T('Die naheliegende Antwort: aus dem **Boden**. Die Wurzeln saugen die Erde gewissermaßen in den Stamm.', 64), gfx: { boden: {} } },
+      { t: T('Das prüfte der Arzt Jan Baptist van Helmont um 1640. Er pflanzte einen Weidenzweig in einen Topf mit gut **90 Kilo** Erde.', 64), gfx: { topf: {} } },
+      { t: T('Fünf Jahre lang gab er nur Wasser dazu. Aus dem Zweig wurde eine Weide von über **76 Kilo**.', 64), gfx: { topf: { cls: 'a1' } } },
+      { t: T('Und die Erde im Topf? Sie war nur um **57 Gramm** leichter geworden.', 64), gfx: { topf: { cls: 'a1 a2' } } },
+      { t: T('Van Helmont schloss: Der Baum besteht aus **Wasser**. Halb richtig – das Wichtigste übersah er.', 64), gfx: { wasser: {} } },
+      { t: T('Trockenes Holz besteht etwa zur Hälfte aus **Kohlenstoff**. Und den holt sich der Baum aus der Luft.', 64), gfx: { kohlenstoff: {} } },
+      { t: T('Durch winzige Poren in den Blättern nimmt er **Kohlendioxid** auf – ein Gas, das nur 0,04 Prozent der Luft ausmacht.', 64), gfx: { blatt: {} } },
+      { t: T('Mit der Energie des Sonnenlichts baut er aus CO₂ und Wasser **Zucker**. Das ist die Fotosynthese.', 64), gfx: { formel: {} } },
+      { t: T('Für jedes Kilogramm trockenes Holz holt ein Baum rund **1,8 Kilogramm** CO₂ aus der Luft. Den Sauerstoff daraus gibt er großteils wieder ab.', 64), gfx: { bilanz: {} } },
+      { t: T('Aus Zucker baut er **Zellulose** und Holz. Ketten aus Tausenden Zuckerbausteinen – fest genug für einen Stamm.', 64), gfx: { zellulose: {} } },
+      { t: T('Den Sauerstoff, den wir atmen, gibt der Baum dabei als **Abfall** ab.', 64), gfx: { sauerstoff: {} } },
+      { t: T('Rechnet man nach, stammt fast die ganze Trockenmasse aus der Luft. Aus dem Boden kommen nur Wasser und **Mineralien**.', 64), gfx: { anteile: {} } },
+      { t: T('Das Wasser aus dem Boden geht übrigens größtenteils wieder hinaus: Eine große Buche verdunstet an heißen Tagen **hunderte Liter**.', 64), gfx: { verdunsten: {} } },
+      { t: T('Verbrennt das Holz, wird der Kohlenstoff wieder zu CO₂ und geht **zurück in die Luft**. Übrig bleibt die Asche: die Mineralien aus dem Boden.', 64), gfx: { feuer: {} } },
+      { t: T('Ein Baum ist also im Grunde **verfestigte Luft** – zusammengebaut mit Sonnenlicht.', 64), gfx: { luftbaum: {} } },
+      { t: T('Darum sind Wälder riesige **Kohlenstoffspeicher** – solange das Holz nicht verrottet oder verbrennt.', 64), gfx: { wald: {} } },
+      { t: T('Auch du bestehst zu knapp einem Fünftel aus Kohlenstoff. Den hat vorher eine **Pflanze** aus der Luft geholt.', 64), gfx: { kette: {} } },
+      { t: T('Ein Baum wächst **aus der Luft** – nicht aus dem Boden.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
+    ],
+    summary: ['Van Helmonts Weide wurde 74 kg schwerer, die Erde im Topf nur 57 g leichter.', 'Fast die ganze Trockenmasse eines Baums stammt aus dem CO₂ der Luft (Fotosynthese).', 'Aus dem Boden kommen nur Wasser und ein bis zwei Prozent Mineralien – die Asche.'],
+    sources: ['van Helmont 1648: Ortus medicinae (Weidenversuch)', 'Lamlom & Savidge 2003, Biomass and Bioenergy 25', 'Campbell Biology, Kap. Fotosynthese'],
+  },
+  {
+    id: 'gaensehaut',
+    area: 'BIO',
+    day: 86,
+    hook: 'Warum bekommst du Gänsehaut?',
+    mood: 'raetsel',
+    ambience: 'wind',
+    images: [],
+    draw: {
+      haut(g) {
+        let x = 30
+        const surf: P[] = [[20, 300]]
+        for (let i = 0; i < 6; i++) {
+          surf.push(...B([x, 300], [x + 8, 280], [x + 30, 280], [x + 38, 300]).slice(1), ...L([x + 38, 300], [x + 52, 300]).slice(1))
+          ink(g, L([x + 26, 288], [x + 30, 210]), { w: 1.8, d: 900 + i * 100, t: 300 })
+          x += 52
+        }
+        ink(g, surf, { w: 3, t: 900 })
+      },
+      quer(g) {
+        const flat = st(g, 'h1')
+        skin(flat, 160, 420, false, 0, 1.3)
+        const up = st(g, 'f1')
+        skin(up, 160, 420, true, 0, 1.3)
+        text(g, 300, 620, 'Haaraufrichter', { anchor: 'middle', cls: 's', d: 1200 })
+        arrow(g, L([290, 602], [236, 500]), { w: 2, d: 1300, t: 300, head: 8 })
+      },
+      nerv(g) {
+        brain(g, 110, 380, 0.7)
+        ink(g, B([150, 430], [190, 500], [220, 540], [260, 560]), { w: 2.4, d: 900, t: 700 })
+        ink(g, L([200, 600], [340, 600]), { w: 3, d: 1200, t: 400 })
+        for (const x of [230, 270, 310]) ink(g, L([x, 598], [x + 4, 560]), { w: 1.8, d: 1500, t: 200 })
+        text(g, 110, 520, 'Sympathikus', { anchor: 'middle', d: 1300 })
+      },
+      reflexbogen(g) {
+        ink(g, L([20, 600], [200, 600]), { w: 3, t: 400 })
+        ink(g, RR(250, 330, 50, 280, 20), { w: 3, d: 200, t: 700 })
+        text(g, 275, 640, 'Rückenmark', { anchor: 'middle', cls: 's', d: 600 })
+        snow(g, 60, 420, 22, 300)
+        arrow(g, B([70, 598], [120, 520], [200, 460], [246, 440]), { w: 2.2, d: 900, t: 600, head: 9 })
+        arrow(g, B([246, 520], [200, 540], [170, 570], [150, 596]), { w: 2.2, d: 1500, t: 500, head: 9 })
+        text(g, 140, 410, 'Kälte', { cls: 's', d: 700 })
+      },
+      fell(g) {
+        ink(g, L([30, 420], [160, 420]), { w: 3, t: 400 })
+        for (let i = 0; i < 9; i++) ink(g, B([36 + i * 14, 418], [44 + i * 14, 408], [56 + i * 14, 404], [62 + i * 14, 402]), { w: 1.6, d: 300 + i * 40, t: 150 })
+        text(g, 95, 470, 'Fell anliegend', { anchor: 'middle', cls: 's', d: 700 })
+        ink(g, L([200, 420], [330, 420]), { w: 3, d: 500, t: 400 })
+        for (let i = 0; i < 9; i++) ink(g, L([206 + i * 14, 418], [210 + i * 14, 350]), { w: 1.6, d: 800 + i * 40, t: 150 })
+        hatch(g, RR(204, 352, 122, 64, 4), 1300)
+        text(g, 265, 470, 'aufgestellt: Luftpolster', { anchor: 'middle', cls: 's', d: 1400 })
+      },
+      igel(g) {
+        const body = E(180, 520, 110, 64, 180, 360)
+        for (let k = 0; k <= 16; k++) {
+          const a = rad(190 + k * 10)
+          ink(g, L([180 + Math.cos(a) * 110, 520 + Math.sin(a) * 64], [180 + Math.cos(a) * 150, 520 + Math.sin(a) * 96]), { w: 2, d: 600 + k * 40, t: 150 })
+        }
+        blank(g, [...body, [70, 520]])
+        hatch(g, [...body, [70, 520]], 500)
+        ink(g, body, { w: 3, t: 700 })
+        ink(g, L([60, 520], [300, 520]), { w: 3, d: 300, t: 500 })
+        dot(g, 286, 504, 3, 900)
+      },
+      katze(g) {
+        const cat = (cx: number, puff: boolean, d: number) => {
+          const body = E(cx, 560, 40, 46)
+          if (puff) for (let k = 0; k < 16; k++) {
+            const a = rad(150 + k * 16)
+            ink(g, L([cx + Math.cos(a) * 40, 560 + Math.sin(a) * 46], [cx + Math.cos(a) * 54, 560 + Math.sin(a) * 60]), { w: 1.6, d: d + 700 + k * 30, t: 120 })
+          }
+          blank(g, body)
+          hatch(g, body, d + 500)
+          ink(g, body, { w: 2.8, d, t: 600 })
+          ink(g, B([cx + 36, 590], [cx + 70, 600], [cx + 74, 560], [cx + 62, 530]), { w: 2.6, d: d + 300, t: 400 })
+          blank(g, E(cx, 492, 24))
+          ink(g, E(cx, 492, 24), { w: 2.8, d: d + 200, t: 500 })
+          for (const k of [-1, 1]) ink(g, [[cx + k * 20, 480], [cx + k * 18, 458], [cx + k * 6, 470]], { w: 2.4, d: d + 400, t: 200 })
+          dot(g, cx - 8, 490, 2.6, d + 600)
+          dot(g, cx + 8, 490, 2.6, d + 600)
+        }
+        ink(g, L([20, 606], [340, 606]), { w: 3, t: 500 })
+        cat(90, false, 0)
+        cat(250, true, 600)
+        text(g, 90, 640, 'normal', { anchor: 'middle', cls: 's', d: 900 })
+        text(g, 250, 640, 'gesträubt', { anchor: 'middle', cls: 's', d: 1200 })
+      },
+      erbe(g) {
+        fig(g, 180, 600, 4.4)
+        for (let i = 0; i < 5; i++) ink(g, L([168 + i * 6, 470], [170 + i * 6, 460]), { w: 1.4, d: 800 + i * 60, t: 100 })
+        text(g, 180, 646, 'dünnes Haar, alter Reflex', { anchor: 'middle', cls: 's', d: 1100 })
+      },
+      angst(g) {
+        const ghost: P[] = [...B([100, 600], [90, 460], [110, 380], [160, 380]), ...B([160, 380], [210, 380], [230, 460], [220, 600]).slice(1), [200, 580], [180, 600], [160, 580], [140, 600], [120, 580], [100, 600]]
+        blank(g, ghost)
+        ink(g, ghost, { w: 3, t: 900 })
+        dot(g, 140, 450, 6, 700)
+        dot(g, 180, 450, 6, 750)
+        fig(g, 290, 600, 2, { d: 1000, arms: 'up' })
+        text(g, 290, 470, '!', { anchor: 'middle', size: 40, d: 1300 })
+      },
+      musik(g) {
+        for (const [x, y, d] of [[60, 420, 0], [130, 380, 200], [200, 430, 400]] as const) {
+          ink(g, E(x, y + 40, 12, 9), { w: 2.6, d, t: 300 })
+          hatch(g, E(x, y + 40, 12, 9), d + 200, true)
+          ink(g, L([x + 11, y + 38], [x + 11, y - 20]), { w: 2.4, d: d + 200, t: 200 })
+          ink(g, B([x + 11, y - 20], [x + 26, y - 12], [x + 30, y], [x + 24, y + 10]), { w: 2.2, d: d + 300, t: 200 })
+        }
+        fig(g, 290, 620, 2.2, { d: 700 })
+      },
+      dopamin(g) {
+        brain(g, 180, 460, 1.1)
+        ball(g, 170, 470, 18, { d: 1300, fill: 'dicht', t: 300 })
+        text(g, 180, 620, 'Belohnungssystem: Dopamin', { anchor: 'middle', cls: 's', d: 1500 })
+      },
+      verliebt(g) {
+        brain(g, 180, 450, 1.1)
+        heart(g, 300, 330, 0.7, 900)
+        text(g, 180, 620, 'wie Essen oder Verliebtsein', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      welle(g) {
+        const arm: P[] = [...B([20, 420], [120, 400], [240, 400], [340, 390]), ...L([340, 390], [340, 520]).slice(1), ...B([340, 520], [240, 530], [120, 530], [20, 540]).slice(1)]
+        ink(g, arm, { w: 3, t: 800 })
+        for (let i = 0; i < 18; i++) {
+          const x = 40 + (i % 9) * 34
+          const y = 440 + Math.floor(i / 9) * 50 + (i % 2) * 10
+          const k = Math.floor((i % 9) / 3) + 1
+          const grp = st(g, `x${k}`, `--o: ${x}px ${y}px; --dl: ${(i % 3) * 120}ms`)
+          ink(grp, E(x, y, 5, 4, 180, 360), { w: 1.6, t: 0 })
+        }
+      },
+      ueberraschung(g) {
+        ink(g, [...waveP(30, 200, 500, 14, 60), ...L([200, 500], [214, 380]).slice(1), ...L([214, 380], [228, 600]).slice(1), ...L([228, 600], [240, 500]).slice(1), ...waveP(240, 330, 500, 14, 60).slice(1)], { w: 2.8, t: 1400 })
+        text(g, 214, 360, 'unerwartet', { anchor: 'middle', cls: 's', d: 1200 })
+      },
+      huron(g) {
+        box(g, 30, 360, 130, 60, 'Schreck!', { size: 18 })
+        arrow(g, L([164, 390], [196, 390]), { w: 2.6, d: 500, t: 300, head: 9 })
+        box(g, 200, 360, 130, 60, 'Entwarnung', { size: 16, d: 600 })
+        arrow(g, L([265, 424], [200, 490]), { w: 2.6, d: 1100, t: 300, head: 9 })
+        box(g, 90, 500, 180, 60, 'Gänsehaut', { size: 18, fill: true, d: 1300 })
+      },
+      willen(g) {
+        fig(g, 180, 600, 4)
+        text(g, 180, 650, '32 Menschen, Studie 2018', { anchor: 'middle', cls: 's', d: 900 })
+        rays(g, 180, 360, 40, 60, 10, 800)
+      },
+      stammzellen(g) {
+        skin(g, 160, 400, true, 0, 1.3)
+        for (const [x, y] of [[196, 480], [204, 496]] as const) ball(g, x, y, 5, { d: 1400, w: 1.6, t: 0 })
+        text(g, 300, 600, 'Stammzellen', { anchor: 'middle', cls: 's', d: 1500 })
+        arrow(g, L([290, 584], [216, 500]), { w: 2, d: 1600, t: 300, head: 8 })
+      },
+      gans(g) {
+        const body: P[] = [...B([80, 560], [80, 500], [160, 480], [220, 500]), ...B([220, 500], [240, 440], [250, 380], [270, 370]).slice(1), ...B([270, 370], [290, 364], [300, 380], [316, 384]).slice(1), ...B([316, 384], [296, 392], [278, 400], [266, 440]).slice(1), ...B([266, 440], [260, 500], [280, 570], [200, 580]).slice(1), ...B([200, 580], [140, 586], [90, 580], [80, 560]).slice(1)]
+        blank(g, body)
+        ink(g, body, { w: 3, t: 1200 })
+        for (let i = 0; i < 14; i++) dot(g, 110 + (i % 5) * 26 + (Math.floor(i / 5) % 2) * 12, 520 + Math.floor(i / 5) * 18, 2.6, 1200 + i * 40)
+        dot(g, 284, 378, 3, 1000)
+      },
+      ende(g) {
+        skin(g, 170, 460, true, 0, 1)
+      },
+    },
+    scenes: [
+      { t: HOOK(476), gfx: { haut: {} } },
+      { t: T('Kalt, gruselig, ergreifend – Gänsehaut. Winzige Muskeln an deinen Haarwurzeln ziehen sich zusammen und **richten die Haare auf**.', 64), gfx: { quer: {} } },
+      { t: T('Jedes Härchen hat so einen Muskel: den **Haaraufrichter**. Zieht er, wölbt sich die Haut neben dem Haar zu einer Beule.', 64), gfx: { quer: { cls: 'a1' } } },
+      { t: T('Gesteuert wird das vom **Sympathikus** – dem Teil des Nervensystems, der dich auf Kampf oder Flucht vorbereitet.', 64), gfx: { nerv: {} } },
+      { t: T('Der Weg läuft nicht über dein Bewusstsein: Kälterezeptoren melden an Rückenmark und Hirnstamm, die schicken **sofort** den Befehl zurück.', 64), gfx: { reflexbogen: {} } },
+      { t: T('Bei unseren dicht behaarten Vorfahren hatte das Sinn: Aufgestelltes Fell hält eine **Luftschicht** fest, die wärmt.', 64), gfx: { fell: {} } },
+      { t: T('Und es macht **größer**: Eine Katze mit gesträubtem Fell wirkt bedrohlicher.', 64), gfx: { katze: {} } },
+      { t: T('Igel und Stachelschweine nutzen denselben Muskeltrick: Sie **stellen ihre Stacheln** auf.', 64), gfx: { igel: {} } },
+      { t: T('Wir haben das dichte Fell verloren, der Reflex ist geblieben – heute ein **Überbleibsel** ohne viel Nutzen.', 64), gfx: { erbe: {} } },
+      { t: T('Darum bekommst du Gänsehaut auch bei **Angst**: Das alte Kampf-oder-Flucht-Programm springt an.', 64), gfx: { angst: {} } },
+      { t: T('Am rätselhaftesten ist Gänsehaut bei **Musik**. Viele Menschen kennen diesen Schauer, der den Rücken hinunterläuft.', 64), gfx: { musik: {} } },
+      { t: T('Messungen zeigen: In solchen Momenten schüttet das Belohnungssystem **Dopamin** aus – wie bei gutem Essen.', 64), gfx: { dopamin: {} } },
+      { t: T('Hirnscans zeigen: Solche Musikmomente aktivieren dieselben Regionen wie **Essen oder Verliebtsein**.', 64), gfx: { verliebt: {} } },
+      { t: T('Besonders oft kommt der Schauer bei **Überraschungen**: ein plötzlicher Einsatz, eine unerwartete Harmonie, eine Stimme, die bricht.', 64), gfx: { ueberraschung: {} } },
+      { t: T('Oft läuft die Gänsehaut dabei wie eine **Welle** über die Haut: von den Armen in den Nacken und den Rücken hinunter.', 64), gfx: { welle: { cls: 'a1 a2 a3' } } },
+      { t: T('Eine Erklärung: Das Gehirn meldet kurz „Gefahr!“ – und merkt dann, alles ist gut. **Schreck plus Entwarnung** fühlt sich großartig an.', 64), gfx: { huron: {} } },
+      { t: T('Manche Menschen können Gänsehaut sogar **willentlich** auslösen. Eine Studie untersuchte 2018 genau solche Personen.', 64), gfx: { willen: {} } },
+      { t: T('Und die Muskeln haben noch einen Job: Bei Mäusen halten sie die **Stammzellen** der Haarwurzel aktiv – Kälte lässt so mehr Haar wachsen.', 64), gfx: { stammzellen: {} } },
+      { t: T('Der Name kommt übrigens von **gerupften Gänsen**: Wo die Federn saßen, bleiben genau solche Pünktchen.', 64), gfx: { gans: {} } },
+      { t: T('Gänsehaut ist ein **Fell-Reflex** – ohne Fell.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
+    ],
+    summary: ['Winzige Haaraufrichter-Muskeln, gesteuert vom Sympathikus, stellen die Haare auf.', 'Bei Fell-Tieren wärmt das und macht größer – bei uns ist es ein Überbleibsel.', 'Gänsehaut bei Musik hängt mit Dopamin und überraschenden Momenten zusammen.'],
+    sources: ['Salimpoor et al. 2011, Nature Neuroscience 14', 'Shwartz et al. 2020, Cell 182 (Haarfollikel-Stammzellen)', 'Heathers et al. 2018, PeerJ (willentliche Gänsehaut)'],
+  },
+  {
+    id: 'schluckauf',
+    area: 'BIO',
+    day: 39,
+    hook: 'Warum hast du Schluckauf – und wozu soll das gut sein?',
+    mood: 'verspielt',
+    ambience: 'atem',
+    images: [],
+    draw: {
+      hicks(g) {
+        bubble(g, 70, 150, 220, 100, 'l', 200)
+        text(g, 180, 214, 'Hicks!', { anchor: 'middle', size: 40, d: 600 })
+        fig(g, 70, 420, 3, { d: 0 })
+      },
+      zwerchfell(g) {
+        const torso: P[] = [...B([110, 300], [80, 380], [80, 540], [110, 620]), ...L([110, 620], [250, 620]).slice(1), ...B([250, 620], [280, 540], [280, 380], [250, 300]).slice(1)]
+        ink(g, torso, { w: 3, t: 900 })
+        for (const k of [-1, 1]) {
+          const lung: P[] = [...B([180 + k * 12, 340], [180 + k * 60, 330], [180 + k * 72, 420], [180 + k * 66, 486]), ...B([180 + k * 66, 486], [180 + k * 40, 476], [180 + k * 14, 480], [180 + k * 12, 470]).slice(1), [180 + k * 12, 340]]
+          hatch(g, lung, 700)
+          ink(g, lung, { w: 2.4, d: 400, t: 600 })
+        }
+        const up = st(g, 'h1')
+        ink(up, B([96, 520], [130, 470], [230, 470], [264, 520]), { w: 3.6, d: 900, t: 600 })
+        const down = st(g, 'f1')
+        ink(down, B([96, 540], [130, 520], [230, 520], [264, 540]), { w: 3.6, t: 0 })
+        arrow(down, L([180, 270], [180, 320]), { w: 2.6, t: 0, head: 9 })
+        text(g, 300, 650, 'Zwerchfell', { anchor: 'end', cls: 's', d: 1200 })
+      },
+      stimmritze(g) {
+        ink(g, L([120, 320], [120, 600]), { w: 3, t: 600 })
+        ink(g, L([240, 320], [240, 600]), { w: 3, t: 600 })
+        const l = st(g, 'm1', '--m1: rotate(28deg); transform-origin: 120px 460px')
+        ink(l, L([122, 460], [178, 430]), { w: 4, d: 500, t: 300 })
+        const r = st(g, 'm1', '--m1: rotate(-28deg); transform-origin: 240px 460px')
+        ink(r, L([238, 460], [182, 430]), { w: 4, d: 500, t: 300 })
+        arrow(g, L([180, 600], [180, 500]), { w: 2.4, d: 800, t: 300, head: 9 })
+        text(st(g, 'f1', '--dl:600ms'), 180, 380, 'zu nach 35 ms', { anchor: 'middle', cls: 's', fade: false })
+      },
+      takt(g) {
+        clock(g, 180, 460, 100, 0, 0)
+        for (let k = 0; k < 6; k++) {
+          const a = rad(-90 + k * 60)
+          dot(g, 180 + Math.cos(a) * 124, 460 + Math.sin(a) * 124, 5, 800 + k * 150)
+        }
+        text(g, 180, 620, '4 bis 60 Hickser pro Minute', { anchor: 'middle', d: 1500 })
+      },
+      reize(g) {
+        brain(g, 100, 360, 0.6)
+        text(g, 100, 450, 'Hirnstamm', { anchor: 'middle', cls: 's', d: 800 })
+        bullets(g, 180, 330, ['zu schnell gegessen', 'Kohlensäure', 'Alkohol', 'Aufregung'], { d: 900, gap: 40 })
+        ink(g, B([100, 470], [110, 540], [140, 590], [220, 620]), { w: 2.2, d: 1200, t: 600 })
+        text(g, 230, 626, 'Zwerchfell', { cls: 's', d: 1700 })
+      },
+      vorfahren(g) {
+        const fish: P[] = [...B([40, 470], [60, 440], [110, 440], [130, 470]), ...B([130, 470], [110, 500], [60, 500], [40, 470]).slice(1)]
+        ink(g, fish, { w: 2.6, t: 600 })
+        ink(g, [[40, 470], [24, 454], [24, 486], [40, 470]], { w: 2.4, d: 300, t: 300 })
+        arrow(g, L([142, 470], [178, 470]), { w: 2.4, d: 600, t: 300, head: 9 })
+        ink(g, E(220, 470, 26, 18), { w: 2.6, d: 800, t: 500 })
+        dot(g, 230, 462, 3, 1100)
+        arrow(g, L([256, 470], [286, 470]), { w: 2.4, d: 1200, t: 300, head: 9 })
+        fig(g, 320, 500, 1.6, { d: 1400 })
+        text(g, 180, 560, 'Fisch · Amphibie · Mensch', { anchor: 'middle', cls: 's', d: 1600 })
+      },
+      kaulquappe(g) {
+        const body: P[] = [...B([110, 460], [110, 400], [200, 400], [210, 460]), ...B([210, 460], [200, 520], [110, 520], [110, 460]).slice(1)]
+        blank(g, body)
+        ink(g, body, { w: 3, t: 700 })
+        ink(g, B([110, 460], [80, 430], [50, 500], [20, 450]), { w: 2.6, d: 400, t: 600 })
+        dot(g, 180, 446, 4, 800)
+        for (let k = 0; k < 3; k++) ink(g, L([152 + k * 8, 490], [156 + k * 8, 506]), { w: 1.6, d: 900 + k * 80, t: 100 })
+        text(g, 158, 560, 'Kiemen', { anchor: 'middle', cls: 's', d: 1100 })
+        text(g, 280, 420, 'Lunge', { anchor: 'middle', cls: 's', d: 1200 })
+        arrow(g, L([254, 428], [204, 446]), { w: 2, d: 1300, t: 300, head: 8 })
+      },
+      muster(g) {
+        for (const [y, n, d] of [[400, 'Kaulquappe', 0], [520, 'Schluckauf', 600]] as const) {
+          text(g, 30, y - 30, n, { cls: 's', d })
+          hatch(g, RR(30, y - 16, 120, 32, 6), d + 300)
+          ink(g, RR(30, y - 16, 120, 32, 6), { w: 2.4, d, t: 400 })
+          text(g, 90, y + 6, 'einatmen', { anchor: 'middle', cls: 's halo', d: d + 200 })
+          ink(g, RR(160, y - 16, 150, 32, 6), { w: 2.4, d: d + 200, t: 400 })
+          text(g, 235, y + 6, 'Stimmritze zu', { anchor: 'middle', cls: 's', d: d + 400 })
+        }
+      },
+      baby(g) {
+        ink(g, E(180, 470, 130, 150), { w: 3, t: 900 })
+        ink(g, E(200, 410, 34), { w: 2.8, d: 500, t: 500 })
+        ink(g, B([180, 440], [120, 470], [130, 560], [200, 560]), { w: 2.8, d: 800, t: 600 })
+        ink(g, B([200, 560], [240, 560], [250, 520], [222, 500]), { w: 2.6, d: 1200, t: 400 })
+        text(g, 180, 660, 'Hicksen schon im Mutterleib', { anchor: 'middle', cls: 's', d: 1400 })
+      },
+      flasche(g) {
+        ink(g, RR(90, 380, 60, 160, 14), { w: 3, t: 600 })
+        ink(g, [[104, 380], [110, 350], [130, 350], [136, 380]], { w: 2.6, d: 300, t: 300 })
+        hatch(g, RR(94, 440, 52, 96, 10), 600)
+        const st2: P[] = [...B([220, 420], [280, 400], [320, 470], [290, 540]), ...B([290, 540], [260, 590], [210, 560], [220, 420]).slice(1)]
+        ink(g, st2, { w: 3, d: 500, t: 700 })
+        ball(g, 266, 462, 14, { d: 1000, w: 2 })
+        arrow(g, L([266, 442], [266, 380]), { w: 2.2, d: 1200, t: 300, head: 8 })
+        text(g, 266, 620, 'Luft aus dem Magen', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      tiere(g) {
+        const dog: P[] = [...B([60, 520], [70, 470], [180, 470], [230, 480]), [250, 440], [290, 440], [300, 470], [270, 480], ...B([270, 480], [260, 520], [200, 530], [60, 520]).slice(1)]
+        blank(g, dog)
+        hatch(g, dog, 700)
+        ink(g, dog, { w: 2.8, t: 900 })
+        for (const x of [80, 110, 200, 230]) ink(g, L([x, 524], [x, 590]), { w: 2.6, d: 600, t: 200 })
+        ink(g, B([60, 500], [40, 480], [36, 460], [44, 440]), { w: 2.4, d: 800, t: 200 })
+        dot(g, 278, 452, 3, 1000)
+        bubble(g, 230, 340, 100, 50, 'l', 1100)
+        text(g, 280, 372, 'hicks', { anchor: 'middle', d: 1300 })
+      },
+      raetsel(g) {
+        question(g, 110, 460, 1.6)
+        question(g, 250, 500, 1.1, 400)
+      },
+      mittel(g) {
+        bullets(g, 40, 340, ['Luft anhalten', 'in eine Tüte atmen', 'kaltes Wasser trinken', 'Erschrecken'], { gap: 48, size: 18 })
+        text(g, 40, 560, 'CO₂ im Blut erhöhen oder', { d: 1500 })
+        text(g, 40, 584, 'den Reflex-Nerv reizen', { d: 1600 })
+      },
+      rekord(g) {
+        timeline(g, 30, 330, 470, [
+          { at: 0.1, label: '1922', sub: 'Beginn', up: true },
+          { at: 0.9, label: '1990', sub: 'Ende', up: true },
+        ])
+        text(g, 180, 560, '68 Jahre', { anchor: 'middle', size: 34, d: 1400 })
+      },
+      zahl(g) {
+        const t = text(g, 180, 470, '', { anchor: 'middle', size: 44, d: 200 })
+        countUp(t, 430, 200, 1600, (v) => `${Math.round(v)} Mio.`)
+        text(g, 180, 520, 'Hickser, geschätzt', { anchor: 'middle', d: 600 })
+      },
+      arzt(g) {
+        hatch(g, RR(150, 380, 60, 180, 6), 400, true)
+        ink(g, RR(150, 380, 60, 180, 6), { w: 3, t: 500 })
+        hatch(g, RR(90, 440, 180, 60, 6), 400, true)
+        blank(g, RR(152, 442, 56, 56, 2))
+        hatch(g, RR(152, 442, 56, 56, 2), 400, true)
+        ink(g, [[150, 440], [90, 440], [90, 500], [150, 500]], { w: 3, d: 200, t: 400 })
+        ink(g, [[210, 440], [270, 440], [270, 500], [210, 500]], { w: 3, d: 200, t: 400 })
+        text(g, 180, 620, 'länger als zwei Tage', { anchor: 'middle', d: 900 })
+      },
+      ende(g) {
+        bubble(g, 90, 420, 180, 90, 'l')
+        text(g, 180, 478, 'Hicks', { anchor: 'middle', size: 32, d: 400 })
+      },
+    },
+    scenes: [
+      { t: HOOK(476), gfx: { hicks: {} } },
+      { t: T('Schluckauf beginnt im **Zwerchfell**, dem großen, gewölbten Atemmuskel unter deiner Lunge.', 64), gfx: { zwerchfell: {} } },
+      { t: T('Plötzlich zuckt es, ohne dass du es willst – und du **saugst ruckartig Luft** ein.', 64), gfx: { zwerchfell: { cls: 'a1' } } },
+      { t: T('Nur etwa 35 Millisekunden später **klappt die Stimmritze zu**. Die Luft prallt dagegen: „Hicks!“', 64), gfx: { stimmritze: { cls: 'a1' } } },
+      { t: T('Ein Anfall bringt meist **4 bis 60** Hickser pro Minute und ist nach ein paar Minuten vorbei.', 64), gfx: { takt: {} } },
+      { t: T('Den Reflex steuert ein Nervenschaltkreis im **Hirnstamm**. Anstoßen können ihn ganz verschiedene Reize.', 64), gfx: { reize: {} } },
+      { t: T('Wozu soll das gut sein? Eine Idee: Schluckauf ist ein **Erbe** aus der Zeit, als unsere Vorfahren im Wasser lebten.', 64), gfx: { vorfahren: {} } },
+      { t: T('Kaulquappen atmen mit **Lunge und Kiemen**. Pumpen sie Wasser über die Kiemen, schließen sie die Stimmritze – damit nichts in die Lunge läuft.', 64), gfx: { kaulquappe: {} } },
+      { t: T('Dieses Muster – einatmen, Stimmritze zu – gleicht dem Schluckauf **verblüffend**.', 64), gfx: { muster: {} } },
+      { t: T('Eine zweite Idee: Babys hicksen schon im Mutterleib, und zwar oft. Vielleicht **trainiert** der Reflex die Atemmuskeln.', 64), gfx: { baby: {} } },
+      { t: T('Eine dritte: Er hilft Säuglingen, beim Trinken geschluckte **Luft aus dem Magen** zu befördern.', 64), gfx: { flasche: {} } },
+      { t: T('Auch Hunde, Katzen und Pferde bekommen Schluckauf – er ist ein **Säugetier-Reflex**.', 64), gfx: { tiere: {} } },
+      { t: T('Bewiesen ist keine dieser Ideen. Schluckauf ist bis heute ein **kleines Rätsel** der Medizin.', 64), gfx: { raetsel: {} } },
+      { t: T('Die meisten Hausmittel setzen auf dasselbe: **CO₂ im Blut** erhöhen oder den Nerv reizen, der den Reflex leitet.', 64), gfx: { mittel: {} } },
+      { t: T('Den Rekord hält der US-Amerikaner Charles Osborne: Er hatte **68 Jahre lang** Schluckauf, von 1922 bis 1990.', 64), gfx: { rekord: {} } },
+      { t: T('In dieser Zeit hat er schätzungsweise **430 Millionen** Mal gehickst.', 64), gfx: { zahl: {} } },
+      { t: T('Hält Schluckauf länger als zwei Tage an, sollte ein Arzt nachsehen. Dahinter können **andere Erkrankungen** stecken.', 64), gfx: { arzt: {} } },
+      { t: T('Schluckauf ist wohl ein **Reflex von früher**, den wir nie losgeworden sind.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
+    ],
+    summary: ['Das Zwerchfell zuckt, man atmet ruckartig ein, nach ~35 ms schließt die Stimmritze: „Hicks“.', 'Eine Hypothese: ein Erbe der Kiemenatmung von Kaulquappen.', 'Hält Schluckauf über zwei Tage an, sollte ein Arzt nachsehen.'],
+    sources: ['Straus et al. 2003, BioEssays 25 (Kaulquappen-Hypothese)', 'Kahrilas & Shi 1997, Gut 41', 'Howes 2012, Medical Hypotheses 79 (Luft aus dem Magen)'],
+  },
+  {
+    id: 'fieber',
+    area: 'BIO',
+    day: 53,
+    hook: 'Warum macht dein Körper Fieber – mit Absicht?',
+    mood: 'raetsel',
+    ambience: 'herz',
+    images: [],
+    draw: {
+      thermo(g) {
+        thermo(g, 180, 90, 280, 0.82)
+        text(g, 220, 160, '39 °C', { size: 26, d: 900 })
+      },
+      regler(g) {
+        ink(g, E(180, 470, 110), { w: 3.2, t: 800 })
+        for (let k = 0; k <= 10; k++) {
+          const a = rad(150 + k * 24)
+          ink(g, L([180 + Math.cos(a) * 92, 470 + Math.sin(a) * 92], [180 + Math.cos(a) * 104, 470 + Math.sin(a) * 104]), { w: 2, d: 300 + k * 40, t: 100 })
+        }
+        const n = st(g, 'm1', '--m1: rotate(48deg); transform-origin: 180px 470px; transition-duration: 1.6s')
+        ink(n, L([180, 470], [180 + Math.cos(rad(222)) * 80, 470 + Math.sin(rad(222)) * 80]), { w: 4, d: 800, t: 300 })
+        ball(g, 180, 470, 12, { d: 700, fill: 'dicht', t: 300 })
+        text(g, 80, 620, '37 °C', { anchor: 'middle', d: 1000 })
+        text(g, 280, 620, '39 °C', { anchor: 'middle', d: 1100 })
+      },
+      tagesgang(g) {
+        axes(g, 40, 600, 330, 340, { xl: 'Uhrzeit', yl: 'Temperatur' })
+        plot(g, 46, 520, 270, 100, (t) => 0.5 + 0.45 * Math.sin((t - 0.35) * Math.PI * 2), { d: 500 })
+        text(g, 110, 624, 'morgens', { anchor: 'middle', cls: 's', d: 900 })
+        text(g, 250, 624, 'abends', { anchor: 'middle', cls: 's', d: 1000 })
+      },
+      wunderlich(g) {
+        timeline(g, 30, 330, 440, [
+          { at: 0.1, label: '1868', sub: '37,0 °C', up: true },
+          { at: 0.85, label: 'heute', sub: 'eher 36,6 °C', up: true },
+        ])
+        text(g, 180, 540, 'Carl Wunderlich, Leipzig', { anchor: 'middle', cls: 's', d: 1400 })
+      },
+      signal(g) {
+        brain(g, 220, 380, 0.8)
+        ball(g, 230, 420, 12, { d: 1100, fill: 'dicht', t: 300 })
+        text(g, 300, 470, 'Hypothalamus', { anchor: 'end', cls: 's', d: 1300 })
+        virus(g, 70, 590, 14, 300)
+        ink(g, B([90, 570], [130, 540], [180, 520], [222, 438]), { w: 2, d: 800, t: 500 })
+        text(g, 160, 620, 'Botenstoffe im Blut', { cls: 's', d: 1000 })
+      },
+      frieren(g) {
+        thermo(g, 70, 330, 220, 0.85)
+        text(g, 70, 610, 'Soll: 39', { anchor: 'middle', cls: 's', d: 600 })
+        thermo(g, 160, 330, 220, 0.55, 300)
+        text(g, 160, 610, 'Ist: 37', { anchor: 'middle', cls: 's', d: 900 })
+        fig(g, 280, 590, 2.4, { d: 600, arms: 'cross' })
+        for (const [x, y] of [[236, 470], [324, 470], [236, 520], [324, 520]] as const) ink(g, [[x - 6, y], [x - 2, y - 6], [x + 2, y + 6], [x + 6, y]], { w: 1.8, d: 1200, t: 200 })
+      },
+      zittern(g) {
+        fig(g, 180, 620, 6, { d: 0, arms: 'down' })
+        for (const [x, y] of [[100, 400], [260, 400], [100, 500], [260, 500]] as const) ink(g, [[x - 8, y], [x - 3, y - 8], [x + 3, y + 8], [x + 8, y]], { w: 2, d: 800, t: 200 })
+        text(g, 60, 640, 'kalte Hände', { anchor: 'middle', cls: 's', d: 1200 })
+      },
+      erreger(g) {
+        axes(g, 40, 600, 330, 320, { xl: 'Temperatur', yl: 'Vermehrung' })
+        plot(g, 50, 590, 270, 240, (t) => (t < 0.45 ? 0.9 : 0.9 - Math.pow((t - 0.45) / 0.55, 1.4) * 0.75), { d: 500 })
+        text(g, 118, 600 + 24, '37', { anchor: 'middle', cls: 's', d: 900 })
+        text(g, 240, 600 + 24, '40', { anchor: 'middle', cls: 's', d: 900 })
+      },
+      immun(g) {
+        ball(g, 130, 470, 44, { fill: 'hell', w: 3 })
+        ball(g, 120, 462, 14, { d: 300, fill: 'dicht', t: 300 })
+        for (const [y, d] of [[440, 700], [470, 800], [500, 900]] as const) ink(g, L([20, y], [70, y]), { w: 2, d, t: 200 })
+        arrow(g, L([186, 470], [300, 470]), { w: 3, d: 900, t: 500, head: 10 })
+        virus(g, 320, 470, 12, 1200)
+        text(g, 180, 600, 'Abwehrzellen wandern schneller', { anchor: 'middle', cls: 's', d: 1400 })
+      },
+      echse(g) {
+        const body: P[] = [...B([40, 560], [80, 530], [200, 530], [250, 546]), ...B([250, 546], [280, 540], [300, 546], [310, 556]).slice(1), ...B([310, 556], [290, 570], [240, 568], [220, 566]).slice(1), ...B([220, 566], [160, 580], [80, 576], [40, 560]).slice(1)]
+        blank(g, body)
+        hatch(g, body, 700)
+        ink(g, body, { w: 2.8, t: 900 })
+        for (const x of [110, 200]) {
+          ink(g, L([x, 574], [x - 10, 600]), { w: 2.2, d: 600, t: 200 })
+          ink(g, L([x + 12, 574], [x + 22, 600]), { w: 2.2, d: 600, t: 200 })
+        }
+        ink(g, L([20, 600], [340, 600]), { w: 3, d: 300, t: 500 })
+        sun(g, 270, 380, 30, 600)
+      },
+      ueberleben(g) {
+        vbars(g, [
+          { label: 'warm', v: 3, fmt: () => 'meist überlebt' },
+          { label: 'kühl', v: 1, fmt: () => 'meist gestorben', dense: true },
+        ], { x: 90, base: 600, w: 70, gap: 110, h: 220 })
+        text(g, 180, 330, 'Wüstenleguane, infiziert', { anchor: 'middle', cls: 's', d: 1200 })
+      },
+      puls(g) {
+        heart(g, 180, 440, 2.2)
+        ink(g, [...L([30, 580], [120, 580]), ...L([120, 580], [140, 540]).slice(1), ...L([140, 540], [160, 620]).slice(1), ...L([160, 620], [176, 580]).slice(1), ...L([176, 580], [330, 580]).slice(1)], { w: 2.6, d: 700, t: 900 })
+        text(g, 180, 656, 'etwa + 10 Schläge je Grad', { anchor: 'middle', cls: 's', d: 1400 })
+      },
+      hitzschlag(g) {
+        box(g, 30, 360, 140, 110, ['Fieber:', 'Sollwert hoch'], { size: 16 })
+        box(g, 190, 360, 140, 110, ['Hitzschlag:', 'Kühlung versagt'], { size: 16, d: 400, fill: true })
+        sun(g, 260, 560, 26, 800)
+        regler0(g, 100, 560, 800)
+      },
+      energie(g) {
+        flame(g, 180, 560, 1.6)
+        text(g, 180, 620, '+ 10 bis 13 % Energie je Grad', { anchor: 'middle', d: 900 })
+      },
+      schlapp(g) {
+        ink(g, RR(40, 500, 280, 40, 10), { w: 3, t: 600 })
+        lie(g, 80, 484, 2.6, 'back', 400)
+        ink(g, L([50, 540], [50, 580]), { w: 2.6, d: 300, t: 200 })
+        ink(g, L([310, 540], [310, 580]), { w: 2.6, d: 300, t: 200 })
+      },
+      schwitzen(g) {
+        fig(g, 180, 620, 6)
+        for (const [x, y] of [[110, 420], [250, 420], [96, 520], [264, 520]] as const) drop(g, x, y, 0.6, 700, false)
+        text(g, 180, 360, 'Sollwert sinkt: zu warm', { anchor: 'middle', cls: 's', d: 900 })
+      },
+      arzt(g) {
+        bullets(g, 40, 360, ['sehr hohes Fieber', 'Säuglinge', 'mehrere Tage', 'Atemnot, Verwirrtheit'], { gap: 50, size: 18 })
+      },
+      grenze(g) {
+        thermo(g, 120, 320, 260, 0.95)
+        dashes(g, L([150, 340], [300, 340]), { w: 1.8, d: 600 })
+        text(g, 160, 330, 'ab ≈ 41 °C gefährlich', { d: 900 })
+      },
+      ende(g) {
+        thermo(g, 180, 380, 200, 0.7)
+      },
+    },
+    scenes: [
+      { t: HOOK(476), gfx: { thermo: {} } },
+      { t: T('Fieber ist keine Panne. Dein Gehirn stellt den **Thermostat** absichtlich höher.', 64), gfx: { regler: {} } },
+      { t: T('Der Sollwert springt dann zum Beispiel von 37 auf 39 Grad. Die Temperatur wird **nicht überhitzt**, sondern neu geregelt.', 64), gfx: { regler: { cls: 'a1' } } },
+      { t: T('Ganz fest ist der Sollwert ohnehin nicht: Deine Temperatur schwankt im Tagesverlauf um bis zu **ein Grad** – morgens tief, abends höher.', 64), gfx: { tagesgang: {} } },
+      { t: T('Und die berühmten 37 Grad? Sie stammen von Carl Wunderlich aus dem Jahr 1868. Neuere Messungen ergeben eher **36,6 Grad**.', 64), gfx: { wunderlich: {} } },
+      { t: T('Auslöser sind Immunzellen, die Erreger entdecken. Ihre Botenstoffe erreichen den **Hypothalamus** – die Temperaturzentrale im Gehirn.', 64), gfx: { signal: {} } },
+      { t: T('Jetzt fühlen sich 37 Grad **zu kalt** an. Darum frierst du am Anfang, obwohl du schon warm bist.', 64), gfx: { frieren: {} } },
+      { t: T('Du zitterst – Muskelarbeit erzeugt **Wärme**. Die Hautgefäße ziehen sich zusammen, Hände und Füße werden kalt.', 64), gfx: { zittern: {} } },
+      { t: T('Warum der Aufwand? Viele Erreger vermehren sich bei höherer Temperatur **schlechter**.', 64), gfx: { erreger: {} } },
+      { t: T('Gleichzeitig arbeiten viele **Abwehrzellen** schneller: Sie wandern zügiger dorthin, wo die Infektion sitzt.', 64), gfx: { immun: {} } },
+      { t: T('Das ist uralt. Sogar **Eidechsen** „machen Fieber“: Bei einer Infektion legen sie sich länger in die Sonne.', 64), gfx: { echse: {} } },
+      { t: T('In einem Versuch von 1975 überlebten infizierte Wüstenleguane, die sich aufwärmen konnten, **deutlich häufiger**.', 64), gfx: { ueberleben: {} } },
+      { t: T('Mit dem Fieber steigt auch der **Puls**: um etwa zehn Schläge pro Minute je Grad.', 64), gfx: { puls: {} } },
+      { t: T('Fieber kostet aber viel Energie: Pro Grad steigt der Grundumsatz um etwa **10 bis 13 Prozent**.', 64), gfx: { energie: {} } },
+      { t: T('Darum bist du so **schlapp**: Der Körper spart Kraft für die Abwehr.', 64), gfx: { schlapp: {} } },
+      { t: T('Ist die Infektion im Griff, stellt das Gehirn zurück. Jetzt ist dir **zu warm** – du schwitzt die Wärme ab.', 64), gfx: { schwitzen: {} } },
+      { t: T('Fieber ist nicht dasselbe wie **Überhitzung**: Beim Hitzschlag will der Körper kühlen, schafft es aber nicht.', 64), gfx: { hitzschlag: {} } },
+      { t: T('Gefährlich wird Fieber meist erst ab etwa **41 Grad**: Dann geraten Eiweiße im Körper an ihre Grenzen.', 64), gfx: { grenze: {} } },
+      { t: T('Fiebersenker lindern trotzdem oft sinnvoll Beschwerden. In manchen Fällen gehört Fieber **zum Arzt**.', 64), gfx: { arzt: {} } },
+      { t: T('Fieber ist eine **Waffe** deines Immunsystems – kein Defekt.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
+    ],
+    summary: ['Bei Fieber stellt der Hypothalamus den Sollwert höher – darum friert man anfangs.', 'Viele Erreger vermehren sich in der Wärme schlechter, Abwehrzellen arbeiten schneller.', 'Fieber kostet pro Grad rund 10–13 % mehr Energie.'],
+    sources: ['Evans, Repasky & Fisher 2015, Nature Reviews Immunology 15', 'Kluger, Ringler & Anver 1975, Science 188', 'Dinarello 2004, Journal of Endotoxin Research'],
+  },
+  {
+    id: 'venen-blau',
+    area: 'BIO',
+    day: 39,
+    hook: 'Ist das Blut in deinen Adern blau?',
+    mood: 'raetsel',
+    ambience: 'herz',
+    images: [],
+    draw: {
+      arm(g) {
+        const arm: P[] = [...B([20, 180], [120, 160], [240, 150], [340, 140]), ...L([340, 140], [340, 300]).slice(1), ...B([340, 300], [240, 310], [120, 320], [20, 340]).slice(1)]
+        ink(g, arm, { w: 3, t: 900 })
+        for (const [y, d] of [[205, 600], [250, 800], [290, 1000]] as const) ink(g, waveP(40, 320, y - (y - 200) * 0.08, 6, 120, y / 30), { w: 1.6, d, t: 900 })
+      },
+      tropfen(g) {
+        drop(g, 110, 470, 2.4)
+        drop(g, 250, 470, 2.4, 300)
+        hatch(g, E(250, 490, 28, 26), 700, true)
+        text(g, 110, 580, 'mit Sauerstoff', { anchor: 'middle', cls: 's', d: 900 })
+        text(g, 110, 600, 'hellrot', { anchor: 'middle', d: 1000 })
+        text(g, 250, 580, 'ohne Sauerstoff', { anchor: 'middle', cls: 's', d: 1100 })
+        text(g, 250, 600, 'dunkelrot', { anchor: 'middle', d: 1200 })
+      },
+      haemo(g) {
+        for (const [x, y] of [[140, 420], [220, 420], [140, 500], [220, 500]] as const) ball(g, x, y, 38, { fill: 'hell', w: 2.6 })
+        for (const [x, y] of [[140, 420], [220, 420], [140, 500], [220, 500]] as const) {
+          blank(g, E(x, y, 13))
+          ink(g, E(x, y, 13), { w: 2, d: 600, t: 300 })
+          text(g, x, y + 5, 'Fe', { anchor: 'middle', cls: 's', d: 800 })
+        }
+        text(g, 180, 600, 'Hämoglobin mit 4 Eisen-Atomen', { anchor: 'middle', cls: 's', d: 1000 })
+      },
+      menge(g) {
+        const bottle: P[] = [[130, 340], [130, 380], [100, 420], [100, 620], [260, 620], [260, 420], [230, 380], [230, 340]]
+        ink(g, bottle, { w: 3, t: 800 })
+        hatch(g, [[104, 440], [256, 440], [256, 616], [104, 616]], 700, true)
+        text(g, 180, 530, '≈ 5 Liter', { anchor: 'middle', size: 30, cls: 'halo', d: 1000 })
+      },
+      zahlrot(g) {
+        ink(g, E(180, 460, 110, 70), { w: 3, t: 700 })
+        ink(g, E(180, 460, 50, 26), { w: 2, d: 400, t: 500 })
+        hatch(g, [...E(180, 460, 106, 66), ...E(180, 460, 54, 30, 360, 0)], 800)
+        text(g, 180, 600, '270 Mio. Hämoglobin je Blutkörperchen', { anchor: 'middle', cls: 's', d: 1100 })
+      },
+      lippen(g) {
+        const top: P[] = [...B([60, 470], [110, 420], [150, 430], [180, 446]), ...B([180, 446], [210, 430], [250, 420], [300, 470]).slice(1)]
+        const bot: P[] = B([60, 470], [120, 540], [240, 540], [300, 470])
+        hatch(g, [...top, ...bot.slice().reverse()], 600)
+        ink(g, top, { w: 3, t: 600 })
+        ink(g, bot, { w: 3, d: 200, t: 600 })
+        snow(g, 300, 340, 22, 700)
+        text(g, 180, 610, 'Kälte: Blut fließt langsamer', { anchor: 'middle', cls: 's', d: 1000 })
+      },
+      fleck(g) {
+        ;[['bläulich', 'dicht'], ['grün', 'hell'], ['gelb', 'leer']].forEach(([n, f], i) => {
+          const x = 70 + i * 110
+          blank(g, E(x, 460, 40, 34))
+          if (f !== 'leer') hatch(g, E(x, 460, 40, 34), 300 + i * 400, f === 'dicht')
+          ink(g, E(x, 460, 40, 34), { w: 2.6, d: i * 400, t: 400 })
+          text(g, x, 530, n, { anchor: 'middle', cls: 's', d: 200 + i * 400 })
+          if (i < 2) arrow(g, L([x + 46, 460], [x + 64, 460]), { w: 2, d: 300 + i * 400, t: 200, head: 7 })
+        })
+        text(g, 180, 600, 'Abbau des Blutfarbstoffs', { anchor: 'middle', cls: 's', d: 1400 })
+      },
+      schichten(g) {
+        ink(g, L([20, 360], [340, 360]), { w: 3, t: 500 })
+        hatch(g, RR(20, 362, 320, 280, 2), 300)
+        blank(g, E(250, 520, 34, 26))
+        ink(g, E(250, 520, 34, 26), { w: 2.6, d: 500, t: 500 })
+        text(g, 250, 526, 'Vene', { anchor: 'middle', cls: 's', d: 700 })
+        sun(g, 60, 290, 16, 200, 8)
+        const blue = st(g, 'x1', '--o: 120px 380px')
+        arrow(blue, L([100, 320], [110, 404]), { w: 2.4, t: 0, head: 9 })
+        arrow(blue, L([120, 404], [134, 330]), { w: 2.4, t: 0, head: 9 })
+        text(blue, 120, 316, 'Blau', { anchor: 'middle', cls: 's halo', fade: false })
+        const red = st(g, 'x2', '--o: 250px 470px')
+        arrow(red, L([220, 320], [242, 486]), { w: 2.4, t: 0, head: 9 })
+        text(red, 214, 312, 'Rot', { anchor: 'middle', cls: 's halo', fade: false })
+        const red2 = st(g, 'x3', '--o: 300px 500px')
+        arrow(red2, L([300, 320], [310, 470]), { w: 2.4, t: 0, head: 9 })
+        arrow(red2, L([318, 470], [330, 330]), { w: 2.4, t: 0, head: 9 })
+        text(red2, 316, 312, 'Rot', { anchor: 'middle', cls: 's halo', fade: false })
+      },
+      vergleich(g) {
+        hatch(g, RR(40, 380, 120, 160, 10), 300)
+        ink(g, RR(40, 380, 120, 160, 10), { w: 2.6, t: 500 })
+        hatch(g, RR(200, 380, 120, 160, 10), 500, true)
+        ink(g, RR(200, 380, 120, 160, 10), { w: 2.6, d: 200, t: 500 })
+        text(g, 100, 580, 'Haut daneben', { anchor: 'middle', cls: 's', d: 800 })
+        text(g, 260, 580, 'über der Vene', { anchor: 'middle', cls: 's', d: 900 })
+        text(g, 260, 604, 'weniger Rot', { anchor: 'middle', d: 1000 })
+      },
+      gefaesse(g) {
+        ink(g, E(110, 470, 60), { w: 6, t: 700 })
+        ink(g, E(110, 470, 40), { w: 2, d: 300, t: 600 })
+        hatch(g, E(110, 470, 40), 600, true)
+        ink(g, E(260, 470, 56, 40), { w: 2, d: 500, t: 600 })
+        hatch(g, E(260, 470, 52, 36), 800, true)
+        text(g, 110, 570, 'Arterie: tief, dicke Wand', { anchor: 'middle', cls: 's', d: 900 })
+        text(g, 260, 540, 'Vene: dünn', { anchor: 'middle', cls: 's', d: 1000 })
+      },
+      lehrbuch(g) {
+        const vein = RR(96, 300, 22, 150, 11)
+        const art = RR(242, 300, 22, 150, 11)
+        hatch(g, art, 900, true)
+        ink(g, art, { w: 2.6, d: 700, t: 500 })
+        ink(g, vein, { w: 2.6, d: 600, t: 500 })
+        hatch(g, vein, 900)
+        heart(g, 180, 500, 2.4, 0, false)
+        text(g, 107, 290, 'Vene: blau gemalt', { anchor: 'middle', cls: 's', d: 1200 })
+        text(g, 253, 290, 'Arterie: rot gemalt', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      roehrchen(g) {
+        ink(g, RR(150, 320, 60, 260, 26), { w: 3, t: 700 })
+        hatch(g, RR(156, 420, 48, 154, 22), 600, true)
+        ink(g, RR(144, 300, 72, 30, 6), { w: 2.6, d: 300, t: 300 })
+        text(g, 180, 630, 'Venenblut: dunkelrot', { anchor: 'middle', d: 1000 })
+      },
+      krake(g) {
+        ball(g, 180, 400, 70, { fill: 'hell', w: 3 })
+        for (let k = 0; k < 6; k++) {
+          const x = 120 + k * 24
+          ink(g, B([x, 462], [x - 16, 520], [x + 16, 560], [x + (k - 2.5) * 12, 620]), { w: 2.6, d: 500 + k * 100, t: 400 })
+        }
+        dot(g, 156, 394, 5, 900)
+        dot(g, 204, 394, 5, 950)
+        text(g, 290, 340, 'Kupfer statt Eisen', { anchor: 'middle', cls: 's', d: 1200 })
+      },
+      adel(g) {
+        fig(g, 110, 620, 4, { d: 0 })
+        for (let i = 0; i < 3; i++) ink(g, B([200 + i * 40, 600], [210 + i * 40, 560], [190 + i * 40, 520], [204 + i * 40, 480]), { w: 1.8, d: 600 + i * 150, t: 400 })
+        text(g, 240, 640, '„sangre azul“', { anchor: 'middle', cls: 'it', d: 1100, size: 20 })
+      },
+      ende(g) {
+        drop(g, 180, 470, 2.6)
+      },
+    },
+    scenes: [
+      { t: HOOK(476), gfx: { arm: {} } },
+      { t: T('Unter der Haut schimmern deine Venen bläulich. Viele glauben deshalb: Blut ohne Sauerstoff ist **blau**.', 480), gfx: { arm: {} } },
+      { t: T('Doch Blut ist immer **rot**: hellrot mit viel Sauerstoff, dunkelrot mit wenig.', 64), gfx: { tropfen: {} } },
+      { t: T('Die Farbe kommt vom **Hämoglobin**, dem roten Blutfarbstoff. Sein Eisen bindet Sauerstoff – und verändert dabei den Rotton.', 64), gfx: { haemo: {} } },
+      { t: T('Ein Erwachsener hat rund **fünf Liter** Blut – etwa sieben Prozent seines Körpergewichts.', 64), gfx: { menge: {} } },
+      { t: T('Jedes rote Blutkörperchen steckt voller Farbstoff: rund **270 Millionen** Hämoglobin-Moleküle.', 64), gfx: { zahlrot: {} } },
+      { t: T('Beim Blutabnehmen siehst du es selbst: Venenblut im Röhrchen ist **dunkelrot**, nicht blau.', 64), gfx: { roehrchen: {} } },
+      { t: T('Warum also blau? Das liegt am **Licht** – und daran, wie es durch deine Haut wandert.', 64), gfx: { schichten: {} } },
+      { t: T('Blaues Licht dringt kaum ein. Es wird schon in den **oberen Schichten** zurückgeworfen – über der Vene genauso wie daneben.', 64), gfx: { schichten: { cls: 'a1' } } },
+      { t: T('Rotes Licht dringt **tiefer** ein. Trifft es auf eine Vene, schluckt das Blut einen Teil davon.', 64), gfx: { schichten: { cls: 'a1 a2' } } },
+      { t: T('Neben der Vene dagegen kommt viel Rot zurück. Über der Vene fehlt also **vor allem Rot**.', 64), gfx: { schichten: { cls: 'a1 a2 a3' } } },
+      { t: T('Dein Gehirn vergleicht mit der warm getönten Haut drumherum – und deutet die Stelle als **bläulich**.', 64), gfx: { vergleich: {} } },
+      { t: T('Arterien siehst du kaum: Sie liegen **tiefer** und haben dicke, muskulöse Wände.', 64), gfx: { gefaesse: {} } },
+      { t: T('Und in Schulbüchern? Dort sind Venen **blau** gemalt und Arterien rot – eine Farbregel für Zeichnungen, keine Fotografie.', 64), gfx: { lehrbuch: {} } },
+      { t: T('Blaue Lippen bei Kälte? Dort fließt das Blut langsamer und gibt **mehr Sauerstoff** ab – es wird dunkler und schimmert bläulich.', 64), gfx: { lippen: {} } },
+      { t: T('Und blaue Flecken? Dort ist Blut ins Gewebe gesickert. Beim Abbau wird sein Farbstoff erst **grün, dann gelb**.', 64), gfx: { fleck: {} } },
+      { t: T('Wirklich blaues Blut gibt es trotzdem: **Kraken** und Hummer nutzen Hämocyanin – mit Kupfer statt Eisen.', 64), gfx: { krake: {} } },
+      { t: T('„Blaublütig“ für Adlige kommt aus Spanien: Bei heller Haut, die nie auf dem Feld in der Sonne war, schimmerten die **Venen** deutlich durch.', 64), gfx: { adel: {} } },
+      { t: T('Dein Blut ist **immer rot** – das Blau ist ein Trick des Lichts.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
+    ],
+    summary: ['Blut ist immer rot – hellrot mit, dunkelrot mit wenig Sauerstoff.', 'Rotes Licht dringt tiefer ein und wird über Venen geschluckt; blaues kommt überall gleich zurück.', 'Im Vergleich zur Haut daneben wirken Venen deshalb bläulich.'],
+    sources: ['Kienle et al. 1996, Applied Optics 35 (Why do veins appear blue?)', 'Campbell Biology: Hämoglobin', 'Coates 2014: Hämocyanin bei Weichtieren'],
+  },
+  {
+    id: 'dna-zwei-meter',
+    area: 'BIO',
+    day: 23,
+    hook: 'In jeder deiner Zellen stecken zwei Meter Faden. Wie passt das hinein?',
+    mood: 'raetsel',
+    ambience: 'blasen',
+    images: [],
+    draw: {
+      zelle(g) {
+        cell(g, 180, 250, 150, 120, 0, false)
+        ink(g, E(170, 250, 70, 60), { w: 2.6, d: 600, t: 600 })
+        coil(g, 170, 250, 58, 900)
+      },
+      leiter(g) {
+        ladder(g, 30, 330, 470, 44)
+        text(g, 180, 560, 'DNA: zwei Stränge, verbunden wie eine Leiter', { anchor: 'middle', cls: 's', d: 1000 })
+      },
+      buchstaben(g) {
+        ladder(g, 30, 330, 470, 60)
+        ;[['A', 'T'], ['G', 'C'], ['T', 'A'], ['C', 'G'], ['A', 'T']].forEach(([a, b], i) => {
+          const x = 66 + i * 56
+          blank(g, RR(x - 14, 446, 28, 48, 6))
+          text(g, x, 466, a, { anchor: 'middle', size: 16, d: 900 + i * 120 })
+          text(g, x, 490, b, { anchor: 'middle', size: 16, d: 950 + i * 120 })
+        })
+        text(g, 180, 580, 'A mit T, G mit C', { anchor: 'middle', d: 1600 })
+      },
+      buecher(g) {
+        for (let i = 0; i < 24; i++) {
+          const x = 40 + (i % 12) * 24
+          const y = 380 + Math.floor(i / 12) * 120
+          const r = RR(x, y, 20, 100, 3)
+          if (i % 3 === 0) hatch(g, r, 300 + i * 40, true)
+          ink(g, r, { w: 2, d: i * 40, t: 200 })
+        }
+        text(g, 180, 650, '3 Milliarden Buchstaben ≈ 1.000 Bücher', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      gene(g) {
+        pie(g, 180, 460, 110, 0.02)
+        text(g, 180, 620, 'nur rund 2 % sind Baupläne für Eiweiße', { anchor: 'middle', cls: 's', d: 1100 })
+      },
+      laenge(g) {
+        fig(g, 110, 620, 7)
+        ink(g, L([250, 620], [250, 320]), { w: 3, d: 500, t: 800 })
+        for (const y of [320, 620]) ink(g, L([238, y], [262, y]), { w: 2.4, d: 600, t: 200 })
+        text(g, 270, 476, '2 m', { size: 26, d: 1200 })
+        text(g, 110, 650, 'du', { anchor: 'middle', cls: 's', d: 900 })
+      },
+      kern(g) {
+        dot(g, 180, 470, 3, 200)
+        lens(g, 180, 470, 60, 400)
+        text(g, 180, 600, 'Zellkern: 6 Mikrometer', { anchor: 'middle', d: 900 })
+      },
+      tennis(g) {
+        ball(g, 180, 470, 110, { fill: 'hell', w: 3.2, t: 800 })
+        ink(g, B([90, 400], [150, 440], [150, 500], [90, 540]), { w: 2.4, d: 600, t: 500 })
+        ink(g, B([270, 400], [210, 440], [210, 500], [270, 540]), { w: 2.4, d: 700, t: 500 })
+        text(g, 180, 640, '40 km Faden in einem Tennisball', { anchor: 'middle', d: 1100 })
+      },
+      perlen(g) {
+        const xs = [60, 120, 180, 240, 300]
+        xs.forEach((x, i) => {
+          const y = 470 + (i % 2 ? 20 : -20)
+          ball(g, x, y, 18, { d: i * 200, fill: 'dicht', w: 2, t: 300 })
+          ink(g, E(x, y, 25), { w: 1.8, d: 300 + i * 200, t: 400 })
+          if (i < 4) {
+            const y2 = 470 + (i % 2 ? -20 : 20)
+            const dx = 60
+            const dy = y2 - y
+            const k = Math.hypot(dx, dy)
+            ink(g, L([x + (dx / k) * 25, y + (dy / k) * 25], [x + dx - (dx / k) * 25, y2 - (dy / k) * 25]), { w: 1.8, d: 500 + i * 200, t: 200 })
+          }
+        })
+        text(g, 180, 580, 'Histone als Spulen', { anchor: 'middle', d: 1300 })
+      },
+      schleifen(g) {
+        const pts: P[] = []
+        for (let r = 0; r < 7; r++) {
+          const y = 330 + r * 40
+          const a: P = r % 2 ? [320, y] : [40, y]
+          const b: P = r % 2 ? [40, y] : [320, y]
+          pts.push(...L(a, b).slice(pts.length ? 1 : 0))
+          if (r < 6) pts.push(...E(b[0], y + 20, 20, 20, r % 2 ? 270 : -90, r % 2 ? 90 : 90).slice(1))
+        }
+        ink(g, pts, { w: 2.2, t: 2400 })
+      },
+      chromosom(g) {
+        for (const [x, h, d] of [[90, 150, 0], [180, 120, 300], [270, 90, 600]] as const) {
+          for (const k of [-1, 1]) {
+            const r = RR(x + (k < 0 ? -18 : 0), 470 - h / 2, 18, h, 9)
+            blank(g, r)
+            hatch(g, r, d + 300)
+            ink(g, r, { w: 2.4, d, t: 400 })
+          }
+        }
+        text(g, 180, 620, 'Chromosomen bei der Teilung', { anchor: 'middle', cls: 's', d: 1000 })
+      },
+      karyogramm(g) {
+        for (let i = 0; i < 23; i++) {
+          const x = 46 + (i % 6) * 54
+          const y = 380 + Math.floor(i / 6) * 70
+          const h = 50 - i * 1.3
+          for (const k of [0, 1]) {
+            const r = RR(x + k * 11, y - h / 2, 9, h, 4.5)
+            hatch(g, r, 300 + i * 40, true)
+            ink(g, r, { w: 1.6, d: i * 40, t: 200 })
+          }
+        }
+        text(g, 180, 330, '23 Paare = 46', { anchor: 'middle', d: 1200 })
+      },
+      locker(g) {
+        ink(g, waveP(30, 160, 470, 30, 70), { w: 2.4, t: 800 })
+        text(g, 95, 560, 'locker: wird gelesen', { anchor: 'middle', cls: 's', d: 700 })
+        const pts: P[] = []
+        for (let i = 0; i <= 26; i++) pts.push([210 + i * 4.6, 470 + (i % 2 ? -26 : 26)])
+        ink(g, pts, { w: 2, d: 500, t: 800 })
+        ink(g, RR(200, 430, 140, 80, 10), { w: 2.4, d: 300, t: 500 })
+        text(g, 270, 560, 'eng: weggepackt', { anchor: 'middle', cls: 's', d: 900 })
+      },
+      epi(g) {
+        ladder(g, 30, 330, 480, 40)
+        for (const x of [90, 180, 270]) {
+          ink(g, L([x, 460], [x, 410]), { w: 2, d: 900, t: 200 })
+          dot(g, x, 404, 7, 1100)
+        }
+        text(g, 180, 360, 'chemische Markierungen', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      sonne(g) {
+        earth(g, 50, 470, 26)
+        sun(g, 300, 470, 22, 300, 10)
+        arrow(g, L([86, 456], [250, 456]), { w: 2.2, d: 700, t: 500, head: 9 })
+        arrow(g, L([250, 484], [86, 484]), { w: 2.2, d: 1200, t: 500, head: 9 })
+        text(g, 170, 560, 'dutzende Male hin und zurück', { anchor: 'middle', d: 1600 })
+      },
+      kopie(g) {
+        ladder(g, 20, 160, 470, 30)
+        lad(g, [160, 455], [320, 360], 26, 600)
+        lad(g, [160, 485], [320, 580], 26, 800)
+        text(g, 180, 650, 'zwei identische Kopien', { anchor: 'middle', cls: 's', d: 1500 })
+      },
+      trisomie(g) {
+        for (const [x, n] of [[90, 2], [250, 3]] as const) {
+          for (let k = 0; k < n; k++) {
+            const r = RR(x - (n * 14) / 2 + k * 14, 400, 10, 110, 5)
+            hatch(g, r, 300, true)
+            ink(g, r, { w: 2, d: k * 100, t: 300 })
+          }
+        }
+        text(g, 90, 560, 'normal: 2', { anchor: 'middle', cls: 's', d: 700 })
+        text(g, 250, 560, 'Trisomie 21: 3', { anchor: 'middle', cls: 's', d: 800 })
+      },
+      ende(g) {
+        ink(g, E(180, 520, 90), { w: 3, t: 800 })
+        coil(g, 180, 520, 76, 500)
+      },
+    },
+    scenes: [
+      { t: HOOK(476), gfx: { zelle: {} } },
+      { t: T('Deine Erbinformation steckt in der **DNA** – einem langen, extrem dünnen Molekül aus zwei Strängen.', 64), gfx: { leiter: {} } },
+      { t: T('Die Information steckt in nur vier Buchstaben: **A, T, G und C**. Sie paaren sich immer gleich – A mit T, G mit C.', 64), gfx: { buchstaben: {} } },
+      { t: T('Würdest du die DNA aus einer einzigen Zelle ausrollen, wäre sie rund **zwei Meter** lang.', 64), gfx: { laenge: {} } },
+      { t: T('Der Zellkern, in dem sie steckt, misst aber nur etwa **sechs Mikrometer** – sechs Tausendstel Millimeter.', 64), gfx: { kern: {} } },
+      { t: T('Das ist, als würdest du **40 Kilometer** Faden in einen Tennisball stopfen. Ohne Knoten!', 64), gfx: { tennis: {} } },
+      { t: T('Dein Erbgut hat rund **3 Milliarden** Buchstaben. Ausgedruckt füllte es etwa tausend dicke Bücher.', 64), gfx: { buecher: {} } },
+      { t: T('Der Trick heißt **Aufwickeln**: Die DNA windet sich um winzige Eiweiß-Spulen, die Histone.', 64), gfx: { perlen: {} } },
+      { t: T('Das sieht aus wie eine Perlenkette. Jede Spule trägt knapp **zwei Windungen** DNA.', 64), gfx: { perlen: {} } },
+      { t: T('Die Perlenkette faltet sich weiter zu Schleifen – **Schleife auf Schleife**, immer dichter.', 64), gfx: { schleifen: {} } },
+      { t: T('Vor einer Zellteilung wird sie maximal verdichtet. Dann entstehen die **Chromosomen**, die man im Mikroskop sieht.', 64), gfx: { chromosom: {} } },
+      { t: T('Der Mensch hat **46** davon: 23 von der Mutter, 23 vom Vater.', 64), gfx: { karyogramm: {} } },
+      { t: T('Ist eins zu viel – wie bei der **Trisomie 21** –, verändert das die ganze Entwicklung.', 64), gfx: { trisomie: {} } },
+      { t: T('Nur rund **zwei Prozent** davon sind Baupläne für Eiweiße. Der Rest regelt, schaltet – oder ist noch ein Rätsel.', 64), gfx: { gene: {} } },
+      { t: T('Das Packen ist kein Chaos: Gene, die gebraucht werden, liegen **locker**, damit die Zelle sie lesen kann. Der Rest wird eng weggepackt.', 64), gfx: { locker: {} } },
+      { t: T('Wie eng ein Gen gepackt ist, steuern chemische Markierungen. Sie können sich mit Umwelt und Alter ändern – das erforscht die **Epigenetik**.', 64), gfx: { epi: {} } },
+      { t: T('Bei jeder Zellteilung kopiert die Zelle alle zwei Meter – in wenigen Stunden und mit **kaum einem Fehler**.', 64), gfx: { kopie: {} } },
+      { t: T('Alle DNA deines Körpers aneinandergelegt würde **dutzende Male** von der Erde zur Sonne und zurück reichen.', 64), gfx: { sonne: {} } },
+      { t: T('Zwei Meter Faden – **genial aufgewickelt**.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
+    ],
+    summary: ['Die DNA einer Zelle ist ausgerollt rund zwei Meter lang, der Zellkern nur ~6 µm groß.', 'Sie wickelt sich um Histone, faltet sich zu Schleifen und bei der Teilung zu Chromosomen.', 'Locker gepackte Gene werden gelesen, eng gepackte ruhen (Epigenetik).'],
+    sources: ['Alberts et al.: Molecular Biology of the Cell, Kap. 4', 'Annunziato 2008, Nature Education 1(1)', 'Piovesan et al. 2019, BMC Research Notes (Genomlänge)'],
+  },
+  {
+    id: 'blaue-augen',
+    area: 'BIO',
+    day: 23,
+    hook: 'Blaue Augen haben gar kein blaues Pigment. Wie geht das?',
+    mood: 'hell',
+    ambience: 'blasen',
+    images: [],
+    draw: {
+      auge(g) {
+        eye(g, 180, 260, 3)
+        hatch(g, [...E(180, 260, 36), ...E(180, 260, 20, 20, 360, 0)], 900)
+      },
+      iris(g) {
+        eye(g, 180, 470, 3.4)
+        hatch(g, [...E(180, 470, 40), ...E(180, 470, 22, 22, 360, 0)], 900)
+        text(g, 180, 600, 'Iris', { anchor: 'middle', d: 1000 })
+      },
+      braun(g) {
+        hatch(g, RR(40, 450, 280, 40, 6), 300, true)
+        ink(g, RR(40, 450, 280, 40, 6), { w: 2.4, t: 500 })
+        ink(g, RR(40, 380, 280, 60, 6), { w: 2.4, d: 100, t: 500 })
+        let seed = 3
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 60; i++) dot(g, 50 + rnd() * 260, 388 + rnd() * 44, 3, 500 + i * 15)
+        arrow(g, L([180, 300], [180, 398]), { w: 2.6, d: 900, t: 400, head: 9 })
+        text(g, 196, 320, 'Licht', { cls: 's', d: 900 })
+        text(g, 180, 540, 'viel Melanin: Licht wird geschluckt', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      blau(g) {
+        hatch(g, RR(40, 450, 280, 40, 6), 300, true)
+        ink(g, RR(40, 450, 280, 40, 6), { w: 2.4, t: 500 })
+        ink(g, RR(40, 380, 280, 60, 6), { w: 2.4, d: 100, t: 500 })
+        for (const [x, y] of [[80, 400], [250, 420], [300, 396]] as const) dot(g, x, y, 3, 500)
+        arrow(g, L([150, 300], [160, 404]), { w: 2.6, d: 700, t: 400, head: 9 })
+        const sc = st(g, 'x1', '--o: 170px 410px')
+        arrow(sc, L([170, 404], [214, 320]), { w: 2.2, t: 0, head: 8 })
+        arrow(sc, L([170, 404], [116, 330]), { w: 2.2, t: 0, head: 8 })
+        text(sc, 240, 320, 'Blau', { cls: 's', fade: false })
+        text(g, 180, 540, 'kaum Melanin: Fasern streuen', { anchor: 'middle', cls: 's', d: 1100 })
+      },
+      feder(g) {
+        ink(g, B([90, 620], [140, 520], [200, 420], [270, 320]), { w: 3, t: 700 })
+        for (let i = 1; i < 12; i++) {
+          const t = i / 12
+          const x = 90 + (270 - 90) * t
+          const y = 620 - 300 * t
+          ink(g, L([x, y], [x - 36 + t * 10, y - 22]), { w: 1.6, d: 500 + i * 60, t: 150 })
+          ink(g, L([x, y], [x + 30 - t * 10, y + 14]), { w: 1.6, d: 550 + i * 60, t: 150 })
+        }
+        text(g, 280, 600, 'Strukturfarbe', { anchor: 'middle', cls: 's', d: 1400 })
+      },
+      licht(g) {
+        sun(g, 70, 360, 22)
+        eye(g, 230, 480, 1.8, 400)
+        hatch(g, [...E(230, 480, 22), ...E(230, 480, 12, 12, 360, 0)], 900)
+        text(g, 230, 600, 'je nach Licht blau oder grau', { anchor: 'middle', cls: 's', d: 1100 })
+      },
+      grau(g) {
+        hatch(g, RR(40, 450, 280, 40, 6), 300, true)
+        ink(g, RR(40, 450, 280, 40, 6), { w: 2.4, t: 500 })
+        hatch(g, RR(40, 380, 280, 60, 6), 600)
+        ink(g, RR(40, 380, 280, 60, 6), { w: 2.4, d: 100, t: 500 })
+        arrow(g, L([150, 300], [160, 376]), { w: 2.6, d: 700, t: 400, head: 9 })
+        for (const [a, b] of [[[170, 376], [206, 310]], [[166, 376], [124, 314]], [[176, 374], [180, 300]]] as const) arrow(g, L(a as P, b as P), { w: 2, d: 1100, t: 300, head: 8 })
+        text(g, 180, 540, 'mehr Fasern: alle Farben gestreut → grau', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      gruen(g) {
+        box(g, 30, 380, 130, 70, ['gelbbraunes', 'Melanin'], { size: 15 })
+        text(g, 180, 422, '+', { anchor: 'middle', size: 26, d: 400 })
+        box(g, 200, 380, 130, 70, ['blaue', 'Streuung'], { size: 15, d: 400 })
+        arrow(g, L([180, 470], [180, 520]), { w: 2.6, d: 900, t: 300, head: 9 })
+        box(g, 110, 530, 140, 60, 'grün', { size: 20, fill: true, d: 1100 })
+      },
+      baby(g) {
+        ball(g, 180, 470, 110, { w: 3.2 })
+        for (const x of [140, 220]) {
+          ink(g, E(x, 450, 18, 12), { w: 2.4, d: 600, t: 300 })
+          dot(g, x, 450, 6, 900)
+        }
+        ink(g, B([150, 520], [170, 536], [190, 536], [210, 520]), { w: 2.4, d: 1000, t: 300 })
+        text(g, 180, 640, 'Melanin kommt später', { anchor: 'middle', cls: 's', d: 1200 })
+      },
+      braunfrueher(g) {
+        crowd(g, 50, 560, 8, 37, 2, 0, 120)
+        text(g, 180, 620, 'ursprünglich: alle braunäugig', { anchor: 'middle', d: 1200 })
+      },
+      mutation(g) {
+        ladder(g, 30, 330, 470, 44)
+        hatch(g, RR(166, 446, 28, 48, 4), 1000, true)
+        ink(g, RR(166, 446, 28, 48, 4), { w: 2.6, d: 900, t: 300 })
+        text(g, 180, 420, 'HERC2, vor OCA2', { anchor: 'middle', d: 1200 })
+        text(g, 180, 560, 'vor 6.000 bis 10.000 Jahren', { anchor: 'middle', cls: 's', d: 1400 })
+      },
+      stammbaum(g) {
+        const lv: P[][] = [[[180, 330]], [[110, 430], [250, 430]], [[60, 540], [140, 540], [220, 540], [300, 540]]]
+        lv.forEach((row, i) => row.forEach(([x, y], j) => {
+          ball(g, x, y, 10, { d: i * 500 + j * 80, fill: 'dicht', t: 200 })
+          if (i) {
+            const [px, py] = lv[i - 1][Math.floor(j / 2)]
+            ink(g, L([px, py + 12], [x, y - 12]), { w: 2, d: i * 500 - 200, t: 300 })
+          }
+        }))
+        for (let k = 0; k < 8; k++) {
+          const x = 40 + k * 40
+          ball(g, x, 620, 7, { d: 1500 + k * 60, fill: 'hell', w: 1.6, t: 0 })
+          ink(g, L([lv[2][Math.floor(k / 2)][0], 552], [x, 611]), { w: 1.4, d: 1300, t: 300 })
+        }
+      },
+      anteil(g) {
+        pie(g, 180, 460, 110, 0.09)
+        text(g, 180, 620, 'weltweit 8 bis 10 % blaue Augen', { anchor: 'middle', cls: 's', d: 1100 })
+      },
+      hetero(g) {
+        eye(g, 100, 470, 1.4)
+        hatch(g, [...E(100, 470, 17), ...E(100, 470, 9, 9, 360, 0)], 900, true)
+        eye(g, 260, 470, 1.4, 300)
+        text(g, 180, 580, 'Heterochromie: selten', { anchor: 'middle', d: 1100 })
+      },
+      albino(g) {
+        eye(g, 180, 460, 2.6)
+        for (let k = 0; k < 6; k++) {
+          const a = rad(k * 60 + 20)
+          ink(g, B([180 + Math.cos(a) * 40, 460 + Math.sin(a) * 40], [180 + Math.cos(a) * 36, 460 + Math.sin(a) * 36], [180 + Math.cos(a + 0.2) * 30, 460 + Math.sin(a + 0.2) * 30], [180 + Math.cos(a + 0.3) * 34, 460 + Math.sin(a + 0.3) * 34]), { w: 1.2, d: 900 + k * 80, t: 200 })
+        }
+        text(g, 180, 600, 'ohne Melanin: Gefäße scheinen durch', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      blendung(g) {
+        sun(g, 80, 360, 26)
+        eye(g, 230, 500, 1.6, 400)
+        for (const [a, b] of [[[120, 390], [180, 450]], [[110, 410], [170, 480]]] as const) arrow(g, L(a as P, b as P), { w: 2, d: 800, t: 300, head: 8 })
+        text(g, 230, 600, 'blendempfindlicher', { anchor: 'middle', cls: 's', d: 1200 })
+      },
+      ende(g) {
+        eye(g, 180, 480, 2.4)
+      },
+    },
+    scenes: [
+      { t: HOOK(476), gfx: { auge: {} } },
+      { t: T('Die Augenfarbe sitzt in der **Iris**, dem farbigen Ring um die Pupille.', 64), gfx: { iris: {} } },
+      { t: T('Ihr einziges Farbpigment ist **Melanin** – braun bis schwarz, dasselbe wie in Haut und Haaren. Ein blaues Pigment gibt es dort nicht.', 64), gfx: { iris: {} } },
+      { t: T('Braune Augen haben viel Melanin in der vorderen Schicht der Iris. Es **schluckt** den größten Teil des Lichts.', 64), gfx: { braun: {} } },
+      { t: T('Blaue Augen haben dort **kaum Melanin**. Das Licht dringt in das trübe Gewebe ein.', 64), gfx: { blau: {} } },
+      { t: T('Winzige Fasern darin werfen kurzwelliges **blaues Licht** stärker zurück – derselbe Effekt wie beim blauen Himmel.', 64), gfx: { blau: { cls: 'a1' } } },
+      { t: T('Das Blau ist also eine **Strukturfarbe**, wie bei Eisvogel-Federn. Zerreibt man so eine Feder, verschwindet das Blau.', 64), gfx: { feder: {} } },
+      { t: T('Darum wirken manche Augen je nach **Licht** mal blau, mal grau: Was zurückkommt, hängt davon ab, was hineinfällt.', 64), gfx: { licht: {} } },
+      { t: T('Graue Augen haben vermutlich noch mehr Fasern in der Iris. Die streuen **alle Farben** ähnlich stark – das Ergebnis wirkt grau.', 64), gfx: { grau: {} } },
+      { t: T('Grüne Augen sind eine Mischung: etwas gelbbraunes Pigment plus **blaue Streuung**.', 64), gfx: { gruen: {} } },
+      { t: T('Viele hellhäutige Babys kommen mit **blaugrauen** Augen zur Welt. Das Melanin bildet sich erst in den ersten Lebensjahren.', 64), gfx: { baby: {} } },
+      { t: T('Ursprünglich hatten wohl alle Menschen **braune** Augen.', 64), gfx: { braunfrueher: {} } },
+      { t: T('Vor etwa 6.000 bis 10.000 Jahren entstand eine kleine Änderung im Erbgut – ein **Schalter**, der das Gen OCA2 in der Iris drosselt.', 64), gfx: { mutation: {} } },
+      { t: T('Fast alle Blauäugigen tragen **dieselbe** Variante. Sie stammen wohl von einem gemeinsamen Vorfahren ab.', 64), gfx: { stammbaum: {} } },
+      { t: T('Weltweit haben heute schätzungsweise **8 bis 10 Prozent** der Menschen blaue Augen – am häufigsten rund um die Ostsee.', 64), gfx: { anteil: {} } },
+      { t: T('Selten hat ein Mensch **zwei verschiedene** Augenfarben – meist, weil eine Iris weniger Melanin bekommen hat.', 64), gfx: { hetero: {} } },
+      { t: T('Menschen mit Albinismus fehlt Melanin fast ganz. Ihre Iris wirkt hellblau – oder sogar **rötlich**, weil die Blutgefäße durchscheinen.', 64), gfx: { albino: {} } },
+      { t: T('Weil schützendes Pigment fehlt, sind helle Augen oft **blendempfindlicher**.', 64), gfx: { blendung: {} } },
+      { t: T('Blaue Augen sind **gestreutes Licht** – kein Farbstoff.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
+    ],
+    summary: ['Die Iris enthält nur braunes Melanin – blaues Pigment gibt es nicht.', 'Bei wenig Melanin streuen Fasern in der Iris blaues Licht zurück: eine Strukturfarbe.', 'Fast alle Blauäugigen teilen eine Variante, die vor 6.000–10.000 Jahren entstand.'],
+    sources: ['Sturm & Larsson 2009, Pigment Cell & Melanoma Research 22', 'Eiberg et al. 2008, Human Genetics 123', 'American Academy of Ophthalmology: Eye color'],
+  },
+  {
+    id: 'mitochondrien',
+    area: 'BIO',
+    day: 1,
+    hook: 'In jeder deiner Zellen wohnen ehemalige Bakterien.',
+    mood: 'raetsel',
+    ambience: 'blasen',
+    images: [],
+    draw: {
+      zelle(g) {
+        cell(g, 180, 250, 150, 120)
+        mito(g, 90, 220, 0.8, 900)
+        mito(g, 260, 300, 0.8, 1000)
+        mito(g, 240, 170, 0.7, 1100)
+      },
+      kraftwerk(g) {
+        mito(g, 180, 470, 2.6)
+        text(g, 40, 380, 'Zucker', { d: 800 })
+        text(g, 40, 580, 'Sauerstoff', { d: 900 })
+        arrow(g, L([70, 392], [100, 430]), { w: 2.2, d: 900, t: 300, head: 8 })
+        arrow(g, L([90, 562], [110, 520]), { w: 2.2, d: 1000, t: 300, head: 8 })
+        arrow(g, L([262, 470], [300, 470]), { w: 2.6, d: 1200, t: 300, head: 9 })
+        text(g, 316, 476, 'ATP', { d: 1300 })
+      },
+      atp(g) {
+        vbars(g, [
+          { label: 'du', v: 70, fmt: (v) => `${Math.round(v)} kg` },
+          { label: 'ATP pro Tag', v: 70, fmt: (v) => `≈ ${Math.round(v)} kg`, dense: true },
+        ], { x: 90, base: 600, w: 70, gap: 110, h: 220 })
+      },
+      herz(g) {
+        heart(g, 110, 470, 2, 0, false)
+        mito(g, 90, 460, 0.6, 600)
+        mito(g, 130, 480, 0.6, 700)
+        ink(g, RR(200, 400, 130, 140, 10), { w: 2.6, d: 400, t: 500 })
+        pie(g, 265, 470, 50, 0.33, 800)
+        text(g, 265, 580, 'ein Drittel', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      gift(g) {
+        mito(g, 160, 470, 2.4)
+        cross(g, 300, 380, 1.4, 1000)
+        text(g, 180, 600, 'Blausäure blockiert die Atmungskette', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      gehirn(g) {
+        brain(g, 180, 450, 1.1)
+        text(g, 180, 620, '20 % deiner Energie', { anchor: 'middle', size: 22, d: 1200 })
+      },
+      ring(g) {
+        mito(g, 110, 470, 2)
+        blank(g, E(110, 470, 26))
+        ink(g, E(110, 470, 22), { w: 2.4, d: 800, t: 400 })
+        text(g, 110, 560, 'Ring-DNA', { anchor: 'middle', cls: 's', d: 1000 })
+        for (const [x, h] of [[240, 90], [270, 70], [300, 110]] as const) {
+          hatch(g, RR(x - 6, 470 - h / 2, 12, h, 6), 900, true)
+          ink(g, RR(x - 6, 470 - h / 2, 12, h, 6), { w: 2, d: 700, t: 300 })
+        }
+        text(g, 270, 560, 'Zellkern', { anchor: 'middle', cls: 's', d: 1100 })
+      },
+      bakterium(g) {
+        bact(g, 170, 470, 4)
+        blank(g, E(150, 470, 22))
+        ink(g, E(150, 470, 18), { w: 2.2, d: 600, t: 300 })
+        text(g, 180, 580, 'Bakterien: ebenfalls Ring-DNA', { anchor: 'middle', cls: 's', d: 900 })
+      },
+      merkmale(g) {
+        mito(g, 180, 380, 1.8)
+        bullets(g, 50, 500, ['zwei Hüllen', 'teilen sich selbst', 'bakterienähnliche Ribosomen'], { d: 700, gap: 40, size: 17 })
+      },
+      schlucken(g) {
+        const host: P[] = [...B([60, 470], [60, 340], [230, 330], [260, 400]), ...B([260, 400], [240, 430], [240, 510], [260, 540]).slice(1), ...B([260, 540], [230, 610], [60, 600], [60, 470]).slice(1)]
+        blank(g, host)
+        ink(g, host, { w: 3, t: 900 })
+        hatch(g, E(130, 470, 34, 30), 700, true)
+        ink(g, E(130, 470, 34, 30), { w: 2.2, d: 500, t: 400 })
+        const b = st(g, 'm1', '--m1: translateX(-90px); transition-duration: 2s')
+        bact(b, 310, 470, 1.4, 800, true)
+      },
+      partner(g) {
+        cell(g, 180, 470, 150, 120)
+        mito(g, 250, 470, 1.1, 600)
+        arrow(g, L([236, 448], [200, 424]), { w: 2.2, d: 1000, t: 300, head: 8 })
+        text(g, 196, 404, 'Energie', { anchor: 'middle', cls: 's', d: 1200 })
+        arrow(g, L([200, 516], [236, 494]), { w: 2.2, d: 1300, t: 300, head: 8 })
+        text(g, 200, 544, 'Schutz, Nahrung', { anchor: 'middle', cls: 's', d: 1500 })
+      },
+      komplex(g) {
+        ball(g, 70, 470, 20, { fill: 'hell' })
+        arrow(g, L([100, 470], [150, 470]), { w: 2.6, d: 400, t: 300, head: 9 })
+        cell(g, 250, 470, 90, 80, 600)
+        mito(g, 220, 430, 0.5, 1200)
+        mito(g, 290, 500, 0.5, 1300)
+        text(g, 180, 600, 'Pflanzen, Pilze, Tiere', { anchor: 'middle', d: 1500 })
+      },
+      margulis(g) {
+        for (let i = 0; i < 15; i++) {
+          const x = 50 + (i % 5) * 60
+          const y = 360 + Math.floor(i / 5) * 80
+          letter(g, x - 4, y, 46, i * 80)
+          cross(g, x + 34, y + 36, 0.5, 300 + i * 80)
+        }
+        text(g, 180, 640, 'Lynn Margulis, 1967', { anchor: 'middle', d: 1600 })
+      },
+      verwandt(g) {
+        ink(g, L([180, 600], [180, 520]), { w: 2.6, t: 400 })
+        ink(g, L([180, 520], [100, 420]), { w: 2.6, d: 400, t: 400 })
+        ink(g, L([180, 520], [260, 420]), { w: 2.6, d: 400, t: 400 })
+        mito(g, 100, 390, 1, 800)
+        bact(g, 260, 390, 1.4, 900)
+        text(g, 100, 350, 'Mitochondrien', { anchor: 'middle', cls: 's', d: 1000 })
+        text(g, 260, 350, 'Alphaproteobakterien', { anchor: 'middle', cls: 's', d: 1100 })
+      },
+      chloro(g) {
+        leaf(g, 180, 470, 1.4)
+        blank(g, E(200, 450, 40, 20))
+        ink(g, E(200, 450, 40, 20), { w: 2.4, d: 900, t: 400 })
+        for (let k = 0; k < 4; k++) ink(g, L([176 + k * 14, 440], [176 + k * 14, 460]), { w: 1.6, d: 1100 + k * 60, t: 100 })
+        text(g, 180, 600, 'Chloroplasten: einst Cyanobakterien', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      mutter(g) {
+        fig(g, 90, 440, 2.4, { d: 0 })
+        fig(g, 270, 440, 2.4, { d: 200 })
+        fig(g, 180, 620, 1.8, { d: 500 })
+        arrow(g, L([100, 456], [168, 552]), { w: 2.6, d: 900, t: 400, head: 9 })
+        dashes(g, L([258, 456], [196, 548]), { w: 1.4, d: 1100 })
+        text(g, 90, 348, 'Mutter', { anchor: 'middle', cls: 's', d: 700 })
+        text(g, 270, 348, 'Vater', { anchor: 'middle', cls: 's', d: 800 })
+        text(g, 60, 560, 'Mitochondrien', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      eva(g) {
+        timeline(g, 30, 330, 470, [
+          { at: 0.2, label: 'vor ≈ 150.000 J.', sub: 'Afrika', up: true },
+          { at: 0.92, label: 'heute', up: true },
+        ])
+        crowd(g, 220, 580, 6, 20, 1.2, 800, 80)
+        fig(g, 60, 580, 1.6, { d: 600 })
+      },
+      linie(g) {
+        ball(g, 180, 330, 10, { fill: 'dicht', t: 200 })
+        const rows: P[][] = [[[100, 420], [260, 420]], [[60, 520], [140, 520], [220, 520], [300, 520]]]
+        rows.forEach((row, i) => row.forEach(([x, y], j) => {
+          const keep = i === 0 ? j === 0 : j === 1
+          ball(g, x, y, 10, { d: 400 + i * 400 + j * 80, fill: keep ? 'dicht' : 'leer', t: 200 })
+          const [px, py] = i === 0 ? [180, 330] : rows[0][Math.floor(j / 2)]
+          ink(g, L([px, py + 12], [x, y - 12]), { w: keep ? 3 : 1.4, d: 200 + i * 400, t: 300 })
+        }))
+        ball(g, 140, 620, 10, { d: 1300, fill: 'dicht', t: 200 })
+        ink(g, L([140, 532], [140, 608]), { w: 3, d: 1100, t: 300 })
+        text(g, 200, 626, 'heute', { cls: 's', d: 1400 })
+      },
+      ende(g) {
+        mito(g, 180, 480, 2.2)
+      },
+    },
+    scenes: [
+      { t: HOOK(476), gfx: { zelle: {} } },
+      { t: T('In fast jeder Zelle stecken Hunderte **Mitochondrien**: winzige Kraftwerke, die aus Zucker und Sauerstoff Energie gewinnen.', 64), gfx: { kraftwerk: {} } },
+      { t: T('Sie liefern den Energieträger ATP. Pro Tag setzt du davon ungefähr dein **eigenes Körpergewicht** um – immer wieder recycelt.', 64), gfx: { atp: {} } },
+      { t: T('Besonders viele hat dein Herz: In einer Herzmuskelzelle machen sie rund **ein Drittel** des Volumens aus.', 64), gfx: { herz: {} } },
+      { t: T('Dein Gehirn verbraucht in Ruhe rund **20 Prozent** deiner Energie – fast alles aus Mitochondrien.', 64), gfx: { gehirn: {} } },
+      { t: T('Darum ist **Blausäure** so gefährlich: Sie blockiert ein Enzym in den Mitochondrien – die Zellen können keinen Sauerstoff mehr nutzen.', 64), gfx: { gift: {} } },
+      { t: T('Seltsam an ihnen: Mitochondrien haben **eigene DNA** – einen kleinen Ring, ganz anders als die Chromosomen im Zellkern.', 64), gfx: { ring: {} } },
+      { t: T('Ringförmige DNA ist typisch für **Bakterien**.', 64), gfx: { bakterium: {} } },
+      { t: T('Mitochondrien haben außerdem zwei Hüllen und vermehren sich durch **Teilung**, ganz wie Bakterien.', 64), gfx: { merkmale: {} } },
+      { t: T('Die Erklärung: Vor rund zwei Milliarden Jahren **schluckte** eine Zelle ein Bakterium – und verdaute es nicht.', 64), gfx: { schlucken: { cls: 'a1' } } },
+      { t: T('Das Bakterium lebte weiter und lieferte **Energie**. Die Zelle bot Schutz und Nahrung. Eine Partnerschaft für immer.', 64), gfx: { partner: {} } },
+      { t: T('Mit der zusätzlichen Energie konnten Zellen **größer und komplexer** werden – der Weg zu Pflanzen, Pilzen und Tieren.', 64), gfx: { komplex: {} } },
+      { t: T('Diese **Endosymbiontentheorie** vertrat Lynn Margulis 1967. Ihr Artikel wurde vorher rund fünfzehnmal abgelehnt.', 64), gfx: { margulis: {} } },
+      { t: T('Heute gilt sie als gut belegt: Das Erbgut der Mitochondrien ähnelt dem bestimmter **Bakterien**.', 64), gfx: { verwandt: {} } },
+      { t: T('Pflanzen haben es sogar zweimal getan: Ihre **Chloroplasten**, die Fotosynthese betreiben, waren einst Cyanobakterien.', 64), gfx: { chloro: {} } },
+      { t: T('Deine Mitochondrien erbst du fast nur von deiner **Mutter**. Die des Spermiums werden nach der Befruchtung abgebaut.', 64), gfx: { mutter: {} } },
+      { t: T('So lässt sich die mütterliche Linie zurückverfolgen – bis zur „**mitochondrialen Eva**“, die vor rund 150.000 Jahren in Afrika lebte.', 64), gfx: { eva: {} } },
+      { t: T('Sie war nicht die einzige Frau ihrer Zeit – nur die, deren Mutterlinie **ununterbrochen** bis heute reicht.', 64), gfx: { linie: {} } },
+      { t: T('Du bist eine **Wohngemeinschaft** – seit zwei Milliarden Jahren.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
+    ],
+    summary: ['Mitochondrien haben eigene ringförmige DNA und teilen sich wie Bakterien.', 'Sie stammen von Bakterien ab, die vor ~2 Mrd. Jahren in einer Zelle überlebten (Endosymbiose).', 'Man erbt sie fast nur von der Mutter – Grundlage der „mitochondrialen Eva“.'],
+    sources: ['Sagan (Margulis) 1967, Journal of Theoretical Biology 14', 'Gray 2012, Cold Spring Harbor Perspectives in Biology', 'Cann, Stoneking & Wilson 1987, Nature 325'],
+  },
+  {
+    id: 'resistenz',
+    area: 'BIO',
+    day: 10,
+    hook: 'Wie Bakterien in elf Tagen gegen Antibiotika gewinnen',
+    mood: 'dunkel',
+    ambience: 'blasen',
+    images: [],
+    draw: {
+      schale(g) {
+        ink(g, E(180, 250, 150, 120), { w: 3.2, t: 800 })
+        ink(g, E(180, 250, 140, 110), { w: 1.6, d: 300, t: 800 })
+        let seed = 4
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 30; i++) {
+          const a = rnd() * Math.PI * 2
+          const r = Math.sqrt(rnd()) * 0.85
+          dot(g, 180 + Math.cos(a) * 130 * r, 250 + Math.sin(a) * 100 * r, 3 + rnd() * 4, 700 + i * 40)
+        }
+      },
+      fleming(g) {
+        ink(g, E(180, 470, 130, 100), { w: 3, t: 800 })
+        const mold: P[] = [...B([80, 440], [90, 400], [140, 400], [150, 440]), ...B([150, 440], [160, 480], [100, 500], [80, 440]).slice(1)]
+        hatch(g, mold, 700, true)
+        ink(g, mold, { w: 2.2, d: 500, t: 400 })
+        dashes(g, E(115, 445, 64, 58), { w: 1.4, d: 900 })
+        for (const [x, y] of [[220, 420], [250, 470], [210, 510], [270, 520], [240, 400]] as const) dot(g, x, y, 5, 1100)
+        text(g, 180, 620, 'Schimmelpilz: 1928', { anchor: 'middle', d: 1300 })
+      },
+      platte(g) {
+        const conc = ['0', '1', '10', '100', '1000', '100', '10', '1', '0']
+        ink(g, RR(30, 360, 300, 230, 12), { w: 3, t: 800 })
+        for (let b = 1; b < 9; b++) ink(g, L([30 + b * 33.3, 362], [30 + b * 33.3, 588]), { w: 1.4, d: 300 + b * 60, t: 300 })
+        conc.forEach((c, b) => text(g, 30 + (b + 0.5) * 33.3, 346, c, { anchor: 'middle', cls: 's', d: 600 + b * 60 }))
+        text(g, 180, 620, 'Antibiotikum: × 10 je Streifen', { anchor: 'middle', cls: 's', d: 1100 })
+        let seed = 8
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        const cls = ['x1', 'x3', 'x4', 'x4', 'x5']
+        for (let b = 0; b < 9; b++) {
+          const e = Math.min(b, 8 - b)
+          const grp = st(g, cls[e], `--o: ${30 + (b + 0.5) * 33.3}px 475px; --dl: ${e * 250}ms`)
+          for (let i = 0; i < 9; i++) dot(grp, 36 + b * 33.3 + rnd() * 21 + 3, 372 + rnd() * 206, 2.6, 0)
+        }
+        const mut = st(g, 'x2', '--o: 62px 470px')
+        ball(mut, 60, 470, 7, { fill: 'dicht', t: 0 })
+        ink(mut, E(60, 470, 14), { w: 2, t: 0 })
+      },
+      zufall(g) {
+        box(g, 30, 360, 140, 70, ['Mutation', '(Zufall)'], { size: 16 })
+        box(g, 190, 360, 140, 70, ['Auslese', '(Antibiotikum)'], { size: 16, d: 400 })
+        carrow(g, [170, 380], [190, 380], -30, { d: 800 })
+        carrow(g, [190, 420], [170, 420], -30, { d: 1000 })
+        text(g, 180, 520, 'Evolution im Zeitraffer', { anchor: 'middle', size: 20, d: 1300 })
+      },
+      sieb(g) {
+        const top: P[] = [[60, 420], [300, 420]]
+        dashes(g, L(top[0], top[1]), { w: 3, dash: 20, gap: 14 })
+        let seed = 2
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 18; i++) ball(g, 70 + rnd() * 220, 330 + rnd() * 70, 6, { d: 300 + i * 30, fill: i === 7 ? 'dicht' : 'leer', w: 1.6, t: 0 })
+        ball(g, 180, 520, 8, { d: 1200, fill: 'dicht', t: 0 })
+        arrow(g, L([180, 450], [180, 500]), { w: 2.2, d: 1100, t: 300, head: 8 })
+        text(g, 180, 600, 'nur wer zufällig widersteht', { anchor: 'middle', cls: 's', d: 1400 })
+      },
+      plasmid(g) {
+        bact(g, 100, 470, 3)
+        bact(g, 260, 470, 3, 300)
+        ink(g, E(86, 470, 12), { w: 2, d: 700, t: 300 })
+        arrow(g, B([150, 420], [170, 390], [200, 390], [220, 420]), { w: 2.4, d: 1000, t: 400, head: 9 })
+        ink(g, E(246, 470, 12), { w: 2, d: 1400, t: 300 })
+        text(g, 180, 380, 'Plasmid', { anchor: 'middle', cls: 's', d: 1200 })
+      },
+      tierhaltung(g) {
+        pie(g, 180, 460, 110, 0.7)
+        text(g, 180, 620, 'weltweit der größere Teil: Tierhaltung', { anchor: 'middle', cls: 's', d: 1100 })
+      },
+      klinik(g) {
+        ink(g, RR(80, 380, 200, 220, 6), { w: 3, t: 800 })
+        for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) ink(g, RR(98 + c * 46, 400 + r * 56, 26, 30, 3), { w: 1.8, d: 400 + (r * 4 + c) * 50, t: 200 })
+        hatch(g, RR(166, 300, 28, 72, 3), 900, true)
+        hatch(g, RR(144, 322, 72, 28, 3), 900, true)
+        bact(g, 300, 640, 1, 1100, true)
+        bact(g, 50, 640, 1, 1200, true)
+      },
+      tote(g) {
+        text(g, 180, 470, '1,27 Mio.', { anchor: 'middle', size: 52, d: 200 })
+        text(g, 180, 520, 'Todesfälle 2019, direkt durch resistente Keime', { anchor: 'middle', cls: 's', d: 700 })
+      },
+      viren(g) {
+        virus(g, 110, 470, 40)
+        cross(g, 110, 470, 3.6, 900)
+        const pill = RR(210, 450, 100, 40, 20)
+        hatch(g, RR(260, 450, 50, 40, 20), 700, true)
+        ink(g, pill, { w: 2.6, d: 500, t: 500 })
+        ink(g, L([260, 452], [260, 488]), { w: 2, d: 700, t: 200 })
+        text(g, 180, 600, 'gegen Viren wirkungslos', { anchor: 'middle', d: 1200 })
+      },
+      packung(g) {
+        ink(g, RR(70, 380, 220, 160, 10), { w: 3, t: 600 })
+        for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
+          const x = 110 + c * 46
+          const y = 430 + r * 60
+          ink(g, E(x, y, 16), { w: 2, d: 400 + (r * 4 + c) * 80, t: 200 })
+          if (r * 4 + c < 5) hatch(g, E(x, y, 12), 700 + (r * 4 + c) * 80, true)
+        }
+        text(g, 180, 600, 'wie verordnet', { anchor: 'middle', d: 1300 })
+      },
+      neu(g) {
+        timeline(g, 30, 330, 470, [
+          { at: 0.05, label: '1928', sub: 'Penicillin', up: true },
+          { at: 0.4, label: '1940–1960', sub: 'Goldenes Zeitalter' },
+          { at: 0.8, label: 'seit 1987', sub: 'kaum neue Klassen', up: true },
+        ])
+      },
+      ende(g) {
+        ink(g, E(180, 480, 120, 90), { w: 3, t: 800 })
+        bact(g, 160, 470, 1.6, 500, true)
+        bact(g, 220, 500, 1.2, 700, true)
+      },
+    },
+    scenes: [
+      { t: HOOK(476), gfx: { schale: {} } },
+      { t: T('Das erste Antibiotikum fand Alexander Fleming 1928 durch Zufall: Ein **Schimmelpilz** auf seiner Bakterienschale hielt die Bakterien fern.', 64), gfx: { fleming: {} } },
+      { t: T('Schon 1945 warnte er in seiner Nobelpreisrede: Wer zu wenig nimmt, **züchtet** widerstandsfähige Keime. Wie das abläuft, zeigt ein Experiment.', 64), gfx: { fleming: {} } },
+      { t: T('Forscher der Harvard Medical School bauten 2016 eine riesige Schale: 60 mal 120 Zentimeter Nährboden.', 64), gfx: { platte: {} } },
+      { t: T('Außen kein Antibiotikum, nach innen immer mehr – jeder Streifen **zehnmal stärker** als der vorige. In der Mitte tausendmal mehr, als die Bakterien vertragen.', 64), gfx: { platte: {} } },
+      { t: T('An die Ränder setzten sie **E.-coli-Bakterien**. Die breiteten sich aus – bis zur ersten Antibiotika-Grenze.', 64), gfx: { platte: { cls: 'a1' } } },
+      { t: T('Dort stoppten sie. Doch unter Milliarden Bakterien trug eines zufällig eine **Mutation**, die es etwas unempfindlicher machte.', 64), gfx: { platte: { cls: 'a1 a2' } } },
+      { t: T('Dieses eine wuchs über die Grenze. Seine Nachkommen eroberten den **nächsten Streifen**.', 64), gfx: { platte: { cls: 'a1 a2 a3' } } },
+      { t: T('Dort wiederholte sich das Spiel: neue Mutation, neue Grenze überwunden. **Schritt für Schritt**.', 64), gfx: { platte: { cls: 'a1 a2 a3 a4' } } },
+      { t: T('Nach rund **elf Tagen** hatten Bakterien die Mitte erreicht – und überlebten die tausendfache Dosis.', 64), gfx: { platte: { cls: 'a1 a2 a3 a4 a5' } } },
+      { t: T('Das ist **Evolution** zum Zuschauen: Variation durch Mutation, Auslese durch das Antibiotikum.', 64), gfx: { zufall: {} } },
+      { t: T('Wichtig: Das Antibiotikum erzeugt die Mutation nicht. Es **siebt nur aus** – wer zufällig widersteht, bleibt übrig.', 64), gfx: { sieb: {} } },
+      { t: T('Bakterien können Resistenzen sogar **weitergeben** – auch an andere Arten. Sie tauschen kleine DNA-Ringe aus, die Plasmide.', 64), gfx: { plasmid: {} } },
+      { t: T('Genau so entstehen resistente Keime in Kliniken und Ställen. Je mehr Antibiotika im Einsatz, desto stärker die **Auslese**.', 64), gfx: { klinik: {} } },
+      { t: T('Weltweit landet ein großer Teil aller Antibiotika nicht beim Menschen, sondern in der **Tierhaltung**.', 64), gfx: { tierhaltung: {} } },
+      { t: T('Weltweit starben 2019 schätzungsweise **1,27 Millionen** Menschen direkt an Infektionen mit resistenten Bakterien.', 64), gfx: { tote: {} } },
+      { t: T('Darum: Antibiotika nur, wenn sie nötig sind. Gegen **Viren** – etwa bei Erkältung oder Grippe – helfen sie ohnehin nicht.', 64), gfx: { viren: {} } },
+      { t: T('Und die Tabletten **wie verordnet** nehmen. Wie lange eine Therapie dauern muss, entscheidet der Arzt je nach Infektion.', 64), gfx: { packung: {} } },
+      { t: T('Neue Antibiotika sind selten: Seit Ende der 1980er wurde kaum eine **neue Wirkstoffklasse** für die Praxis entdeckt.', 64), gfx: { neu: {} } },
+      { t: T('Resistenz ist **Evolution**, die wir jeden Tag beschleunigen.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
+    ],
+    summary: ['Auf einer 60 × 120 cm großen Schale überwanden E.-coli-Bakterien in ~11 Tagen die tausendfache Antibiotika-Dosis.', 'Mutationen entstehen zufällig; das Antibiotikum siebt die Widerstandsfähigen aus.', 'Antibiotika nur bei Bedarf und wie verordnet – gegen Viren helfen sie nicht.'],
+    sources: ['Baym et al. 2016, Science 353 (MEGA-Plate)', 'Antimicrobial Resistance Collaborators 2022, The Lancet 399', 'WHO 2023: Antibacterial agents in development'],
+  },
+  {
+    id: 'impfung',
+    area: 'BIO',
+    day: 53,
+    hook: 'Wie trainiert eine Impfung dein Immunsystem?',
+    mood: 'hell',
+    ambience: 'herz',
+    images: [],
+    draw: {
+      spritze(g) {
+        ink(g, RR(60, 220, 200, 50, 8), { w: 3.2, t: 700 })
+        hatch(g, RR(64, 224, 120, 42, 6), 600)
+        ink(g, L([260, 245], [330, 245]), { w: 2.4, d: 500, t: 300 })
+        ink(g, L([20, 245], [60, 245]), { w: 4, d: 400, t: 300 })
+        ink(g, L([20, 220], [20, 270]), { w: 4, d: 500, t: 200 })
+        for (let k = 1; k < 5; k++) ink(g, L([60 + k * 40, 220], [60 + k * 40, 234]), { w: 1.6, d: 600 + k * 60, t: 100 })
+      },
+      erstkontakt(g) {
+        axes(g, 40, 600, 330, 320, { xl: 'Tage', yl: 'Erreger' })
+        plot(g, 50, 596, 270, 240, (t) => Math.sin(Math.min(1, t * 1.1) * Math.PI) * (t < 0.55 ? 1 : 1), { d: 400 })
+        dashes(g, L([210, 600], [210, 340]), { w: 1.4, d: 1300 })
+        text(g, 216, 330, 'Abwehr bereit', { cls: 's', d: 1500 })
+        const k = st(g, 'f1')
+        text(k, 300, 400, 'krank', { anchor: 'middle', fade: false })
+      },
+      antigen(g) {
+        virus(g, 180, 470, 70)
+        text(g, 290, 360, 'Antigene', { anchor: 'middle', cls: 's', d: 900 })
+        arrow(g, L([270, 372], [240, 404]), { w: 2, d: 1000, t: 300, head: 8 })
+      },
+      schloss(g) {
+        const shapes = ['dreieck', 'eckig', 'rund']
+        shapes.forEach((s, i) => {
+          const x = 70 + i * 110
+          ball(g, x, 520, 34, { d: i * 200, fill: 'hell' })
+          const top = 520 - 34
+          if (s === 'dreieck') ink(g, [[x - 10, top - 2], [x, top - 16], [x + 10, top - 2]], { w: 2.4, d: 400 + i * 200, t: 200 })
+          if (s === 'eckig') ink(g, [[x - 10, top - 2], [x - 10, top - 16], [x + 10, top - 16], [x + 10, top - 2]], { w: 2.4, d: 400 + i * 200, t: 200 })
+          if (s === 'rund') ink(g, E(x, top - 2, 10, 12, 180, 360), { w: 2.4, d: 400 + i * 200, t: 200 })
+        })
+        const key: P[] = [[170, 440], [190, 440], [190, 460], [170, 460], [170, 440]]
+        hatch(g, RR(166, 380, 28, 40, 4), 1000, true)
+        ink(g, RR(166, 380, 28, 40, 4), { w: 2, d: 900, t: 300 })
+        ink(g, L([180, 420], [180, 440]), { w: 2, d: 1000, t: 200 })
+        void key
+        check(g, 180, 610, 1, 1400)
+        text(g, 180, 350, 'Antigen', { anchor: 'middle', cls: 's', d: 1100 })
+      },
+      ypsilon(g) {
+        antibody(g, 180, 600, 6)
+        virus(g, 108, 360, 16, 900)
+        virus(g, 252, 360, 16, 1000)
+        text(g, 180, 646, 'Antikörper', { anchor: 'middle', d: 1200 })
+      },
+      vermehrung(g) {
+        ball(g, 60, 470, 24, { fill: 'dicht' })
+        arrow(g, L([92, 470], [130, 470]), { w: 2.4, d: 300, t: 300, head: 9 })
+        for (let i = 0; i < 6; i++) ball(g, 160 + (i % 3) * 40, 440 + Math.floor(i / 3) * 60, 16, { d: 500 + i * 100, fill: 'dicht', t: 200 })
+        for (let i = 0; i < 5; i++) antibody(g, 300 + (i % 2) * 24, 380 + i * 46, 0.9, 20 * (i % 2 ? 1 : -1), 1200 + i * 100)
+        text(g, 180, 600, 'Antikörper', { anchor: 'middle', d: 1600 })
+      },
+      gedaechtnis(g) {
+        for (let i = 0; i < 4; i++) {
+          const x = 70 + i * 74
+          ball(g, x, 470, 26, { d: i * 200, fill: 'hell' })
+          text(g, x, 476, 'G', { anchor: 'middle', cls: 'halo', d: i * 200 + 200 })
+        }
+        text(g, 180, 560, 'Gedächtniszellen bleiben', { anchor: 'middle', d: 1100 })
+      },
+      zweimal(g) {
+        for (const [x0, k, n, d] of [[30, 0.45, 'erstes Mal', 0], [195, 1, 'zweites Mal', 600]] as const) {
+          axes(g, x0, 600, x0 + 140, 360, { d })
+          plot(g, x0 + 4, 596, 126, 220, (t) => (t < 0.5 * (1 - k + 0.4) ? 0 : Math.min(1, ((t - 0.5 * (1 - k + 0.4)) / 0.3) * k)), { d: d + 300 })
+          text(g, x0 + 70, 630, n, { anchor: 'middle', cls: 's', d: d + 400 })
+        }
+        text(g, 30, 344, 'Abwehr', { cls: 's', d: 900 })
+      },
+      impf(g) {
+        ink(g, RR(60, 440, 160, 40, 8), { w: 3, t: 600 })
+        ink(g, L([220, 460], [280, 460]), { w: 2.4, d: 400, t: 300 })
+        ink(g, L([30, 460], [60, 460]), { w: 4, d: 300, t: 300 })
+        for (const [x, y] of [[100, 390], [160, 380], [300, 400]] as const) {
+          ink(g, E(x, y, 10), { w: 2, d: 800, t: 200 })
+          ink(g, [[x - 6, y - 10], [x, y - 20], [x + 6, y - 10]], { w: 2, d: 900, t: 150 })
+        }
+        text(g, 180, 560, 'nur die Merkmale, ohne Krankheit', { anchor: 'middle', cls: 's', d: 1100 })
+      },
+      arten(g) {
+        box(g, 40, 330, 280, 60, ['abgetöteter oder', 'abgeschwächter Erreger'], { size: 15 })
+        box(g, 40, 420, 280, 60, 'nur ein Eiweiß-Teilstück', { size: 15, d: 400 })
+        box(g, 40, 510, 280, 60, 'Bauplan dafür (mRNA)', { size: 15, d: 800, fill: true })
+      },
+      kuh(g) {
+        const body = RR(70, 420, 180, 100, 30)
+        blank(g, body)
+        ink(g, body, { w: 3, t: 700 })
+        for (const x of [90, 130, 200, 230]) ink(g, L([x, 518], [x, 590]), { w: 3, d: 400, t: 200 })
+        ink(g, RR(240, 380, 70, 60, 20), { w: 3, d: 500, t: 500 })
+        ink(g, L([250, 384], [240, 360]), { w: 2.4, d: 800, t: 150 })
+        ink(g, L([300, 384], [310, 360]), { w: 2.4, d: 800, t: 150 })
+        for (const [x, y, r] of [[120, 450, 14], [180, 480, 18], [220, 446, 10]] as const) hatch(g, E(x, y, r), 900, true)
+        text(g, 180, 640, 'lateinisch vacca: Kuh', { anchor: 'middle', d: 1100 })
+      },
+      variolation(g) {
+        ink(g, B([30, 520], [120, 480], [240, 480], [330, 500]), { w: 3, t: 700 })
+        ink(g, B([30, 600], [120, 580], [240, 580], [330, 590]), { w: 3, t: 700 })
+        for (let k = 0; k < 3; k++) ink(g, L([150 + k * 16, 504], [160 + k * 16, 524]), { w: 2, d: 800 + k * 100, t: 150 })
+        ink(g, L([210, 380], [180, 476]), { w: 2.6, d: 1000, t: 300 })
+        text(g, 180, 360, 'Variolation: riskant', { anchor: 'middle', cls: 's', d: 1300 })
+      },
+      pocken(g) {
+        text(g, 180, 460, '300 Mio.', { anchor: 'middle', size: 54, d: 200 })
+        text(g, 180, 504, 'Pocken-Tote im 20. Jahrhundert', { anchor: 'middle', cls: 's', d: 600 })
+        text(g, 180, 580, '1980: ausgerottet', { anchor: 'middle', size: 22, d: 1100 })
+      },
+      herde(g) {
+        for (let r = 0; r < 6; r++) for (let c = 0; c < 7; c++) {
+          const x = 50 + c * 44
+          const y = 350 + r * 50
+          const open = (r === 2 && c === 3) || (r === 4 && c === 1) || (r === 1 && c === 5)
+          ball(g, x, y, 12, { d: (r * 7 + c) * 20, fill: open ? 'leer' : 'hell', w: 1.8, t: 0 })
+        }
+        virus(g, 182, 450, 8, 1200)
+        text(g, 180, 660, 'Herdenschutz', { anchor: 'middle', d: 1400 })
+      },
+      masern(g) {
+        pie(g, 180, 460, 110, 0.95)
+        text(g, 180, 620, 'Masern: rund 95 % Geimpfte nötig', { anchor: 'middle', cls: 's', d: 1100 })
+      },
+      auffrischen(g) {
+        timeline(g, 30, 330, 470, [
+          { at: 0.05, label: 'Impfung', up: true },
+          { at: 0.5, label: '+ 10 Jahre', sub: 'Auffrischung', up: true, big: true },
+          { at: 0.95, label: '+ 20', up: true },
+        ])
+        text(g, 180, 580, 'Tetanus: alle zehn Jahre', { anchor: 'middle', d: 1400 })
+      },
+      armreaktion(g) {
+        fig(g, 140, 620, 6)
+        ink(g, E(222, 494, 14), { w: 2, d: 800, t: 300 })
+        text(g, 270, 470, 'Training läuft', { anchor: 'middle', cls: 's', d: 1000 })
+      },
+      ende(g) {
+        const sh: P[] = [[180, 370], [270, 400], [260, 520], [180, 590], [100, 520], [90, 400], [180, 370]]
+        hatch(g, sh, 600)
+        ink(g, sh, { w: 3.2, t: 900 })
+      },
+    },
+    scenes: [
+      { t: HOOK(476), gfx: { spritze: {} } },
+      { t: T('Dringt ein neuer Erreger ein, braucht dein Immunsystem beim ersten Mal **mehrere Tage**, um die passende Abwehr aufzubauen.', 64), gfx: { erstkontakt: {} } },
+      { t: T('In dieser Zeit vermehrt sich der Erreger ungestört – und du wirst **krank**.', 64), gfx: { erstkontakt: { cls: 'a1' } } },
+      { t: T('Erkannt wird er an seinen Oberflächen-Merkmalen, den **Antigenen** – fast wie an einem Gesicht.', 64), gfx: { antigen: {} } },
+      { t: T('Unter Milliarden B-Zellen gibt es zufällig einige, deren Rezeptor genau **passt** – wie ein Schlüssel ins Schloss.', 64), gfx: { schloss: {} } },
+      { t: T('Antikörper sind Y-förmige Eiweiße. Ihre beiden Arme packen **genau das Antigen**, zu dem sie passen.', 64), gfx: { ypsilon: {} } },
+      { t: T('Diese Zellen vermehren sich stark und bilden **Antikörper**, die den Erreger markieren und blockieren.', 64), gfx: { vermehrung: {} } },
+      { t: T('Nach der Infektion bleiben **Gedächtniszellen** zurück – oft jahrelang.', 64), gfx: { gedaechtnis: {} } },
+      { t: T('Beim nächsten Kontakt starten sie die Abwehr **viel schneller** und stärker. Oft merkst du gar nichts.', 64), gfx: { zweimal: {} } },
+      { t: T('Eine Impfung macht den ersten Durchgang **ohne die Krankheit**: Sie zeigt dem Körper nur die Merkmale des Erregers.', 64), gfx: { impf: {} } },
+      { t: T('Mal mit abgetöteten oder abgeschwächten Erregern, mal nur mit einem Teilstück – oder mit dem **Bauplan** dafür, wie bei mRNA-Impfstoffen.', 64), gfx: { arten: {} } },
+      { t: T('Das Wort kommt von der **Kuh**: Edward Jenner schützte 1796 einen Jungen mit harmlosen Kuhpocken vor den echten Pocken.', 64), gfx: { kuh: {} } },
+      { t: T('Schon vorher gab es die **Variolation**: Man ritzte Material aus Pockenbläschen in die Haut – riskant, aber oft schützend.', 64), gfx: { variolation: {} } },
+      { t: T('Die Pocken töteten allein im 20. Jahrhundert rund **300 Millionen** Menschen. 1980 erklärte die WHO sie für ausgerottet – durch Impfung.', 64), gfx: { pocken: {} } },
+      { t: T('Impfungen schützen auch andere: Sind genug Menschen immun, findet ein Erreger **kaum noch Wirte**. Das heißt Herdenschutz.', 64), gfx: { herde: {} } },
+      { t: T('Bei Masern braucht es dafür rund **95 Prozent** Geimpfte, weil das Virus extrem ansteckend ist.', 64), gfx: { masern: {} } },
+      { t: T('Manches Immungedächtnis lässt mit den Jahren nach. Dann hilft eine **Auffrischung** – bei Tetanus etwa alle zehn Jahre.', 64), gfx: { auffrischen: {} } },
+      { t: T('Leichte Reaktionen wie ein schwerer Arm oder etwas Fieber zeigen meist nur: Das **Training läuft**.', 64), gfx: { armreaktion: {} } },
+      { t: T('Eine Impfung ist eine **Generalprobe** für dein Immunsystem.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
+    ],
+    summary: ['Beim ersten Kontakt braucht das Immunsystem Tage; Gedächtniszellen machen den zweiten schnell.', 'Eine Impfung zeigt nur die Merkmale (Antigene) – ohne die Krankheit.', 'Genug Geimpfte schützen auch andere (Herdenschutz, bei Masern ~95 %).'],
+    sources: ['Murphy & Weaver: Janeway’s Immunobiology, 9. Aufl.', 'WHO 1980: Erklärung zur Ausrottung der Pocken', 'Robert Koch-Institut: Masern – RKI-Ratgeber'],
+  },
+]
