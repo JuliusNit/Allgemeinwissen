@@ -53,6 +53,8 @@ export interface GfxState {
   cls?: string
   from?: { tf?: [number, number, number]; o?: number }
   args?: unknown[]
+  /** auf die eigene Fläche (360 × 680, mit tf skaliert) zuschneiden – z. B. Kacheln im Schlussbild */
+  clip?: boolean
   /** Zeichnung aus Bite.draw, falls anders als der Name (gleiche Zeichnung zweimal mit anderen args) */
   draw?: string
 }

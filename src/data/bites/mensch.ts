@@ -1,8 +1,9 @@
 import type { Bite } from '../feed'
 import { img } from './img'
 import {
-  B, E, HOOK, L, RR, T, arrow, balance, bigText, blank, brain, car, check, clock, cross, crowd, dashes, door, eye, fig, globe, goat, group, hatch, hbars, ink, letter, lie, mk, pop, question, ring, st, star, strike, text, track, train, vbars, type P,
+  B, E, HOOK, L, RR, T, arrow, balance, bigText, blank, brain, car, check, clock, cross, crowd, dashes, door, eye, fig, globe, goat, group, hatch, hbars, ink, letter, lie, mk, pop, question, ring, st, star, strike, text, timeline, track, train, vbars, type P,
 } from './draw'
+import { recap } from './common'
 
 // Mensch & Denken: Psychologie, Philosophie, Denkwerkzeuge
 
@@ -65,6 +66,14 @@ export const MENSCH: Bite[] = [
     ambience: 'atem',
     images: [img('hund-schlaf')],
     draw: {
+      lagen(g) {
+        vbars(g, [
+          { label: 'Seite', v: 54, fmt: pct, dense: true },
+          { label: 'Rücken', v: 38, fmt: pct },
+          { label: 'Bauch', v: 7, fmt: pct },
+        ], { x: 50, base: 580, w: 70, gap: 100, h: 300, max: 60 })
+        text(g, 40, 250, 'Anteil der Nacht, gemessen', { cls: 's', d: 200 })
+      },
       typen(g) {
         const rows: [number, 'curl' | 'back' | 'free', string, string][] = [[230, 'curl', 'Embryo', '„harte Schale, weicher Kern“'], [370, 'back', 'Soldat', '„still, zurückhaltend“'], [510, 'free', 'Freifaller', '„gesellig, forsch“']]
         rows.forEach(([y, pose, lab, sub], i) => {
@@ -115,10 +124,27 @@ export const MENSCH: Bite[] = [
       { t: HOOK(470), pics: { h: { img: 0, x: 16, y: 56, w: 328, h: 390, enter: 'blot', cam: [45, 40, 1.05], cam2: [45, 40, 1.2] } } },
       { t: T('Seit 2003 geistert eine Liste durchs Netz: Jede **Schlafposition** passe zu einem Charakter.', 64), gfx: { typen: {} } },
       { t: T('Zusammengerollt heißt angeblich: _harte Schale, weicher Kern_.', 64), gfx: { typen: { cls: 'a1' } } },
+      { t: T('Soldat – Rücken, Arme am Körper: angeblich still. Freifaller – Bauch, Arme hoch: angeblich **gesellig**, aber empfindlich.', 64), gfx: { typen: {} } },
+      { t: T('Die häufigste Antwort in der Umfrage: die **Embryo**-Haltung.', 64), gfx: { z1: { draw: 'zahl', args: ['41 %', 'gaben die Embryo-Haltung an', 420] } } },
       { t: T('Die Quelle: eine **Umfrage** unter Briten. Sie schätzten Haltung und Charakter selbst ein.', 64), gfx: { umfrage: {} } },
       { t: T('Kein Persönlichkeitstest – und **nie** wissenschaftlich veröffentlicht.', 64), gfx: { umfrage: { cls: 'a1' } } },
+      { t: T('Das Problem: Wie wir wirklich schlafen, wissen wir kaum – wir **schlafen** ja dabei.', 64), gfx: { nacht: { tf: [0.8, 36, 60] } } },
+      { t: T('Zwei Selbsteinschätzungen ergeben noch keinen Beleg:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['eigene Haltung geschätzt', '+', 'eigener Charakter geschätzt', '≠', 'Beleg'], 320] } } },
+      { t: T('Echte Persönlichkeitstests wie die „**Big Five**“ messen mit vielen geprüften Fragen – und vergleichen mit Tausenden.', 64), gfx: { punkte: { args: [['Offenheit', 'Gewissenhaftigkeit', 'Extraversion', 'Verträglichkeit', 'Neurotizismus'], 270] } } },
       { t: T('Belegt ist anderes: Man wechselt die Haltung nachts **viele Male**.', 64), gfx: { nacht: {} } },
+      { t: T('Schlafforscher filmen und messen: Erwachsene wechseln oft mehr als **zehnmal** pro Nacht die Haltung.', 64), gfx: { zahl: { args: ['> 10', 'Haltungswechsel pro Nacht', 420] } } },
+      { t: T('Gemessen liegt man die meiste Zeit auf der **Seite** – mit dem Alter sogar noch mehr.', 64), gfx: { lagen: {} } },
       { t: T('In Rückenlage schnarcht man mehr – und **Schlafparalyse** tritt dort am häufigsten auf.', 64), gfx: { ruecken: {} } },
+      { t: T('In Rückenlage rutscht die Zunge leichter nach hinten – die Atemwege werden **enger**.', 64), gfx: { ruecken: {} } },
+      { t: T('Schlafparalyse: Man wacht auf, kann sich aber Sekunden bis Minuten **nicht bewegen**. Der Körper ist noch im Traumschlaf.', 64), gfx: { f2: { draw: 'formel', args: [['Traumschlaf', '=', 'Gehirn hellwach', '+', 'Muskeln gelähmt'], 320] } } },
+      { t: T('Das kennen gar nicht so wenige: Rund **8 Prozent** erleben es mindestens einmal im Leben.', 64), gfx: { z2: { draw: 'zahl', args: ['8 %', 'erleben einmal eine Schlafparalyse', 420] } } },
+      { t: T('Wer schnarcht, kann es mit der **Seitenlage** versuchen – das hilft vielen.', 64), gfx: { lagen: {} } },
+      { t: T('Auch Hunde rollen sich gern zusammen – das hält **warm** und schützt den Bauch.', 470), pics: { h: { img: 0, x: 16, y: 56, w: 328, h: 390, cam: [45, 40, 1.2] } } },
+      { t: T('Wichtiger als die Haltung ist die **Dauer**: Erwachsene brauchen meist sieben bis neun Stunden.', 64), gfx: { z3: { draw: 'zahl', args: ['7–9 h', 'Schlaf für Erwachsene', 420] } } },
+      recap(
+        [{ gfx: 'typen', cls: 'a1' }, { gfx: 'umfrage', cls: 'a1' }, { gfx: 'nacht' }, { gfx: 'ruecken' }],
+        ['Typen aus einer Umfrage', 'nie begutachtet', 'viele Wechsel pro Nacht', 'Rückenlage: Schnarchen'],
+      ),
     ],
     summary: ['Die Schlafpositions-Typen stammen aus einer Umfrage von 2003.', 'Nachts wechselt man die Haltung viele Male.', 'Rückenlage: mehr Schnarchen, häufiger Schlafparalyse.'],
     sources: ['BBC News 2003: „Sleep position gives personality clue“', 'Cheyne 2002, Journal of Sleep Research'],
@@ -131,6 +157,14 @@ export const MENSCH: Bite[] = [
     mood: 'verspielt',
     images: [img('baby-gaehnt')],
     draw: {
+      provine(g) {
+        vbars(g, [{ label: 'gähnende Gesichter', v: 55, fmt: pct, dense: true }, { label: 'lächelnde Gesichter', v: 21, fmt: pct }], { x: 70, base: 580, w: 80, gap: 140, h: 300, max: 60 })
+        text(g, 40, 250, 'haben mitgegähnt', { cls: 's', d: 200 })
+      },
+      naehe(g) {
+        vbars(g, [{ label: 'Familie', v: 80, fmt: none, dense: true }, { label: 'Freunde', v: 60, fmt: none }, { label: 'Bekannte', v: 40, fmt: none }, { label: 'Fremde', v: 25, fmt: none }], { x: 30, base: 580, w: 60, gap: 80, h: 300, max: 100 })
+        text(g, 30, 250, 'Ansteckung', { cls: 's', d: 200 })
+      },
       wort(g) {
         bigText(g, 180, 400, 'Gääähn', { size: 84, d: 200 })
         face(g, 180, 540, 50, 900, 'x1')
@@ -187,12 +221,28 @@ export const MENSCH: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { b: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [55, 50, 1.05], cam2: [55, 50, 1.25] } } },
+      { t: T('Ein Gähnen dauert im Schnitt etwa **sechs Sekunden**: Mund weit auf, tiefer Atemzug, gestreckte Muskeln.', 64), gfx: { zahl: { args: ['6 s', 'dauert ein Gähnen im Schnitt', 420] } } },
+      { t: T('Wir gähnen schon vor der Geburt – im **Mutterleib**, etwa ab der elften Woche.', 64), gfx: { wort: { tf: [0.8, 36, 60] } } },
       { t: T('Oft reicht schon das Wort.', 64), gfx: { wort: { cls: 'a1' } } },
       { t: T('Rund die **Hälfte** der Erwachsenen gähnt mit, wenn sie andere gähnen sieht.', 64), gfx: { kette: { cls: 'a1' } } },
+      { t: T('Der Psychologe Robert Provine zeigte Leuten Videos: Gähnende Gesichter steckten über die Hälfte an – lächelnde kaum.', 64), gfx: { provine: {} } },
+      { t: T('Es reicht sogar, über Gähnen zu **lesen** oder nachzudenken. Vielleicht gähnst du gerade.', 64), gfx: { kette: { cls: 'a1', tf: [0.8, 36, 80] } } },
       { t: T('Lange galt das als Zeichen von **Mitgefühl**: Wer sich einfühlt, gähnt mit.', 64), gfx: { herz: {} } },
       { t: T('Große Studien finden das kaum. Mehr erklärt das **Alter**: Je älter, desto seltener steckt Gähnen an.', 64), gfx: { alter: {} } },
+      { t: T('In dieser Studie der Duke University sahen 328 Menschen ein Gähn-Video. Mit dem **Alter** sank die Ansteckung deutlich.', 64), gfx: { z2: { draw: 'zahl', args: ['328', 'Teilnehmende, Duke University 2014', 420] } } },
+      { t: T('Und Nähe zählt: Bei **Familie** und Freunden stecken wir uns leichter an als bei Fremden.', 64), gfx: { naehe: {} } },
       { t: T('Auch Schimpansen und sogar **Wellensittiche** lassen sich anstecken.', 64), gfx: { vogel: { cls: 'a1' } } },
+      { t: T('Einige Studien finden das sogar bei **Hunden**: Sie gähnen mit, wenn ihre Menschen gähnen.', 64), gfx: { vogel: { cls: 'a1' } } },
       { t: T('Kleinkinder erst ab etwa **vier Jahren**. Warum wir gähnen, ist offen – eine Idee: Es kühlt das Gehirn.', 64), gfx: { kuehl: {} } },
+      { t: T('Die Idee dahinter:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['tiefer Atemzug', '+', 'Kiefer dehnen', '→', 'kühleres Gehirn'], 320] } } },
+      { t: T('Passend dazu: Bei Kälte draußen steckt Gähnen seltener an als bei milden Temperaturen.', 64), gfx: { kuehl: {} } },
+      { t: T('Gähnen ist wohl kein reines Müdigkeitszeichen – eher ein Signal für **Übergänge**:', 64), gfx: { punkte: { args: [['Aufwachen', 'Einschlafen', 'Langeweile', 'vor Anspannung, etwa vor Wettkämpfen'], 290] } } },
+      { t: T('Fast alle Wirbeltiere gähnen – Fische, Vögel, Säugetiere. **Ansteckend** ist es aber nur bei wenigen sozialen Arten.', 64), gfx: { vogel: { tf: [0.8, 36, 80] } } },
+      { t: T('Unterdrücken klappt kaum: Wer es versucht, gähnt oft trotzdem – nur mit **geschlossenem** Mund.', 64), gfx: { wort: { cls: 'a1', tf: [0.8, 36, 60] } } },
+      recap(
+        [{ gfx: 'wort', cls: 'a1' }, { gfx: 'kette', cls: 'a1' }, { gfx: 'alter' }, { gfx: 'vogel', cls: 'a1' }],
+        ['schon das Wort steckt an', 'rund die Hälfte gähnt mit', 'Alter zählt mehr als Mitgefühl', 'auch Tiere'],
+      ),
     ],
     summary: ['Rund die Hälfte der Erwachsenen gähnt mit.', 'Mitgefühl als Grund: umstritten, das Alter zählt mehr.', 'Auch Tiere stecken sich an, Kinder erst ab etwa vier.'],
     sources: ['Provine 2005, American Scientist', 'Bartholomew & Cirulli 2014, PLOS ONE', 'Gallup et al. 2015, Animal Cognition'],
@@ -205,6 +255,15 @@ export const MENSCH: Bite[] = [
     mood: 'raetsel',
     images: [img('schach')],
     draw: {
+      echt(g) {
+        ink(g, L([50, 580], [330, 580]), { w: 3, t: 500 })
+        ink(g, L([50, 580], [50, 250]), { w: 3, t: 500 })
+        for (let k = 0; k < 4; k++) text(g, 90 + k * 75, 604, `${k + 1}. Viertel`, { anchor: 'middle', cls: 's', d: 300 })
+        ink(g, [...L([90, 550], [165, 470]).slice(0), ...L([165, 470], [240, 390]).slice(1), ...L([240, 390], [315, 300]).slice(1)], { w: 3.4, d: 600, t: 900 })
+        ink(g, [...L([90, 400], [165, 385]), ...L([165, 385], [240, 370]).slice(1), ...L([240, 370], [315, 350]).slice(1)], { w: 3, d: 1500, t: 900 })
+        text(g, 320, 290, 'tatsächlich', { anchor: 'end', d: 1400 })
+        text(g, 90, 390, 'geschätzt', { d: 2300 })
+      },
       test(g) {
         for (const [x, lab, d] of [[40, 'Logik', 0], [190, 'Grammatik', 500]] as const) {
           ink(g, RR(x, 240, 130, 180, 8), { w: 3, d, t: 600 })
@@ -259,15 +318,31 @@ export const MENSCH: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { s: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [40, 50, 1.05], cam2: [40, 50, 1.25] } } },
+      { t: T('Der Name ist längst ein Schlagwort: Wer Unsinn redet, „hat **Dunning-Kruger**“. Was steckt wirklich dahinter?', 64), gfx: { question: { draw: 'punkte', args: [['Selbstüberschätzung?', 'Dummheit?', 'Statistik?'], 340] } } },
       {
         t: T('1999 testeten David Dunning und Justin Kruger Studierende in Logik und Grammatik.', 64),
         gfx: { test: {} },
       },
       { t: T('Die Schwächsten landeten im Schnitt auf Platz 12 von 100 – und schätzten sich auf **Platz 62**.', 64), gfx: { plaetze: {} } },
+      { t: T('Die Besten unterschätzten sich dagegen leicht: Was ihnen leichtfiel, hielten sie auch für andere für **leicht**.', 64), gfx: { f1: { draw: 'formel', args: [['leicht für mich', '→', 'leicht für alle'], 330, 'Fehlschluss der Besten'] } } },
+      { t: T('Die Erklärung der Forscher: Um Fehler zu erkennen, braucht man genau das **Wissen**, das einem fehlt.', 64), gfx: { f2: { draw: 'formel', args: [['fehlendes Wissen', '→', 'Fehler', '+', 'Fehler nicht erkennen'], 330, 'doppelter Fluch'] } } },
       { t: T('Daraus wurde ein Meme: eine Kurve mit dem „Gipfel des Unwissens“.', 64), gfx: { meme: {} } },
       { t: T('Die Kurve stammt aber **nicht** aus der Studie.', 64), gfx: { meme: { cls: 'a1' } } },
+      { t: T('Die echte Grafik der Studie ist unspektakulär: Fast alle schätzen sich leicht **über dem Durchschnitt** ein.', 64), gfx: { echt: {} } },
       { t: T('Und ein Teil ist **Statistik**: Wer ganz unten liegt, kann sich fast nur überschätzen.', 64), gfx: { leiter: {} } },
+      { t: T('Ein Gedankenexperiment: Alle schätzen sich einfach auf **Platz 50** – egal, wie gut sie wirklich sind.', 64), gfx: { r1: { draw: 'formel', args: [['jede Schätzung', '=', 'Platz 50'], 330] } } },
+      { t: T('Dann „überschätzen“ sich die Schwächsten automatisch – und die Besten „unterschätzen“ sich. Ganz **ohne** Selbstüberschätzung.', 64), gfx: { v9: { draw: 'vergleich', args: [['Schwächste', 'tatsächlich: Platz 12', 'geschätzt: 50', 'wirkt überschätzt'], ['Beste', 'tatsächlich: Platz 88', 'geschätzt: 50', 'wirkt unterschätzt'], 290] } } },
+      { t: T('Ein Teil des berühmten Effekts entsteht genau so. Statistiker nennen es **Regression zur Mitte**:', 64), gfx: { r2: { draw: 'formel', args: [['ungenaue Schätzung', '→', 'Werte rutschen zur Mitte'], 330] } } },
+      { t: T('Der Psychologe Gilles Gignac zeigte 2020: Rechnet man sauber, bleibt vom Effekt nur ein **kleiner** Teil.', 64), gfx: { leiter: { tf: [0.8, 36, 80] } } },
+      { t: T('Dazu kommt ein anderer Effekt: Fast alle halten sich für **überdurchschnittlich** – etwa beim Autofahren.', 64), gfx: { z2: { draw: 'zahl', args: ['93 %', 'befragter US-Studierender hielten sich für bessere Fahrer als der Durchschnitt', 400] } } },
       { t: T('Gute Nachricht aus derselben Studie: Schon kurzes **Üben** verbesserte Können und Selbsteinschätzung.', 64), gfx: { treppe: { cls: 'a1' } } },
+      { t: T('Die eigene Einschätzung lässt sich **trainieren**:', 64, { kind: 'big' }), gfx: { punkte: { args: [['vorher schätzen, nachher prüfen', 'Feedback einholen', 'Fehler sammeln und ansehen'], 320] } } },
+      { t: T('Der Anstoß: 1995 rieb sich in Pittsburgh ein Bankräuber das Gesicht mit **Zitronensaft** ein – er hielt sich so für unsichtbar für Kameras.', 64), gfx: { z3: { draw: 'zahl', args: ['1995', 'Bankraub mit Zitronensaft', 420] } } },
+      { t: T('Die Studie hieß spöttisch „**Unskilled and Unaware of It**“ – unfähig und ahnungslos.', 64), gfx: { plaetze: { tf: [0.8, 36, 80] } } },
+      recap(
+        [{ gfx: 'plaetze' }, { gfx: 'meme', cls: 'a1' }, { gfx: 'leiter' }, { gfx: 'treppe', cls: 'a1' }],
+        ['Platz 12, geschätzt 62', 'Meme-Kurve: erfunden', 'zum Teil Statistik', 'Üben hilft'],
+      ),
     ],
     summary: ['Die Schwächsten schätzten sich auf Platz 62 statt 12.', 'Die berühmte Kurve stammt nicht aus der Studie.', 'Üben verbessert Können und Selbsteinschätzung.'],
     sources: ['Kruger & Dunning 1999, J Pers Soc Psychol', 'Gignac & Zajenkowski 2020, Intelligence'],
@@ -280,6 +355,10 @@ export const MENSCH: Bite[] = [
     mood: 'verspielt',
     images: [img('marshmallows')],
     draw: {
+      vertrauen(g) {
+        vbars(g, [{ label: 'Versprechen gebrochen', v: 3, fmt: (v) => `${Math.round(v)} min` }, { label: 'Versprechen gehalten', v: 12, fmt: (v) => `${Math.round(v)} min`, dense: true }], { x: 70, base: 580, w: 80, gap: 140, h: 300, max: 15 })
+        text(g, 40, 250, 'durchschnittliche Wartezeit', { cls: 's', d: 200 })
+      },
       teller(g) {
         ink(g, L([30, 520], [330, 520]), { w: 3.4, t: 600 })
         ink(g, E(150, 506, 70, 12), { w: 2.8, d: 300, t: 500 })
@@ -322,10 +401,22 @@ export const MENSCH: Bite[] = [
       { t: HOOK(476), pics: { m: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 50, 1.05], cam2: [50, 50, 1.25] } } },
       { t: T('In den 1960ern ließ Walter Mischel Kinder wählen: **ein** Marshmallow sofort …', 64), gfx: { teller: {} } },
       { t: T('… oder **zwei**, wenn sie rund 15 Minuten allein warten.', 64), gfx: { teller: { cls: 'a1' } } },
+      { t: T('Die Kinder waren drei bis fünf Jahre alt und besuchten den Kindergarten der **Stanford**-Universität.', 64), gfx: { teller: { cls: 'a1', tf: [0.8, 36, 60] } } },
+      { t: T('Manche hielten sich die Augen zu, sangen oder drehten sich weg: **Ablenkung** half beim Warten.', 64), gfx: { punkte: { args: [['Augen zuhalten', 'singen', 'wegdrehen', 'an etwas anderes denken'], 300] } } },
+      { t: T('Die Wahl als Rechnung:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['1 sofort', 'oder', '15 Minuten warten', '→', '2'], 330] } } },
       { t: T('Jahre später schienen die Warter erfolgreicher. Die Folgerung: **Selbstkontrolle** entscheidet über das Leben.', 64), gfx: { erfolg: {} } },
+      { t: T('Die Daten stammten aber nur von einer kleinen Gruppe – vor allem Kinder von **Uni-Angestellten**.', 64), gfx: { erfolg: { tf: [0.8, 36, 80] } } },
       { t: T('2018 wiederholten Forscher den Test – mit Kindern aus **allen Schichten**.', 64), gfx: { kinder: {} } },
+      { t: T('Sie nutzten eine große US-Langzeitstudie: Kinder aus vielen Familien, mit unterschiedlichem **Einkommen** und Bildung.', 64), gfx: { kinder: {} } },
       { t: T('Der Effekt schrumpfte stark – und fast ganz, sobald man **Familie und Umfeld** einrechnete.', 64), gfx: { effekt: { cls: 'a1' } } },
+      { t: T('Eine Studie aus Rochester 2013: Kinder, denen vorher ein Versprechen **gebrochen** wurde, warteten nur etwa 3 Minuten – die anderen rund 12.', 64), gfx: { vertrauen: {} } },
+      { t: T('Warten ist also auch eine vernünftige Rechnung: Wer erlebt, dass Versprechen nicht gelten, nimmt besser das **sichere** Marshmallow.', 64), gfx: { f2: { draw: 'formel', args: [['Versprechen unsicher', '→', 'lieber sofort zugreifen'], 330] } } },
       { t: T('Warten heißt auch: Ich **vertraue** darauf, dass das Versprechen gilt.', 64), gfx: { versprechen: {} } },
+      { t: T('Selbstkontrolle bleibt wichtig – aber ein einzelner Test mit vier Jahren sagt wenig über ein ganzes **Leben**.', 64), gfx: { teller: { cls: 'a1', tf: [0.8, 36, 60] } } },
+      recap(
+        [{ gfx: 'teller', cls: 'a1' }, { gfx: 'kinder' }, { gfx: 'effekt' }, { gfx: 'vertrauen' }],
+        ['1 jetzt oder 2 später', '2018: über 900 Kinder', 'Effekt viel kleiner', 'Vertrauen zählt'],
+      ),
     ],
     summary: ['Original: wenige Kinder einer Uni-Kita.', '2018 mit über 900 Kindern: Effekt viel kleiner.', 'Warten hängt auch von Vertrauen und Umfeld ab.'],
     sources: ['Mischel, Shoda & Rodriguez 1989, Science', 'Watts, Duncan & Quan 2018, Psychological Science', 'Kidd, Palmeri & Aslin 2013, Cognition'],
@@ -338,6 +429,10 @@ export const MENSCH: Bite[] = [
     mood: 'ruhig',
     images: [img('sokrates-buste'), img('sokrates-tod')],
     draw: {
+      abstimmung(g) {
+        vbars(g, [{ label: 'schuldig', v: 280, fmt: (v) => String(Math.round(v)), dense: true }, { label: 'nicht schuldig', v: 220, fmt: (v) => String(Math.round(v)) }], { x: 70, base: 580, w: 80, gap: 140, h: 300, max: 300 })
+        text(g, 40, 250, 'Stimmen der Geschworenen', { cls: 's', d: 200 })
+      },
       blatt(g) {
         ink(g, RR(110, 250, 140, 190, 6), { w: 3, t: 600 })
         const q = st(g, 'float')
@@ -372,6 +467,7 @@ export const MENSCH: Bite[] = [
     },
     scenes: [
       { t: HOOK(470), pics: { s: { img: 0, x: 16, y: 56, w: 328, h: 390, enter: 'blot', cam: [50, 35, 1.1], cam2: [50, 35, 1.25] } } },
+      { t: T('Sokrates lebte etwa 469 bis 399 v. Chr. in Athen – ein Steinmetzsohn, der auf dem Marktplatz Leute in **Gespräche** verwickelte.', 64), gfx: { zahl: { args: ['70', 'Jahre lebte Sokrates in Athen', 420] } } },
       {
         t: { text: 'Sokrates schrieb selbst **nichts**.', x: 130, y: 90, w: 210 },
         pics: { s: { img: 0, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [50, 30, 1.4] } },
@@ -382,8 +478,15 @@ export const MENSCH: Bite[] = [
         pics: { s: { img: 0, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [50, 30, 1.4] } },
         gfx: { rolle: {} },
       },
+      { t: T('Auch Xenophon und der Komödiendichter Aristophanes schrieben über ihn – jeder zeichnet ein **anderes** Bild.', 64), gfx: { p3: { draw: 'punkte', args: [['Platon: der Philosoph', 'Xenophon: der Ratgeber', 'Aristophanes: der Spinner'], 320] } } },
+      { t: T('Seine Methode: Fragen stellen, bis der andere merkt, wo sein Wissen Lücken hat.', 64), gfx: { f1: { draw: 'formel', args: [['Frage', '→', 'Antwort', '→', 'neue Frage', '→', 'Einsicht'], 320, 'sokratisches Gespräch'] } } },
       { t: { text: 'In Platons „Apologie“ sagt er sinngemäß: Ich bin weiser als andere, weil ich nicht **glaube**, etwas zu wissen, was ich nicht weiß.', x: 40, y: 306, w: 280, kind: 'mid' }, gfx: { zitat: {} } },
+      { t: T('Anlass war ein Orakel: Delphi soll verkündet haben, niemand sei weiser als Sokrates. Er wollte das **widerlegen**.', 64), gfx: { zitat: {} } },
+      { t: T('Er befragte Politiker, Dichter und Handwerker. Sie alle glaubten mehr zu wissen, als sie wussten – er kannte wenigstens seine **Grenzen**.', 64), gfx: { punkte: { args: [['Politiker', 'Dichter', 'Handwerker'], 340] } } },
       { t: T('Das ist feiner als der berühmte Satz: **Ehrlichkeit** über die Grenzen des eigenen Wissens.', 64), gfx: { wissen: { cls: 'a1' } } },
+      { t: T('Die knappe Formel „Ich weiß, dass ich nichts weiß“ steht so erst in späteren Zusammenfassungen, etwa bei **Cicero**.', 64), gfx: { wissen: { cls: 'a1', tf: [0.8, 36, 100] } } },
+      { t: T('Seine Ankläger warfen ihm vor, die **Jugend** zu verderben und nicht die Götter der Stadt zu ehren.', 64), gfx: { p2: { draw: 'punkte', args: [['verdirbt die Jugend', 'ehrt nicht die Götter der Stadt', 'führt neue Gottheiten ein'], 320] } } },
+      { t: T('Über 500 Geschworene stimmten ab. Eine **knappe** Mehrheit sprach ihn schuldig.', 64), gfx: { abstimmung: {} } },
       {
         t: T('399 v. Chr. wurde er wegen „Verderbens der Jugend“ zum Tod verurteilt.', 340),
         pics: { t: { img: 1, x: 16, y: 56, w: 328, h: 240, enter: 'blot', cam: [50, 50, 1.0], cam2: [40, 50, 1.2], cap: 'Jacques-Louis David, Der Tod des Sokrates, 1787' } },
@@ -392,6 +495,14 @@ export const MENSCH: Bite[] = [
         t: T('Er trank den **Schierlingsbecher**. Fliehen wollte er nicht – er hielt sich an die Gesetze seiner Stadt.', 450),
         pics: { t: { img: 1, x: 16, y: 56, w: 328, h: 370, cam: [44, 50, 2.2], cam2: [42, 55, 2.6] } },
       },
+      { t: T('Er hätte **fliehen** können – Freunde hatten alles vorbereitet. In Platons „Kriton“ begründet er, warum er bleibt.', 450), pics: { t: { img: 1, x: 16, y: 56, w: 328, h: 370, cam: [44, 50, 1.6] } } },
+      { t: T('Er kämpfte auch als **Soldat** im Krieg gegen Sparta – und soll dabei einem Freund das Leben gerettet haben.', 64), gfx: { zahl: { args: ['3', 'Feldzüge als Soldat', 420] } } },
+      { t: T('Geld nahm er für seine Gespräche nicht – anders als die **Sophisten**, die Redekunst gegen Bezahlung lehrten.', 64), gfx: { vergleich: { args: [['Sophisten', 'lehren gegen Geld', 'überzeugen'], ['Sokrates', 'fragt umsonst', 'prüfen'], 290] } } },
+      { t: T('Seine Wirkung reicht weit:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['Sokrates', '→', 'Platon', '→', 'Aristoteles', '→', 'Alexander der Große'], 320, 'Lehrer und Schüler'] } } },
+      recap(
+        [{ gfx: 'blatt', cls: 'a1' }, { gfx: 'wissen', cls: 'a1' }, { gfx: 'abstimmung' }, { pic: 1, id: 't', cam: [44, 50, 1.6] }],
+        ['schrieb selbst nichts', 'die Grenze des Wissens kennen', '280 zu 220: schuldig', 'Schierlingsbecher 399 v. Chr.'],
+      ),
     ],
     summary: ['Sokrates schrieb nichts, Platon überliefert ihn.', 'Original: Ich glaube nicht zu wissen, was ich nicht weiß.', '399 v. Chr. zum Tod verurteilt.'],
     sources: ['Platon, Apologie 21d', 'Platon, Kriton'],
@@ -405,6 +516,17 @@ export const MENSCH: Bite[] = [
     ambience: 'stadt',
     images: [img('diogenes-gerome'), img('pithoi-knossos')],
     draw: {
+      huhn(g) {
+        const body = E(180, 430, 70, 50)
+        blank(g, body)
+        ink(g, body, { w: 3, t: 700 })
+        ink(g, B([240, 410], [270, 380], [270, 340], [262, 320]), { w: 3, d: 400, t: 300 })
+        ink(g, E(262, 310, 16), { w: 3, d: 600, t: 300 })
+        ink(g, [[276, 308], [292, 314], [276, 318]], { w: 2.4, d: 800, t: 200 })
+        for (const x of [160, 200]) ink(g, L([x, 476], [x - 4, 540]), { w: 3, d: 900, t: 200 })
+        for (let k = 0; k < 10; k++) mk('circle', { cx: 130 + (k * 37) % 100, cy: 405 + (k * 23) % 50, r: 2.4, class: 'k fade', style: `--d:${1100 + k * 60}ms` }, g)
+        text(g, 180, 600, '„Hier ist Platons Mensch!“', { anchor: 'middle', size: 20, cls: 'it', d: 1600 })
+      },
       gefaesse(g) {
         // Holzfass
         const fass: P[] = [...B([40, 300], [30, 380], [30, 420], [40, 500]), [160, 500], ...B([160, 500], [170, 420], [170, 380], [160, 300]).slice(1), [40, 300]]
@@ -459,18 +581,37 @@ export const MENSCH: Bite[] = [
         t: T('Diogenes von Sinope wollte im 4. Jahrhundert v. Chr. zeigen: Man braucht fast **nichts** zum Glück.', 450),
         pics: { d: { img: 0, x: 16, y: 56, w: 328, h: 370, cam: [26, 50, 2.0], cam2: [26, 48, 2.3] } },
       },
+      { t: T('Er lebte etwa 400 bis 323 v. Chr. – geboren in **Sinope** am Schwarzen Meer, von dort verbannt.', 450), pics: { d: { img: 0, x: 16, y: 56, w: 328, h: 370, cam: [26, 50, 2.0] } } },
+      { t: T('Sein ganzer Besitz: Mantel, Stock, Beutel – und ein **Becher**. Den warf er weg, als er ein Kind aus der Hand trinken sah.', 64), gfx: { punkte: { args: [['Mantel', 'Stock', 'Beutel', 'Becher – bis er ihn wegwarf'], 300] } } },
       { t: T('Er schlief in Athen in einem **Pithos** – einem großen Vorratsgefäß aus Ton, keinem Holzfass.', 64), gfx: { gefaesse: {} } },
       {
         t: T('Solche Krüge standen etwa im Palast von Knossos – fast mannshoch.', 476),
         pics: { p: { img: 1, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 50, 1.05], cam2: [50, 50, 1.2] } },
       },
+      { t: T('Holzfässer kannten die Griechen damals kaum – sie kamen erst später, von den **Kelten**.', 64), gfx: { gefaesse: { tf: [0.9, 18, 40] } } },
       { t: T('Berühmte Anekdote: Alexander der Große besucht ihn und bietet ihm einen Wunsch an.', 64), gfx: { sonne: {} } },
       { t: T('Diogenes: _„Geh mir aus der Sonne.“_', 64, { kind: 'big', w: 220 }), gfx: { sonne: { cls: 'a1' } } },
+      { t: T('Alexander soll gesagt haben: _Wäre ich nicht Alexander, wollte ich Diogenes sein._', 64, { kind: 'mid', w: 230 }), gfx: { sonne: { cls: 'a1' } } },
+      {
+        t: T('Am hellen Tag lief er mit einer **Laterne** durch Athen: „Ich suche einen Menschen.“ Gérôme malt ihn genau dabei.', 450),
+        pics: { d: { img: 0, x: 16, y: 56, w: 328, h: 370, cam: [30, 42, 2.2], cam2: [30, 40, 2.5] } },
+      },
+      { t: T('Als Platon den Menschen „federloses Zweibein“ nannte, rupfte Diogenes ein **Huhn** und brachte es in die Akademie.', 64), gfx: { huhn: {} } },
       {
         t: T('Seine Schule hieß **Kyniker** – sie lebten so bedürfnislos wie Straßenhunde. Daraus wurde „zynisch“.', 64),
         pics: { d: { img: 0, x: 16, y: 210, w: 328, h: 250, cam: [80, 72, 2.0] } },
         gfx: { wort: { tf: [1, 0, 30] } },
       },
+      { t: T('Die Kyniker wollten frei sein von Besitz, Ruhm und Regeln – und lebten **bewusst** provokant.', 64), gfx: { f1: { draw: 'formel', args: [['Glück', '=', 'wenig brauchen'], 330] } } },
+      { t: T('Vieles kennen wir von Diogenes Laertios – geschrieben rund **500 Jahre** später. Ob jede Anekdote stimmt, weiß niemand.', 64), gfx: { zahl: { args: ['500', 'Jahre zwischen Diogenes und seinem Biografen', 420] } } },
+      { t: T('In Athen lebte er auf dem **Marktplatz**: Er aß, schlief und stritt dort – vor aller Augen.', 64), gfx: { sonne: { tf: [0.8, 36, 80] } } },
+      { t: T('Er nannte sich selbst „**Weltbürger**“ – das Wort Kosmopolit geht auf ihn zurück.', 64), gfx: { f3: { draw: 'formel', args: [['kosmos: Welt', '+', 'polites: Bürger', '=', 'Kosmopolit'], 320] } } },
+      { t: T('Im Alter sollen ihn **Piraten** gefangen und als Sklave verkauft haben – nach Korinth. Dort starb er um 323 v. Chr.', 64), gfx: { z3: { draw: 'zahl', args: ['323 v. Chr.', 'Tod in Korinth', 420] } } },
+      { t: T('Auf seinem Grab stand angeblich ein **Hund** aus Marmor – das Tier, nach dem seine Schule hieß.', 450), pics: { d: { img: 0, x: 16, y: 56, w: 328, h: 370, cam: [80, 72, 2.0] } } },
+      recap(
+        [{ gfx: 'gefaesse' }, { gfx: 'sonne', cls: 'a1' }, { pic: 0, id: 'd', cam: [28, 45, 1.4] }, { gfx: 'wort' }],
+        ['Tonkrug, kein Fass', '„Geh mir aus der Sonne“', 'Laterne: „Ich suche einen Menschen“', 'kyon → zynisch'],
+      ),
     ],
     summary: ['Pithos = Tonkrug, kein Holzfass.', '„Geh mir aus der Sonne“ – zu Alexander.', 'Kyniker → zynisch, von griechisch „Hund“.'],
     sources: ['Diogenes Laertios, Leben und Meinungen berühmter Philosophen, Buch VI'],
@@ -483,6 +624,21 @@ export const MENSCH: Bite[] = [
     mood: 'dunkel',
     images: [],
     draw: {
+      hirn(g) {
+        brain(g, 180, 400, 1.1)
+        const h = pop(g, 1300, '50% 50%')
+        blank(h, E(150, 430, 30, 22))
+        hatch(h, E(150, 430, 30, 22), 0, true)
+        ink(h, E(150, 430, 30, 22), { w: 2.6, t: 0 })
+        text(g, 180, 580, 'Gefühls-Areale aktiver', { anchor: 'middle', d: 1500 })
+      },
+      autonom(g) {
+        ink(g, L([20, 560], [340, 560]), { w: 3, t: 500 })
+        car(g, 90, 556, 1.8, 200)
+        crowd(g, 220, 556, 3, 22, 1.4, 700)
+        fig(pop(g, 900), 300, 470, 1.4)
+        question(g, 180, 400, 1.6, 1300)
+      },
       rails(g) {
         track(g, L([-20, 440], [380, 440]), { t: 700 })
         track(g, [...B([128, 440], [190, 440], [210, 540], [280, 540]), ...L([280, 540], [380, 540]).slice(1)], { d: 300, t: 700 })
@@ -546,14 +702,29 @@ export const MENSCH: Bite[] = [
       { t: T('Ein Zug rast auf **fünf Menschen** zu.', 96), gfx: { rails: { cls: 'a1 a2' } } },
       { t: T('Stellst du die **Weiche** um, stirbt stattdessen einer auf dem Nebengleis.', 588), gfx: { rails: { cls: 'a1 a2 a3' } } },
       { t: T('Ausgedacht hat sich das die Philosophin **Philippa Foot**.', 516), gfx: { rails: { cls: 'a1 a2 a3', tf: [0.62, 68, -60] }, jahr: {} } },
+      { t: T('Foot ging es eigentlich um eine Frage aus der Abtreibungsdebatte: Ist **Töten** schlimmer als Sterbenlassen?', 64), gfx: { jahr: {} } },
+      { t: T('Den Namen „**Trolley-Problem**“ und die Variante mit der Brücke brachte die Philosophin Judith Jarvis Thomson ein.', 64), gfx: { rails: { cls: 'a1 a2 a3', tf: [0.8, 36, 60] } } },
       { t: T('Die meisten sagen: umstellen. Fünf retten ist besser als einen – so rechnet der **Utilitarismus**.', 70), gfx: { waage: { cls: 'a1' } } },
+      { t: T('Der Utilitarismus fragt nur nach den **Folgen**:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['richtig', '=', 'was das meiste Wohl für alle bringt'], 330] } } },
+      { t: T('In Zahlen:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['5 gerettet', '−', '1 geopfert', '=', '4 Leben mehr'], 330] } } },
       { t: T('Aber würdest du einen Mann von einer **Brücke** stoßen, um den Zug zu stoppen?', 74), gfx: { bruecke: { cls: 'a1' } } },
       {
         t: T('Hier zögern viel mehr – obwohl die **Rechnung** gleich ist: einer statt fünf.', 140),
         gfx: { bruecke: { cls: 'a1', tf: [0.5, 100, -158] }, waage: { cls: 'a1', tf: [0.62, 68, 190] } },
       },
+      { t: T('Die **Pflichtethik** – etwa nach Immanuel Kant – sagt: Einen Menschen nur als Mittel zu benutzen, ist falsch.', 64), gfx: { f3: { draw: 'formel', args: [['Mensch', '≠', 'Mittel zum Zweck'], 330, 'Kant'] } } },
+      { t: T('Bei der Weiche ist der Tod des einen eine **Nebenfolge**. Beim Stoßen ist er das Mittel.', 64), gfx: { vergleich: { args: [['Weiche', 'Zug wird umgelenkt', 'Tod als Nebenfolge'], ['Brücke', 'Mensch wird zum Bremsklotz', 'Tod als Mittel'], 290] } } },
+      { t: T('Hirnscans zeigen: Beim Stoß-Szenario sind **Gefühls**-Areale stärker aktiv – wir zögern aus dem Bauch heraus.', 64), gfx: { hirn: {} } },
       { t: T('Eine Studie mit **70.000** Menschen aus 42 Ländern hat genau das gefragt.', 474), gfx: { erde: {} } },
       { t: T('Weiche: rund **80 %** ja. Stoßen: nur etwa die **Hälfte** – in allen Ländern dieselbe Reihenfolge.', 500), gfx: { erde: { tf: [0.34, 10, 6], o: 0.9 }, balken: {} } },
+      { t: T('Die Daten stammen von der Website „**Moral Machine**“ des MIT – gebaut, um Entscheidungen selbstfahrender Autos zu erforschen.', 64), gfx: { balken: { tf: [0.8, 36, 60] } } },
+      { t: T('Denn genau diese Frage wird praktisch: Wie soll ein **autonomes Auto** entscheiden, wenn ein Unfall unvermeidbar ist?', 64), gfx: { autonom: {} } },
+      { t: T('Ganz real wurde die Frage 2006: Darf ein entführtes **Passagierflugzeug** abgeschossen werden, um mehr Menschen zu retten?', 64), gfx: { z4: { draw: 'zahl', args: ['2006', 'Urteil zum Luftsicherheitsgesetz', 420] } } },
+      { t: T('Das Bundesverfassungsgericht sagte **nein**: Die Menschenwürde verbietet, Leben gegen Leben aufzurechnen.', 64), gfx: { f4: { draw: 'formel', args: [['Leben', '≠', 'Rechengröße'], 330] } } },
+      recap(
+        [{ gfx: 'rails', cls: 'a1 a2 a3' }, { gfx: 'waage', cls: 'a1' }, { gfx: 'bruecke', cls: 'a1' }, { gfx: 'balken' }],
+        ['Weiche: einer statt fünf', 'Utilitarismus: Folgen zählen', 'Brücke: Mensch als Mittel', '81 % zu 51 %'],
+      ),
     ],
     summary: ['Philippa Foot, 1967.', 'Weiche: rund 80 % ja, Brücke: rund die Hälfte.', 'Handeln oder geschehen lassen – Kern der Ethikdebatte.'],
     sources: ['Foot 1967, Oxford Review', 'Awad et al. 2020, PNAS'],
@@ -567,6 +738,25 @@ export const MENSCH: Bite[] = [
     ambience: 'uhr',
     images: [img('marc-aurel'), img('sanduhr')],
     draw: {
+      halle(g) {
+        ink(g, [[30, 300], [180, 220], [330, 300], [30, 300]], { w: 3.2, t: 700 })
+        hatch(g, [[40, 296], [180, 226], [320, 296]], 600, true)
+        for (let k = 0; k < 6; k++) {
+          ink(g, L([60 + k * 48, 310], [60 + k * 48, 520]), { w: 3.6, d: 300 + k * 100, t: 300 })
+          ink(g, L([48 + k * 48, 310], [72 + k * 48, 310]), { w: 2.6, d: 300 + k * 100, t: 100 })
+        }
+        ink(g, RR(20, 520, 320, 22, 3), { w: 3, d: 900, t: 400 })
+        text(g, 180, 590, 'Stoa poikile – die bunte Säulenhalle', { anchor: 'middle', d: 1200 })
+      },
+      zeit(g) {
+        const at = (y: number) => (y + 320) / 520
+        timeline(g, 30, 330, 430, [
+          { at: at(-300), label: 'um 300 v. Chr.', sub: 'Zenon', up: true },
+          { at: at(50), label: 'um 50', sub: 'Seneca' },
+          { at: at(100), label: 'um 100', sub: 'Epiktet', up: true },
+          { at: at(170), label: 'um 170', sub: 'Marc Aurel', big: true },
+        ], 0, 500)
+      },
       gesichter(g) {
         hatch(g, E(100, 400, 62), 500, true)
         face(g, 100, 400, 62, 0)
@@ -617,19 +807,40 @@ export const MENSCH: Bite[] = [
     },
     scenes: [
       { t: HOOK(470), pics: { m: { img: 0, x: 16, y: 56, w: 328, h: 390, enter: 'blot', cam: [45, 30, 1.2], cam2: [45, 30, 1.35] } } },
+      { t: T('Die Stoa entstand um 300 v. Chr. in Athen. Ihr Name kommt von einer **Säulenhalle**, in der Zenon lehrte.', 64), gfx: { halle: {} } },
+      { t: T('Ihre bekanntesten Köpfe lebten Jahrhunderte später – im **Römischen Reich**.', 64), gfx: { zeit: {} } },
       {
         t: { text: '„Stoisch“ heißt heute: ungerührt. Die antiken **Stoiker** – Seneca, Epiktet, Marc Aurel – meinten das nicht.', x: 130, y: 70, w: 212, kind: 'mid' },
         pics: { m: { img: 0, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [45, 25, 2] } },
         gfx: { gesichter: { tf: [1, 0, 40] } },
       },
       { t: T('Sie wollten Freiheit von zerstörerischen Leidenschaften wie **Wut** und **Panik** – nicht von Gefühlen.', 64), gfx: { sturm: { cls: 'a1' } } },
+      { t: T('Leidenschaften wie Wut galten als **Fehlurteile**. Gute Gefühle wollten sie dagegen pflegen.', 64), gfx: { vergleich: { args: [['meiden', 'Wut', 'Angst', 'Gier'], ['pflegen', 'Freude', 'Fürsorge', 'Vorsicht'], 290] } } },
       { t: T('Ihr Kern: Unterscheide, was in deiner **Macht** liegt – und was nicht.', 64), gfx: { kreise: {} } },
+      { t: T('Epiktet war selbst als **Sklave** geboren. Über seine Lage hatte er keine Macht – über seine Haltung schon.', 64), gfx: { kreise: {} } },
+      { t: T('Stoisch gerechnet:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['Ärger', '=', 'Ereignis', '+', 'meine Bewertung'], 330] } } },
       { t: T('Epiktet: _Nicht die Dinge beunruhigen uns, sondern unsere Meinungen über die Dinge._', 64), gfx: { kette: {} } },
       { t: T('Das inspirierte die **kognitive Verhaltenstherapie**: Albert Ellis und Aaron Beck beriefen sich auf die Stoa.', 64), gfx: { kette: { cls: 'a1' } } },
+      { t: T('Ellis entwickelte daraus das **ABC-Modell**:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['A: Auslöser', '→', 'B: Bewertung', '→', 'C: Folge'], 330] } } },
+      { t: T('Ein Beispiel: Jemand drängelt sich in der Schlange vor dich – das ist **A**, der Auslöser.', 64), gfx: { e1: { draw: 'formel', args: [['A: jemand drängelt sich vor'], 330] } } },
+      { t: T('Jetzt entscheidet **B**, die Bewertung, über das Gefühl:', 64), gfx: { e2: { draw: 'formel', args: [['„Der will mich ärgern“', '→', 'Wut'], 290] }, e3: { draw: 'formel', args: [['„Der hat es wohl eilig“', '→', 'Gelassenheit'], 420] } } },
+      { t: T('Das Ereignis ist dasselbe – nur die **Bewertung** ändert das Gefühl. Genau dort setzen Stoa und Therapie an.', 64), gfx: { kette: { cls: 'a1' } } },
+      {
+        t: T('Marc Aurel schrieb seine „**Selbstbetrachtungen**“ als Tagebuch, oft im Feldlager – gedacht nur für sich selbst.', 470),
+        pics: { m: { img: 0, x: 16, y: 56, w: 328, h: 390, cam: [45, 25, 1.8], cam2: [45, 25, 2.0] } },
+      },
       {
         t: T('Und _Memento mori_ hieß für sie: Nutze die Zeit.', 486, { kind: 'big' }),
         pics: { s: { img: 1, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 50, 1.05], cam2: [50, 50, 1.2] } },
       },
+      { t: T('Seneca: Nicht weil wir wenig Zeit haben, ist das Leben kurz – sondern weil wir viel davon **vergeuden**.', 64), gfx: { zahl: { args: ['carpe diem', 'nutze den Tag', 420] } } },
+      { t: T('Stoische Übungen, die bis heute empfohlen werden:', 64, { kind: 'big' }), gfx: { punkte: { args: [['abends den Tag durchgehen', 'Schlimmes vorab durchdenken', 'fragen: Was liegt bei mir?'], 320] } } },
+      { t: T('Zenon kam als Kaufmann nach Athen – nach einem **Schiffbruch**, so die Legende. In einem Buchladen fand er zur Philosophie.', 64), gfx: { halle: {} } },
+      { t: T('Seneca war Berater von Kaiser **Nero** – und wurde von ihm 65 n. Chr. in den Tod gezwungen.', 64), gfx: { zeit: {} } },
+      recap(
+        [{ gfx: 'sturm', cls: 'a1' }, { gfx: 'kreise' }, { gfx: 'kette', cls: 'a1' }, { pic: 0, id: 'm', cam: [45, 30, 1.2] }],
+        ['frei von Wut und Panik', 'was liegt in meiner Macht?', 'Vorbild der Verhaltenstherapie', 'Marc Aurel'],
+      ),
     ],
     summary: ['Ziel: Freiheit von Wut und Panik, nicht von Gefühlen.', 'Trenne, was du ändern kannst, von dem, was nicht.', 'Vorbild der kognitiven Verhaltenstherapie.'],
     sources: ['Epiktet, Handbüchlein der Moral 5', 'Robertson 2019, The Philosophy of Cognitive-Behavioural Therapy'],
@@ -719,10 +930,25 @@ export const MENSCH: Bite[] = [
         t: T('Nur stimmt er nicht: Goldfische können sich Dinge **monatelang** merken.', 486),
         pics: { f: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [40, 45, 1.05], cam2: [40, 45, 1.25] } },
       },
+      { t: T('Goldfische stammen von einer wilden **Karausche** aus China ab – gezüchtet seit über 1.000 Jahren.', 64), gfx: { zahl: { args: ['1.000', 'Jahre Zucht in China', 420] } } },
+      { t: T('In der Natur müssen Fische sich viel **merken** – ein kurzes Gedächtnis wäre tödlich.', 64), gfx: { punkte: { args: [['Futterplätze', 'Verstecke', 'Feinde'], 330] } } },
       { t: T('Im Versuch lernten sie, für Futter einen **Hebel** zu drücken – sogar nur zu einer bestimmten Tageszeit.', 64), gfx: { hebel: {} } },
+      { t: T('Der Versuch stammt aus **Plymouth**: Die Fische drückten den Hebel bald fast nur noch in ihrer Futterstunde.', 64), gfx: { hebel: {} } },
       { t: T('Andere unterschieden Farben und Töne oder fanden den Weg durch kleine **Labyrinthe**.', 64), gfx: { labyrinth: {} } },
       { t: T('Und du? Dein Arbeitsgedächtnis hält nur rund **vier** Dinge gleichzeitig.', 64), gfx: { slots: { cls: 'a1' } } },
+      { t: T('Der Psychologe George Miller sprach 1956 noch von sieben, plus minus zwei. Heute geht man eher von **etwa vier** aus.', 64), gfx: { f1: { draw: 'formel', args: [['Arbeitsgedächtnis', '≈', '4 Einheiten'], 330] } } },
+      { t: T('Ein Trick: **Bündeln**. 0 1 7 6 4 5 9 2 sind acht Ziffern – 0176 4592 nur zwei Blöcke.', 64), gfx: { f2: { draw: 'formel', args: [['8 Ziffern', '→', '2 Blöcke'], 330] } } },
       { t: T('Was bleiben soll, musst du **abrufen** und wiederholen – genau dafür gibt es die Karteikarten in dieser App.', 64), gfx: { karten: {} } },
+      { t: T('Das Langzeitgedächtnis dagegen hat praktisch **keine Grenze** – entscheidend ist, wie gut man es wieder abruft.', 64), gfx: { zahl: { args: ['∞', 'Platz im Langzeitgedächtnis', 420] } } },
+      { t: T('Am besten mit wachsenden Pausen:', 64, { kind: 'big' }), gfx: { f3: { draw: 'formel', args: [['lernen', '→', 'kurze Pause', '→', 'abrufen', '→', 'längere Pause', '→', 'abrufen'], 300, 'verteiltes Wiederholen'] } } },
+      { t: T('Ein Plan, der gut funktioniert:', 64, { kind: 'big' }), gfx: { w1: { draw: 'formel', args: [['heute', '→', 'morgen', '→', 'in 3 Tagen', '→', 'in 1 Woche', '→', 'in 1 Monat'], 300] } } },
+      { t: T('Jedes Mal ist das Erinnern ein bisschen **schwerer** – und genau diese Mühe festigt. Die Karteikarten in dieser App planen die Abstände automatisch.', 64), gfx: { karten: {} } },
+      { t: T('Kleine runde Gläser sind für sie schlecht: zu wenig Sauerstoff, kein Platz. **Rom** hat sie 2005 sogar verboten.', 64), gfx: { glas: { tf: [0.8, 36, 100] } } },
+      { t: T('Und Fische können noch mehr: **Schützenfische** lernten im Versuch, menschliche Gesichter auseinanderzuhalten.', 450), pics: { f: { img: 0, x: 16, y: 56, w: 328, h: 370, cam: [40, 45, 1.3] } } },
+      recap(
+        [{ gfx: 'glas', cls: 'a1' }, { gfx: 'hebel' }, { gfx: 'slots', cls: 'a1' }, { gfx: 'karten' }],
+        ['3 Sekunden? Mythos', 'Hebel zur richtigen Zeit', 'Arbeitsgedächtnis: etwa 4', 'Abrufen und wiederholen'],
+      ),
     ],
     summary: ['Goldfische erinnern sich monatelang.', 'Sie lernen sogar Fütterungszeiten.', 'Menschliches Arbeitsgedächtnis: etwa vier Einheiten.'],
     sources: ['Gee, Stephenson & Wright 1994, J Exp Anal Behav', 'Cowan 2001, Behavioral and Brain Sciences'],
@@ -787,13 +1013,30 @@ export const MENSCH: Bite[] = [
     scenes: [
       { t: HOOK(70), gfx: { typen: {} } },
       { t: T('Viele haben in der Schule einen **Lerntyp-Test** gemacht. Die Idee: Im passenden Stil lernt man besser.', 64), gfx: { typen: { tf: [0.9, 18, 40] } } },
+      { t: T('In einer Umfrage von 2012 hielten **93 Prozent** der befragten Lehrkräfte das Konzept für richtig.', 64), gfx: { zahl: { args: ['93 %', 'der befragten Lehrkräfte glaubten daran', 420] } } },
+      { t: T('Dabei gibt es über **70** verschiedene Lerntyp-Modelle – je nach Test bist du etwas anderes.', 64), gfx: { z2: { draw: 'zahl', args: ['71', 'Lerntyp-Modelle in einer Übersicht von 2004', 420] } } },
       {
         t: T('2008 prüften Harold Pashler und Kollegen die Forschung dazu.', 486),
         pics: { b: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 55, 1.05], cam2: [50, 55, 1.2] } },
       },
+      { t: T('Für einen echten Nachweis bräuchte es diesen **Versuchsaufbau**:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['Lerntyp bestimmen', '→', 'zufällig passend oder unpassend unterrichten', '→', 'gleicher Test'], 300] } } },
       { t: T('Kaum eine Studie testete es sauber – und die guten fanden **keinen Vorteil**. Vorlieben gibt es, einen Lerneffekt nicht.', 64), gfx: { gleich: {} } },
+      { t: T('Dass sich Lernen im Lieblingsstil gut **anfühlt**, ist kein Beweis: Gefühlt leichtes Lernen bleibt oft schlechter hängen.', 64), gfx: { gleich: {} } },
       { t: T('Was wirklich hilft, gilt für fast alle:', 64, { kind: 'big' }), gfx: { tipps: {} } },
+      { t: T('**Abrufen**: Teste dich selbst, statt nur durchzulesen – das Erinnern selbst festigt das Wissen.', 64), gfx: { f2: { draw: 'formel', args: [['selbst abfragen', '>', 'nochmal lesen'], 330] } } },
+      { t: T('**Abstände**: Dreimal 20 Minuten an verschiedenen Tagen bringen mehr als eine Stunde am Stück.', 64), gfx: { f3: { draw: 'formel', args: [['3 × 20 Minuten verteilt', '>', '60 Minuten am Stück'], 330] } } },
+      { t: T('**Bild + Wort**: Beides zusammen gibt dem Gedächtnis zwei Wege zum selben Wissen.', 64), gfx: { tipps: {} } },
       { t: T('Das Thema bestimmt die Form: Geografie lernt jeder besser mit **Karte**.', 64), gfx: { karte: {} } },
+      { t: T('Nicht der Lerntyp, sondern der **Stoff** entscheidet: Musik lernt man übers Hören, Chemie mit Formeln und Modellen.', 64), gfx: { karte: { tf: [0.8, 36, 80] } } },
+      { t: T('Lerntyp-Tests messen **Vorlieben** – nicht, wie gut jemand auf welchem Weg tatsächlich lernt.', 64), gfx: { typen: { tf: [0.9, 18, 40] } } },
+      { t: T('Eine Studie 2018: Studierende kannten ihren Lerntyp, lernten aber kaum danach – und wer es tat, schnitt **nicht besser** ab.', 64), gfx: { gleich: {} } },
+      { t: T('Beliebt ist oft nicht wirksam:', 64, { kind: 'big' }), gfx: { vergleich: { args: [['beliebt', 'Markieren', 'nochmal lesen', 'Zusammenfassung abschreiben'], ['wirksam', 'sich selbst testen', 'verteilt lernen', 'erklären, warum'], 290] } } },
+      { t: T('Und **Schlaf** gehört dazu: Nachts festigt das Gehirn, was tagsüber gelernt wurde.', 64), gfx: { z3: { draw: 'zahl', args: ['8 h', 'Schlaf: Festigen des Gelernten', 420] } } },
+      { t: T('Gute Nachricht: Was wirklich hilft, kostet **nichts** – nur etwas Überwindung.', 64), gfx: { tipps: {} } },
+      recap(
+        [{ gfx: 'typen' }, { gfx: 'gleich' }, { gfx: 'tipps' }, { gfx: 'karte' }],
+        ['visuell, auditiv, haptisch', 'passend = unpassend', 'Abrufen, Abstände, Bild + Wort', 'Stoff bestimmt die Form'],
+      ),
     ],
     summary: ['Lernvorlieben gibt es, Lerntyp-Effekte nicht.', 'Pashler et al. 2008: kein Beleg.', 'Für alle wirksam: Abrufen, Abstände, Bild + Wort.'],
     sources: ['Pashler et al. 2008, Psychological Science in the Public Interest', 'Dunlosky et al. 2013, PSPI'],
@@ -807,6 +1050,19 @@ export const MENSCH: Bite[] = [
     ambience: 'wind',
     images: [img('storch')],
     draw: {
+      skala(g) {
+        ink(g, L([40, 420], [320, 420]), { w: 3, t: 600 })
+        for (const [v, l] of [[-1, '−1'], [0, '0'], [1, '+1']] as const) {
+          ink(g, L([180 + v * 140, 410], [180 + v * 140, 430]), { w: 2.6, d: 400, t: 100 })
+          text(g, 180 + v * 140, 456, l, { anchor: 'middle', d: 500 })
+        }
+        text(g, 40, 500, 'gegenläufig', { cls: 's', d: 700 })
+        text(g, 180, 500, 'kein Zusammenhang', { anchor: 'middle', cls: 's', d: 800 })
+        text(g, 320, 500, 'gleichläufig', { anchor: 'end', cls: 's', d: 900 })
+        const m = pop(g, 1200, '50% 100%')
+        ink(m, [[180 + 0.62 * 140, 410], [180 + 0.62 * 140 - 10, 386], [180 + 0.62 * 140 + 10, 386], [180 + 0.62 * 140, 410]], { w: 2.6, t: 0 })
+        text(m, 180 + 0.62 * 140, 376, '0,62', { anchor: 'middle', size: 20, fade: false })
+      },
       streu(g) {
         ink(g, L([50, 580], [330, 580]), { w: 3, t: 500 })
         ink(g, L([50, 580], [50, 250]), { w: 3, t: 500 })
@@ -863,11 +1119,27 @@ export const MENSCH: Bite[] = [
     scenes: [
       { t: HOOK(476), pics: { s: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [45, 45, 1.05], cam2: [45, 45, 1.25] } } },
       { t: T('Der Statistiker Robert Matthews zeigte 2000 augenzwinkernd: Storchenpaare und **Geburten** hängen in Europa zusammen.', 64), gfx: { streu: {} } },
+      { t: T('Er nahm Daten aus 17 Ländern: Storchenpaare und Geburten pro Jahr. Der Zusammenhang war **stark**.', 64), gfx: { zahl: { args: ['0,62', 'Korrelation Störche – Geburten', 420] } } },
+      { t: T('Eine Korrelation misst, ob zwei Größen gemeinsam steigen und fallen – von **minus eins** bis plus eins.', 64), gfx: { skala: {} } },
+      { t: T('Zufall war kaum die Erklärung: Die Wahrscheinlichkeit dafür lag unter **1 Prozent**.', 64), gfx: { f1: { draw: 'formel', args: [['Chance auf reinen Zufall', '≈', '0,8 %'], 330] } } },
       { t: T('Der Trick: Große Länder haben mehr Fläche – also mehr Störche **und** mehr Menschen.', 64), gfx: { drei: {} } },
       { t: T('Eine **dritte Größe** steckt hinter beidem. Korrelation heißt nicht Kausalität.', 64), gfx: { drei: { cls: 'a1' } } },
       { t: T('Solche **Scheinkorrelationen** sind überall: Eisverkauf und Sonnenbrand steigen gemeinsam …', 64), gfx: { eis: {} } },
       { t: T('… wegen des **Sommers**.', 64, { kind: 'big' }), gfx: { eis: { cls: 'a1' } } },
+      { t: T('Manche Zusammenhänge sind reiner **Zufall**: Jahre mit mehr Nicolas-Cage-Filmen hatten auch mehr Ertrunkene in Pools.', 64), gfx: { z3: { draw: 'zahl', args: ['Zufall', 'Cage-Filme und Pool-Unfälle', 420] } } },
+      { t: T('Für jede Korrelation gibt es mehrere mögliche **Erklärungen**:', 64, { kind: 'big' }), gfx: { punkte: { args: [['A verursacht B', 'B verursacht A', 'C verursacht beides', 'reiner Zufall'], 300] } } },
+      { t: T('Ursachen beweisen erst **Experimente**:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['zufällig aufteilen', '→', 'nur eins ändern', '→', 'vergleichen'], 330] } } },
+      { t: T('Bei Ländern kann man die Größe auch **herausrechnen**: Raten statt Gesamtzahlen vergleichen.', 64), gfx: { s1: { draw: 'formel', args: [['Geburten', '÷', 'Einwohner', '=', 'Geburtenrate'], 300] }, s2: { draw: 'formel', args: [['Storchenpaare', '÷', 'Fläche', '=', 'Storchendichte'], 430] } } },
       { t: T('Wer immer fragt _„Was könnte beides verursachen?“_, fällt seltener herein.', 64), gfx: { lupe: {} } },
+      { t: T('Achte darauf, wenn Medien melden: „X hängt mit Y zusammen“. Frag dann: Was könnte **beides** verursachen?', 64), gfx: { lupe: {} } },
+      { t: T('Sein Artikel hieß „Storks Deliver Babies (p = 0,008)“ – ein beliebtes **Lehrbeispiel** in Statistik-Kursen.', 64), gfx: { streu: { tf: [0.8, 36, 100] } } },
+      { t: T('Das gleiche Muster bei Bränden: Wo mehr Feuerwehrleute im Einsatz sind, entsteht mehr **Schaden**.', 64), gfx: { f4: { draw: 'formel', args: [['großer Brand', '→', 'viele Feuerwehrleute', '+', 'großer Schaden'], 320] } } },
+      { t: T('Manchmal ist die Richtung verkehrt: In Krankenhäusern sind viele Kranke – aber Krankenhäuser **machen** nicht krank.', 64), gfx: { f5: { draw: 'formel', args: [['krank', '→', 'Krankenhaus'], 300, 'richtig herum'] }, f6: { draw: 'formel', args: [['Krankenhaus', '→', 'krank'], 440, 'falsch herum'] } } },
+      { t: T('Nutzlos sind Korrelationen trotzdem nicht: Sie zeigen, wo man **genauer** hinschauen sollte.', 64), gfx: { skala: {} } },
+      recap(
+        [{ gfx: 'streu' }, { gfx: 'drei', cls: 'a1' }, { gfx: 'eis', cls: 'a1' }, { gfx: 'lupe' }],
+        ['Störche und Geburten: 0,62', 'dritte Größe: Landesgröße', 'Sommer hinter Eis und Sonnenbrand', 'Was verursacht beides?'],
+      ),
     ],
     summary: ['Störche und Geburten korrelieren in Europa.', 'Dahinter steckt eine dritte Größe: die Landesgröße.', 'Immer fragen: Was verursacht beides?'],
     sources: ['Matthews 2000, Teaching Statistics'],
@@ -880,6 +1152,21 @@ export const MENSCH: Bite[] = [
     mood: 'raetsel',
     images: [img('ziege')],
     draw: {
+      hundert(g) {
+        for (let i = 0; i < 100; i++) {
+          const x = 40 + (i % 10) * 29
+          const y = 250 + Math.floor(i / 10) * 34
+          const open = i !== 0 && i !== 57
+          const p = pop(g, i * 12, '50% 50%')
+          if (open) ink(p, RR(x, y, 20, 26, 2), { w: 1.4, t: 0 })
+          else {
+            hatch(p, RR(x, y, 20, 26, 2), 0, true)
+            ink(p, RR(x, y, 20, 26, 2), { w: 2.4, t: 0 })
+          }
+        }
+        ring(g, 50, 263, 18, 20, 1500)
+        text(g, 180, 620, '98 Ziegentüren offen', { anchor: 'middle', d: 1600 })
+      },
       tueren(g) {
         ink(g, L([10, 560], [350, 560]), { w: 3, t: 500 })
         goat(st(g, 'x3', '--dl:700ms'), 284, 552, 0.9)
@@ -935,12 +1222,26 @@ export const MENSCH: Bite[] = [
     },
     scenes: [
       { t: HOOK(70), gfx: { tueren: {} } },
+      { t: T('Benannt ist das Rätsel nach Monty Hall, Moderator der US-Show „Let’s Make a **Deal**“.', 64), gfx: { tueren: { tf: [0.8, 36, 80] } } },
       { t: T('Hinter einer Tür steht ein **Auto**, hinter den anderen beiden Ziegen.', 64), gfx: { tueren: { cls: 'a1' } } },
       { t: T('Du wählst Tür 1. Der Moderator, der alles weiß, öffnet Tür 3: eine Ziege.', 64), gfx: { tueren: { cls: 'a1 a2 a3' } } },
       { t: T('Wechselst du zu Tür 2?', 64, { kind: 'big' }), gfx: { tueren: { cls: 'a1 a2 a3 a4' } } },
+      { t: T('Wichtig sind die **Regeln**: Der Moderator weiß, wo das Auto steht, und öffnet immer eine Ziegentür.', 64), gfx: { punkte: { args: [['er kennt das Auto', 'er öffnet nie deine Tür', 'er öffnet immer eine Ziege'], 320] } } },
+      { t: T('Die Rechnung:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['deine erste Wahl', '=', '1/3'], 300] }, f2: { draw: 'formel', args: [['die beiden anderen zusammen', '=', '2/3'], 430] } } },
       { t: T('Fast alle sagen: egal, 50 zu 50. Falsch – **Wechseln** gewinnt in zwei von drei Fällen.', 64), gfx: { drittel: {} } },
+      { t: T('Noch klarer mit **100 Türen**: Du wählst eine, der Moderator öffnet 98 Ziegentüren. Bleibst du wirklich bei deiner?', 64), gfx: { hundert: {} } },
       { t: T('1990 erklärte Marilyn vos Savant das in einer Zeitschrift – und bekam Tausende **Protestbriefe**.', 64), gfx: { briefe: {} } },
+      { t: T('Rund 10.000 Briefe kamen an – fast **1.000** davon von Leuten mit Doktortitel.', 64), gfx: { zahl: { args: ['10.000', 'Briefe, fast 1.000 von Doktoren', 420] } } },
       { t: T('Sogar der berühmte Mathematiker Paul Erdős glaubte es erst nach einer **Computersimulation**.', 64), gfx: { sim: {} } },
+      { t: T('Warum irren wir? Zwei Türen übrig fühlen sich nach 50 zu 50 an. Doch der Moderator hat **Information** hinzugefügt: Er öffnet nie das Auto.', 64), gfx: { tueren: { cls: 'a1 a2 a3', tf: [0.8, 36, 80] } } },
+      { t: T('Probier’s selbst: drei Spielkarten, ein Ass als Auto, eine zweite Person als **Moderator**. Nach 30 Runden siehst du es.', 64), gfx: { punkte: { args: [['3 Karten, 1 Ass', 'Partner kennt das Ass', 'immer wechseln, Treffer zählen'], 320] } } },
+      { t: T('Paul Erdős war einer der produktivsten Mathematiker überhaupt – mit rund **1.500** Veröffentlichungen.', 64), gfx: { z4: { draw: 'zahl', args: ['1.500', 'Veröffentlichungen von Paul Erdős', 420] } } },
+      { t: T('Entscheidend ist das **Wissen** des Moderators. Würde er zufällig öffnen und träfe eine Ziege, stünde es wirklich 50 zu 50.', 64), gfx: { vergleich: { args: [['Moderator weiß Bescheid', 'Wechseln: 2 von 3'], ['Moderator rät', 'Wechseln: 1 von 2'], 290] } } },
+      { t: T('Tauben lernen das übrigens schneller als Menschen: Sie probieren aus – und **wechseln** bald immer.', 64), gfx: { sim: { tf: [0.8, 36, 80] } } },
+      recap(
+        [{ gfx: 'tueren', cls: 'a1 a2 a3' }, { gfx: 'drittel' }, { gfx: 'hundert' }, { gfx: 'sim' }],
+        ['Moderator öffnet eine Ziege', 'Wechseln: 2 von 3', 'mit 100 Türen klarer', 'Simulation bestätigt'],
+      ),
     ],
     summary: ['Erste Wahl: 1/3 Chance.', 'Wechseln: 2/3 Chance.', 'Selbst Paul Erdős zweifelte.'],
     sources: ['vos Savant 1990, Parade Magazine', 'Vazsonyi 1999, Decision Line'],

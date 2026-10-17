@@ -208,6 +208,7 @@ export class ScenePlayer {
     const [s, x, y] = g.tf ?? [1, 0, 0]
     e.style.transform = `translate(${x}px, ${y}px) scale(${s})`
     e.style.opacity = String(g.o ?? 1)
+    e.style.overflow = g.clip ? 'hidden' : 'visible'
     if (cls != null) e.setAttribute('class', `st-gfx ${cls}`)
   }
 

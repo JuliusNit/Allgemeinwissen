@@ -3,11 +3,13 @@ import { img } from './img'
 import {
   B, E, HOOK, L, RR, T, arrow, balance, bigText, blank, bolt, brain, bubble, bulb, clock, cross, dashes, eye, fig, globe, group, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, strike, text, timeline, vbars, type P,
 } from './draw'
+import { recap } from './common'
 
 // Naturwissenschaft & Technik: Leben & Körper, Physik, Chemie, Nervensystem, Erde, Technik
 
 const tsd = (v: number) => Math.round(v).toLocaleString('de-DE')
 const dez = (v: number) => v.toFixed(1).replace('.', ',')
+const pct = (v: number) => `${Math.round(v)} %`
 
 /** Endlos wiederholte Bewegung (Web Animations) */
 function loop(el: Element, frames: Keyframe[], ms: number, delay = 0, easing = 'linear'): void {
@@ -160,11 +162,28 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { e: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [40, 45, 1.05], cam2: [40, 45, 1.3] } } },
+      { t: T('Bakterien sind winzig: etwa **zwei Tausendstel** Millimeter lang. Auf einen Millimeter passen rund 500 hintereinander.', 64), gfx: { zahl: { args: ['0,002 mm', 'lang ist ein typisches Bakterium', 420] } } },
+      { t: T('Fast alle leben in deinem **Darm** – vor allem im Dickdarm.', 64), gfx: { punkte: { args: [['Dickdarm: fast alle', 'Haut', 'Mund und Rachen'], 330] } } },
       { t: T('Jahrzehntelang hieß es: Auf jede Körperzelle kommen **zehn Bakterien**.', 64), gfx: { zehn: {} } },
       { t: T('Die Zahl stammt aus einer groben **Schätzung** von 1972 – und wurde danach immer weiter abgeschrieben.', 64), gfx: { kopie: {} } },
+      { t: T('Luckey rechnete grob mit einem Kilogramm Darminhalt:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['100 Milliarden pro Gramm', '×', '1.000 Gramm', '=', '100 Billionen Bakterien'], 320] } } },
+      { t: T('Dagegen setzte er etwa **10 Billionen** Körperzellen – daraus wurde 10 zu 1.', 64), gfx: { f3: { draw: 'formel', args: [['100 Billionen', '÷', '10 Billionen', '=', '10 : 1'], 330] } } },
       { t: T('2016 rechneten Ron Sender, Shai Fuchs und Ron Milo neu: rund **38 Billionen** Bakterien gegen 30 Billionen eigene Zellen.', 64), gfx: { zellen: {} } },
+      { t: T('Neu gemessen: Der Dickdarm enthält nicht ein Kilogramm, sondern nur rund **0,4 Liter** Inhalt.', 64), gfx: { f2: { draw: 'formel', args: [['0,4 Liter Darminhalt', '×', 'rund 90 Milliarden pro Gramm', '≈', '38 Billionen'], 320] } } },
+      { t: T('Und die eigenen Zellen zählten sie Gewebe für Gewebe: rund **30 Billionen**.', 64), gfx: { zellen: {} } },
       { t: T('Die meisten deiner Zellen sind übrigens **rote Blutkörperchen**.', 64), gfx: { blut: {} } },
+      { t: T('Nach Masse sind die roten Blutkörperchen aber nur ein kleiner Teil – sie sind winzig.', 64), gfx: { blut: {} } },
+      { t: T('Und alle Bakterien zusammen wiegen nur etwa **0,2 Kilogramm**.', 64), gfx: { z2: { draw: 'zahl', args: ['0,2 kg', 'wiegen alle deine Bakterien', 420] } } },
       { t: T('Und das Verhältnis schwankt: Nach jedem Toilettengang verschiebt es sich Richtung **Mensch**.', 64), gfx: { waage: { cls: 'a1' } } },
+      { t: T('Ohne Bakterien ginge es trotzdem schlecht – sie arbeiten für dich:', 64, { kind: 'big' }), gfx: { p2: { draw: 'punkte', args: [['Ballaststoffe zerlegen', 'Vitamin K herstellen', 'Krankheitserreger verdrängen'], 320] } } },
+      { t: T('Unterm Strich also ungefähr **eins zu eins**:', 64, { kind: 'big' }), gfx: { f4: { draw: 'formel', args: [['38 Billionen Bakterien', '÷', '30 Billionen Zellen', '≈', '1,3 : 1'], 320] } } },
+      { t: T('Jeder Mensch trägt eine eigene Mischung aus Hunderten Arten – fast wie ein **Fingerabdruck**.', 64), gfx: { zehn: {} } },
+      { t: T('Sie beginnt bei der **Geburt**: Babys bekommen die ersten Bakterien von der Mutter.', 64), gfx: { z4: { draw: 'zahl', args: ['Tag 1', 'erste Bakterien bei der Geburt', 420] } } },
+      { t: T('Ihr Lieblingsfutter sind **Ballaststoffe**: Gemüse, Vollkorn, Hülsenfrüchte.', 64), gfx: { p3: { draw: 'punkte', args: [['Gemüse', 'Vollkorn', 'Hülsenfrüchte'], 330] } } },
+      recap(
+        [{ gfx: 'zehn' }, { gfx: 'kopie' }, { gfx: 'zellen' }, { gfx: 'blut' }],
+        ['angeblich 10 : 1', 'eine Schätzung von 1972', 'neu: 38 zu 30 Billionen', '84 % rote Blutkörperchen'],
+      ),
     ],
     summary: ['„Zehnmal mehr Bakterien“ stammt aus einer Schätzung von 1972.', 'Neu gerechnet: etwa 38 zu 30 Billionen.', '84 Prozent deiner Zellen sind rote Blutkörperchen.'],
     sources: ['Sender, Fuchs & Milo 2016, PLOS Biology', 'Luckey 1972, Am J Clin Nutr'],
@@ -219,6 +238,8 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { n: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [40, 35, 1.05], cam2: [40, 35, 1.25] } } },
+      { t: T('Giraffen sind die **höchsten** Tiere der Welt: Bullen werden über fünf Meter hoch.', 64), gfx: { zahl: { args: ['5,5 m', 'kann ein Giraffenbulle hoch sein', 420] } } },
+      { t: T('Ihr Herz muss Blut zwei Meter hoch zum Kopf pumpen – der Blutdruck ist etwa **doppelt** so hoch wie bei uns.', 64), gfx: { z1: { draw: 'zahl', args: ['2 ×', 'so hoher Blutdruck wie beim Menschen', 420] } } },
       {
         t: { text: 'So erklärte es Jean-Baptiste **Lamarck** um 1809: Giraffen recken sich nach Blättern …', x: 130, y: 70, w: 212, kind: 'mid' },
         pics: { l: { img: 1, x: 20, y: 64, w: 96, h: 120, r: 'oval', enter: 'fade', cam: [50, 30, 1.4] } },
@@ -229,6 +250,8 @@ export const NATUR: Bite[] = [
         pics: { l: { img: 1, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [50, 30, 1.4] } },
         gfx: { strecken: { cls: 'a1 a2', tf: [0.8, 36, 130] } },
       },
+      { t: T('Klingt logisch – wurde aber nie bestätigt. Wer Muskeln trainiert, **vererbt** sie nicht.', 64), gfx: { f1: { draw: 'formel', args: [['trainierte Muskeln', '→', 'Kinder', '=', 'keine stärkeren Muskeln'], 320] } } },
+      { t: T('Vererbt werden **Gene** in Ei- und Samenzellen – und die ändern sich durch Strecken nicht.', 64), gfx: { strecken: { cls: 'a1 a2', tf: [0.8, 36, 130] } } },
       {
         t: { text: '**Darwin** sah es anders: Unter vielen Giraffen haben manche zufällig etwas längere Hälse.', x: 130, y: 70, w: 212, kind: 'mid' },
         pics: { d: { img: 2, x: 20, y: 64, w: 96, h: 120, r: 'oval', enter: 'fade', cam: [50, 30, 1.4] } },
@@ -239,11 +262,24 @@ export const NATUR: Bite[] = [
         pics: { d: { img: 2, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [50, 30, 1.4] } },
         gfx: { herde: { cls: 'a1', tf: [0.85, 27, 90] } },
       },
+      { t: T('Darwin veröffentlichte seine Theorie **1859** in „Über die Entstehung der Arten“.', 64), gfx: { z2: { draw: 'zahl', args: ['1859', '„Über die Entstehung der Arten“', 420] } } },
+      { t: T('Seine Theorie in einer Zeile:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['Unterschiede', '+', 'Vererbung', '+', 'Auslese', '=', 'Evolution'], 320] } } },
+      { t: T('Einen Haken hat die Futter-Erklärung: Giraffen fressen oft auf **Schulterhöhe** – nicht ganz oben.', 64), gfx: { strecken: { cls: 'a1', tf: [0.8, 36, 130] } } },
       {
         t: T('Dazu kommt das **Necking**: Giraffenbullen kämpfen mit ihren Hälsen, längere gewinnen öfter.', 470),
         pics: { n: { img: 0, x: 16, y: 56, w: 328, h: 390, enter: 'blot', cam: [35, 30, 1.4], cam2: [40, 30, 1.55] } },
       },
+      { t: T('Die Bullen schwingen ihre Hälse wie **Keulen**. Längere, schwerere Hälse treffen härter.', 470), pics: { n: { img: 0, x: 16, y: 56, w: 328, h: 390, cam: [40, 35, 1.6] } } },
+      { t: T('Wahrscheinlich wirkte **beides** zusammen: Futter und Kämpfe.', 64, { kind: 'big' }), gfx: { herde: { cls: 'a1', tf: [0.85, 27, 90] } } },
       { t: T('Trotz zwei Metern Hals haben Giraffen nur **sieben Halswirbel** – genau wie du.', 64), gfx: { wirbel: {} } },
+      { t: T('Jeder ihrer Halswirbel ist bis zu **25 Zentimeter** lang.', 64), gfx: { f3: { draw: 'formel', args: [['7 Wirbel', '×', 'bis 25 cm', '≈', 'fast 2 m Hals'], 330] } } },
+      { t: T('Ihre Zunge ist bis zu **50 Zentimeter** lang – damit pflücken sie Blätter zwischen Dornen.', 64), gfx: { z3: { draw: 'zahl', args: ['50 cm', 'lange Zunge', 420] } } },
+      { t: T('Erbgutanalysen von 2016 zeigen: Es gibt nicht eine, sondern **vier** Giraffenarten.', 64), gfx: { herde: {} } },
+      { t: T('Ihr nächster Verwandter ist das **Okapi** – mit kurzem Hals.', 64), gfx: { strecken: { tf: [0.8, 36, 130] } } },
+      recap(
+        [{ gfx: 'strecken', cls: 'a1 a2' }, { gfx: 'herde', cls: 'a1' }, { pic: 0, id: 'n', cam: [35, 30, 1.3] }, { gfx: 'wirbel' }],
+        ['Lamarck: Strecken – widerlegt', 'Darwin: Selektion', 'Kämpfe mit dem Hals', 'nur 7 Halswirbel'],
+      ),
     ],
     summary: ['Lamarck: Strecken wird vererbt – widerlegt.', 'Darwin: zufällige Unterschiede + Selektion.', 'Giraffen haben nur sieben Halswirbel.'],
     sources: ['Simmons & Scheepers 1996, American Naturalist', 'Darwin 1872, On the Origin of Species, 6. Aufl.'],
@@ -285,14 +321,30 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { m: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 50, 1.05], cam2: [50, 50, 1.25] } } },
+      { t: T('Dein Gehirn hat rund **86 Milliarden** Nervenzellen – verbunden über etwa 100 Billionen Kontaktstellen.', 64), gfx: { zahl: { args: ['86 Mrd.', 'Nervenzellen', 420] } } },
       { t: T('Filme wie „Lucy“ leben von der Idee: Wer die restlichen 90 Prozent **freischaltet**, bekommt Superkräfte.', 64), gfx: { zehn: { cls: 'a1' } } },
       { t: T('Eine wissenschaftliche Quelle für die Zahl gibt es **nicht**.', 64), gfx: { zehn: { cls: 'a1 a2' } } },
+      { t: T('Woher die Zahl kommt? Oft wird der Psychologe **William James** genannt: Um 1900 schrieb er, wir nutzten nur einen Teil unserer Möglichkeiten.', 64), gfx: { zehn: { cls: 'a1 a2' } } },
+      { t: T('Eine Zahl nannte er nie. Die „10 Prozent“ standen später im Vorwort eines **Ratgebers** von 1936.', 64), gfx: { z1: { draw: 'zahl', args: ['1936', 'Ratgeber-Vorwort mit „10 Prozent“', 420] } } },
       { t: T('Hirnscans zeigen: Über den Tag sind praktisch **alle Bereiche** aktiv – nur nicht alle gleichzeitig.', 64), gfx: { aktiv: {} } },
+      { t: T('Selbst im **Schlaf** ist es aktiv: Es sortiert Erinnerungen und steuert Atmung, Herzschlag und Temperatur.', 64), gfx: { p2: { draw: 'punkte', args: [['Erinnerungen sortieren', 'Atmung und Herzschlag', 'Körpertemperatur'], 320] } } },
+      { t: T('Jede Aufgabe nutzt **Netzwerke** über viele Bereiche hinweg:', 64, { kind: 'big' }), gfx: { p3: { draw: 'punkte', args: [['Sehen: hinten im Kopf', 'Sprache: meist links', 'Bewegung: oben in der Mitte'], 320] } } },
       {
         t: T('Schon kleine Schäden – etwa nach einem Schlaganfall – haben spürbare **Folgen**.', 476),
         pics: { m: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [55, 45, 1.5], cam2: [55, 45, 1.7] } },
       },
+      { t: T('Gäbe es 90 Prozent ungenutzte Fläche, müssten Schäden dort **folgenlos** bleiben. Das ist praktisch nie so.', 64), gfx: { aktiv: {} } },
       { t: T('Und das Gehirn ist teuer. Ein nutzloses Organ dieser Größe hätte die Evolution nicht **durchgehen** lassen.', 64), gfx: { kosten: {} } },
+      { t: T('Dein Gehirn läuft mit etwa **20 Watt** – so viel wie eine schwache Glühbirne.', 64), gfx: { z2: { draw: 'zahl', args: ['20 W', 'Leistung deines Gehirns', 420] } } },
+      { t: T('Pro Gramm ist es damit ein echter **Vielfraß**:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['20 % Energie', '÷', '2 % Gewicht', '=', '10-mal so hungrig wie der Rest'], 320] } } },
+      { t: T('Was nicht gebraucht wird, baut das Gehirn eher **ab**. Was du übst, wird stärker vernetzt.', 64), gfx: { f3: { draw: 'formel', args: [['üben', '→', 'stärkere Verbindungen'], 330] } } },
+      { t: T('Hirnscans messen den **Blutfluss**: Wo Nervenzellen arbeiten, strömt mehr sauerstoffreiches Blut hin.', 64), gfx: { f4: { draw: 'formel', args: [['Nervenzellen arbeiten', '→', 'mehr Sauerstoff', '→', 'Signal im Scanner'], 320] } } },
+      { t: T('Und Gehirnjogging-Apps? Sie trainieren meist nur das **Spiel** selbst – kaum den Alltag.', 64), gfx: { aktiv: {} } },
+      { t: T('Was dem Gehirn nachweislich guttut:', 64, { kind: 'big' }), gfx: { p4: { draw: 'punkte', args: [['Bewegung', 'Schlaf', 'Neues lernen', 'Kontakt mit anderen'], 300] } } },
+      recap(
+        [{ gfx: 'zehn', cls: 'a1 a2' }, { gfx: 'aktiv' }, { gfx: 'kosten' }, { pic: 0, id: 'm' }],
+        ['10 %: ohne Quelle', 'alle Bereiche arbeiten', '2 % Gewicht, 20 % Energie', 'jeder Schaden zeigt Folgen'],
+      ),
     ],
     summary: ['Die 10-Prozent-Zahl hat keine wissenschaftliche Quelle.', 'Im Tagesverlauf sind fast alle Areale aktiv.', '2 % Körpergewicht, 20 % der Energie.'],
     sources: ['Beyerstein 1999, in: Mind Myths (Wiley)', 'Raichle & Gusnard 2002, PNAS'],
@@ -357,12 +409,28 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { s: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [40, 40, 1.05], cam2: [40, 40, 1.3] } } },
+      { t: T('Popeye erschien **1929** im Comic – den Spinat bekam er Anfang der 1930er.', 64), gfx: { zahl: { args: ['1929', 'erster Auftritt von Popeye', 420] } } },
+      { t: T('Spinatbauern im texanischen **Crystal City** stellten ihm sogar ein Denkmal auf.', 64), gfx: { dose: { tf: [0.8, 36, 60] } } },
       { t: T('Popeye isst Spinat und wird zum **Kraftprotz** – und zwar wegen des Eisens, so die Legende.', 64), gfx: { dose: {} } },
       { t: T('Ein Forscher habe ein **Komma** falsch gesetzt – und Spinat hatte plötzlich zehnmal so viel Eisen.', 64), gfx: { komma: { cls: 'a1' } } },
       { t: T('Die Pointe: Auch die Komma-Geschichte ist ein **Mythos**. Der Kriminologe Mike Sutton fand dafür keinen Beleg.', 64), gfx: { komma: { cls: 'a1 a2' } } },
+      { t: T('Erzählt wird: Ein Chemiker habe um 1870 ein **Komma** verrutscht – 35 statt 3,5 Milligramm.', 64), gfx: { komma: { cls: 'a1' } } },
+      { t: T('Tatsächlich maß man früher oft **getrockneten** Spinat – der hat pro Gramm etwa zehnmal mehr Eisen. Kein Kommafehler.', 64), gfx: { f1: { draw: 'formel', args: [['frischer Spinat: 90 % Wasser', '→', 'getrocknet: zehnmal mehr Eisen pro Gramm'], 320] } } },
       { t: T('Spinat hat rund **3 mg** Eisen pro 100 Gramm: ordentlich, aber kein Rekord.', 64), gfx: { eisen: {} } },
+      { t: T('Der Körper braucht pro Tag etwa **11 bis 16 Milligramm** Eisen. Nur aus Spinat hieße das:', 64), gfx: { f2: { draw: 'formel', args: [['14 mg', '÷', '2,7 mg pro 100 g', '≈', 'über ein halbes Kilo Spinat'], 320] } } },
+      { t: T('Dazu kommt: Eisen aus Fleisch nimmt der Körper deutlich **besser** auf als aus Pflanzen.', 64), gfx: { vergleich: { args: [['Fleisch', 'gut aufnehmbar', 'Häm-Eisen'], ['Pflanzen', 'schlechter aufnehmbar', 'Vitamin C hilft'], 290] } } },
+      { t: T('Praktisch heißt das: Vitamin C **dazu** – Paprika oder ein Glas Orangensaft. Tee und Kaffee erst später: Ihre Gerbstoffe bremsen die Aufnahme.', 64), gfx: { p5: { draw: 'punkte', args: [['Paprika oder Orangensaft dazu', 'Tee und Kaffee erst später', 'Hülsenfrüchte, Vollkorn, Kürbiskerne'], 300] } } },
       { t: T('**Oxalsäure** im Spinat bindet einen Teil davon. Vitamin C – etwa aus Paprika – hilft dem Körper.', 64), gfx: { oxal: { cls: 'a1' } } },
+      { t: T('Oxalsäure steckt auch in Rhabarber und Mangold – in großen Mengen fördert sie **Nierensteine**.', 64), gfx: { oxal: { cls: 'a1' } } },
       { t: T('Und Popeye aß Spinat im Comic von 1932 wegen **Vitamin A** – nicht wegen Eisen.', 64), gfx: { dose: { tf: [0.9, 18, 40] } } },
+      { t: T('Vitamin A steckt im Spinat als **Beta-Carotin** – daraus macht der Körper Vitamin A für Augen und Haut.', 64), gfx: { p4: { draw: 'punkte', args: [['Beta-Carotin', 'Vitamin K', 'Folsäure', 'Magnesium'], 300] } } },
+      { t: T('Und Aufwärmen? Für Erwachsene ist einmal **aufwärmen** kein Problem, wenn er schnell abgekühlt wurde.', 64), gfx: { dose: { tf: [0.8, 36, 60] } } },
+      { t: T('Eisenmangel ist weltweit der häufigste **Nährstoffmangel** – er macht müde und blass.', 64), gfx: { eisen: {} } },
+      { t: T('Die Komma-Geschichte selbst verbreitete sich ab **1981** – ausgerechnet als Mahnung zu sorgfältigem Prüfen.', 64), gfx: { komma: { cls: 'a1 a2' } } },
+      recap(
+        [{ gfx: 'dose' }, { gfx: 'komma', cls: 'a1 a2' }, { gfx: 'eisen' }, { gfx: 'oxal', cls: 'a1' }],
+        ['Popeye-Mythos', 'Komma-Legende: erfunden', '2,7 mg Eisen pro 100 g', 'Oxalsäure bremst'],
+      ),
     ],
     summary: ['Spinat: rund 3 mg Eisen pro 100 g.', 'Oxalsäure bremst die Aufnahme, Vitamin C hilft.', 'Die Komma-Legende ist selbst ein Mythos.'],
     sources: ['Sutton 2010, Internet Journal of Criminology', 'USDA FoodData Central: Spinach, raw'],
@@ -375,6 +443,15 @@ export const NATUR: Bite[] = [
     mood: 'hell',
     images: [img('newton-kneller'), img('newton-baum')],
     draw: {
+      kanone(g) {
+        hatch(g, E(180, 520, 120), 600)
+        ink(g, E(180, 520, 120), { w: 3.2, t: 800 })
+        mountain(g, 160, 200, 404, [180, 360], 300, true)
+        ink(g, B([186, 362], [210, 360], [230, 380], [240, 410]), { w: 2.6, d: 1000, t: 400 })
+        ink(g, B([186, 362], [260, 360], [300, 420], [300, 480]), { w: 2.6, d: 1400, t: 500 })
+        dashes(g, E(180, 520, 170), { w: 2.2, d: 1900 })
+        text(g, 180, 300, 'schnell genug: Umlaufbahn', { anchor: 'middle', d: 2400 })
+      },
       erzaehlen(g) {
         fig(pop(g, 0), 110, 560, 3.2)
         fig(pop(g, 300), 250, 560, 3.2)
@@ -443,11 +520,14 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(470), pics: { n: { img: 0, x: 16, y: 56, w: 328, h: 374, enter: 'blot', cam: [50, 30, 1.1], cam2: [50, 28, 1.25], cap: 'Godfrey Kneller, Isaac Newton, 1689' } } },
+      { t: T('Isaac Newton, 1643 bis 1727: Physiker, Mathematiker, Astronom – einer der **einflussreichsten** Forscher überhaupt.', 64), gfx: { zahl: { args: ['1643', 'geboren in Woolsthorpe', 420] } } },
+      { t: T('1665 schloss die **Pest** die Universität Cambridge. Newton ging nach Hause – in seine produktivste Zeit.', 470), pics: { b: { img: 1, x: 16, y: 56, w: 328, h: 390, enter: 'blot', cam: [50, 45, 1.05] } } },
       {
         t: { text: 'Die Geschichte ist fast wahr: Newton erzählte sie im Alter selbst seinem Freund **Stukeley**.', x: 130, y: 70, w: 212, kind: 'mid' },
         pics: { n: { img: 0, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [50, 26, 1.8] } },
         gfx: { erzaehlen: {} },
       },
+      { t: T('Stukeley schrieb: Nach dem Essen saßen sie im Garten unter **Apfelbäumen**, und Newton erzählte, wie ihm die Idee kam.', 64), gfx: { erzaehlen: {} } },
       {
         t: T('Um 1666 sah er im Garten von Woolsthorpe einen Apfel **fallen**.', 486),
         pics: { b: { img: 1, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 40, 1.2] } },
@@ -455,11 +535,21 @@ export const NATUR: Bite[] = [
       },
       { t: T('Auf den **Kopf** fiel er aber nicht – das ist eine spätere Ausschmückung.', 64), gfx: { sitzen: { cls: 'a1' } } },
       { t: T('Newton fragte sich: Warum fällt der Apfel senkrecht? Und reicht dieselbe Kraft bis zum **Mond**?', 64), gfx: { mond: {} } },
+      { t: T('Der Mond fällt auch – nur fliegt er gleichzeitig so schnell **seitwärts**, dass er die Erde immer verfehlt.', 64), gfx: { kanone: {} } },
+      { t: T('Der Mond ist rund 60 Erdradien entfernt. Die Kraft dort ist also **3.600-mal** schwächer:', 64), gfx: { f1: { draw: 'formel', args: [['60', '×', '60', '=', '3.600'], 330, '60-mal weiter weg'] } } },
       { t: T('Daraus wurde das **Gravitationsgesetz**: Jede Masse zieht jede andere an – schwächer mit dem Quadrat der Entfernung.', 64), gfx: { gesetz: {} } },
+      { t: T('In Worten:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['Anziehung', '=', 'Konstante', '×', 'Masse 1 × Masse 2', '÷', 'Abstand × Abstand'], 300] } } },
+      { t: T('Veröffentlicht hat er das **1687** in den „Principia“ – einem der wichtigsten Bücher der Wissenschaft.', 64), gfx: { z2: { draw: 'zahl', args: ['1687', '„Principia“', 420] } } },
+      { t: T('Dasselbe Gesetz erklärt noch viel mehr:', 64, { kind: 'big' }), gfx: { punkte: { args: [['Ebbe und Flut', 'Bahnen der Planeten', 'Wiederkehr von Kometen'], 320] } } },
       {
         t: T('Der Apfelbaum steht übrigens noch heute in **Woolsthorpe Manor**.', 486),
         pics: { b: { img: 1, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.15] } },
       },
+      { t: T('Ableger des Baums wachsen heute an **Universitäten** weltweit.', 470), pics: { b: { img: 1, x: 16, y: 56, w: 328, h: 390, cam: [50, 40, 1.3] } } },
+      recap(
+        [{ pic: 0, id: 'n', cam: [50, 26, 1.4] }, { gfx: 'sitzen', cls: 'a1' }, { gfx: 'mond' }, { gfx: 'gesetz' }],
+        ['Newton erzählte es selbst', 'nicht auf den Kopf', 'Apfel und Mond: dieselbe Kraft', 'Gravitationsgesetz'],
+      ),
     ],
     summary: ['Newton erzählte die Apfel-Geschichte selbst.', 'Vom Kopf ist bei ihm keine Rede.', 'Gleiche Kraft für Apfel und Mond: Gravitation.'],
     sources: ['Stukeley 1752, Memoirs of Sir Isaac Newton’s Life (Royal Society)', 'Newton 1687, Principia'],
@@ -473,6 +563,15 @@ export const NATUR: Bite[] = [
     ambience: 'regen',
     images: [img('blitz-eiffelturm')],
     draw: {
+      wolke(g) {
+        const c: P[] = [...B([60, 330], [20, 330], [20, 270], [70, 260]), ...B([70, 260], [80, 200], [180, 190], [190, 240]).slice(1), ...B([190, 240], [220, 200], [320, 220], [300, 280]).slice(1), ...B([300, 280], [340, 290], [330, 340], [290, 340]).slice(1), [60, 330]]
+        hatch(g, c, 600)
+        ink(g, c, { w: 3, t: 800 })
+        for (const [x, y] of [[110, 240], [170, 225], [240, 240]] as const) text(g, x, y + 6, '+', { anchor: 'middle', size: 26, d: 1000 })
+        for (const [x, y] of [[90, 316], [170, 322], [260, 316]] as const) text(g, x, y + 6, '−', { anchor: 'middle', size: 26, d: 1300 })
+        bolt(g, [[170, 340], [210, 420], [180, 430], [220, 540]], 1800, 4.6)
+        ink(g, L([20, 560], [340, 560]), { w: 3, d: 200, t: 500 })
+      },
       hochhaus(g) {
         ink(g, L([20, 620], [340, 620]), { w: 3, t: 400 })
         const tower: P[] = [[110, 620], [110, 470], [130, 470], [130, 420], [150, 420], [150, 370], [170, 370], [176, 330], [184, 330], [190, 370], [210, 370], [210, 420], [230, 420], [230, 470], [250, 470], [250, 620]]
@@ -535,9 +634,25 @@ export const NATUR: Bite[] = [
       { t: HOOK(476), pics: { b: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 30, 1.1], cam2: [50, 25, 1.3], cap: 'Eiffelturm, 1902' } } },
       { t: T('Das Sprichwort ist gründlich falsch: Das **Empire State Building** wird im Schnitt 20- bis 25-mal pro Jahr getroffen.', 64), gfx: { hochhaus: {} } },
       { t: T('Blitze nehmen den Weg des geringsten Widerstands – oft über **hohe, spitze** Punkte.', 64), gfx: { spitze: {} } },
+      { t: T('Wie entsteht ein Blitz? In Gewitterwolken stoßen Eiskristalle und Graupel zusammen – oben sammelt sich **Plus**, unten Minus.', 64), gfx: { wolke: {} } },
+      { t: T('Wird die Spannung zu groß, entlädt sie sich in Sekundenbruchteilen.', 64), gfx: { z2: { draw: 'zahl', args: ['100 Mio. V', 'Spannung eines Blitzes', 420] } } },
       { t: T('Was einmal getroffen wurde, steht ja noch dort. Dafür gibt es **Blitzableiter**, erfunden von Benjamin Franklin um 1750.', 64), gfx: { ableiter: {} } },
+      { t: T('Ein Blitzableiter zieht Blitze nicht an. Er leitet sie nur **gefahrlos** in die Erde, statt durchs Haus.', 64), gfx: { ableiter: {} } },
       { t: T('Ein Blitz ist bis zu **30.000 Grad** heiß – fünfmal heißer als die Sonnenoberfläche.', 64), gfx: { hitze: {} } },
       { t: T('Donner ist die explodierende Luft. Sekunden bis zum Donner geteilt durch **drei**: Entfernung in Kilometern.', 64), gfx: { donner: {} } },
+      { t: T('Warum hilft das Zählen? Licht ist so schnell, dass du den Blitz praktisch im **selben Moment** siehst.', 64), gfx: { f6: { draw: 'formel', args: [['Licht', '≈', '300.000 km pro Sekunde'], 330, 'praktisch sofort da'] } } },
+      { t: T('Schall ist fast eine Million Mal **langsamer**: rund 343 Meter pro Sekunde.', 64), gfx: { f7: { draw: 'formel', args: [['Schall', '≈', '343 m pro Sekunde'], 330, 'braucht Zeit'] } } },
+      { t: T('In drei Sekunden schafft der Schall also gut **einen Kilometer**:', 64), gfx: { f8: { draw: 'formel', args: [['3 Sekunden', '×', '343 m', '≈', '1.030 m', '≈', '1 km'], 320] } } },
+      { t: T('Daraus folgt die Regel:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['Entfernung in km', '≈', 'Sekunden bis zum Donner', '÷', '3'], 320] } } },
+      { t: T('Ein Beispiel: Du siehst den Blitz und zählst „einundzwanzig, zweiundzwanzig …“ – bis zum Donner sind es **12 Sekunden**.', 64), gfx: { f9: { draw: 'formel', args: [['12 Sekunden', '÷', '3', '=', '4 km entfernt'], 330] } } },
+      { t: T('Zähl bei jedem Blitz neu. Wird die Zahl **kleiner**, kommt das Gewitter auf dich zu:', 64), gfx: { n1: { draw: 'formel', args: [['15 s', '→', '5 km'], 260] }, n2: { draw: 'formel', args: [['9 s', '→', '3 km'], 370] }, n3: { draw: 'formel', args: [['4 s', '→', 'gut 1 km'], 480] } } },
+      { t: T('Unter 10 Sekunden – näher als drei Kilometer – wird es **gefährlich**: ab ins Haus oder Auto.', 64), gfx: { z3: { draw: 'zahl', args: ['< 10 s', 'dann schnell rein', 420] } } },
+      { t: T('Und erst eine halbe Stunde nach dem letzten Donner wieder raus – auch ein **abziehendes** Gewitter trifft noch.', 64), gfx: { f10: { draw: 'formel', args: [['letzter Donner', '+', '30 Minuten', '=', 'wieder raus'], 330] } } },
+      { t: T('Im Auto bist du sicher: Die Metallhülle leitet den Strom außen herum – ein **Faradayscher Käfig**.', 64), gfx: { p2: { draw: 'punkte', args: [['Auto oder Haus: sicher', 'kein einzelner Baum', 'im Freien: Hocke, Füße zusammen'], 320] } } },
+      recap(
+        [{ gfx: 'hochhaus' }, { gfx: 'wolke' }, { gfx: 'ableiter' }, { gfx: 'donner' }],
+        ['Empire State: 20–25 pro Jahr', 'Plus oben, Minus unten', 'Blitzableiter', 'Sekunden ÷ 3 = km'],
+      ),
     ],
     summary: ['Empire State Building: rund 20–25 Treffer pro Jahr.', 'Hohe, spitze Punkte werden bevorzugt getroffen.', 'Sekunden bis zum Donner ÷ 3 = Kilometer.'],
     sources: ['NOAA National Weather Service: Lightning Myths', 'NOAA: How Hot Is Lightning?'],
@@ -604,15 +719,31 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { o: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 50, 1.05], cam2: [45, 45, 1.25] } } },
+      { t: T('Licht ist schnell – rund **300.000 Kilometer** pro Sekunde. Aber das Weltall ist riesig.', 64), gfx: { z1: { draw: 'zahl', args: ['300.000', 'Kilometer pro Sekunde', 420] } } },
+      { t: T('Deshalb messen Astronomen Entfernungen in **Lichtjahren**:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['1 Lichtjahr', '=', 'Strecke, die Licht in einem Jahr schafft', '≈', '9,5 Billionen km'], 320] } } },
       { t: T('Klingt poetisch: Das Licht ist so lange unterwegs, dass der Stern inzwischen **erloschen** sein könnte.', 64), gfx: { licht: { cls: 'a1' } } },
+      { t: T('Schon die **Sonne** siehst du so, wie sie vor gut acht Minuten war.', 64), gfx: { z2: { draw: 'zahl', args: ['8 min', 'braucht Sonnenlicht bis zu uns', 420] } } },
       { t: T('Bei fernen **Galaxien** stimmt das Prinzip.', 64), gfx: { galaxie: {} } },
+      { t: T('Die **Andromeda**-Galaxie siehst du bei dunklem Himmel mit bloßem Auge. Ihr Licht ist 2,5 Millionen Jahre alt.', 64), gfx: { galaxie: {} } },
       { t: T('Aber die Sterne, die du mit bloßem Auge siehst, sind fast alle **in der Nähe**.', 64), gfx: { zeit: {} } },
       { t: T('Und Sterne leben Millionen bis Milliarden Jahre. Die Chance, dass einer schon tot ist, ist **winzig**.', 64), gfx: { zeit: { cls: 'a1 a2' } } },
+      { t: T('Ohne Fernglas siehst du nur einige **Tausend** Sterne – fast alle aus unserer Nachbarschaft in der Milchstraße.', 64), gfx: { zahl: { args: ['≈ 5.000', 'Sterne mit bloßem Auge', 420] } } },
+      { t: T('Grob gerechnet:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['1.000 Jahre Lichtweg', '÷', '1 Milliarde Jahre Sternenleben', '=', '1 zu 1 Million'], 320] } } },
+      { t: T('Sonnenähnliche Sterne leben rund **10 Milliarden** Jahre – unsere Sonne hat knapp die Hälfte hinter sich.', 64), gfx: { zeit: { cls: 'a1 a2' } } },
       {
         t: T('Heißester Kandidat ist **Beteigeuze**, die rote Schulter des Orion – rund 550 Lichtjahre entfernt.', 476),
         pics: { o: { img: 0, x: 16, y: 56, w: 328, h: 400, cam: [40, 25, 1.6], cam2: [40, 25, 1.9] } },
       },
+      { t: T('Beteigeuze ist ein **Roter Überriese**: An Stelle der Sonne würde er die Bahnen von Erde und Mars verschlucken.', 450), pics: { o: { img: 0, x: 16, y: 56, w: 328, h: 370, cam: [40, 25, 1.9] } } },
+      { t: T('2019 wurde er plötzlich deutlich **dunkler**. Die Ursache: eine Staubwolke, die er selbst ausgestoßen hatte.', 64), gfx: { licht: {} } },
       { t: T('Sie wird als **Supernova** explodieren – vermutlich aber nicht so bald.', 64), gfx: { supernova: {} } },
+      { t: T('Wenn er explodiert, leuchtet er wochenlang etwa so hell wie der **Halbmond** – sogar am Tag sichtbar.', 64), gfx: { supernova: {} } },
+      { t: T('Gefährlich ist das für uns nicht – dafür ist er zu **weit** weg.', 64), gfx: { z3: { draw: 'zahl', args: ['550', 'Lichtjahre Sicherheitsabstand', 420] } } },
+      { t: T('Und vielleicht ist es **schon passiert** – das Licht wäre noch unterwegs:', 64), gfx: { f3: { draw: 'formel', args: [['550 Lichtjahre', '=', '550 Jahre Verspätung'], 330] } } },
+      recap(
+        [{ gfx: 'licht', cls: 'a1' }, { gfx: 'zeit', cls: 'a1 a2' }, { pic: 0, id: 'o', cam: [40, 25, 1.5] }, { gfx: 'supernova' }],
+        ['Licht braucht Zeit', 'Weg kurz, Sternenleben lang', 'Beteigeuze: 550 Lichtjahre', 'Supernova – irgendwann'],
+      ),
     ],
     summary: ['Sichtbare Sterne sind meist nur hunderte bis tausende Lichtjahre entfernt.', 'Sterne leben Millionen bis Milliarden Jahre.', 'Beteigeuze explodiert irgendwann – wohl nicht bald.'],
     sources: ['ESA: Hipparcos-Katalog', 'Joyce et al. 2020, Astrophysical Journal'],
@@ -673,8 +804,13 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(66), gfx: { bahn: {} } },
+      { t: T('Rund **30** GPS-Satelliten umkreisen die Erde in etwa 20.200 Kilometern Höhe.', 64), gfx: { zahl: { args: ['20.200 km', 'Flughöhe der GPS-Satelliten', 420] } } },
+      { t: T('GPS gehört dem US-Militär. Europa hat ein eigenes System: **Galileo**.', 64), gfx: { punkte: { args: [['GPS: USA', 'Galileo: Europa', 'GLONASS: Russland', 'BeiDou: China'], 300] } } },
       { t: T('GPS-Satelliten tragen **Atomuhren**. Dein Handy misst, wie lange ihre Signale brauchen, und berechnet daraus deinen Ort.', 64), gfx: { signal: {} } },
       { t: T('Dafür muss die Zeit auf **Milliardstel** Sekunden stimmen.', 64), gfx: { signal: { cls: 'a1' } } },
+      { t: T('Dein Handy braucht mindestens **vier** Satelliten: drei für den Ort, einen für die Uhrzeit.', 64), gfx: { signal: { cls: 'a1' } } },
+      { t: T('Die Grundrechnung:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['Entfernung', '=', 'Lichtgeschwindigkeit', '×', 'Laufzeit des Signals'], 320] } } },
+      { t: T('Darum zählt jede Milliardstel Sekunde:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['1 Milliardstel Sekunde', '×', 'Lichtgeschwindigkeit', '≈', '30 cm'], 320] } } },
       {
         t: { text: 'Doch die Uhren dort oben gehen anders: wegen ihres Tempos **langsamer** …', x: 130, y: 70, w: 212, kind: 'mid' },
         pics: { e: { img: 1, x: 20, y: 64, w: 96, h: 120, r: 'oval', enter: 'fade', cam: [55, 25, 1.6] } },
@@ -685,11 +821,20 @@ export const NATUR: Bite[] = [
         pics: { e: { img: 1, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [55, 25, 1.6] } },
         gfx: { uhren: { cls: 'a1 a2' } },
       },
+      { t: T('Spezielle Relativitätstheorie, Einstein 1905: Wer sich schnell bewegt, für den vergeht die Zeit **langsamer**.', 64), gfx: { f3: { draw: 'formel', args: [['14.000 km/h Bahngeschwindigkeit', '→', '7 Mikrosekunden pro Tag langsamer'], 320] } } },
+      { t: T('Allgemeine Relativitätstheorie, 1915: Wo die Schwerkraft schwächer ist, vergeht die Zeit **schneller**.', 64), gfx: { f4: { draw: 'formel', args: [['20.200 km über der Erde', '→', '45 Mikrosekunden pro Tag schneller'], 320] } } },
+      { t: T('Zusammen:', 64, { kind: 'big' }), gfx: { f5: { draw: 'formel', args: [['+ 45', '−', '7', '=', '+ 38 Mikrosekunden pro Tag'], 330] } } },
       { t: T('Klingt nach nichts – aber ohne Korrektur würde dein Standort jeden Tag um über **11 Kilometer** abdriften.', 64), gfx: { drift: { cls: 'a1' } } },
+      { t: T('Nachgerechnet:', 64, { kind: 'big' }), gfx: { f6: { draw: 'formel', args: [['38 Mikrosekunden', '×', '300.000 km pro Sekunde', '≈', '11,4 km'], 320] } } },
+      { t: T('Deshalb werden die Uhren schon vor dem Start leicht verstellt: Sie ticken absichtlich etwas **langsamer**.', 64), gfx: { uhren: { cls: 'a1 a2' } } },
       {
         t: T('Relativität ist **Alltagstechnik**.', 486, { kind: 'big' }),
         pics: { s: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [55, 40, 1.05], cam2: [55, 40, 1.25] } },
       },
+      recap(
+        [{ gfx: 'bahn' }, { gfx: 'signal' }, { gfx: 'uhren', cls: 'a1 a2' }, { gfx: 'drift', cls: 'a1' }],
+        ['rund 30 Satelliten', 'Laufzeit = Entfernung', '− 7 + 45 = + 38 µs', 'ohne Korrektur: 11 km pro Tag'],
+      ),
     ],
     summary: ['GPS braucht Uhren, die auf Milliardstel genau gehen.', 'Netto gehen die Satellitenuhren 38 µs pro Tag vor.', 'Ohne Korrektur: Kilometer Fehler pro Tag.'],
     sources: ['Ashby 2003, Living Reviews in Relativity'],
@@ -763,6 +908,7 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { g: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [45, 45, 1.05], cam2: [45, 45, 1.3] } } },
+      { t: T('Gold ist begehrt: Es rostet nicht, glänzt und ist selten. Alles je geförderte Gold passt in einen **Würfel**:', 64), gfx: { f0: { draw: 'formel', args: [['rund 212.000 Tonnen', '÷', '19,3 Tonnen pro Kubikmeter', '≈', 'Würfel mit 22 m Kante'], 320] } } },
       {
         t: T('Jahrhundertelang suchten **Alchemisten** danach.', 486),
         pics: { a: { img: 1, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 50, 1.0], cam2: [50, 50, 1.1], cap: 'Joseph Wright of Derby, Der Alchemist, 1771' } },
@@ -771,10 +917,25 @@ export const NATUR: Bite[] = [
         t: T('1669 kochte Hennig Brand in Hamburg Urin ein. Gold fand er nicht – aber einen Stoff, der im Dunkeln **leuchtete**: Phosphor.', 450),
         pics: { a: { img: 1, x: 16, y: 56, w: 328, h: 370, cam: [50, 52, 2.2], cam2: [50, 52, 2.5] } },
       },
+      { t: T('Alchemisten glaubten, alles bestehe aus denselben **Grundstoffen** – man müsse sie nur richtig mischen.', 64), gfx: { punkte: { args: [['Erde', 'Wasser', 'Luft', 'Feuer'], 300] } } },
+      { t: T('Sogar Isaac **Newton** experimentierte jahrzehntelang mit Alchemie.', 450), pics: { a: { img: 1, x: 16, y: 56, w: 328, h: 370, cam: [50, 50, 1.2] } } },
       { t: T('Chemisch geht es nicht: Ein Element wird durch die Zahl der **Protonen** im Kern bestimmt.', 64), gfx: { kerne: {} } },
+      { t: T('Das Periodensystem ordnet die Elemente nach Protonenzahl – **118** sind heute bekannt.', 64), gfx: { zahl: { args: ['118', 'bekannte Elemente', 420] } } },
+      { t: T('Für Gold aus Blei müsste man also:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['Blei: 82 Protonen', '−', '3 Protonen', '=', 'Gold: 79'], 320] } } },
       { t: T('Chemische Reaktionen verschieben nur **Elektronen** – den Kern rühren sie nicht an.', 64), gfx: { atom: {} } },
+      { t: T('Chemische Reaktionen tauschen nur Elektronen der **äußeren Hülle** aus. Den Kern zu ändern braucht millionenfach mehr Energie.', 64), gfx: { atom: {} } },
       { t: T('**Kernphysik** schafft es: 1980 wandelten Forscher um Glenn Seaborg Bismut in winzige Mengen Gold um.', 64), gfx: { ring: {} } },
       { t: T('2025 meldete das CERN Gold aus Blei-Kollisionen. Kosten: weit mehr, als das Gold **wert** ist.', 64), gfx: { knall: {} } },
+      { t: T('Am CERN entstanden zwischen 2015 und 2018 rund **86 Milliarden** Goldkerne:', 64), gfx: { f2: { draw: 'formel', args: [['86 Milliarden Goldkerne', '≈', '29 Billionstel Gramm'], 330] } } },
+      { t: T('Und sie existierten nur **Sekundenbruchteile**, bevor sie zerfielen oder auf Bauteile prallten.', 64), gfx: { knall: {} } },
+      { t: T('Natürliches Gold stammt übrigens aus dem **All**: vor allem aus verschmelzenden Neutronensternen.', 64), gfx: { z3: { draw: 'zahl', args: ['Sternenstaub', 'Herkunft allen Goldes', 420] } } },
+      { t: T('Gold ist extrem **dehnbar**: Aus einem Gramm lässt sich ein Draht von über zwei Kilometern ziehen.', 64), gfx: { z5: { draw: 'zahl', args: ['2 km', 'Draht aus einem Gramm Gold', 420] } } },
+      { t: T('Ganz nutzlos war die Alchemie nicht:', 64, { kind: 'big' }), gfx: { f5: { draw: 'formel', args: [['Alchemie', '→', 'Laborwissen', '→', 'Chemie'], 330] } } },
+      { t: T('Und Brands Phosphor? Er wurde später ein Grundstoff für **Streichhölzer**.', 450), pics: { a: { img: 1, x: 16, y: 56, w: 328, h: 370, cam: [50, 52, 1.8] } } },
+      recap(
+        [{ gfx: 'kerne' }, { gfx: 'atom' }, { gfx: 'knall' }, { pic: 1, id: 'a', cam: [50, 52, 1.6] }],
+        ['Gold 79, Blei 82 Protonen', 'Chemie: nur Elektronen', 'Kernphysik: winzige Mengen', 'Alchemie brachte Phosphor'],
+      ),
     ],
     summary: ['Element = Zahl der Protonen: Gold 79, Blei 82.', 'Chemie ändert den Kern nicht, Kernphysik schon.', 'Die Alchemie brachte nebenbei den Phosphor.'],
     sources: ['Aleklett et al. 1981, Physical Review C', 'ALICE Collaboration 2025, Physical Review C'],
@@ -841,12 +1002,28 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { k: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 35, 1.25] } } },
+      { t: T('Es gibt zwei Arten von Kitzeln:', 64, { kind: 'big' }), gfx: { vergleich: { args: [['leicht', 'Krabbeln', 'juckt', 'auch selbst auslösbar'], ['kräftig', 'Drücken, Kneten', 'bringt zum Lachen', 'nur durch andere'], 290] } } },
       { t: T('Probier’s: Fußsohle, Seite, Achsel – bei dir selbst passiert fast **nichts**.', 64), gfx: { fuss: {} } },
       { t: T('Der Grund sitzt im **Kleinhirn**: Es sagt die Folgen deiner eigenen Bewegungen voraus.', 64), gfx: { kleinhirn: {} } },
+      { t: T('Das Gehirn schickt eine **Kopie** jedes Bewegungsbefehls an die Vorhersage:', 64), gfx: { f1: { draw: 'formel', args: [['Bewegungsbefehl', '→', 'Kopie', '→', 'Vorhersage'], 330] } } },
+      { t: T('Was du spürst, ist dann ungefähr:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['Gefühl', '=', 'Signal', '−', 'Vorhersage'], 330] } } },
       { t: T('Diese Vorhersage dämpft das Signal. So merkst du sofort, wenn dich **jemand anders** anfasst.', 64), gfx: { wellen: {} } },
+      { t: T('Derselbe Trick dämpft deine **Stimme** im eigenen Kopf – und lässt die Welt nicht wackeln, wenn du die Augen bewegst.', 64), gfx: { wellen: {} } },
       { t: T('Überlebenswichtig – etwa bei einer **Spinne** auf dem Arm.', 64), gfx: { spinne: {} } },
       { t: T('Sarah-Jayne Blakemore ließ Leute sich über einen **Roboter** selbst kitzeln.', 64), gfx: { roboter: {} } },
+      { t: T('Getestet wurden Verzögerungen von **0,1 bis 0,3 Sekunden** – je länger, desto kitzliger.', 64), gfx: { roboter: { cls: 'a1' } } },
       { t: T('Mit kleiner **Verzögerung** kitzelte es wieder mehr – das Gehirn konnte es nicht mehr vorhersagen.', 64), gfx: { roboter: { cls: 'a1' } } },
+      { t: T('Bei manchen Menschen mit **Schizophrenie** funktioniert die Vorhersage schwächer – sie können sich teils selbst kitzeln.', 64), gfx: { kleinhirn: {} } },
+      { t: T('Warum lachen wir? Vermutlich ein **Spiel**-Signal: Sogar Ratten geben beim Kitzeln Laute im Ultraschall von sich.', 64), gfx: { z3: { draw: 'zahl', args: ['50 kHz', 'Ratten-„Lachen“ im Ultraschall', 420] } } },
+      { t: T('Am empfindlichsten sind Stellen mit dünner Haut und vielen **Nerven**:', 64, { kind: 'big' }), gfx: { p2: { draw: 'punkte', args: [['Fußsohlen', 'Achseln', 'Rippen', 'Hals'], 300] } } },
+      { t: T('Schon Aristoteles fragte: Warum kann man sich nicht **selbst** kitzeln?', 64), gfx: { fuss: {} } },
+      { t: T('Babys lachen beim Kitzeln meist erst ab etwa **vier Monaten**.', 64), gfx: { z4: { draw: 'zahl', args: ['4 Monate', 'ab dann lachen Babys beim Kitzeln', 420] } } },
+      { t: T('Auch Menschenaffen sind kitzlig: Schimpansen und Gorillas „**lachen**“ dabei mit keuchenden Lauten.', 64), gfx: { wellen: {} } },
+      { t: T('Kitzeln in einer Zeile:', 64, { kind: 'big' }), gfx: { f3: { draw: 'formel', args: [['Berührung', '+', 'Überraschung', '=', 'Kitzeln'], 330] } } },
+      recap(
+        [{ gfx: 'fuss' }, { gfx: 'kleinhirn' }, { gfx: 'wellen' }, { gfx: 'roboter', cls: 'a1' }],
+        ['bei dir selbst: fast nichts', 'Kleinhirn sagt voraus', 'Vorhergesagtes wird gedämpft', 'mit Verzögerung kitzelt es'],
+      ),
     ],
     summary: ['Das Kleinhirn sagt eigene Berührungen voraus.', 'Vorhergesagtes wird gedämpft, Fremdes nicht.', 'Mit Verzögerung kitzelt es wieder.'],
     sources: ['Blakemore, Wolpert & Frith 1998, Nature Neuroscience', 'Blakemore, Frith & Wolpert 1999, J Cogn Neurosci'],
@@ -893,10 +1070,26 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { e: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 30, 1.3] } } },
+      { t: T('Er liegt im **Himalaya**, auf der Grenze zwischen Nepal und China. Einheimische nennen ihn Chomolungma oder Sagarmatha.', 64), gfx: { punkte: { args: [['Chomolungma (Tibetisch)', 'Sagarmatha (Nepali)', 'Mount Everest (Englisch)'], 320] } } },
+      { t: T('Den englischen Namen bekam er 1865 – nach **George Everest**, einem britischen Landvermesser.', 64), gfx: { zahl: { args: ['1865', 'Benennung nach George Everest', 420] } } },
       { t: T('Über dem **Meeresspiegel**: ja, mit 8.849 Metern. Aber es kommt darauf an, wie man misst.', 64), gfx: { berge: {} } },
+      { t: T('2020 einigten sich Nepal und China auf eine gemeinsame Messung: **8.848,86** Meter.', 64), gfx: { z2: { draw: 'zahl', args: ['8.848,86', 'Meter, Messung 2020', 420] } } },
+      { t: T('Und er wächst noch: Indien schiebt sich unter Asien, der Himalaya hebt sich um einige **Millimeter** pro Jahr.', 64), gfx: { berge: {} } },
+      { t: T('Erstmals oben standen **1953** Edmund Hillary und Tenzing Norgay.', 450), pics: { e: { img: 0, x: 16, y: 56, w: 328, h: 370, cam: [50, 25, 1.6] } } },
       { t: T('Vom **Fuß bis zur Spitze** gewinnt der Mauna Kea auf Hawaii – nur gut 4.200 Meter davon ragen aus dem Wasser.', 64), gfx: { berge: { cls: 'a1' } } },
+      { t: T('Der Mauna Kea ist ein **Vulkan**. Sein Fuß liegt rund 6.000 Meter tief am Meeresboden:', 64), gfx: { f2: { draw: 'formel', args: [['4.207 m über dem Meer', '+', 'rund 6.000 m darunter', '≈', '10.200 m'], 320] } } },
       { t: T('Und am weitesten vom **Erdmittelpunkt** entfernt ist der Chimborazo in Ecuador.', 64), gfx: { erde: {} } },
+      { t: T('Die Erde ist keine perfekte Kugel: Durch die Drehung ist sie am Äquator **dicker**.', 64), gfx: { f3: { draw: 'formel', args: [['6.378 km zum Äquator', '−', '6.357 km zu den Polen', '=', '21 km'], 320] } } },
+      { t: T('Der Chimborazo liegt fast auf dem **Äquator**, der Everest weit nördlich davon.', 64), gfx: { erde: {} } },
       { t: T('Die Erde ist am Äquator **dicker**. Deshalb liegt sein Gipfel gut zwei Kilometer weiter draußen.', 64), gfx: { erde: { cls: 'a1' } } },
+      { t: T('Gipfel Chimborazo: **6.384 Kilometer** vom Erdmittelpunkt. Everest: gut 6.382.', 64), gfx: { z4: { draw: 'zahl', args: ['6.384 km', 'Chimborazo bis zum Erdmittelpunkt', 420] } } },
+      { t: T('Und am tiefsten? Der **Marianengraben**: fast 11 Kilometer unter dem Meer – tiefer als der Everest hoch ist.', 64), gfx: { z5: { draw: 'zahl', args: ['10.935 m', 'Tiefe des Marianengrabens', 420] } } },
+      { t: T('Oben ist die Luft dünn: Nur etwa ein **Drittel** des Sauerstoffs auf Meereshöhe.', 64), gfx: { z6: { draw: 'zahl', args: ['⅓', 'des Sauerstoffs auf dem Gipfel', 420] } } },
+      { t: T('Der Gipfel war einst **Meeresboden**: Im Gestein oben stecken versteinerte Meerestiere.', 450), pics: { e: { img: 0, x: 16, y: 56, w: 328, h: 370, cam: [50, 30, 2.0] } } },
+      recap(
+        [{ gfx: 'berge', cls: 'a1' }, { gfx: 'erde', cls: 'a1' }, { pic: 0, id: 'e' }, { gfx: 'f2', draw: 'formel', args: [['4.207 m', '+', '≈ 6.000 m', '≈', '10.200 m'], 330] }],
+        ['über dem Meer: Everest', 'vom Mittelpunkt: Chimborazo', '8.849 m', 'vom Fuß an: Mauna Kea'],
+      ),
     ],
     summary: ['Höchster über dem Meer: Everest, 8.849 m.', 'Größter vom Fuß an: Mauna Kea, über 10.000 m.', 'Am weitesten draußen: Chimborazo.'],
     sources: ['National Geographic 2020: Neuvermessung des Everest', 'USGS: Mauna Kea'],
@@ -953,19 +1146,33 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { m: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [60, 45, 1.05], cam2: [60, 45, 1.3] } } },
+      { t: T('Die Mauer ist kein einzelnes Bauwerk, sondern viele Mauern aus über **2.000 Jahren**.', 64), gfx: { zahl: { args: ['2.000', 'Jahre Bauzeit, mit Unterbrechungen', 420] } } },
+      { t: T('Zusammen über **21.000 Kilometer** – das ergab eine chinesische Vermessung 2012. Der bekannteste Teil stammt aus der Ming-Zeit.', 64), gfx: { z1: { draw: 'zahl', args: ['21.196 km', 'Gesamtlänge laut Vermessung 2012', 420] } } },
       { t: T('Ein Klassiker im Quiz: das einzige Bauwerk, das man aus dem **Weltall** sieht.', 64), gfx: { orbit: {} } },
+      { t: T('Die Raumstation **ISS** fliegt in rund 400 Kilometern Höhe – etwa so weit wie von Hamburg nach Frankfurt.', 64), gfx: { orbit: {} } },
       { t: T('Die Behauptung ist älter als die Raumfahrt – sie taucht schon in den **1930ern** auf.', 64), gfx: { zeit: {} } },
       {
         t: T('Das Problem ist nicht die Länge, sondern die **Breite**: meist nur 5 bis 8 Meter, in ähnlicher Farbe wie die Landschaft.', 64),
         pics: { m: { img: 0, x: 16, y: 230, w: 328, h: 160, cam: [60, 45, 1.5] } },
         gfx: { breite: { tf: [1, 0, 120] } },
       },
+      { t: T('Zum Vergleich:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['6 m aus 400 km', '≈', 'ein Haar aus knapp 5 m'], 330] } } },
+      { t: T('Sichtbar macht vor allem **Kontrast**: Straßen und Flughäfen sind oft heller als ihre Umgebung.', 64), gfx: { breite: { tf: [1, 0, 60] } } },
       { t: T('Chinas erster Raumfahrer **Yang Liwei** sagte 2003:', 64), gfx: { zitat: {} } },
+      { t: T('Einige Astronauten erwischten die Mauer bei perfektem Licht mit **Kamera** und Zoom – mit bloßem Auge kaum.', 64), gfx: { orbit: {} } },
       {
         t: T('Aus der Umlaufbahn sieht man eher **Städte bei Nacht** – hier Chicago von der ISS aus.', 476),
         pics: { n: { img: 1, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 50, 1.05], cam2: [50, 50, 1.25] } },
       },
+      { t: T('Gut zu sehen sind auch die **Gewächshäuser** bei Almería in Spanien: über 300 Quadratkilometer weiße Dächer.', 64), gfx: { z3: { draw: 'zahl', args: ['300 km²', 'Gewächshäuser bei Almería', 420] } } },
       { t: T('Vom Mond aus erkennt man gar kein Bauwerk – nur Kontinente und **Wolken**.', 64), gfx: { mond: {} } },
+      { t: T('Der Mond ist im Schnitt **384.000 Kilometer** entfernt:', 64), gfx: { f2: { draw: 'formel', args: [['384.000 km', '÷', '400 km', '≈', '960-mal so weit wie die ISS'], 320] } } },
+      { t: T('Gebaut wurde aus Stampflehm, Stein und Ziegeln – als Mörtel diente teils **Klebreis**.', 64), gfx: { p2: { draw: 'punkte', args: [['Stampflehm', 'Stein und Ziegel', 'Mörtel mit Klebreis'], 320] } } },
+      { t: T('Rund ein **Drittel** der Ming-Mauer ist heute verschwunden – abgetragen oder verwittert.', 450), pics: { m: { img: 0, x: 16, y: 56, w: 328, h: 370, cam: [60, 45, 1.4] } } },
+      recap(
+        [{ gfx: 'orbit' }, { gfx: 'breite' }, { pic: 1, id: 'n' }, { gfx: 'mond' }],
+        ['ISS: 400 km hoch', 'zu schmal: 5–8 m', 'sichtbar: Städte bei Nacht', 'vom Mond: kein Bauwerk'],
+      ),
     ],
     summary: ['Die Mauer ist zu schmal, nicht zu kurz.', 'Yang Liwei 2003: nicht gesehen.', 'Vom Mond aus: kein einziges Bauwerk.'],
     sources: ['NASA Earth Observatory: Great Wall from Space', 'Xinhua 2003: Yang Liwei'],
@@ -1030,11 +1237,28 @@ export const NATUR: Bite[] = [
         t: T('79 n. Chr. brach der **Vesuv** aus.', 486, { kind: 'big' }),
         pics: { v: { img: 1, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [60, 40, 1.05], cam2: [70, 30, 1.4] } },
       },
+      { t: T('Pompeji war eine römische Stadt mit etwa **11.000** Einwohnern – mit Läden, Bädern und Theatern.', 64), gfx: { zahl: { args: ['11.000', 'Einwohner', 420] } } },
+      { t: T('Das genaue Datum ist umstritten: Eine Inschrift, entdeckt 2018, deutet auf **Oktober** statt August.', 64), gfx: { z1: { draw: 'zahl', args: ['Oktober?', '79 n. Chr.', 420] } } },
       { t: T('Stundenlang regneten **Bimssteine** auf Pompeji, Dächer stürzten ein. Viele Bewohner flohen in dieser Zeit.', 64), gfx: { bims: {} } },
+      { t: T('Die Aschewolke stieg rund 30 Kilometer hoch. Sein Neffe Plinius der Jüngere verglich sie mit einer **Pinie**.', 64), gfx: { z2: { draw: 'zahl', args: ['30 km', 'hohe Aschewolke', 420] } } },
       { t: T('Die meisten Zurückgebliebenen starben am nächsten Morgen – durch **pyroklastische Ströme**.', 64), gfx: { strom: { cls: 'a1' } } },
+      { t: T('Plinius der Ältere fuhr mit Schiffen los, um Menschen zu **retten** – und starb am Strand.', 64), gfx: { strom: { cls: 'a1' } } },
       { t: T('Lawinen aus glühendem Gas und Asche, mehrere hundert Grad heiß – **schneller** als jedes Pferd.', 64), gfx: { tempo: {} } },
+      { t: T('Temperaturen von 250 bis über **500 Grad**: Der Tod kam in Sekunden.', 64), gfx: { z3: { draw: 'zahl', args: ['500 °C', 'in den Glutwolken', 420] } } },
+      { t: T('Im Nachbarort Herculaneum fand man Hunderte Skelette in **Bootshäusern** am Strand – Menschen, die auf Rettung warteten.', 64), gfx: { strom: { cls: 'a1' } } },
       { t: T('Die berühmten **Gipsabgüsse** entstehen seit 1863: Man füllt die Hohlräume, die die Körper in der Asche hinterließen.', 64), gfx: { abguss: { cls: 'a1' } } },
+      { t: T('Erfunden hat die Methode der Archäologe Giuseppe **Fiorelli**. Heute gibt es über 100 solcher Abgüsse.', 64), gfx: { abguss: { cls: 'a1' } } },
       { t: T('DNA-Analysen 2024 zeigten: Manche Geschichten zu den Figuren stimmen **nicht**.', 64), gfx: { dna: {} } },
+      { t: T('Etwa ein Erwachsener mit Kind, lange als Mutter gedeutet: Die DNA zeigte einen **Mann**, nicht mit dem Kind verwandt.', 64), gfx: { dna: {} } },
+      { t: T('Pompeji ist heute **UNESCO-Welterbe** und eine der meistbesuchten Stätten Italiens.', 470), pics: { v: { img: 1, x: 16, y: 56, w: 328, h: 390, enter: 'blot', cam: [50, 50, 1.05] } } },
+      { t: T('Unter der Asche blieb die Stadt fast **1.700 Jahre** verborgen – ausgegraben wird seit 1748.', 64), gfx: { z5: { draw: 'zahl', args: ['1748', 'Beginn der Ausgrabungen', 420] } } },
+      { t: T('Man fand Brote im Ofen, **Graffiti** an Wänden, Wahlwerbung – ein Schnappschuss des römischen Alltags.', 64), gfx: { p2: { draw: 'punkte', args: [['Brote im Ofen', 'Graffiti und Wahlwerbung', 'Wandmalereien'], 320] } } },
+      { t: T('Der Ablauf in Kürze:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['Bimsregen', '→', 'Dächer brechen', '→', 'Glutwolke', '→', 'Tod in Sekunden'], 320] } } },
+      { t: T('Der Vesuv ist bis heute **aktiv** – zuletzt brach er 1944 aus. Über eine halbe Million Menschen leben in seiner Gefahrenzone.', 64), gfx: { bims: {} } },
+      recap(
+        [{ pic: 0, id: 'b', cam: [50, 50, 1.1] }, { gfx: 'bims' }, { gfx: 'strom', cls: 'a1' }, { gfx: 'abguss', cls: 'a1' }],
+        ['79 n. Chr.: Vesuv', 'erst Bimsregen', 'dann Glutwolken', 'Gipsabgüsse seit 1863'],
+      ),
     ],
     summary: ['Erst Bimsregen, dann tödliche Glutwolken.', 'Mehrere hundert Grad, schneller als ein Pferd.', 'Gipsabgüsse seit 1863, DNA-Analysen 2024.'],
     sources: ['Pilli et al. 2024, Current Biology', 'Parco Archeologico di Pompei'],
@@ -1048,6 +1272,15 @@ export const NATUR: Bite[] = [
     ambience: 'wind',
     images: [img('bruegel-jaeger'), img('hondius-themse')],
     draw: {
+      gletscher(g) {
+        mountain(g, 20, 340, 600, [180, 260], 0)
+        const tongue = st(g, 'm1', '--m1: translateY(-110px); --dl: 600ms; transition-duration: 2.6s')
+        const ice: P[] = [[150, 330], [210, 330], [230, 600], [130, 600], [150, 330]]
+        blank(tongue, ice)
+        ink(tongue, ice, { w: 2.6, d: 400, t: 600 })
+        for (let k = 0; k < 4; k++) ink(tongue, L([150 + k * 20, 400 + k * 30], [175 + k * 20, 420 + k * 30]), { w: 1.6, d: 800, t: 200 })
+        text(g, 180, 640, 'Gletscher: Höchststand um 1850, seitdem Rückzug', { anchor: 'middle', cls: 's', d: 1200 })
+      },
       zeit(g) {
         const at = (y: number) => (y - 1000) / 1030
         timeline(g, 30, 330, 420, [
@@ -1089,6 +1322,7 @@ export const NATUR: Bite[] = [
     scenes: [
       { t: HOOK(476), pics: { b: { img: 0, x: 16, y: 56, w: 328, h: 260, enter: 'blot', cam: [50, 50, 1.0], cam2: [55, 55, 1.15], cap: 'Pieter Bruegel d. Ä., Die Jäger im Schnee, 1565' } } },
       { t: T('Zwischen etwa 1300 und 1850 lag Europa in der **Kleinen Eiszeit**.', 64), gfx: { zeit: {} } },
+      { t: T('Keine Eiszeit mit Mammuts – sondern einige Jahrhunderte, die etwas **kühler** waren.', 64), gfx: { zeit: {} } },
       {
         t: T('Die Winter waren oft deutlich härter – Kanäle und Flüsse froren regelmäßig zu, voller **Schlittschuhläufer**.', 450),
         pics: { b: { img: 0, x: 16, y: 56, w: 328, h: 370, cam: [72, 72, 2.0], cam2: [76, 70, 2.3] } },
@@ -1097,9 +1331,24 @@ export const NATUR: Bite[] = [
         t: T('In London fror die Themse immer wieder zu – auf dem Eis fanden **Frostjahrmärkte** statt.', 380),
         pics: { h: { img: 1, x: 16, y: 56, w: 328, h: 270, enter: 'blot', cam: [50, 60, 1.05], cam2: [40, 65, 1.4], cap: 'Abraham Hondius, Die zugefrorene Themse, 1677' } },
       },
+      { t: T('Der Frost brachte auch Not: **Missernten**, Hunger, steigende Brotpreise.', 64), gfx: { p2: { draw: 'punkte', args: [['Missernten', 'Hunger', 'steigende Brotpreise'], 330] } } },
+      { t: T('1816 hieß das „**Jahr ohne Sommer**“ – nach dem Ausbruch des Tambora in Indonesien 1815.', 64), gfx: { z2: { draw: 'zahl', args: ['1816', 'Jahr ohne Sommer', 420] } } },
       { t: T('Als Ursachen gelten vor allem **Vulkanausbrüche** und Phasen schwächerer Sonne.', 64), gfx: { ursachen: {} } },
+      { t: T('Vulkanasche und Schwefel in der Luft schirmen **Sonnenlicht** ab – oft mehrere Jahre lang.', 64), gfx: { ursachen: {} } },
+      { t: T('Dazu das **Maunder-Minimum**: Zwischen etwa 1645 und 1715 zeigte die Sonne kaum Flecken.', 64), gfx: { z3: { draw: 'zahl', args: ['1645–1715', 'Maunder-Minimum', 420] } } },
       { t: T('Wichtig für heute: Sie war **regional** verschieden und weltweit nur etwa ein halbes Grad kühler.', 64), gfx: { kurve: {} } },
       { t: T('Die heutige Erwärmung ist größer, schneller und **überall** gleichzeitig.', 64), gfx: { kurve: { cls: 'a1' } } },
+      { t: T('Die alten Gemälde sind auch **Klima-Quellen** – ebenso wie Baumringe, Eisbohrkerne und Ernte-Tagebücher.', 64), gfx: { punkte: { args: [['Gemälde', 'Baumringe', 'Eisbohrkerne', 'Chroniken und Ernte-Tagebücher'], 300] } } },
+      { t: T('Die kälteste Phase lag nicht überall gleichzeitig – mal im 15., mal im **17. Jahrhundert**, je nach Region.', 64), gfx: { zeit: {} } },
+      { t: T('Die Alpengletscher wuchsen weit ins Tal. Um 1850 erreichten sie ihren Höchststand – seitdem **schmelzen** sie.', 64), gfx: { gletscher: { cls: 'a1' } } },
+      { t: T('Sogar die Ostsee fror zu: 1658 marschierte ein schwedisches Heer über das **Eis** nach Dänemark.', 64), gfx: { z4: { draw: 'zahl', args: ['1658', 'Heer marschiert übers Eis', 420] } } },
+      { t: T('Der letzte Frostjahrmarkt auf der Themse fand **1814** statt.', 450), pics: { h: { img: 1, x: 16, y: 56, w: 328, h: 370, cam: [50, 60, 1.6] } } },
+      { t: T('Danach wurde die alte London Bridge abgerissen – der Fluss floss **schneller** und fror kaum noch zu.', 64), gfx: { z5: { draw: 'zahl', args: ['1831', 'alte London Bridge abgerissen', 420] } } },
+      { t: T('Zum Vergleich mit heute:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['Kleine Eiszeit: rund −0,5 °C'], 300] }, f3: { draw: 'formel', args: [['seit 1850: rund +1,3 °C'], 420] } } },
+      recap(
+        [{ gfx: 'zeit' }, { pic: 0, id: 'b', cam: [72, 72, 1.6] }, { gfx: 'ursachen' }, { gfx: 'kurve', cls: 'a1' }],
+        ['etwa 1300–1850', 'Schlittschuhe auf Grachten', 'Vulkane, schwache Sonne', 'heute: global, schneller'],
+      ),
     ],
     summary: ['Kleine Eiszeit: etwa 1300–1850.', 'Frostjahrmärkte auf der Themse.', 'Heutige Erwärmung: global und schneller.'],
     sources: ['PAGES 2k Consortium 2019, Nature'],
@@ -1161,6 +1410,7 @@ export const NATUR: Bite[] = [
     scenes: [
       { t: HOOK(476), pics: { l: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 55, 1.4], cam2: [50, 55, 1.6] } } },
       { t: T('9. September 1947, Harvard: Im Rechner **Mark II** klemmt ein Relais.', 64), gfx: { relais: {} } },
+      { t: T('Der Mark II war ein **elektromechanischer** Rechner: Tausende Relais klackten, er füllte einen ganzen Raum.', 64), gfx: { relais: {} } },
       {
         t: T('Die Techniker finden eine Motte, kleben sie ins Logbuch und schreiben: _„First actual case of bug being found.“_', 430),
         pics: { l: { img: 0, x: 16, y: 56, w: 328, h: 350, cam: [50, 55, 2.0], cam2: [50, 55, 2.3] } },
@@ -1169,15 +1419,30 @@ export const NATUR: Bite[] = [
         t: T('Die Pointe steckt im Wort „actual“: **Bug** für einen technischen Fehler gab es längst.', 64),
         gfx: { wort: {} },
       },
+      { t: T('„Bug“ heißt auf Englisch Käfer oder Wanze. **Ingenieure** nannten Fehler schon im 19. Jahrhundert so.', 64), gfx: { wort: {} } },
       { t: T('Thomas Edison schrieb schon **1878** von „Bugs“ in seinen Erfindungen. Die Motte war ein Witz unter Eingeweihten.', 64), gfx: { zeit: {} } },
       {
         t: T('Berühmt machte die Geschichte die Informatikerin **Grace Hopper**, die im Team arbeitete.', 476),
         pics: { h: { img: 1, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [55, 30, 1.1], cam2: [55, 25, 1.3] } },
       },
+      { t: T('Hopper entwickelte später einen der ersten **Compiler** – ein Programm, das Programme übersetzt.', 64), gfx: { f1: { draw: 'formel', args: [['Programm in Worten', '→', 'Compiler', '→', 'Maschinensprache'], 320] } } },
+      { t: T('Sie prägte die Sprache **COBOL** mit – damit laufen bis heute viele Banksysteme.', 64), gfx: { zahl: { args: ['1959', 'COBOL', 420] } } },
       {
         t: T('Das Logbuch mit der Motte liegt heute im **Smithsonian**-Museum in Washington.', 64),
         gfx: { museum: {} },
       },
+      { t: T('Heute heißt Fehlersuche „**Debugging**“ – wörtlich: entwanzen.', 64), gfx: { wort: {} } },
+      { t: T('Der Eintrag nennt sogar die Uhrzeit: **15:45 Uhr**, Relais Nummer 70 im Feld F.', 64), gfx: { z3: { draw: 'zahl', args: ['15:45', 'Relais Nr. 70, Feld F', 420] } } },
+      { t: T('Jedes Relais ist ein kleiner **Schalter**, den ein Elektromagnet umlegt:', 64), gfx: { f2: { draw: 'formel', args: [['Strom an', '→', 'Magnet zieht', '→', 'Schalter zu'], 330] } } },
+      { t: T('Berühmte Bugs gibt es bis heute: 1996 explodierte die Rakete **Ariane 5** schon 37 Sekunden nach dem Start.', 64), gfx: { z4: { draw: 'zahl', args: ['37 s', 'nach dem Start: Ariane 5 zerstört, 1996', 420] } } },
+      { t: T('Die Ursache: Eine Zahl war zu groß für ihren **Speicherplatz** – die Steuerung bekam Unsinn.', 64), gfx: { f3: { draw: 'formel', args: [['zu große Zahl', '→', 'zu kleiner Speicher', '→', 'Unsinn'], 330] } } },
+      { t: T('Oder das **Jahr-2000-Problem**: Viele Programme speicherten Jahre zweistellig – aus 2000 drohte 1900 zu werden.', 64), gfx: { f4: { draw: 'formel', args: [['„00“', '→', '1900 statt 2000'], 330] } } },
+      { t: T('Weltweit wurden Milliarden ausgegeben, um es vorher zu beheben – darum blieb das **Chaos** aus.', 64), gfx: { relais: { tf: [0.8, 36, 80] } } },
+      { t: T('Grace Hopper erklärte gern, wie kurz eine **Nanosekunde** ist – mit einem Stück Draht:', 64), gfx: { f5: { draw: 'formel', args: [['Licht in 1 Nanosekunde', '≈', '30 cm Draht'], 330] } } },
+      recap(
+        [{ gfx: 'relais' }, { pic: 0, id: 'l', cam: [50, 55, 1.6] }, { gfx: 'zeit' }, { pic: 1, id: 'h', cam: [55, 28, 1.3] }],
+        ['1947: Motte im Relais', 'Logbuch-Eintrag', '„Bug“ schon 1878', 'Grace Hopper'],
+      ),
     ],
     summary: ['1947: Motte im Harvard Mark II.', '„Bug“ nutzte schon Edison 1878.', 'Grace Hopper machte die Geschichte berühmt.'],
     sources: ['Smithsonian National Museum of American History: Log Book With Computer Bug'],
@@ -1249,12 +1514,25 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { b: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [40, 45, 1.05], cam2: [40, 45, 1.3] } } },
+      { t: T('Johannes Gutenberg, um 1400 in **Mainz** geboren – gelernter Metallhandwerker und Unternehmer.', 470), pics: { b: { img: 0, x: 16, y: 56, w: 328, h: 390, cam: [40, 45, 1.3] } } },
       { t: T('Vor Gutenberg wurden Bücher in Europa meist **von Hand** abgeschrieben.', 64), gfx: { schreiben: {} } },
+      { t: T('Für eine Bibel brauchte ein Schreiber oft **ein bis drei Jahre**.', 64), gfx: { schreiben: {} } },
       { t: T('Gedruckt wurde aber schon früher – nur **woanders**.', 64), gfx: { zeit: {} } },
       { t: T('In China erfand **Bi Sheng** um 1040 bewegliche Lettern aus Ton.', 64), gfx: { lettern: {} } },
+      { t: T('Chinesisch hat Tausende Schriftzeichen – bewegliche Lettern lohnten sich dort weniger als bei rund **26 Buchstaben**.', 64), gfx: { vergleich: { args: [['Chinesisch', 'Tausende Zeichen'], ['Latein', 'rund 26 Buchstaben'], 290] } } },
       { t: T('In Korea druckte man 1377 das Buch „**Jikji**“ mit Lettern aus Metall – rund 80 Jahre vor Gutenberg.', 64), gfx: { zeit: { tf: [1, 0, 40] } } },
       { t: T('Gutenbergs Leistung um 1450 in Mainz war das **System**:', 64, { kind: 'big' }), gfx: { presse: {} } },
+      { t: T('Das **Gießinstrument**: Flüssiges Metall in eine Form – blitzschnell entstehen identische Buchstaben.', 64), gfx: { presse: {} } },
+      { t: T('Die Legierung aus **Blei, Zinn und Antimon** schmolz leicht und wurde trotzdem hart.', 64), gfx: { p2: { draw: 'punkte', args: [['Blei', 'Zinn', 'Antimon'], 330] } } },
+      { t: T('Die Presse selbst kam von der **Weinpresse**.', 64), gfx: { presse: {} } },
       { t: T('Damit wurde Drucken **schnell** und billig.', 64, { kind: 'big' }), gfx: { buecher: {} } },
+      { t: T('Um 1455 erschien die **Gutenberg-Bibel**: rund 180 Exemplare – 49 sind heute erhalten.', 64), gfx: { zahl: { args: ['49', 'erhaltene Gutenberg-Bibeln', 420] } } },
+      { t: T('Um 1500 druckten schon über **200** Orte in Europa – Millionen Bücher.', 64), gfx: { buecher: {} } },
+      { t: T('Die Folgen waren riesig:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['Buchdruck', '→', 'billige Bücher', '→', 'Reformation, Wissenschaft, Zeitungen'], 320] } } },
+      recap(
+        [{ gfx: 'schreiben' }, { gfx: 'zeit' }, { gfx: 'lettern' }, { gfx: 'presse' }],
+        ['vorher: von Hand', 'China, Korea, Mainz', 'bewegliche Lettern', 'das System: Guss, Farbe, Presse'],
+      ),
     ],
     summary: ['China um 1040: Lettern aus Ton.', 'Korea 1377: Metall-Lettern (Jikji).', 'Gutenberg um 1450: Gießverfahren, Farbe, Presse.'],
     sources: ['UNESCO Memory of the World: Jikji', 'Gutenberg-Museum Mainz'],
@@ -1311,8 +1589,11 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(70), gfx: { birne: { cls: 'a1' } } },
+      { t: T('Das Prinzip ist einfach:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['Strom', '→', 'heißer, dünner Draht', '→', 'Licht'], 320] } } },
+      { t: T('Das Problem: An der Luft **verbrennt** der Draht sofort. Man braucht einen Glaskolben ohne Sauerstoff.', 64), gfx: { birne: {} } },
       { t: T('Bis ins 19. Jahrhundert war Licht **Feuer**: Kerzen, Öllampen, später Gas.', 64), gfx: { kerze: {} } },
       { t: T('Glühende Drähte unter Glas probierten Erfinder schon **Jahrzehnte** vor Edison aus.', 64), gfx: { zeit: {} } },
+      { t: T('Schon 1802 brachte Humphry Davy einen Draht zum Glühen. 1840 baute Warren de la Rue eine Lampe mit **Platin** – viel zu teuer.', 64), gfx: { zeit: {} } },
       {
         t: T('In England stellte **Joseph Swan** 1879 eine funktionierende Glühlampe vor – ungefähr gleichzeitig mit Edison.', 330),
         pics: { s: { img: 1, x: 40, y: 64, w: 120, h: 150, r: 'oval', enter: 'blot', cam: [50, 35, 1.6], cap: 'Joseph Swan' }, e: { img: 2, x: 200, y: 64, w: 120, h: 150, r: 'oval', enter: 'blot', cam: [65, 25, 2.2], cap: 'Thomas Edison' } },
@@ -1322,11 +1603,24 @@ export const NATUR: Bite[] = [
         pics: { s: { img: 1, x: 80, y: 64, w: 120, h: 150, r: 'oval', cam: [50, 35, 1.6] }, e: { img: 2, x: 160, y: 64, w: 120, h: 150, r: 'oval', cam: [65, 25, 2.2] } },
         gfx: { firma: {} },
       },
+      { t: T('Edison testete Tausende Materialien. Ein Faden aus verkohltem **Bambus** hielt schließlich über 1.200 Stunden.', 64), gfx: { z2: { draw: 'zahl', args: ['1.200 h', 'hielt Edisons Bambusfaden', 420] } } },
       { t: T('Edisons Vorsprung: ein Glühfaden, der **lange** hielt – und das ganze System dahinter.', 64), gfx: { netz: {} } },
+      { t: T('Später setzte sich **Wolfram** als Glühfaden durch – ab etwa 1904.', 64), gfx: { birne: { cls: 'a1', tf: [0.8, 36, 80] } } },
+      { t: T('Glühlampen verschwenden viel Strom:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['100 % Strom', '→', '5 % Licht', '+', '95 % Wärme'], 320] } } },
+      { t: T('Darum wurden sie in der EU ab 2009 schrittweise **verboten**. LEDs brauchen für dasselbe Licht rund 80 bis 90 Prozent weniger.', 64), gfx: { z3: { draw: 'zahl', args: ['− 85 %', 'Strom mit LED', 420] } } },
+      { t: T('An einer einzigen Lampe gerechnet: Eine 60-Watt-Glühbirne ist etwa so hell wie eine **8-Watt-LED**.', 64), gfx: { f3: { draw: 'formel', args: [['60 W Glühbirne', '≈', '8 W LED'], 330, 'gleich hell'] } } },
+      { t: T('Brennt sie drei Stunden am Tag, spart die LED in einem Jahr:', 64), gfx: { f4: { draw: 'formel', args: [['52 Watt weniger', '×', '3 Stunden', '×', '365 Tage', '≈', '57 kWh'], 320] } } },
+      { t: T('Bei rund 35 Cent je Kilowattstunde sind das etwa **20 Euro** im Jahr – für eine einzige Lampe.', 64), gfx: { f5: { draw: 'formel', args: [['57 kWh', '×', '0,35 €', '≈', '20 € pro Jahr'], 330] } } },
       {
         t: T('1882 ging in New York sein erstes **Kraftwerk** ans Netz.', 486),
         pics: { f: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 50, 1.05], cam2: [50, 50, 1.3] } },
       },
+      { t: T('Edisons Kraftwerk in der Pearl Street versorgte anfangs **85 Kunden** mit rund 400 Lampen.', 64), gfx: { z4: { draw: 'zahl', args: ['85', 'Kunden am ersten Tag, 1882', 420] } } },
+      { t: T('Edison setzte auf **Gleichstrom**, Tesla und Westinghouse auf Wechselstrom. Den „Stromkrieg“ gewann der Wechselstrom.', 64), gfx: { vergleich: { args: [['Gleichstrom', 'Edison', 'nur kurze Wege'], ['Wechselstrom', 'Tesla, Westinghouse', 'leicht umzuspannen, weite Wege'], 290] } } },
+      recap(
+        [{ gfx: 'birne', cls: 'a1' }, { gfx: 'zeit' }, { gfx: 'firma' }, { gfx: 'netz' }],
+        ['heißer Draht im Vakuum', 'Versuche lange vor 1879', 'Swan + Edison = Ediswan', 'Edisons Stromnetz 1882'],
+      ),
     ],
     summary: ['Glühlampen-Versuche lange vor Edison.', 'Joseph Swan war fast gleichzeitig.', 'Edisons Stärke: haltbarer Faden + Stromnetz (1882).'],
     sources: ['Science Museum London: Joseph Swan', 'Smithsonian: Edison’s Pearl Street Station'],
@@ -1339,6 +1633,25 @@ export const NATUR: Bite[] = [
     mood: 'kosmisch',
     images: [img('turing-statue')],
     draw: {
+      zimmer(g) {
+        ink(g, RR(90, 280, 180, 220, 6), { w: 3.2, t: 700 })
+        fig(pop(g, 400), 180, 480, 2.4)
+        ink(g, RR(196, 400, 44, 30, 3), { w: 2.4, d: 700, t: 300 })
+        hatch(g, RR(196, 400, 44, 30, 3), 900, true)
+        arrow(g, L([20, 360], [86, 360]), { w: 2.6, d: 1100, t: 300 })
+        arrow(g, L([274, 440], [340, 440]), { w: 2.6, d: 1500, t: 300 })
+        text(g, 50, 340, '字', { anchor: 'middle', size: 26, d: 1100 })
+        text(g, 310, 420, '字', { anchor: 'middle', size: 26, d: 1500 })
+        text(g, 180, 560, 'Regeln befolgen ≠ verstehen', { anchor: 'middle', d: 1800 })
+      },
+      modelle(g) {
+        vbars(g, [
+          { label: 'KI mit Rolle', v: 73, fmt: pct, dense: true },
+          { label: 'KI ohne Rolle', v: 36, fmt: pct },
+          { label: 'ELIZA, 1966', v: 23, fmt: pct },
+        ], { x: 40, base: 580, w: 76, gap: 104, h: 300, max: 100 })
+        text(g, 40, 250, 'für den Menschen gehalten', { cls: 's', d: 200 })
+      },
       aufbau(g) {
         fig(pop(g, 0), 180, 620, 3)
         text(g, 180, 650, 'du', { anchor: 'middle', d: 300 })
@@ -1372,10 +1685,26 @@ export const NATUR: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { t: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 30, 1.05], cam2: [50, 30, 1.25] } } },
+      { t: T('Alan Turing, 1912 bis 1954: Mathematiker und **Vordenker** des Computers.', 470), pics: { t: { img: 0, x: 16, y: 56, w: 328, h: 390, cam: [50, 30, 1.3] } } },
+      { t: T('Im Zweiten Weltkrieg half er in Bletchley Park, die deutsche **Enigma**-Verschlüsselung zu knacken.', 64), gfx: { zahl: { args: ['Enigma', 'geknackt in Bletchley Park', 420] } } },
+      { t: T('1936 beschrieb er eine gedachte Rechenmaschine – die **Turingmaschine**, das Grundmodell jedes Computers.', 64), gfx: { z2: { draw: 'zahl', args: ['1936', 'Turingmaschine', 420] } } },
       { t: T('1950 schlug Alan Turing einen Test vor: Ein Mensch chattet mit zwei Unbekannten – einem Menschen und einer Maschine.', 64), gfx: { aufbau: {} } },
       { t: T('Kann er sie nicht unterscheiden, hat die Maschine bestanden. Turing nannte es das **Imitationsspiel**.', 64), gfx: { chat: {} } },
+      { t: T('Turing sagte voraus: Um das Jahr 2000 würde eine Maschine nach fünf Minuten in **30 Prozent** der Fälle für einen Menschen gehalten.', 64), gfx: { z3: { draw: 'zahl', args: ['30 %', 'Turings Prognose für das Jahr 2000', 420] } } },
       { t: T('2025 testeten Forscher der Uni San Diego Sprachmodelle genau so. Ein Modell mit passender Rolle wirkte **menschlicher** als die Menschen.', 64), gfx: { ergebnis: {} } },
+      { t: T('Die Testpersonen chatteten fünf Minuten **gleichzeitig** mit einem Menschen und einer KI – dann mussten sie wählen.', 64), gfx: { chat: {} } },
+      { t: T('Ohne Rollenanweisung schnitt dasselbe Modell deutlich schlechter ab. Und das Programm **ELIZA** von 1966 täuschte kaum jemanden.', 64), gfx: { modelle: {} } },
       { t: T('Heißt das, die Maschine **denkt**? Der Test misst, ob etwas menschlich wirkt – nicht, ob es versteht.', 64), gfx: { denken: {} } },
+      { t: T('Der Philosoph John Searle hielt 1980 dagegen: das „**Chinesische Zimmer**“. Regeln befolgen heißt nicht verstehen.', 64), gfx: { zimmer: {} } },
+      { t: T('Seit 2021 ist Turing auf der britischen **50-Pfund-Note**. 2013 wurde er offiziell rehabilitiert – verurteilt war er 1952 wegen Homosexualität.', 64), gfx: { z4: { draw: 'zahl', args: ['50 £', 'Turing auf der Banknote, seit 2021', 420] } } },
+      { t: T('Ursprünglich beschrieb Turing ein Spiel mit **Mann und Frau**: Wer ist wer? Dann ersetzte er einen durch eine Maschine.', 64), gfx: { aufbau: {} } },
+      { t: T('Seine Idee: Statt „Können Maschinen **denken**?“ lieber fragen: „Können sie dieses Spiel gewinnen?“', 64), gfx: { denken: {} } },
+      { t: T('Kritik: Der Test belohnt **Täuschung** – wer menschlich wirken will, muss sogar Tippfehler nachahmen.', 64), gfx: { f3: { draw: 'formel', args: [['menschlich wirken', '≠', 'denken'], 330] } } },
+      { t: T('Heute wird KI vielfältig geprüft: Mathe-Aufgaben, **Programmieren**, Fachprüfungen.', 64), gfx: { punkte: { args: [['Mathematik', 'Programmieren', 'Fachprüfungen', 'Alltagsaufgaben'], 300] } } },
+      recap(
+        [{ gfx: 'aufbau' }, { gfx: 'chat' }, { gfx: 'modelle' }, { gfx: 'zimmer' }],
+        ['Imitationsspiel 1950', 'fünf Minuten Chat', '2025: 73 % für Mensch gehalten', 'wirken ≠ verstehen'],
+      ),
     ],
     summary: ['Turing 1950: das Imitationsspiel.', '2025: KI in 73 % der Fälle für Mensch gehalten.', 'Menschlich wirken ist nicht dasselbe wie verstehen.'],
     sources: ['Turing 1950, Mind', 'Jones & Bergen 2025, „Large Language Models Pass the Turing Test“'],

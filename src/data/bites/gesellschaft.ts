@@ -1,8 +1,9 @@
 import type { Bite } from '../feed'
 import { img } from './img'
 import {
-  B, E, HOOK, L, RR, T, arrow, balance, bigText, blank, check, coin, cross, dashes, fig, group, hatch, hbars, ink, mk, pop, question, ring, st, text, timeline, vbars, type P,
+  B, E, HOOK, L, RR, T, arrow, balance, bigText, blank, car, check, coin, cross, dashes, fig, group, hatch, hbars, ink, mk, pop, question, ring, st, text, timeline, vbars, type P,
 } from './draw'
+import { recap } from './common'
 
 // Gesellschaft, Politik & Wirtschaft: Geschichte, Staat & Recht, Wirtschaft
 
@@ -43,6 +44,73 @@ export const GESELLSCHAFT: Bite[] = [
     ambience: 'wellen',
     images: [img('gjermundbu-helm'), img('veksoe-helm')],
     draw: {
+      ausruestung(g) {
+        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
+        fig(pop(g, 200), 150, 618, 4, { arms: 'push', w: 2.6 })
+        const cap = B([128, 512], [126, 482], [174, 482], [172, 512])
+        hatch(g, [...cap], 900, true)
+        ink(g, cap, { w: 3, d: 700, t: 400 })
+        ink(g, L([96, 640], [132, 330]), { w: 3.4, d: 900, t: 500 })
+        ink(g, [[124, 336], [134, 300], [142, 338], [124, 336]], { w: 2.6, d: 1300, t: 300 })
+        hatch(g, E(236, 500, 56), 1500)
+        ink(g, E(236, 500, 56), { w: 3.4, d: 1200, t: 600 })
+        ink(g, E(236, 500, 14), { w: 3, d: 1600, t: 300 })
+        text(g, 236, 590, 'Holzschild', { anchor: 'middle', d: 1700, cls: 's' })
+        text(g, 150, 470, 'Lederkappe?', { anchor: 'middle', d: 1900, cls: 's' })
+      },
+      hieb(g) {
+        const dome = (x: number, y: number, d: number) => {
+          const p = B([x - 46, y], [x - 48, y - 70], [x + 48, y - 70], [x + 46, y])
+          hatch(g, [...p], d + 400)
+          ink(g, p, { w: 3, d, t: 500 })
+          ink(g, L([x - 50, y], [x + 50, y]), { w: 3.4, d: d + 200, t: 300 })
+        }
+        dome(95, 470, 0)
+        dome(265, 470, 300)
+        for (const s of [-1, 1]) ink(g, B([265 + s * 40, 440], [265 + s * 76, 430], [265 + s * 80, 390], [265 + s * 64, 350]), { w: 3.6, d: 600, t: 400 })
+        arrow(g, B([20, 300], [70, 330], [100, 390], [160, 380]), { w: 3, d: 1200, t: 500 })
+        check(g, 95, 560, 1.3, 1800)
+        arrow(g, L([300, 280], [322, 352]), { w: 3, d: 1600, t: 300 })
+        cross(g, 265, 560, 1.3, 2100)
+        text(g, 95, 610, 'gleitet ab', { anchor: 'middle', d: 1900 })
+        text(g, 265, 610, 'bleibt hängen', { anchor: 'middle', d: 2200 })
+      },
+      fluegel(g) {
+        const dome = B([120, 470], [116, 370], [244, 370], [240, 470])
+        hatch(g, [...dome], 600)
+        ink(g, dome, { w: 3.4, t: 700 })
+        ink(g, L([110, 470], [250, 470]), { w: 3.6, d: 400, t: 300 })
+        for (const s of [-1, 1]) {
+          const x = (v: number) => 180 + s * v
+          const wing: P[] = [[x(62), 430], [x(150), 330], [x(130), 380], [x(160), 370], [x(126), 420], [x(150), 420], [x(70), 452], [x(62), 430]]
+          hatch(g, wing, 1000, true)
+          ink(g, wing, { w: 2.6, d: 700, t: 600 })
+        }
+        text(g, 180, 540, 'Flügelhelm, Bühne 1876', { anchor: 'middle', d: 1300 })
+      },
+      fans(g) {
+        ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
+        for (let k = 0; k < 5; k++) {
+          const x = 52 + k * 64
+          const p = pop(g, 200 + k * 160)
+          fig(p, x, 598, 2.6, { arms: k % 2 ? 'up' : 'down' })
+          for (const s of [-1, 1]) ink(p, B([x + s * 12, 524], [x + s * 22, 520], [x + s * 24, 506], [x + s * 18, 496]), { w: 2.6, t: 0 })
+        }
+        text(g, 180, 640, 'Comics, Filme, Fußballstadien', { anchor: 'middle', d: 1200 })
+      },
+      kelten(g) {
+        const dome = B([120, 470], [116, 380], [244, 380], [240, 470])
+        hatch(g, [...dome], 600, true)
+        ink(g, dome, { w: 3.4, t: 700 })
+        ink(g, L([110, 470], [250, 470]), { w: 3.4, d: 400, t: 300 })
+        for (const s of [-1, 1]) {
+          const cone: P[] = [[180 + s * 30, 396], [180 + s * 76, 300], [180 + s * 50, 406], [180 + s * 30, 396]]
+          hatch(g, cone, 900, true)
+          ink(g, cone, { w: 2.8, d: 700, t: 400 })
+        }
+        text(g, 180, 540, 'Waterloo-Helm, um 100 v. Chr.', { anchor: 'middle', d: 1200 })
+        text(g, 180, 566, 'British Museum', { anchor: 'middle', d: 1300, cls: 's' })
+      },
       helm(g) {
         const dome = B([112, 404], [108, 296], [252, 296], [248, 404])
         hatch(g, [...dome], 700)
@@ -105,26 +173,47 @@ export const GESELLSCHAFT: Bite[] = [
     scenes: [
       { t: HOOK(66), gfx: { helm: {} } },
       { t: T('Kein einziger **Hörnerhelm** aus der Wikingerzeit wurde je gefunden.', 500), gfx: { helm: { cls: 'a1' } } },
+      { t: T('Dabei kennen Archäologen aus der Wikingerzeit Tausende Gräber, Waffen und Schmuckstücke.', 64), gfx: { zahl: { args: ['250', 'Jahre Wikingerzeit, etwa 800 bis 1050', 420] } } },
+      { t: T('Helme sind darunter extrem **selten**: Eisen war teuer. Viele Krieger kämpften wohl mit Lederkappe – oder ganz ohne.', 64), gfx: { ausruestung: {} } },
       {
         t: T('Der einzige fast vollständige Wikingerhelm – der Gjermundbu-Helm aus Norwegen – ist schlicht **rund**.', 60),
         pics: { g: { img: 0, x: 40, y: 220, w: 280, h: 300, enter: 'blot', cam: [50, 50, 1.05], cam2: [50, 45, 1.2], cap: 'Gjermundbu-Helm, um 970' } },
         gfx: { helm: { cls: 'a1 a2', tf: [0.42, 196, 380], o: 0 } },
       },
+      {
+        t: T('Gefunden 1943 in einem Grab aus dem 10. Jahrhundert: eine Eisenkappe mit Augenschutz wie eine **Brille**.', 450),
+        pics: { g: { img: 0, x: 16, y: 56, w: 328, h: 370, cam: [50, 42, 1.6], cam2: [50, 40, 1.8] } },
+      },
+      { t: T('Hörner wären im Kampf sogar gefährlich: Ein Schwerthieb gleitet von einer glatten Kappe ab – an einem Horn **bleibt er hängen**.', 64), gfx: { hieb: {} } },
       { t: T('Die Hörner kamen erst im **19. Jahrhundert** dazu – mit Malern der Romantik.', 64), gfx: { zeit: {} } },
+      { t: T('Damals entdeckte Nordeuropa seine Vergangenheit neu. Wikinger wurden zu wilden, edlen **Helden** stilisiert.', 64), gfx: { punkte: { args: [['Sagen und Heldenlieder', 'Stolz auf die eigene Nation', 'Wikinger als wilde, edle Krieger'], 300] } } },
       {
         t: T('Vor allem die Kostüme zu Wagners Oper „**Ring des Nibelungen**“ 1876 setzten den Wikingern Hörner auf.', 486),
         gfx: { zeit: { tf: [0.6, 72, -168] }, oper: { tf: [0.75, 45, 38] } },
       },
+      { t: T('Der Kostümbildner Carl Emil Doepler gab den Figuren Hörner- und **Flügelhelme**. Die Oper wurde ein Erfolg – das Bild blieb hängen.', 64), gfx: { fluegel: {} } },
+      { t: T('Später machten Comics, Filme und Fußballfans den Hörnerhelm zum **Markenzeichen** – bis heute.', 64), gfx: { fans: {} } },
       {
         t: { text: 'Hörnerhelme gab es – aber viel früher: die **Veksø-Helme** aus der Bronzezeit.', x: 184, y: 64, w: 160, kind: 'mid' },
         pics: { v: { img: 1, x: 20, y: 60, w: 152, h: 230, enter: 'blot', cam: [50, 50, 1.1], cap: 'Veksø-Helm, Dänemark' } },
         gfx: { zeit: { cls: 'a1', tf: [1, 0, 40] } },
       },
       {
-        t: T('Rund **2.900 Jahre** alt – fast 2.000 Jahre vor den Wikingern. Im Kampf wären Hörner nur hinderlich.', 64),
-        pics: { v: { img: 1, x: 70, y: 220, w: 220, h: 260, cam: [50, 45, 1.25] } },
+        t: T('Rund **2.900 Jahre** alt – fast 2.000 Jahre vor den Wikingern.', 64),
+        pics: { v: { img: 1, x: 70, y: 200, w: 220, h: 260, cam: [50, 45, 1.25] } },
         gfx: { zeit: { cls: 'a1', tf: [0.9, 18, 196] } },
       },
+      {
+        t: T('Die beiden Helme lagen in einem Moor – vermutlich eine **Opfergabe**. Getragen wurden sie wohl bei Zeremonien, nicht im Kampf.', 450),
+        pics: { v: { img: 1, x: 16, y: 56, w: 328, h: 370, cam: [50, 40, 1.5], cam2: [50, 38, 1.7] } },
+      },
+      { t: T('Auch Kelten kannten Hörnerhelme – etwa den Helm, der in London in der Themse gefunden wurde. Auch er war **Prunk**.', 64), gfx: { kelten: {} } },
+      { t: T('Woher das Bild also kommt:', 64, { kind: 'big' }), gfx: { f: { draw: 'formel', args: [['Hörnerhelm', '=', 'Ritual der Bronzezeit', '+', 'Oper 1876'], 300] } } },
+      { t: T('Wagners Ring spielt in einer germanischen **Sagenwelt** – historische Genauigkeit war nie das Ziel.', 64), gfx: { oper: { tf: [0.8, 36, 80] } } },
+      recap(
+        [{ gfx: 'helm', cls: 'a1' }, { pic: 0, id: 'g' }, { gfx: 'oper' }, { pic: 1, id: 'v' }],
+        ['Wikinger: keine Hörner gefunden', 'echter Helm: rund', 'Hörner aus der Oper 1876', 'Hörnerhelme: Bronzezeit'],
+      ),
     ],
     summary: ['Kein Wikingerhelm mit Hörnern gefunden.', 'Wagner-Kostüme 1876 prägten das Bild.', 'Hörnerhelme gab es in der Bronzezeit.'],
     sources: ['Nationalmuseet Kopenhagen: Veksø-Helme', 'Kulturhistorisk museum Oslo: Gjermundbu-Helm'],
@@ -137,16 +226,42 @@ export const GESELLSCHAFT: Bite[] = [
     mood: 'episch',
     images: [img('napoleon-tuileries'), img('gillray-gulliver'), img('napoleon-alpen'), img('napoleon-maultier')],
     draw: {
+      leben(g) {
+        const at = (y: number) => (y - 1769) / (1821 - 1769)
+        timeline(g, 30, 330, 430, [
+          { at: at(1769), label: '1769', sub: 'Korsika', up: true },
+          { at: at(1804), label: '1804', sub: 'Kaiser', big: true },
+          { at: at(1815), label: '1815', sub: 'Waterloo', up: true },
+          { at: at(1821), label: '1821', sub: 'St. Helena' },
+        ], 0, 500)
+      },
+      garde(g) {
+        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
+        for (const [i, x] of [[0, 50], [1, 112], [2, 248], [3, 310]] as const) {
+          const p = pop(g, 200 + i * 150)
+          fig(p, x, 618, 3.6)
+          const hy = 618 - 27 * 3.6
+          hatch(p, RR(x - 16, hy - 52, 32, 40, 10), 0, true)
+          ink(p, RR(x - 16, hy - 52, 32, 40, 10), { w: 2.6, t: 0 })
+        }
+        const n = pop(g, 900)
+        fig(n, 180, 618, 3.1)
+        const hy = 618 - 27 * 3.1
+        const hat: P[] = [...B([150, hy - 12], [162, hy - 22], [170, hy - 36], [180, hy - 36]), ...B([180, hy - 36], [190, hy - 36], [198, hy - 22], [210, hy - 12]).slice(1), ...B([210, hy - 12], [194, hy - 20], [166, hy - 20], [150, hy - 12]).slice(1)]
+        hatch(n, hat, 0, true)
+        ink(n, hat, { w: 2.6, t: 0 })
+        text(g, 180, 650, 'Napoleon und Grenadiere der Garde', { anchor: 'middle', d: 1400, cls: 's' })
+      },
       heights(g) {
         ink(g, L([40, 652], [40, 282]), { w: 2.6, t: 500 })
         for (let k = 0; k <= 18; k++) ink(g, L([40, 650 - k * 20], [k % 5 ? 47 : 54, 650 - k * 20]), { w: 1.8, d: 200 + k * 25, t: 80 })
         for (const [k, l] of [[5, '0,5'], [10, '1,0'], [15, '1,5']] as const) text(g, 60, 650 - k * 20 + 5, l, { cls: 's', d: 600 })
         ink(g, L([30, 652], [340, 652]), { w: 3, d: 100, t: 500 })
-        const nb = st(g, 'm2', '--m2: scaleY(0.929); transform-origin: 155px 650px; --dl: 1800ms')
+        const nb = st(g, 'm2', '--m2: scaleY(0.9375); transform-origin: 155px 650px; --dl: 1800ms')
         const bar = st(nb, 'grow-y', '--d:500ms')
-        hatch(bar, RR(120, 312, 70, 338, 6), 500)
-        ink(bar, RR(120, 312, 70, 338, 6), { w: 2.8, t: 0 })
-        const top = st(g, 'm2', '--m2: translateY(24px); --dl: 1800ms')
+        hatch(bar, RR(120, 314, 70, 336, 6), 500)
+        ink(bar, RR(120, 314, 70, 336, 6), { w: 2.8, t: 0 })
+        const top = st(g, 'm2', '--m2: translateY(21px); --dl: 1800ms')
         const hp = pop(top, 1300)
         const hat: P[] = [
           ...B([119, 304], [133, 296], [141, 278], [155, 278]),
@@ -155,7 +270,7 @@ export const GESELLSCHAFT: Bite[] = [
         ]
         hatch(hp, hat, 1500, true)
         ink(hp, hat, { w: 2.6, t: 0 })
-        text(st(top, 'h2', '--dl:1800ms'), 155, 262, '1,69 m', { anchor: 'middle', d: 1500 })
+        text(st(top, 'h2', '--dl:1800ms'), 155, 262, '1,68 m', { anchor: 'middle', d: 1500 })
         text(st(top, 'f2', '--dl:2300ms'), 155, 262, '1,57 m', { anchor: 'middle', fade: false })
         text(g, 155, 675, 'Napoleon', { cls: 's', anchor: 'middle', d: 900 })
         const avg = st(g, 'x1', '--dl:200ms')
@@ -193,18 +308,32 @@ export const GESELLSCHAFT: Bite[] = [
     },
     scenes: [
       { t: HOOK(508), pics: { p: { img: 0, x: 16, y: 56, w: 328, h: 430, enter: 'blot', cam: [50, 22, 1.2], cam2: [50, 20, 1.3] } } },
-      { t: { text: 'Napoleon maß bei seinem Tod rund **1,69 Meter**.', x: 130, y: 80, w: 212 }, pics: { p: { img: 0, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [48, 14, 1.5] } }, gfx: { heights: {} } },
+      { t: T('Napoleon Bonaparte: 1769 auf Korsika geboren, 1804 Kaiser der Franzosen, 1821 in der Verbannung gestorben.', 64), gfx: { leben: {} } },
+      {
+        t: T('In Erinnerung blieb der kleine Mann mit dem großen Ego. Es gibt sogar einen Begriff dafür: den **Napoleon-Komplex**.', 64),
+        pics: { p: { img: 0, x: 100, y: 250, w: 160, h: 200, r: 'oval', enter: 'fade', cam: [48, 14, 1.5] } },
+      },
+      { t: { text: 'Napoleon maß bei seinem Tod rund **1,68 Meter**.', x: 130, y: 80, w: 212 }, pics: { p: { img: 0, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [48, 14, 1.5] } }, gfx: { heights: {} } },
+      {
+        t: { text: 'Sein Arzt notierte 1821 auf St. Helena: _5 pieds 2 pouces_.', x: 130, y: 80, w: 212 },
+        pics: { p: { img: 0, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [48, 14, 1.5] } },
+        gfx: { f0: { draw: 'formel', args: [['5 Fuß', '+', '2 Zoll'], 360, 'fünf Fuß, zwei Zoll'] } },
+      },
       { t: { text: 'Für einen Franzosen um 1800 war das **Durchschnitt**.', x: 130, y: 80, w: 212 }, pics: { p: { img: 0, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [48, 14, 1.5] } }, gfx: { heights: { cls: 'a1' } } },
+      { t: { text: 'Rekruten jener Zeit waren im Schnitt etwa **1,65 Meter** groß – er sogar etwas mehr.', x: 130, y: 70, w: 212, kind: 'mid' }, pics: { p: { img: 0, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [48, 14, 1.5] } }, gfx: { heights: { cls: 'a1' } } },
       {
         t: T('Gemessen wurde aber in **französischen Zoll** – und die waren länger als englische.', 548),
         pics: { p: { img: 0, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [48, 14, 1.5] } },
         gfx: { rulers: { from: { tf: [1, 60, 0], o: 0 } } },
       },
+      { t: T('Französisch gerechnet ergibt das rund **1,68 Meter**:', 64), gfx: { f1: { draw: 'formel', args: [['5 Fuß', '×', '32,5 cm', '+', '2 Zoll', '×', '2,7 cm', '≈', '1,68 m'], 300, 'französische Maße'] } } },
+      { t: T('Liest man dieselben Zahlen in englischen Maßen, schrumpft er auf **1,57 Meter**:', 64), gfx: { f2: { draw: 'formel', args: [['5 Fuß', '×', '30,5 cm', '+', '2 Zoll', '×', '2,5 cm', '≈', '1,57 m'], 300, 'englische Maße'] } } },
       {
-        t: { text: 'Englisch gelesen wurden aus „5 pieds 2 pouces“ nur **1,57 Meter**.', x: 130, y: 70, w: 212 },
+        t: { text: 'So wurde aus dem Durchschnittsmann ein **Zwerg** – zumindest auf dem Papier.', x: 130, y: 70, w: 212 },
         pics: { p: { img: 0, x: 20, y: 64, w: 96, h: 120, r: 'oval', cam: [48, 14, 1.5] } },
         gfx: { heights: { cls: 'a1 a2' } },
       },
+      { t: T('Dazu kam seine Garde: Die Grenadiere wurden nach **Körpergröße** ausgewählt – mit hohen Bärenfellmützen. Daneben wirkte er klein.', 64), gfx: { garde: {} } },
       {
         t: { text: 'Den Rest erledigte **Propaganda**: Der Brite James Gillray zeichnete ihn als winzigen „Little Boney“.', x: 18, y: 500, w: 324, card: true },
         pics: {
@@ -213,7 +342,11 @@ export const GESELLSCHAFT: Bite[] = [
         },
       },
       {
-        t: { text: 'Seine Soldaten nannten ihn liebevoll _le petit caporal_ – den kleinen Korporal.', x: 20, y: 496, w: 236 },
+        t: { text: 'Hier, 1803, hält der englische König Georg III. den Mini-Napoleon auf der Hand – und mustert ihn durchs **Fernglas**.', x: 18, y: 496, w: 324, card: true },
+        pics: { g: { img: 1, x: 0, y: 0, w: 360, h: 680, r: 0, cam: [58, 40, 1.6], cam2: [55, 40, 1.8] } },
+      },
+      {
+        t: { text: 'Seine Soldaten nannten ihn liebevoll _le petit caporal_ – den kleinen Korporal. Nach einer Schlacht 1796, so heißt es.', x: 20, y: 496, w: 236, kind: 'mid' },
         pics: { g: { img: 1, x: 16, y: 56, w: 328, h: 420, cam: [23, 44, 2.6], cam2: [23, 44, 2.9] } },
         gfx: { galons: {} },
       },
@@ -225,14 +358,30 @@ export const GESELLSCHAFT: Bite[] = [
         },
       },
       {
+        t: T('Modell gesessen hat er dafür nicht. Ähnlichkeit sei egal, soll er gesagt haben – es zähle die **Ausstrahlung**.', 500),
+        pics: { a: { img: 2, x: 16, y: 56, w: 328, h: 420, cam: [56, 20, 2.4], cam2: [56, 20, 2.7] } },
+      },
+      {
+        t: T('Unten in den Fels ließ David drei Namen meißeln: Bonaparte, Hannibal, **Karl der Große**.', 500),
+        pics: { a: { img: 2, x: 16, y: 56, w: 328, h: 420, cam: [20, 92, 2.6], cam2: [18, 92, 2.9] } },
+      },
+      {
         t: T('In Wirklichkeit kam er auf einem **Maultier** über den Pass – geführt von einem Bergbauern.', 560),
         pics: {
           a: { img: 2, x: 16, y: 56, w: 328, h: 470, cam: [48, 30, 1.18] },
           d: { img: 3, x: 16, y: 56, w: 328, h: 470, enter: 'wipe', z: 2, cam: [45, 40, 1.05], cam2: [42, 28, 1.25], cap: 'Paul Delaroche, 1850' },
         },
       },
+      {
+        t: T('Paul Delaroche malte ihn fast 50 Jahre später so: erschöpft, im grauen Mantel, ganz ohne **Heldenpose**.', 500),
+        pics: { d: { img: 3, x: 16, y: 56, w: 328, h: 420, cam: [40, 18, 2.2], cam2: [40, 18, 2.5] } },
+      },
+      recap(
+        [{ gfx: 'heights', cls: 'a1' }, { gfx: 'rulers' }, { pic: 1, id: 'g', cam: [24, 44, 1.5] }, { pic: 3, id: 'd', cam: [42, 30, 1.2] }],
+        ['1,68 m: Durchschnitt', 'französische Zoll', 'Karikatur: klein', 'Wirklichkeit: Maultier'],
+      ),
     ],
-    summary: ['Rund 1,69 m: Durchschnitt für seine Zeit.', 'Französische Zoll waren länger als englische.', 'Karikaturen machten ihn klein, Gemälde groß.'],
+    summary: ['Rund 1,68 m: Durchschnitt für seine Zeit.', 'Französische Zoll waren länger als englische.', 'Karikaturen machten ihn klein, Gemälde groß.'],
     sources: ['Encyclopaedia Britannica: Napoleon I', 'British Museum: Gillray, The Plumb-pudding in danger (1805)'],
   },
   {
@@ -244,6 +393,54 @@ export const GESELLSCHAFT: Bite[] = [
     ambience: 'weltraum',
     images: [img('blaue-murmel'), img('flammarion')],
     draw: {
+      schatten(g) {
+        ink(g, E(50, 400, 34), { w: 3, t: 500 })
+        for (let k = 0; k < 8; k++) {
+          const a = (k / 8) * Math.PI * 2
+          ink(g, L([50 + Math.cos(a) * 42, 400 + Math.sin(a) * 42], [50 + Math.cos(a) * 54, 400 + Math.sin(a) * 54]), { w: 2, d: 300 + k * 40, t: 100 })
+        }
+        text(g, 50, 480, 'Sonne', { anchor: 'middle', cls: 's', d: 400 })
+        hatch(g, E(170, 400, 40), 800, true)
+        ink(g, E(170, 400, 40), { w: 3, d: 500, t: 500 })
+        text(g, 170, 480, 'Erde', { anchor: 'middle', cls: 's', d: 700 })
+        hatch(g, [[170, 360], [300, 370], [300, 430], [170, 440]], 1000)
+        ink(g, E(300, 400, 34), { w: 3, d: 900, t: 500 })
+        const sh = group(g)
+        hatch(sh, [...E(300, 400, 33, 33, 100, 260), ...E(330, 400, 40, 40, 235, 125).slice(1)], 1500, true)
+        ink(sh, E(330, 400, 40, 40, 225, 135), { w: 2.2, d: 1500, t: 400 })
+        text(g, 300, 480, 'Mond', { anchor: 'middle', cls: 's', d: 1100 })
+        text(g, 240, 330, 'runder Schatten', { anchor: 'middle', d: 1900 })
+      },
+      gelehrte(g) {
+        const at = (y: number) => (y + 300) / 1800
+        timeline(g, 30, 330, 430, [
+          { at: at(-240), label: '240 v. Chr.', sub: 'Eratosthenes', up: true },
+          { at: at(725), label: '725', sub: 'Beda' },
+          { at: at(1260), label: '1260', sub: 'Thomas v. Aquin', up: true },
+          { at: at(1492), label: '1492', sub: 'Kolumbus', big: true },
+        ], 0, 400)
+      },
+      buch(g) {
+        ink(g, RR(80, 250, 200, 280, 8), { w: 3.2, t: 700 })
+        hatch(g, RR(80, 250, 22, 280, 8), 500, true)
+        text(g, 190, 300, 'De sphaera', { anchor: 'middle', size: 24, cls: 'it', d: 600 })
+        ink(g, E(190, 410, 70), { w: 3, d: 800, t: 700 })
+        ink(g, E(190, 410, 70, 16, 0, 180), { w: 2, d: 1200, t: 400 })
+        ink(g, E(190, 410, 28, 70, -90, 270), { w: 2, d: 1300, t: 500 })
+        text(g, 180, 580, '„Über die Kugel“, um 1230', { anchor: 'middle', d: 1500 })
+      },
+      kontinente(g) {
+        const am: P[] = [...B([40, 260], [100, 250], [110, 340], [90, 400]), ...B([90, 400], [120, 460], [100, 560], [70, 600]), ...B([70, 600], [40, 520], [30, 400], [40, 260])]
+        hatch(g, am, 600)
+        ink(g, am, { w: 3, t: 800 })
+        const eu: P[] = [...B([300, 250], [340, 270], [340, 360], [320, 400]), ...B([320, 400], [350, 460], [330, 560], [300, 600]), ...B([300, 600], [280, 500], [270, 400], [300, 250])]
+        hatch(g, eu, 800)
+        ink(g, eu, { w: 3, d: 300, t: 800 })
+        arrow(g, B([290, 420], [230, 380], [170, 400], [118, 420]), { w: 3, d: 1200, t: 900 })
+        text(g, 70, 640, 'Amerika', { anchor: 'middle', d: 1000 })
+        text(g, 310, 640, 'Europa', { anchor: 'middle', d: 1000 })
+        text(g, 200, 350, '1492', { anchor: 'middle', d: 1800, size: 20 })
+      },
       schiff(g) {
         const sea = E(180, 1100, 700, 700, 235, 305)
         hatch(g, [...sea, [520, 700], [-160, 700]], 500)
@@ -306,10 +503,23 @@ export const GESELLSCHAFT: Bite[] = [
       {
         t: { text: 'Nein – Gebildete wussten seit der Antike: Die Erde ist eine **Kugel**.', x: 20, y: 64, w: 214 },
         pics: { e: { img: 0, x: 248, y: 64, w: 96, h: 96, r: 'oval', cam: [50, 50, 1.02] } },
+        gfx: { schiff: {} },
+      },
+      {
+        t: { text: 'Ein Beleg: Schiffe verschwinden am Horizont zuerst mit dem **Rumpf** – zuletzt mit der Mastspitze.', x: 20, y: 64, w: 214 },
+        pics: { e: { img: 0, x: 248, y: 64, w: 96, h: 96, r: 'oval', cam: [50, 50, 1.02] } },
         gfx: { schiff: { cls: 'a1' } },
       },
-      { t: T('Eratosthenes berechnete um 240 v. Chr. sogar ihren **Umfang** – aus Schatten und einem Winkel.', 160), gfx: { erato: {} } },
+      { t: T('Aristoteles nannte um 350 v. Chr. einen zweiten: Bei einer Mondfinsternis wirft die Erde einen **runden Schatten** auf den Mond.', 64), gfx: { schatten: {} } },
+      { t: T('Dazu ein dritter: Wer nach Süden reist, sieht **neue Sterne** auftauchen. Auch das geht nur auf einer Kugel.', 64), gfx: { punkte: { args: [['Schiffe sinken hinter den Horizont', 'runder Erdschatten auf dem Mond', 'neue Sterne im Süden'], 320] } } },
+      { t: T('Eratosthenes berechnete um 240 v. Chr. sogar ihren **Umfang** – aus Schatten und einem Winkel.', 64), gfx: { erato: {} } },
+      { t: T('Mittags fiel in Syene kein Schatten. In Alexandria warf ein Stab zur selben Zeit einen: Winkel **7,2 Grad**.', 64), gfx: { erato: {} } },
+      { t: T('Warum verrät der Schatten den Winkel? Die Sonne ist so weit weg, dass ihre Strahlen **parallel** ankommen – in Syene wie in Alexandria.', 64), gfx: { erato: {} } },
+      { t: T('Eine Linie, die zwei Parallelen kreuzt, bildet an beiden **denselben Winkel**. So taucht der Schattenwinkel genau im Erdmittelpunkt wieder auf.', 64), gfx: { erato: {} } },
+      { t: T('7,2 Grad sind ein Fünfzigstel des Kreises. Die Erde ist also fünfzigmal so groß wie der Abstand der Städte:', 64), gfx: { f1: { draw: 'formel', args: [['Umfang', '=', '360 Grad ÷ 7,2 Grad', '×', 'Abstand der Städte'], 320] } } },
+      { t: T('Mit rund 800 Kilometern Abstand ergibt das etwa **40.000 Kilometer** – fast genau der heutige Wert.', 64), gfx: { f2: { draw: 'formel', args: [['50', '×', 'rund 800 km', '≈', '40.000 km'], 330] } } },
       { t: T('Könige hielten im Mittelalter den **Reichsapfel**: eine Kugel als Zeichen der Welt.', 520), gfx: { apfel: {} } },
+      { t: T('Gelehrte wie Beda oder Thomas von Aquin schrieben ganz selbstverständlich von der **Kugel**.', 64), gfx: { gelehrte: {} } },
       {
         t: T('Der Mythos entstand erst im **19. Jahrhundert**. Auch dieser „mittelalterliche“ Holzstich stammt von 1888.', 480),
         pics: { f: { img: 1, x: 16, y: 56, w: 328, h: 396, enter: 'blot', cam: [50, 50, 1.0], cam2: [34, 40, 1.35], cap: 'Holzstich aus Flammarion, 1888' } },
@@ -318,7 +528,13 @@ export const GESELLSCHAFT: Bite[] = [
         t: T('Washington Irving schmückte 1828 die **Kolumbus**-Geschichte aus – als hätte er gegen Flacherde-Gläubige gekämpft.', 330),
         pics: { f: { img: 1, x: 90, y: 60, w: 180, h: 220, cam: [34, 40, 1.35] } },
       },
+      { t: T('Streitschriften jener Zeit malten das Mittelalter als **finster** und wissenschaftsfeindlich. Die Quellen zeigen etwas anderes.', 64), gfx: { vergleich: { args: [['Mythos', 'finsteres Mittelalter', 'Erde als Scheibe'], ['Quellen', 'Gelehrte an Universitäten', 'Erde als Kugel'], 290] } } },
       { t: T('Gestritten wurde 1492 über die **Größe** der Erde – und da lag Kolumbus falsch.', 64), gfx: { route: {} } },
+      { t: T('Er hätte verhungern müssen. Ihn rettete ein Kontinent, mit dem niemand gerechnet hatte: **Amerika**.', 64), gfx: { kontinente: {} } },
+      recap(
+        [{ gfx: 'schiff', cls: 'a1' }, { gfx: 'erato' }, { gfx: 'apfel' }, { pic: 1, id: 'f', cam: [34, 40, 1.3] }],
+        ['Schiffe hinter dem Horizont', 'Eratosthenes: 40.000 km', 'Reichsapfel = Kugel', 'Mythos aus dem 19. Jh.'],
+      ),
     ],
     summary: ['Kugelgestalt seit der Antike bekannt.', 'Reichsapfel = Welt als Kugel.', 'Kolumbus irrte bei der Größe, nicht bei der Form.'],
     sources: ['Russell 1991, Inventing the Flat Earth', 'Morison 1942, Admiral of the Ocean Sea'],
@@ -332,6 +548,23 @@ export const GESELLSCHAFT: Bite[] = [
     ambience: 'wind',
     images: [img('gizeh')],
     draw: {
+      boot(g) {
+        for (let k = 0; k < 3; k++) ink(g, B([10, 520 + k * 22], [100, 506 + k * 22], [220, 534 + k * 22], [350, 518 + k * 22]), { w: 2, d: k * 150, t: 700 })
+        const b = group(g)
+        const hull: P[] = [[60, 470], [300, 470], [270, 510], [90, 510], [60, 470]]
+        hatch(b, hull, 700)
+        ink(b, hull, { w: 3, d: 400, t: 600 })
+        for (let k = 0; k < 4; k++) {
+          ink(b, RR(100 + k * 42, 430, 36, 38, 3), { w: 2.4, d: 800 + k * 150, t: 300 })
+          hatch(b, RR(100 + k * 42, 430, 36, 38, 3), 1000 + k * 150, true)
+        }
+        ink(b, L([280, 470], [280, 330]), { w: 3, d: 900, t: 300 })
+        const sail: P[] = [[284, 340], [330, 420], [284, 430], [284, 340]]
+        hatch(b, sail, 1300, true)
+        ink(b, sail, { w: 2.4, d: 1100, t: 300 })
+        b.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(6px)' }], { duration: 1800, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' })
+        text(g, 180, 620, 'Kalkstein für die Verkleidung', { anchor: 'middle', d: 1600 })
+      },
       pyramide(g) {
         const rows = 8
         for (let i = 0; i < rows; i++) {
@@ -421,10 +654,25 @@ export const GESELLSCHAFT: Bite[] = [
     scenes: [
       { t: HOOK(484), pics: { p: { img: 0, x: 16, y: 56, w: 328, h: 410, enter: 'blot', cam: [50, 55, 1.1], cam2: [45, 50, 1.25] } } },
       { t: T('So zeigen es Filme: Peitschen, Ketten, Tausende **Sklaven**. Die Archäologie erzählt etwas anderes.', 64), gfx: { pyramide: {} } },
+      { t: T('Die Cheops-Pyramide entstand um 2560 v. Chr. – fast 4.000 Jahre lang war sie das **höchste Bauwerk** der Welt.', 64), gfx: { zahl: { args: ['146 m', 'ursprüngliche Höhe', 420] } } },
+      { t: T('Verbaut wurden rund **2,3 Millionen** Steinblöcke, im Schnitt etwa zweieinhalb Tonnen schwer.', 64), gfx: { z2: { draw: 'zahl', args: ['2,3 Mio.', 'Steinblöcke', 420] } } },
+      { t: T('Bei rund 20 Jahren Bauzeit heißt das:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['2,3 Millionen Blöcke', '÷', '20 Jahre', '÷', '365 Tage', '≈', '315 Blöcke pro Tag'], 300] } } },
+      { t: T('Bei zehn Stunden Arbeit am Tag: etwa **alle zwei Minuten** ein Block – geschnitten, gezogen, gesetzt.', 64), gfx: { f2: { draw: 'formel', args: [['10 Stunden', '÷', '315 Blöcke', '≈', '2 Minuten pro Block'], 330] } } },
+      { t: T('Die Sklaven-Idee ist alt: Herodot schrieb um 450 v. Chr. von 100.000 schuftenden Männern – **2.000 Jahre** nach dem Bau.', 64), gfx: { pyramide: { tf: [0.7, 54, 140] } } },
       { t: T('Bei Gizeh fand man die **Arbeiterstadt**: Bäckereien, Brauereien, Unterkünfte.', 64), gfx: { pyramide: { tf: [0.5, 170, 170] }, stadt: { tf: [1, 0, -20] } } },
       { t: T('Und Gräber der Arbeiter direkt neben den Pyramiden. Sklaven hätte man nie so **ehrenvoll** bestattet.', 64), gfx: { pyramide: { tf: [0.5, 170, 170] }, stadt: { cls: 'a1', tf: [1, 0, -20] } } },
+      { t: T('Arbeitstrupps gaben sich stolze Namen – zu lesen als Inschriften in den Steinen:', 64), gfx: { punkte: { args: [['„Freunde des Cheops“', '„Trunkenbolde des Mykerinos“'], 340] } } },
       { t: T('Die Knochen zeigen schwere Arbeit – aber auch **Medizin**: verheilte Brüche, sogar Amputationen.', 64), gfx: { knochen: {} } },
-      { t: T('Es gab Brot, Bier und Fleisch. Viele waren **Bauern**, die abwechselnd Dienst taten.', 64), gfx: { wechsel: {} } },
+      { t: T('Verpflegt wurde gut: Tierknochen zeigen, dass jeden Tag Rinder, Schafe und Ziegen **geschlachtet** wurden.', 64), gfx: { p2: { draw: 'punkte', args: [['Brot aus eigenen Bäckereien', 'Bier als Grundnahrung', 'Fleisch von Rind, Schaf, Ziege'], 320] } } },
+      { t: T('Viele waren **Bauern**, die abwechselnd Dienst taten – oft dann, wenn der Nil die Felder überflutete.', 64), gfx: { wechsel: {} } },
+      { t: T('Gleichzeitig arbeiteten wohl rund **20.000** Menschen: ein fester Kern von Fachleuten und wechselnde Helfer.', 64), gfx: { z3: { draw: 'zahl', args: ['20.000', 'Arbeiter gleichzeitig', 420] } } },
+      { t: T('2013 fand man das Tagebuch des Beamten Merer: Er brachte Kalkstein mit Booten über den **Nil** nach Gizeh.', 64), gfx: { boot: {} } },
+      { t: T('Harte Arbeit war es trotzdem – aber organisiert vom Staat, mit **Lohn** in Brot und Bier.', 64), gfx: { vergleich: { args: [['Filmbild', 'Sklaven', 'Peitschen', 'Ketten'], ['Funde', 'Arbeitertrupps', 'Ärzte', 'Brot und Bier'], 290] } } },
+      { t: T('Heute ist sie nur noch rund 139 Meter hoch – die glatte Verkleidung wurde im Mittelalter als **Baumaterial** abgetragen.', 64), gfx: { pyramide: { tf: [0.8, 36, 100] } } },
+      recap(
+        [{ gfx: 'pyramide' }, { gfx: 'stadt', cls: 'a1' }, { gfx: 'knochen' }, { gfx: 'wechsel' }],
+        ['2,3 Mio. Blöcke', 'Arbeiterstadt + Gräber', 'medizinisch versorgt', 'Bauern im Wechsel'],
+      ),
     ],
     summary: ['Arbeiterstadt und Gräber neben den Pyramiden.', 'Brot, Bier, Fleisch und medizinische Versorgung.', 'Viele Bauern arbeiteten im Wechsel.'],
     sources: ['Lehner & Hawass 2017, Giza and the Pyramids', 'AERA: Lost City of the Pyramid Builders'],
@@ -482,21 +730,41 @@ export const GESELLSCHAFT: Bite[] = [
     scenes: [
       { t: HOOK(66), gfx: { para: {} } },
       { t: T('Es ist umgekehrt. Artikel 2 des Grundgesetzes schützt die **allgemeine Handlungsfreiheit**.', 64), gfx: { du: {} } },
+      { t: T('_„Jeder hat das Recht auf die freie Entfaltung seiner Persönlichkeit, soweit er nicht die Rechte anderer verletzt …“_', 200, { kind: 'mid' }), gfx: { para: { tf: [0.4, 108, 290] } } },
       { t: T('Du darfst alles tun, was **nicht verboten** ist.', 64), gfx: { du: { cls: 'a1' } } },
+      { t: T('Für dich gilt also:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['erlaubt', '=', 'alles', '−', 'was ein Gesetz verbietet'], 320, 'für Bürgerinnen und Bürger'] } } },
       {
         t: T('Für den **Staat** gilt das Gegenteil: Eingreifen darf er nur, wenn ein Gesetz es erlaubt.', 64),
         gfx: { du: { cls: 'a1', tf: [0.62, -17, 132] }, staat: { tf: [0.62, 153, 132], from: { tf: [0.62, 233, 132], o: 0 } } },
       },
       { t: T('Juristen nennen das den _Vorbehalt des Gesetzes_.', 64), gfx: { du: { cls: 'a1', tf: [0.62, -17, 132] }, staat: { cls: 'a1', tf: [0.62, 153, 132] } } },
+      { t: T('Ob Bußgeld, Hausdurchsuchung oder Steuer: Für jeden Eingriff braucht der Staat eine **Grundlage** in einem Gesetz.', 64), gfx: { punkte: { args: [['Bußgeld', 'Hausdurchsuchung', 'Steuer'], 320] } } },
+      { t: T('Und das Gesetz muss selbst zur Verfassung passen – sonst kann es das **Bundesverfassungsgericht** kippen.', 64), gfx: { f2: { draw: 'formel', args: [['Eingriff', '→', 'Gesetz', '→', 'Grundgesetz'], 340, 'jede Stufe muss passen'] } } },
       {
         t: T('Wie weit deine Freiheit reicht, zeigt ein Urteil: Sogar **Reiten im Wald** gehört dazu.', 486),
         pics: { r: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 50, 1.05], cam2: [50, 45, 1.2] } },
       },
       {
-        t: T('Ein Landesgesetz darf es einschränken. Das Urteil von 1989 heißt seitdem _„Reiten im Walde“_.', 72),
-        pics: { r: { img: 0, x: 16, y: 210, w: 160, h: 200, cam: [50, 45, 1.2] } },
-        gfx: { hammer: { tf: [0.7, 140, 60] } },
+        t: T('Ein Reiter aus Nordrhein-Westfalen hatte geklagt: Das Landesgesetz erlaubte Reiten im Wald nur auf **ausgewiesenen Wegen**.', 470),
+        pics: { r: { img: 0, x: 16, y: 56, w: 328, h: 390, cam: [50, 60, 1.4], cam2: [50, 60, 1.6] } },
       },
+      {
+        t: T('Das Gericht entschied 1989: Reiten ist geschützte Freiheit – die Einschränkung war aber erlaubt, zum Schutz von Wald und **Wanderern**.', 72),
+        pics: { r: { img: 0, x: 16, y: 250, w: 160, h: 200, cam: [50, 45, 1.2] } },
+        gfx: { hammer: { tf: [0.7, 140, 120] } },
+      },
+      { t: T('Seitdem heißt die Entscheidung _„Reiten im Walde“_. Auch das Füttern von **Tauben** prüfte das Gericht schon an Artikel 2.', 64), gfx: { zahl: { args: ['1989', 'Urteil „Reiten im Walde“', 420] } } },
+      { t: T('Artikel 2 ist ein **Auffang-Grundrecht**: Es greift immer, wenn kein spezielleres passt.', 64), gfx: { vergleich: { args: [['speziell', 'Meinung: Artikel 5', 'Beruf: Artikel 12'], ['Auffang', 'alles andere: Artikel 2'], 290] } } },
+      { t: T('Seine Grenze: die Rechte anderer. Deine Freiheit endet, wo die eines anderen **beginnt**.', 64), gfx: { du: { cls: 'a1' } } },
+      { t: T('Und selbst mit Gesetz darf der Staat nur so weit eingreifen, wie nötig – **Verhältnismäßigkeit**:', 64), gfx: { f3: { draw: 'formel', args: [['geeignet', '+', 'erforderlich', '+', 'angemessen'], 330, 'jeder Eingriff muss sein'] } } },
+      { t: T('Angewandt auf den Wald – Schritt eins: **Geeignet**? Schützen Reitwege Spaziergänger und Waldboden? Ja.', 64), gfx: { v1: { draw: 'formel', args: [['geeignet?', '→', 'schützt es Wanderer und Boden?', '→', 'ja'], 320] } } },
+      { t: T('Schritt zwei: **Erforderlich**? Gibt es etwas Milderes, das genauso wirkt? Ein totales Reitverbot wäre zu viel – Wege reichen.', 64), gfx: { v2: { draw: 'formel', args: [['erforderlich?', '→', 'gibt es etwas Milderes?', '→', 'Wege statt Verbot'], 320] } } },
+      { t: T('Schritt drei: **Angemessen**? Reiter verlieren etwas Freiheit, Wanderer gewinnen Sicherheit. Das Gericht wog ab: in Ordnung.', 64), gfx: { v3: { draw: 'formel', args: [['angemessen?', '→', 'Nutzen gegen Nachteil', '→', 'ausgewogen'], 320] } } },
+      { t: T('Wer sich vom Staat in seinen Grundrechten verletzt fühlt, kann am Ende **Verfassungsbeschwerde** in Karlsruhe erheben – in der Regel kostenlos.', 64), gfx: { z3: { draw: 'zahl', args: ['0 €', 'Gebühr für eine Verfassungsbeschwerde (in der Regel)', 420] } } },
+      recap(
+        [{ gfx: 'para' }, { gfx: 'du', cls: 'a1' }, { gfx: 'staat', cls: 'a1' }, { pic: 0, id: 'r' }],
+        ['Artikel 2 GG', 'Du: alles, was nicht verboten ist', 'Staat: nur mit Gesetz', '„Reiten im Walde“'],
+      ),
     ],
     summary: ['Art. 2 GG: allgemeine Handlungsfreiheit.', 'Behörden brauchen eine gesetzliche Grundlage.', 'Urteil „Reiten im Walde“, 1989.'],
     sources: ['Grundgesetz Art. 2 Abs. 1, Art. 20 Abs. 3', 'BVerfGE 80, 137'],
@@ -553,12 +821,25 @@ export const GESELLSCHAFT: Bite[] = [
     },
     scenes: [
       { t: HOOK(456), pics: { p: { img: 0, x: 16, y: 56, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
-      { t: T('Das Sprichwort sagt: nein. Im deutschen Strafrecht ist es **feiner**.', 64), gfx: { waage: { cls: 'a1', tf: [0.8, 36, 60] } } },
-      { t: T('Wer nicht weiß, dass etwas verboten ist, irrt sich über das Verbot.', 64), gfx: { baum: {} } },
-      { t: T('Straffrei bleibt nur, wer den Irrtum **nicht vermeiden** konnte.', 64), gfx: { baum: { cls: 'a1' } } },
+      { t: T('Das alte Sprichwort sagt nein. Auf Latein: _Ignorantia legis non excusat_ – Unkenntnis des Gesetzes entschuldigt nicht.', 64), gfx: { waage: { cls: 'a1', tf: [0.8, 36, 80] } } },
+      { t: T('Die Idee: Sonst könnte sich jeder herausreden. Recht soll für **alle** gelten – ob sie es kennen oder nicht.', 64), gfx: { waage: { cls: 'a1', tf: [0.8, 36, 80] } } },
+      { t: T('Im deutschen Strafrecht ist es aber **feiner**. Wer nicht weiß, dass etwas verboten ist, irrt sich über das Verbot.', 64), gfx: { baum: {} } },
+      { t: T('§ 17 Strafgesetzbuch: Fehlt die Einsicht, Unrecht zu tun, handelt man **ohne Schuld** – wenn man den Irrtum nicht vermeiden konnte.', 64), gfx: { baum: { cls: 'a1' } } },
       { t: T('Wer sich hätte erkundigen können – bei einer Anwältin oder Behörde –, wird bestraft. Höchstens **milder**.', 64), gfx: { baum: { cls: 'a1 a2', tf: [1, 0, 50] } } },
+      { t: T('Die Gerichte prüfen streng:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['vermeidbar', '=', 'du hättest es herausfinden können'], 330] } } },
+      { t: T('Wer ein Geschäft betreibt, muss die Regeln seiner Branche kennen. Wer unsicher ist, muss **nachfragen**.', 64), gfx: { punkte: { args: [['Regeln der eigenen Branche kennen', 'bei Zweifeln nachfragen', 'Gewissen anstrengen'], 320] } } },
+      { t: T('Wer sich auf eine **falsche Auskunft** von Anwältin oder Behörde verlässt, irrt dagegen meist unvermeidbar.', 64), gfx: { baum: { cls: 'a1', tf: [1, 0, 50] } } },
       { t: T('Anders beim **Irrtum über Tatsachen**: Wer einen fremden Schirm für seinen hält, stiehlt nicht.', 64), gfx: { schirm: { cls: 'a1' } } },
       { t: T('Ihm fehlt der **Vorsatz**: Er kennt nicht das Gesetz nicht, sondern die Lage.', 64), gfx: { schirm: { cls: 'a1 a2' } } },
+      { t: T('Juristen trennen die beiden Irrtümer so:', 64, { kind: 'big' }), gfx: { vergleich: { args: [['§ 17 Verbotsirrtum', 'kennt das Verbot nicht', 'meist strafbar'], ['§ 16 Tatumstand', 'kennt die Lage nicht', 'kein Vorsatz'], 290] } } },
+      { t: T('Aber: War er **fahrlässig**, kann es trotzdem strafbar sein – wenn das Gesetz auch Fahrlässigkeit bestraft. Beim Diebstahl ist das nicht so.', 64), gfx: { schirm: { cls: 'a1 a2', tf: [0.8, 36, 120] } } },
+      { t: T('Dasselbe gilt für Bußgelder: Auch das Gesetz über **Ordnungswidrigkeiten** kennt den Verbotsirrtum.', 64), gfx: { p2: { draw: 'punkte', args: [['Strafrecht: § 17 StGB', 'Bußgelder: § 11 OWiG'], 340] } } },
+      { t: T('Ein Beispiel: Wer im Urlaub eine **Drohne** fliegen lässt, muss sich vorher über die Regeln dort informieren.', 64), gfx: { baum: { cls: 'a1 a2', tf: [1, 0, 50] } } },
+      { t: T('Wie oft klappt die Ausrede? **Selten**. Gerichte erkennen einen unvermeidbaren Verbotsirrtum nur in Ausnahmefällen an.', 64), gfx: { z1: { draw: 'zahl', args: ['selten', 'unvermeidbar', 420] } } },
+      recap(
+        [{ gfx: 'waage', cls: 'a1' }, { gfx: 'baum', cls: 'a1 a2' }, { gfx: 'schirm', cls: 'a1 a2' }, { pic: 0, id: 'p' }],
+        ['Recht gilt für alle', '§ 17: nur unvermeidbar straffrei', '§ 16: Irrtum über die Lage', 'streng geprüft'],
+      ),
     ],
     summary: ['§ 17 StGB: Verbotsirrtum.', 'Straffrei nur, wenn unvermeidbar.', 'Irrtum über Tatsachen (§ 16) lässt den Vorsatz entfallen.'],
     sources: ['Strafgesetzbuch §§ 16, 17'],
@@ -572,6 +853,16 @@ export const GESELLSCHAFT: Bite[] = [
     ambience: 'wind',
     images: [img('nato-flaggen')],
     draw: {
+      wachstum(g) {
+        const at = (y: number) => (y - 1949) / (2025 - 1949)
+        timeline(g, 30, 330, 430, [
+          { at: at(1949), label: '1949', sub: '12 Staaten', up: true },
+          { at: at(1955), label: '1955', sub: 'Bundesrepublik' },
+          { at: at(1999), label: '1999', sub: 'Polen u. a.', up: true },
+          { at: at(2004), label: '2004', sub: '7 Staaten' },
+          { at: at(2024), label: '2024', sub: '32 Staaten', up: true, big: true },
+        ], 0, 450)
+      },
       bund(g) {
         const n = 32
         const cx = 180
@@ -626,10 +917,25 @@ export const GESELLSCHAFT: Bite[] = [
     },
     scenes: [
       { t: HOOK(456), pics: { p: { img: 0, x: 16, y: 56, w: 328, h: 380, enter: 'blot', cam: [50, 40, 1.05], cam2: [55, 40, 1.2] } } },
-      { t: T('Artikel 5 des NATO-Vertrags: Ein bewaffneter Angriff auf ein Mitglied gilt als **Angriff auf alle**.', 64), gfx: { bund: { cls: 'a1' } } },
+      { t: T('Die NATO wurde 1949 gegründet: zwölf Staaten, als Schutzbündnis gegen die **Sowjetunion**.', 64), gfx: { zahl: { args: ['12', 'Gründungsstaaten 1949', 420] } } },
+      { t: T('Heute sind es **32** – zuletzt kamen Finnland 2023 und Schweden 2024 dazu.', 64), gfx: { bund: {} } },
+      { t: T('Ihr Kern ist Artikel 5: Ein bewaffneter Angriff auf ein Mitglied gilt als **Angriff auf alle**.', 64), gfx: { bund: { cls: 'a1' } } },
+      { t: T('Das klingt nach Automatik:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['Angriff auf ein Mitglied', '=', 'Angriff auf alle'], 320] } } },
       { t: T('Im Text steht aber: Jedes Land hilft mit den Maßnahmen, **die es für erforderlich hält**.', 64), gfx: { mittel: {} } },
       { t: T('Auch **Waffengewalt** ist möglich. Wie geholfen wird, entscheidet jedes Land selbst.', 64), gfx: { mittel: { cls: 'a1' } } },
+      { t: T('Diese Formulierung wollten vor allem die **USA**: Über Krieg sollte ihr eigenes Parlament entscheiden.', 64), gfx: { f2: { draw: 'formel', args: [['Beistand', '=', 'Pflicht'], 300, 'genauer:'] }, f3: { draw: 'formel', args: [['Art des Beistands', '=', 'Entscheidung jedes Landes'], 440] } } },
       { t: T('Ausgerufen wurde der Bündnisfall bisher nur **einmal**: nach den Anschlägen vom 11. September 2001.', 64), gfx: { zeit: {} } },
+      { t: T('Am 12. September erklärte die NATO den Bündnisfall. Es folgten etwa **Aufklärungsflüge** über den USA.', 64), gfx: { zeit: { tf: [1, 0, -60] }, zahl: { args: ['1×', 'Bündnisfall, 2001', 560] } } },
+      { t: T('Daneben gibt es **Artikel 4**: Beratungen, wenn sich ein Mitglied bedroht fühlt – etwa 2022 nach Russlands Angriff auf die Ukraine.', 64), gfx: { vergleich: { args: [['Artikel 4', 'Beratung', 'mehrfach genutzt'], ['Artikel 5', 'Beistand', 'einmal, 2001'], 290] } } },
+      { t: T('Gegründet von den USA, Kanada und zehn europäischen Ländern. Die Bundesrepublik trat 1955 bei, nach 1990 viele Staaten Osteuropas.', 64), gfx: { wachstum: {} } },
+      { t: T('Entscheidungen fallen **einstimmig**: Jedes der 32 Mitglieder hat praktisch ein Vetorecht.', 64), gfx: { bund: { cls: 'a1' } } },
+      { t: T('Artikel 5 gilt nur für Angriffe in **Europa und Nordamerika** – so legt es Artikel 6 fest.', 64), gfx: { v2: { draw: 'vergleich', args: [['gilt', 'Europa', 'Nordamerika', 'Atlantik nördlich des Wendekreises'], ['gilt nicht', 'zum Beispiel Kolonien im Süden', 'Einsätze weltweit'], 290] } } },
+      { t: T('Viel diskutiert ist Geld. Lange galt: Jedes Land soll **2 Prozent** seiner Wirtschaftsleistung für Verteidigung ausgeben.', 64), gfx: { f4: { draw: 'formel', args: [['Verteidigungsausgaben', '÷', 'Wirtschaftsleistung', '≥', '2 %'], 320, 'Zwei-Prozent-Ziel'] } } },
+      { t: T('2025 einigten sich die Mitglieder auf mehr: **5 Prozent** bis 2035 – davon 3,5 Prozent für das Militär selbst.', 64), gfx: { z5: { draw: 'zahl', args: ['5 %', 'Ziel bis 2035', 420] } } },
+      recap(
+        [{ gfx: 'bund', cls: 'a1' }, { gfx: 'mittel', cls: 'a1' }, { gfx: 'zeit' }, { pic: 0, id: 'p' }],
+        ['Angriff auf einen = auf alle', 'Mittel wählt jedes Land', 'Bündnisfall nur 2001', '32 Staaten'],
+      ),
     ],
     summary: ['Angriff auf einen = Angriff auf alle.', 'Jedes Land wählt die Mittel selbst.', 'Bündnisfall bisher nur 2001.'],
     sources: ['Nordatlantikvertrag 1949, Art. 5', 'NATO: Collective defence and Article 5'],
@@ -689,11 +995,25 @@ export const GESELLSCHAFT: Bite[] = [
     scenes: [
       { t: HOOK(70), gfx: { urne: {} } },
       { t: T('In **Australien** gilt seit 1924 Wahlpflicht. Wer ohne Grund fehlt, zahlt ein kleines Bußgeld.', 64), gfx: { jahr: {} } },
-      { t: T('Die Beteiligung liegt seitdem meist um **90 Prozent**.', 64), gfx: { s1: { draw: 'saeulen', args: [1] } } },
-      { t: T('In Deutschland waren es bei der Bundestagswahl 2025 rund **82 Prozent** – so viel wie seit Jahrzehnten nicht.', 64), gfx: { s2: { draw: 'saeulen', args: [2] } } },
+      { t: T('Wer nicht gewählt hat, bekommt einen Brief: einen Grund nennen – oder **20 Dollar** zahlen.', 64), gfx: { f1: { draw: 'formel', args: [['nicht gewählt', '→', 'Grund nennen', 'oder', '20 Dollar'], 330] } } },
+      { t: T('Gewählt wird an einem **Samstag** – mit Würstchen vom Grill vor dem Wahllokal, der „Democracy Sausage“.', 64), gfx: { urne: { tf: [0.8, 36, 60] } } },
+      { t: T('Gemessen wird die Wahlbeteiligung so:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['Wahlbeteiligung', '=', 'abgegebene Stimmen', '÷', 'Wahlberechtigte'], 320] } } },
+      { t: T('In Australien liegt sie seitdem meist um **90 Prozent**.', 64), gfx: { s1: { draw: 'saeulen', args: [1] } } },
+      { t: T('In Deutschland waren es bei der Bundestagswahl 2025 rund **82 Prozent** – so viel wie seit 1987 nicht.', 64), gfx: { s2: { draw: 'saeulen', args: [2] } } },
       { t: T('Bei Landtags- und Europawahlen ist sie oft viel **niedriger**.', 64), gfx: { s3: { draw: 'saeulen', args: [3] } } },
-      { t: T('Studien zeigen: Wahlpflicht erhöht die Beteiligung und gleicht sie zwischen **Arm und Reich** an.', 64), gfx: { armreich: {} } },
-      { t: T('Ob die Leute dadurch **informierter** wählen, ist offen.', 64), gfx: { frage: {} } },
+      { t: T('Australien ist nicht allein: Rund 20 Länder kennen eine Wahlpflicht – **durchgesetzt** wird sie aber nur in wenigen, etwa in Belgien oder Uruguay.', 64), gfx: { zahl: { args: ['≈ 20', 'Länder mit Wahlpflicht', 420] } } },
+      { t: T('Ohne Pflicht wählen Ärmere seltener als Reiche. Studien zeigen: Die Pflicht gleicht das an – **alle** Stimmen zählen mit.', 64), gfx: { armreich: {} } },
+      { t: T('Es gibt auch Gegenargumente:', 64, { kind: 'big' }), gfx: { vergleich: { args: [['dafür', 'hohe Beteiligung', 'alle Schichten vertreten'], ['dagegen', 'Zwang statt Freiheit', 'Kreuz aufs Geratewohl'], 290] } } },
+      { t: T('Ob die Leute durch die Pflicht **informierter** wählen, ist offen.', 64), gfx: { frage: {} } },
+      { t: T('Belgien hat die älteste noch geltende Wahlpflicht: seit **1893**.', 64), gfx: { z2: { draw: 'zahl', args: ['1893', 'Wahlpflicht in Belgien', 420] } } },
+      { t: T('Pflicht heißt dort meist nur: hingehen und den Zettel abgeben. **Ungültig** wählen darf man trotzdem.', 64), gfx: { urne: { tf: [0.8, 36, 60] } } },
+      { t: T('Studien schätzen: Eine durchgesetzte Wahlpflicht hebt die Beteiligung um rund **zehn Prozentpunkte** oder mehr.', 64), gfx: { s2b: { draw: 'saeulen', args: [2] } } },
+      { t: T('Zum Vergleich: Bei rund 59 Millionen Wahlberechtigten in Deutschland heißt jeder Prozentpunkt:', 64), gfx: { f3: { draw: 'formel', args: [['1 % von 59 Millionen', '≈', '590.000 Menschen'], 330] } } },
+      { t: T('In Deutschland gilt dagegen Artikel 38: Wahlen sind allgemein, unmittelbar, **frei**, gleich und geheim.', 64), gfx: { p2: { draw: 'punkte', args: [['allgemein', 'unmittelbar', 'frei', 'gleich', 'geheim'], 280] } } },
+      recap(
+        [{ gfx: 'urne' }, { gfx: 'jahr' }, { gfx: 's3', draw: 'saeulen', args: [3] }, { gfx: 'armreich' }],
+        ['Wahlpflicht Australien', 'seit 1924, 20 Dollar Bußgeld', '90 % zu 82 %', 'gleicht Arm und Reich an'],
+      ),
     ],
     summary: ['Australien: Wahlpflicht seit 1924, rund 90 % Beteiligung.', 'Bundestagswahl 2025: rund 82 %.', 'Pflicht gleicht Unterschiede zwischen Arm und Reich an.'],
     sources: ['Australian Electoral Commission', 'Die Bundeswahlleiterin 2024, 2025', 'Lijphart 1997, American Political Science Review'],
@@ -706,6 +1026,27 @@ export const GESELLSCHAFT: Bite[] = [
     mood: 'verspielt',
     images: [img('tulpen-satire'), img('tulpenfeld')],
     draw: {
+      blasen(g) {
+        const at = (y: number) => (y - 1600) / 425
+        timeline(g, 30, 330, 430, [
+          { at: at(1637), label: '1637', sub: 'Tulpen', up: true },
+          { at: at(1720), label: '1720', sub: 'Südsee' },
+          { at: at(2000), label: '2000', sub: 'Dotcom', up: true },
+          { at: at(2008), label: '2008', sub: 'Immobilien', big: true },
+        ], 0, 500)
+      },
+      herkunft(g) {
+        timeline(g, 30, 330, 430, [
+          { at: 0.05, label: 'um 1550', sub: 'Osmanisches Reich', up: true },
+          { at: 0.45, label: '1593', sub: 'Leiden' },
+          { at: 0.92, label: '1637', sub: 'Absturz', up: true, big: true },
+        ], 0, 600)
+      },
+      geflammt(g) {
+        tulip(g, 180, 620, 3, 0)
+        for (let k = 0; k < 5; k++) ink(g, B([150 + k * 14, 360], [146 + k * 14, 400], [158 + k * 14, 430], [152 + k * 14, 450]), { w: 2.6, d: 1200 + k * 150, t: 300 })
+        text(g, 180, 300, 'geflammt', { anchor: 'middle', size: 22, cls: 'it', d: 1500 })
+      },
       tausch(g) {
         balance(g, 0, 0, 0, 0)
         tulip(pop(g, 1200), 80, 350, 0.8, 1200)
@@ -749,11 +1090,20 @@ export const GESELLSCHAFT: Bite[] = [
     },
     scenes: [
       { t: HOOK(470), pics: { s: { img: 0, x: 16, y: 56, w: 328, h: 380, enter: 'blot', cam: [50, 50, 1.05], cam2: [40, 55, 1.3], cap: 'Brueghel d. J., Satire auf die Tulpenmanie' } } },
+      { t: T('Tulpen kamen im 16. Jahrhundert aus dem **Osmanischen Reich** nach Europa – exotisch, selten, teuer.', 64), gfx: { herkunft: {} } },
+      { t: T('Besonders begehrt waren **geflammte** Blüten. Den Grund kannte niemand: ein Virus, das die Farbe streifig macht.', 64), gfx: { geflammt: {} } },
       { t: T('1637 erreichten **Tulpenzwiebeln** absurde Preise. Eine einzige soll so viel gekostet haben wie ein Haus.', 64), gfx: { tausch: { tf: [0.9, 18, 120] } } },
-      { t: T('Dann brach der Markt in wenigen Tagen **ein**.', 64), gfx: { kurs: {} } },
+      { t: T('Für einzelne Zwiebeln zahlte man über 5.000 Gulden. Ein Handwerker verdiente im **Jahr** etwa 300.', 64), gfx: { f1: { draw: 'formel', args: [['5.000 Gulden', '÷', '300 Gulden Jahreslohn', '≈', '16 Jahre Arbeit'], 320] } } },
+      { t: T('Gehandelt wurde im Winter, wenn die Zwiebeln in der Erde lagen – auf **Papier**, in Wirtshäusern.', 64), gfx: { vertrag: {} } },
+      { t: T('Dann, Anfang Februar 1637 in Haarlem, fanden sich plötzlich **keine Käufer** mehr. Der Markt brach in wenigen Tagen ein.', 64), gfx: { kurs: {} } },
       { t: T('Lange galt das als erste **Spekulationsblase** – mit ruinierten Existenzen.', 64), gfx: { kurs: { cls: 'a1' } } },
       { t: T('Die Historikerin Anne Goldgar fand in den Archiven aber **kaum Pleiten**.', 64), gfx: { archiv: {} } },
       { t: T('Gehandelt hatte eine kleine Schicht reicher Kaufleute – viele Verträge wurden **nie erfüllt**.', 64), gfx: { vertrag: { cls: 'a1' } } },
+      { t: T('Oft einigte man sich auf einen kleinen Teil des Preises. Behörden empfahlen 1638 rund **3,5 Prozent**.', 64), gfx: { zahl: { args: ['3,5 %', 'des vereinbarten Preises', 420] } } },
+      {
+        t: T('Maler machten sich lustig: Bei Jan Brueghel dem Jüngeren handeln **Affen** mit Tulpen – die Spekulanten als Narren.', 430),
+        pics: { s: { img: 0, x: 16, y: 56, w: 328, h: 350, cam: [35, 60, 1.8], cam2: [38, 62, 2.1] } },
+      },
       {
         t: T('Die Horror-Geschichten stammen aus **moralischen Flugschriften** – und aus einem Bestseller von Charles Mackay, 1841.', 420),
         pics: { s: { img: 0, x: 16, y: 56, w: 328, h: 330, cam: [62, 45, 1.6] } },
@@ -762,6 +1112,15 @@ export const GESELLSCHAFT: Bite[] = [
         t: T('Heute sind die Niederlande der größte **Tulpenexporteur** der Welt.', 504),
         pics: { f: { img: 1, x: 16, y: 56, w: 328, h: 420, enter: 'blot', cam: [50, 60, 1.05], cam2: [50, 60, 1.2] } },
       },
+      { t: T('Die Niederlande waren um 1630 das reichste Land Europas: Handel, Schiffe – und seit 1602 eine **Börse** in Amsterdam.', 64), gfx: { p2: { draw: 'punkte', args: [['Welthandel mit Schiffen', 'erste Aktiengesellschaft 1602', 'viel Geld, das Anlage suchte'], 320] } } },
+      { t: T('Gehandelt wurde oft nicht die Zwiebel selbst, sondern das Recht, sie später zu kaufen – ein frühes **Termingeschäft**.', 64), gfx: { f2: { draw: 'formel', args: [['Vertrag im Winter', '→', 'Zwiebel im Sommer'], 330, 'Termingeschäft'] } } },
+      { t: T('Die Preise stiegen, weil man Verträge mit Gewinn **weiterverkaufen** konnte – solange neue Käufer kamen.', 64), gfx: { f3: { draw: 'formel', args: [['Preis steigt', '→', 'neue Käufer', '→', 'Preis steigt'], 330, 'Spirale'] } } },
+      { t: T('Das ist der Kern jeder Blase: Man kauft nicht wegen des Werts, sondern weil man auf einen **höheren Preis** hofft.', 64), gfx: { kurs: { cls: 'a1' } } },
+      { t: T('Spätere Blasen waren viel größer – mit echten Pleiten:', 64, { kind: 'big' }), gfx: { blasen: {} } },
+      recap(
+        [{ gfx: 'tausch' }, { gfx: 'kurs', cls: 'a1' }, { gfx: 'vertrag', cls: 'a1' }, { pic: 0, id: 's', cam: [40, 55, 1.2] }],
+        ['1 Zwiebel = 1 Haus?', 'Absturz Februar 1637', 'Verträge nie erfüllt', 'Spott statt Ruin'],
+      ),
     ],
     summary: ['1637: Preissturz in wenigen Tagen.', 'Archive zeigen kaum Pleiten.', 'Die Legende stammt aus Flugschriften und Mackay (1841).'],
     sources: ['Goldgar 2007, Tulipmania'],
@@ -774,6 +1133,28 @@ export const GESELLSCHAFT: Bite[] = [
     mood: 'raetsel',
     images: [img('kobra')],
     draw: {
+      autos(g) {
+        ink(g, L([20, 560], [340, 560]), { w: 3, t: 500 })
+        car(g, 110, 556, 2, 200)
+        const two = pop(g, 1200)
+        car(two, 260, 556, 2, 0)
+        text(g, 110, 600, 'Kennzeichen …3', { anchor: 'middle', cls: 's', d: 700 })
+        text(two, 260, 600, 'Zweitwagen …8', { anchor: 'middle', cls: 's', fade: false })
+        cross(g, 110, 470, 1.4, 900)
+      },
+      kanal(g) {
+        ink(g, L([20, 300], [340, 300]), { w: 3, t: 500 })
+        hatch(g, [[20, 300], [340, 300], [340, 620], [20, 620]], 400)
+        blank(g, RR(30, 420, 300, 60, 30))
+        ink(g, RR(30, 420, 300, 60, 30), { w: 3, d: 300, t: 700 })
+        for (let k = 0; k < 4; k++) {
+          const r = group(g)
+          ink(r, E(80 + k * 60, 458, 14, 8), { w: 2.2, t: 0 })
+          ink(r, B([66 + k * 60, 460], [58 + k * 60, 466], [52 + k * 60, 454], [44 + k * 60, 458]), { w: 1.6, t: 0 })
+          r.animate([{ transform: 'translateX(-40px)' }, { transform: 'translateX(60px)' }], { duration: 2600 + k * 300, delay: k * 200, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' })
+        }
+        text(g, 180, 280, 'neue Kanalisation, um 1900', { anchor: 'middle', d: 600 })
+      },
       kurve(g) {
         ink(g, L([40, 580], [330, 580]), { w: 3, t: 500 })
         ink(g, L([40, 580], [40, 250]), { w: 3, t: 500 })
@@ -833,10 +1214,24 @@ export const GESELLSCHAFT: Bite[] = [
         gfx: { geld: {} },
       },
       { t: T('Die Leute **züchteten** Kobras. Als die Prämie wegfiel, ließen sie sie frei – mehr Schlangen als vorher.', 64), gfx: { kurve: {} } },
-      { t: T('Für Delhi gibt es dafür aber **keinen Beleg** aus der Zeit.', 64), gfx: { kurve: { cls: 'a1' } } },
-      { t: T('Gut dokumentiert ist **Hanoi 1902**: Die Kolonialverwaltung zahlte für jeden Rattenschwanz.', 64), gfx: { ratte: { cls: 'a1' } } },
-      { t: T('Bald liefen Ratten **ohne Schwanz** herum – man ließ sie leben, damit sie sich vermehren.', 64), gfx: { ratte: { cls: 'a1 a2' } } },
-      { t: T('Ökonomen nennen das **Fehlanreiz**: Wird ein Maß zum Ziel, taugt es nicht mehr als Maß.', 64), gfx: { ziel: { tf: [1, 0, 40] } } },
+      { t: T('Den Namen prägte der Ökonom Horst Siebert 2001. Für Delhi gibt es aber **keinen Beleg** aus der Zeit.', 64), gfx: { kurve: { cls: 'a1' } } },
+      { t: T('Gut dokumentiert ist dagegen **Hanoi**: Die französische Kolonialverwaltung baute um 1900 eine moderne Kanalisation – ein Paradies für Ratten.', 64), gfx: { kanal: {} } },
+      { t: T('1902 bezahlte sie Rattenfänger. Bald wurden an einem einzigen Tag über 20.000 Ratten getötet – und es wurden **nicht weniger**.', 64), gfx: { zahl: { args: ['20.000', 'getötete Ratten an einem Tag, 1902', 420] } } },
+      { t: T('Dann durften alle mitmachen. Als Beweis genügte der **Schwanz**:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['1 Rattenschwanz', '=', '1 Cent'], 330] } } },
+      { t: T('Die Leute fingen Ratten, schnitten den Schwanz ab – und ließen sie **laufen**.', 64), gfx: { ratte: { cls: 'a1' } } },
+      { t: T('Bald liefen Ratten **ohne Schwanz** herum. Die durften sich vermehren – für neue Schwänze. Kontrolleure fanden sogar Rattenzuchten.', 64), gfx: { ratte: { cls: 'a1 a2' } } },
+      { t: T('Ökonomen nennen das **Fehlanreiz**: Man belohnt eine Messgröße – und die Leute optimieren die Messgröße statt des Ziels.', 64), gfx: { f2: { draw: 'formel', args: [['Messgröße', '→', 'Ziel', '→', 'Messgröße taugt nichts mehr'], 320, 'Goodhart’sches Gesetz'] } } },
+      { t: T('Wird ein Maß zum Ziel, taugt es nicht mehr als Maß. So formulierte es der Ökonom Charles **Goodhart** 1975.', 64), gfx: { ziel: { tf: [1, 0, 40] } } },
+      { t: T('Beispiele gibt es bis heute:', 64, { kind: 'big' }), gfx: { punkte: { args: [['Schulen, die nur nach Tests bewertet werden, üben nur noch für den Test', 'Klickzahlen belohnen reißerische Überschriften'], 300] } } },
+      { t: T('Die Lösung: mehrere Messgrößen kombinieren – und genau hinschauen, was eine Belohnung **wirklich** belohnt.', 64), gfx: { ziel: { tf: [0.6, 72, 200] } } },
+      { t: T('Drei Fragen, bevor man etwas belohnt:', 64, { kind: 'big' }), gfx: { p4: { draw: 'punkte', args: [['Was genau wird gezählt?', 'Kann man die Zahl erhöhen, ohne das Ziel zu erreichen?', 'Was passiert, wenn die Belohnung endet?'], 280] } } },
+      { t: T('Für Hanoi hieße das: nicht Schwänze zählen, sondern prüfen, ob es **weniger Ratten** gibt – und Brutstätten beseitigen.', 64), gfx: { g1: { draw: 'formel', args: [['belohnt', '→', 'Schwänze'], 300] }, g2: { draw: 'formel', args: [['gemeint', '→', 'weniger Ratten'], 430] } } },
+      { t: T('Ein neueres Beispiel: Mexiko-Stadt verbot 1989 Autos je nach Kennzeichen an einem Tag pro Woche – gegen den **Smog**.', 64), gfx: { autos: {} } },
+      { t: T('Viele kauften daraufhin ein **zweites Auto** – oft ein altes mit schlechten Abgaswerten. Die Luft wurde nicht besser.', 64), gfx: { f3: { draw: 'formel', args: [['Fahrverbot an einem Tag', '→', 'Zweitauto', '→', 'mehr alte Autos'], 320] } } },
+      recap(
+        [{ gfx: 'kurve', cls: 'a1' }, { gfx: 'kanal' }, { gfx: 'ratte', cls: 'a1 a2' }, { gfx: 'ziel' }],
+        ['Kobras: ohne Beleg', 'Hanoi 1902: Ratten', 'Schwanz ab, Ratte frei', 'Maß als Ziel verliert Wert'],
+      ),
     ],
     summary: ['Kobras in Delhi: Anekdote ohne Beleg.', 'Rattenschwänze in Hanoi 1902: dokumentiert.', 'Goodhart: Ein Maß als Ziel verliert seinen Wert.'],
     sources: ['Vann 2003, French Colonial History', 'Goodhart 1975'],
@@ -891,10 +1286,28 @@ export const GESELLSCHAFT: Bite[] = [
     },
     scenes: [
       { t: HOOK(470), pics: { e: { img: 0, x: 16, y: 56, w: 328, h: 390, enter: 'blot', cam: [50, 50, 1.05], cam2: [50, 50, 1.2] } } },
-      { t: T('2010 meldeten Daniel Kahneman und Angus Deaton: Ab etwa **75.000 Dollar** im Jahr steigt die Tagesstimmung nicht mehr.', 64), gfx: { chart: {} } },
-      { t: T('2021 befragte Matthew Killingsworth über 30.000 Menschen per Handy: Das Wohlbefinden steigt **weiter**.', 64), gfx: { chart: { cls: 'a1' } } },
-      { t: T('2023 werteten beide Seiten **gemeinsam** neu aus: Für die meisten steigt es weiter – nur bei den Unglücklichsten flacht es ab.', 64), gfx: { chart: { cls: 'a1 a2', tf: [1, 0, 30] } } },
+      { t: T('Glück lässt sich auf zwei Arten messen – und das macht hier den Unterschied:', 64), gfx: { vergleich: { args: [['Zufriedenheit', 'Wie läuft mein Leben?', 'Leiter von 0 bis 10'], ['Stimmung', 'Wie fühle ich mich gerade?', 'Freude, Stress, Ärger'], 290] } } },
+      { t: T('2010 werteten Daniel Kahneman und Angus Deaton eine riesige Umfrage aus den USA aus.', 64), gfx: { zahl: { args: ['450.000', 'Antworten aus den USA', 420] } } },
+      { t: T('Ergebnis: Ab etwa **75.000 Dollar** im Jahr steigt die Tagesstimmung nicht mehr. Die Zahl wurde weltberühmt.', 64), gfx: { chart: {} } },
+      { t: T('Die Zufriedenheit mit dem Leben stieg dabei **weiter** – nur die Stimmung schien abzuflachen.', 64), gfx: { chart: {} } },
+      { t: T('2021 fragte Matthew Killingsworth per Handy-App mehrmals täglich: Wie fühlst du dich gerade? **1,7 Millionen** Antworten.', 64), gfx: { z2: { draw: 'zahl', args: ['1,7 Mio.', 'Momentaufnahmen von 33.000 Menschen', 420] } } },
+      { t: T('Sein Ergebnis: Das Wohlbefinden steigt mit dem Einkommen **weiter** – keine Grenze bei 75.000.', 64), gfx: { chart: { cls: 'a1' } } },
+      { t: T('2023 werteten beide Seiten **gemeinsam** neu aus: Für die meisten steigt das Glück weiter.', 64), gfx: { chart: { cls: 'a1 a2', tf: [1, 0, 30] } } },
+      { t: T('Nur bei den unglücklichsten rund 20 Prozent flacht es ab etwa 100.000 Dollar ab. Geld hilft gegen manches Leid, **nicht gegen alles**.', 64), gfx: { chart: { cls: 'a1 a2', tf: [1, 0, 30] } } },
       { t: T('Und jeder zusätzliche Euro zählt umso **weniger**, je mehr man schon hat.', 64), gfx: { muenzen: {} } },
+      { t: T('Es zählt also der **Prozentsatz**, nicht der Betrag:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['von 20.000 auf 40.000 €', '≈', 'von 100.000 auf 200.000 €'], 320, 'etwa gleich viel Glückszuwachs'] } } },
+      { t: T('Ein Beispiel: 3.000 Euro mehr im Jahr.', 64, { kind: 'big' }), gfx: { q1: { draw: 'formel', args: [['3.000 € mehr bei 30.000 €', '=', '+ 10 %'], 300] }, q2: { draw: 'formel', args: [['3.000 € mehr bei 300.000 €', '=', '+ 1 %'], 430] } } },
+      { t: T('Dasselbe Geld – aber fürs Glück zählt es im ersten Fall etwa **zehnmal** so viel.', 64), gfx: { muenzen: {} } },
+      { t: T('Auch das Wofür zählt: Studien finden, dass Ausgaben für **Erlebnisse**, Zeit und andere Menschen oft glücklicher machen als Dinge.', 64), gfx: { punkte: { args: [['Erlebnisse statt Dinge', 'Zeit kaufen: Arbeit abgeben', 'Geld für andere ausgeben'], 320] } } },
+      { t: T('Woher kam die Grenze? 2010 wurde die Stimmung grob erfragt: Hattest du **gestern** viel Freude – ja oder nein?', 64), gfx: { v2: { draw: 'vergleich', args: [['2010', 'Ja-Nein-Fragen', 'über gestern'], ['2021', 'feine Skala', 'jetzt, per App'], 290] } } },
+      { t: T('Wer schon oft Ja sagt, kann kaum noch mehr Ja sagen – die Messung stieß an eine **Decke**. Ein Teil der Grenze war ein Messproblem.', 64), gfx: { chart: {} } },
+      { t: T('Und Lottogewinner? Schwedische Daten zeigen: Jahre später sind sie im Schnitt **zufriedener** als vorher – kein Lotto-Fluch.', 64), gfx: { z3: { draw: 'zahl', args: ['+', 'Lebenszufriedenheit nach großem Lottogewinn', 420] } } },
+      { t: T('Umgekehrt trifft Geldmangel hart: **Schulden** und Armut gehören zu den stärksten Quellen von Stress.', 64), gfx: { p2: { draw: 'punkte', args: [['Schulden', 'unsichere Miete', 'keine Reserve für Notfälle'], 320] } } },
+      { t: T('Geld wirkt also vor allem über Sicherheit und Freiheit:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['mehr Geld', '→', 'mehr Sicherheit und Freiheit', '→', 'mehr Wohlbefinden'], 320] } } },
+      recap(
+        [{ gfx: 'chart', cls: 'a1 a2' }, { gfx: 'muenzen' }, { gfx: 'f1', draw: 'formel', args: [['von 20.000 auf 40.000 €', '≈', 'von 100.000 auf 200.000 €'], 320] }, { pic: 0, id: 'e' }],
+        ['Glück steigt meist weiter', 'jeder Euro zählt weniger', 'Prozent zählt', 'Wofür zählt mit'],
+      ),
     ],
     summary: ['2010: Grenze bei 75.000 $ – inzwischen überholt.', '2023 gemeinsame Studie: meist kein Plateau.', 'Jeder weitere Euro bringt weniger.'],
     sources: ['Kahneman & Deaton 2010, PNAS', 'Killingsworth 2021, PNAS', 'Killingsworth, Kahneman & Mellers 2023, PNAS'],
@@ -908,6 +1321,28 @@ export const GESELLSCHAFT: Bite[] = [
     ambience: 'stadt',
     images: [img('preisschilder')],
     draw: {
+      tacho(g) {
+        for (const [y, km, d] of [[300, '79.900', 0], [460, '80.000', 900]] as const) {
+          ink(g, RR(60, y, 240, 70, 10), { w: 3, d, t: 500 })
+          text(g, 180, y + 48, `${km} Meilen`, { anchor: 'middle', size: 30, d: d + 300 })
+        }
+        arrow(g, L([330, 340], [330, 500]), { w: 3, d: 1600, t: 400 })
+        text(g, 180, 600, 'deutlich billiger verkauft', { anchor: 'middle', d: 1900 })
+      },
+      kleid(g) {
+        const none = () => ''
+        vbars(g, [{ label: '34 Dollar', v: 55, fmt: none }, { label: '39 Dollar', v: 82, fmt: none, dense: true }, { label: '44 Dollar', v: 50, fmt: none }], { x: 50, base: 580, w: 70, gap: 100, h: 300, max: 100 })
+        text(g, 40, 250, 'verkaufte Kleider', { cls: 's', d: 200 })
+      },
+      tanken(g) {
+        ink(g, L([180, 620], [180, 450]), { w: 5, t: 400 })
+        ink(g, RR(70, 230, 220, 220, 14), { w: 3.2, d: 200, t: 700 })
+        hatch(g, RR(70, 230, 220, 40, 14), 700, true)
+        text(g, 180, 258, 'Super', { anchor: 'middle', size: 20, d: 800, cls: 'halo' })
+        text(g, 170, 360, '1,79', { anchor: 'middle', size: 64, d: 1000 })
+        text(g, 252, 324, '9', { anchor: 'middle', size: 30, d: 1300 })
+        text(g, 180, 420, 'Euro je Liter', { anchor: 'middle', cls: 's', d: 1400 })
+      },
       etikett(g) {
         const sw = group(g, 'sway', 'transform-box: view-box; transform-origin: 70px 250px; --d: 1200ms')
         ink(sw, B([70, 250], [40, 290], [90, 330], [66, 396]), { w: 2, t: 500 })
@@ -947,13 +1382,26 @@ export const GESELLSCHAFT: Bite[] = [
     scenes: [
       { t: HOOK(70), gfx: { etikett: {} } },
       { t: T('Wir lesen Preise von **links nach rechts** – und die erste Ziffer bleibt hängen.', 64), gfx: { etikett: { cls: 'a1' } } },
+      { t: T('Das Gehirn schätzt eine Zahl, **bevor** es sie ganz gelesen hat. Die erste Ziffer wiegt am schwersten.', 64), gfx: { etikett: { cls: 'a1' } } },
       { t: T('9,99 € fühlt sich nach „neun-irgendwas“ an – obwohl es praktisch **zehn Euro** sind.', 64), gfx: { etikett: { cls: 'a1 a2' } } },
+      { t: T('Im Kopf läuft ungefähr diese Rechnung:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['9,99 €', '≈', '9 € und ein bisschen'], 320, 'gefühlt'] }, f2: { draw: 'formel', args: [['9,99 €', '≈', '10 €'], 460, 'tatsächlich'] } } },
       { t: T('Studien bestätigen den **Linke-Ziffer-Effekt**: 2,99 wirkt deutlich günstiger als 3,00.', 64), gfx: { paare: {} } },
+      { t: T('Ein Versuch mit Versandkatalogen: Dasselbe Kleid verkaufte sich für **39 Dollar** besser als für 34 oder 44.', 64), gfx: { kleid: {} } },
+      { t: T('Sogar bei Gebrauchtwagen: Knapp unter einer runden Kilometer- bzw. Meilenzahl bringt ein Auto spürbar **mehr Geld**.', 64), gfx: { tacho: {} } },
+      { t: T('Tankstellen treiben es auf die Spitze: Fast jeder Spritpreis endet auf eine **kleine 9**.', 64), gfx: { tanken: {} } },
       { t: T('Luxusmarken meiden die 9 oft **bewusst**: Runde Preise wirken hochwertiger.', 64), gfx: { luxus: { cls: 'a1' } } },
       {
         t: T('Und die Erklärung, krumme Preise sollten **Diebstahl** an der Kasse verhindern, ist kaum belegt.', 470),
         pics: { p: { img: 0, x: 16, y: 56, w: 328, h: 390, enter: 'blot', cam: [72, 55, 1.0], cam2: [72, 55, 1.15] } },
       },
+      { t: T('Händler nennen das **Schwellenpreis**: knapp unter einer runden Marke – 9,99 statt 10, 199 statt 200.', 64), gfx: { z1: { draw: 'zahl', args: ['9,99', 'Schwellenpreis', 420] } } },
+      { t: T('Am stärksten wirkt es, wenn die **erste Ziffer** wechselt:', 64, { kind: 'big' }), gfx: { f3: { draw: 'formel', args: [['3,00 → 2,99', '=', 'gefühlt großer Sprung'], 300] }, f4: { draw: 'formel', args: [['3,60 → 3,59', '=', 'kaum ein Unterschied'], 440] } } },
+      { t: T('Wer schnell entscheidet, fällt eher darauf herein – an der **Kasse** oder im Online-Shop.', 64), gfx: { etikett: { cls: 'a1', tf: [0.8, 36, 100] } } },
+      { t: T('Gegenmittel: Preise im Kopf **aufrunden**.', 64, { kind: 'big' }), gfx: { f5: { draw: 'formel', args: [['9,99', '→', '10'], 320, 'aufrunden'] }, f6: { draw: 'formel', args: [['199', '→', '200'], 440] } } },
+      recap(
+        [{ gfx: 'etikett', cls: 'a1 a2' }, { gfx: 'paare' }, { gfx: 'tanken' }, { gfx: 'luxus', cls: 'a1' }],
+        ['erste Ziffer zählt', '2,99 wirkt billiger als 3,00', 'Sprit endet auf 9', 'Luxus: runde Preise'],
+      ),
     ],
     summary: ['Die erste Ziffer prägt das Preisgefühl.', '2,99 wirkt viel billiger als 3,00.', 'Luxusmarken bevorzugen runde Preise.'],
     sources: ['Thomas & Morwitz 2005, Journal of Consumer Research', 'Anderson & Simester 2003, Quantitative Marketing and Economics'],

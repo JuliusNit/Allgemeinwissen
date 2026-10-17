@@ -61,7 +61,12 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   an den neuen Platz; Neues wird gezeichnet. Nach der letzten Szene die Zusammenfassung (React) mit
   Merken / Session / Bild- und Quellennachweis. Zeichnen: `src/lib/inkdraw.ts` (Feder wie `lib/ink.ts`, Striche werden
   sichtbar gezogen), gemeinsame Motive + Zustandsklassen (`a1…a6` schalten `x/f/h/m`-Elemente, CSS in `index.css`)
-  in `src/data/bites/draw.ts`. Neue Szenen prüfen: alle Szenen eines Häppchens nebeneinander rendern (`ScenePlayer.show(i)`).
+  in `src/data/bites/draw.ts`; für alle Häppchen nutzbar (`src/data/bites/common.ts`, in `bites/index.ts` zugemischt): `formel`
+  (Wortformeln ohne Variablen, z. B. Entfernung in km ≈ Sekunden bis zum Donner ÷ 3), `zahl`, `punkte`, `vergleich` und `recap()` =
+  Schlussbild (2 × 2 Kacheln aus Grafiken/Bildern des Häppchens, feste Dauer), danach „Kurz gesagt“. Jedes Häppchen dauert rund
+  2 Minuten (Julius, 17.10.2026). Dabei den nützlichen Kern ausführlich erklären (Herleitung, Rechenbeispiel, Warum, Anwendung),
+  statt Randfakten anzuhängen; wo der Kern schon gut erklärt ist, nichts ändern. Neue Szenen prüfen: alle Szenen eines Häppchens
+  nebeneinander rendern (`ScenePlayer.show(i)`), Dauer = Summe der Rückgabewerte.
   Läuft von selbst: jede Szene genau so lange, bis alles gezeichnet und der Text gelesen ist, plus Zeit für die Grafik
   (`ScenePlayer.show` misst die laufenden Animationen, READ_MS je Wort, Grundzeit je neuer Grafik/Zustand/Bild +
   Beschriftungswörter) – komplexe Szenen länger, einfache kürzer. Links/rechts wischen oder am Rand (je 25 %) tippen =
