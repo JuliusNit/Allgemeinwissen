@@ -52,11 +52,19 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Prüfung · Entdecken · Home (Lernpfad) · Statistik · Profil.
 - **Entdecken** (`#/entdecken[/id]`, `src/views/FeedView.tsx`, lazy): Wissenshäppchen wie kurze Videos. Inhalte in
   `src/data/bites/*.ts` (50 Stück, je Überthema, vorab geschrieben, mit Quellen und Stempel belegt/umstritten/hype),
-  Typen + Lader in `src/data/feed.ts`. Ablauf je Häppchen: Begrüßung (Bild per Kreis aufgedeckt, Wörter fliegen ein) →
-  Aufhänger → 3 Absätze (alter blendet aus, neuer ein; **fett** = Tusche-Unterstrich) → Stempel → Zusammenfassung mit
-  Merken / Session / Bild- und Quellennachweis. Läuft von selbst (Lesezeit je Wortzahl), links/rechts wischen oder tippen =
-  vor/zurück, hoch/runter = nächstes/voriges Häppchen, Finger halten = Pause; Desktop: Pfeiltasten, Mausrad.
-  Bilder: echte Fotos (keine Gemälde, kein Filter) mit freier Lizenz von Wikimedia Commons, `scripts/feed-images.mjs` lädt
+  Typen + Lader in `src/data/feed.ts`. Jedes Häppchen ist ein durchgehender kleiner Film aus `scenes` (Julius' Wunsch,
+  17.10.2026: keine Folien, keine Fortschrittsbalken, Aufhänger kurz ~2 s, dann sofort weiter; Übergänge ineinander wie
+  in der Einführung; nicht in jeder Szene ein Foto, lieber gezeichnete Tusche-Animationen; Text mal oben, mal unten).
+  Abspieler `src/lib/scene.ts` (Bühne 360 × 680, skaliert): je Szene Lage von Bildern (`pics`, Kamera `cam`→`cam2`,
+  Auftritt blot/wipe/fade, Bildunterschrift `cap`), Grafiken (`gfx` = Zeichnungen aus `bite.draw`, Lage `tf`, Zustände
+  `cls`) und Text (`t`; **fett** = Tusche-Unterstrich, _x_ = Zitat in Serifenschrift). Was in zwei Szenen vorkommt, gleitet
+  an den neuen Platz; Neues wird gezeichnet. Szene mit `verdict` = Stempel + `why`, danach Zusammenfassung (React) mit
+  Merken / Session / Bild- und Quellennachweis. Zeichnen: `src/lib/inkdraw.ts` (Feder wie `lib/ink.ts`, Striche werden
+  sichtbar gezogen), gemeinsame Motive + Zustandsklassen (`a1…a6` schalten `x/f/h/m`-Elemente, CSS in `index.css`)
+  in `src/data/bites/draw.ts`. Neue Szenen prüfen: alle Szenen eines Häppchens nebeneinander rendern (`ScenePlayer.show(i)`).
+  Läuft von selbst (Lesezeit je Wortzahl, `sceneDur`), links/rechts wischen oder tippen = vor/zurück, hoch/runter =
+  nächstes/voriges Häppchen, Finger halten = Pause; Desktop: Pfeiltasten, Mausrad.
+  Bilder: Fotos ohne Filter und – bei historischen Personen/Ereignissen – gemeinfreie Gemälde, mit freier Lizenz von Wikimedia Commons, `scripts/feed-images.mjs` lädt
   sie nach `public/feed/*.webp` (max. 900 px), Urheber + Lizenz in `src/data/bites/img.ts` – CC BY/BY-SA verlangen den
   Nachweis, der am Ende jedes Häppchens steht. Ton: `src/lib/sound.ts`, alles live per Web Audio (Musik je `mood`,
   Geräuschkulisse je `ambience`, Effekte zu jeder Bewegung), freigeschaltet beim ersten Antippen (`unlockAudio`),

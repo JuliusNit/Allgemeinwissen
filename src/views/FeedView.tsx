@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode, type WheelEvent as RWheelEvent } from 'react'
-import { imgUrl, loadBites, VERDICT_LABEL, type Bite, type Mood } from '../data/feed'
+import { biteDur, imgUrl, loadBites, sceneDur, type Bite, type Mood } from '../data/feed'
 import { AREAS } from '../data/plan'
 import { canOpen, isPremium, markOpened, mergeVisit, pickNext, toggleSaved, type Visit } from '../lib/feed'
 import { useAuth } from '../lib/cloud'
@@ -8,50 +8,15 @@ import { sessionNo } from '../lib/path'
 import { duck, setSound, sfx, startBite, stopAll } from '../lib/sound'
 import { getState, setState, useStore } from '../lib/store'
 import { Icon } from '../components/Icons'
-import { Frame, InkBorder, InkPaths } from '../components/Ink'
+import { Frame, InkPaths } from '../components/Ink'
 import { bez } from '../lib/ink'
+import { ScenePlayer } from '../lib/scene'
 
 // Entdecken: Wissenshäppchen wie kurze Videos. Hoch/runter wischen = nächstes/voriges Häppchen,
-// links/rechts (oder tippen) = vor/zurück innerhalb, Finger halten = Pause.
+// links/rechts (oder tippen) = vor/zurück innerhalb, Finger halten = Pause. Die Szenen spielt lib/scene.ts ab,
+// danach kommt die Zusammenfassung mit Merken / Session / Quellen.
 
 const PAYWALL = '__premium'
-const STEPS = 6 // Aufhänger, 3 Absätze, Stempel, Zusammenfassung
-const SUMMARY = STEPS - 1
-
-const words = (t: string) => t.split(/\s+/).filter(Boolean).length
-
-/** Anzeigedauer je Schritt (ms): Begrüßung + Lesezeit (~180 Wörter/min), Zusammenfassung bleibt stehen */
-function stepDur(b: Bite, step: number): number {
-  if (step === 0) return 2600 + words(b.hook) * 260
-  if (step <= 3) return 2400 + words(b.slides[step - 1].text) * 330
-  if (step === 4) return 2600 + words(b.why) * 300
-  return Infinity
-}
-
-function expectedDur(b: Bite): number {
-  let d = 0
-  for (let i = 0; i < SUMMARY; i++) d += stepDur(b, i)
-  return d + 3000 + b.summary.reduce((a, x) => a + words(x) * 300, 0)
-}
-
-const DEFAULT_CAMS: [number, number, number][] = [
-  [50, 40, 1.08],
-  [32, 36, 1.4],
-  [68, 56, 1.35],
-  [50, 46, 1.15],
-  [50, 50, 1.02],
-  [50, 50, 1],
-]
-
-function camOf(b: Bite, step: number): { img: number; cam: [number, number, number] } {
-  if (step === 0) return { img: 0, cam: b.cam ?? DEFAULT_CAMS[0] }
-  if (step <= 3) {
-    let img = 0
-    for (let i = 0; i < step; i++) if (b.slides[i].img != null) img = b.slides[i].img!
-    return { img, cam: b.slides[step - 1].cam ?? DEFAULT_CAMS[step] }
-  }
-  return { img: b.images.length > 1 ? b.images.length - 1 : 0, cam: DEFAULT_CAMS[step] }
-}
 
 export default function FeedView({ bite, go }: { bite?: string; go: (hash: string) => void }) {
   const [bites, setBites] = useState<Bite[] | null>(null)
@@ -209,17 +174,18 @@ function useSwipe(h: SwipeHandlers) {
 }
 
 function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 'down'; next: () => void; prev: () => void; go: (hash: string) => void }) {
+  const N = b.scenes.length // Schritt N = Zusammenfassung
   const [step, setStep] = useState(0)
   const [t, setT] = useState(0)
   const [hold, setHold] = useState(false)
   const [hidden, setHidden] = useState(document.hidden)
-  const [fwd, setFwd] = useState(true)
-  const [prevStep, setPrevStep] = useState<number | null>(null)
   const saved = useStore((s) => s.feed.saved.includes(b.id))
   const level = useStore((s) => s.level)
   const paused = hold || hidden
-  const visit = useRef<Visit>({ ms: 0, dur: expectedDur(b), frac: 0, done: false, back: 0, holds: 0, link: 0 })
-  const dur = stepDur(b, step)
+  const visit = useRef<Visit>({ ms: 0, dur: biteDur(b), frac: 0, done: false, back: 0, holds: 0, link: 0 })
+  const host = useRef<HTMLDivElement>(null)
+  const player = useRef<ScenePlayer | null>(null)
+  const dur = step < N ? sceneDur(b, step) : Infinity
 
   // Start: Musik + Begrüßung, als geöffnet zählen; beim Verlassen Verhalten speichern
   useEffect(() => {
@@ -241,15 +207,29 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
     }
   }, [b])
 
+  // Bühne
+  useEffect(() => {
+    const p = new ScenePlayer(host.current!, b, { words: () => sfx.pluck(b.mood), key: () => sfx.stroke(), stamp: () => sfx.stamp() })
+    player.current = p
+    p.show(0)
+    return () => {
+      p.destroy()
+      player.current = null
+    }
+  }, [b])
+
   useEffect(() => {
     const on = () => setHidden(document.hidden)
     document.addEventListener('visibilitychange', on)
     return () => document.removeEventListener('visibilitychange', on)
   }, [])
 
-  useEffect(() => duck(paused), [paused])
+  useEffect(() => {
+    duck(paused)
+    player.current?.pause(paused)
+  }, [paused])
 
-  // Uhr: Fortschritt im Schritt, Sehzeit
+  // Uhr: Fortschritt in der Szene, Sehzeit
   useEffect(() => {
     if (paused) return
     let last = performance.now()
@@ -267,18 +247,16 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
 
   const goStep = useCallback(
     (n: number) => {
-      if (n < 0 || n >= STEPS) return
+      if (n < 0 || n > N || n === step) return
       const forward = n > step
       if (!forward) visit.current.back++
-      setFwd(forward)
-      setPrevStep(step)
       setStep(n)
       setT(0)
-      if (n === 4) setTimeout(() => sfx.stamp(), 420)
-      else if (n === SUMMARY) sfx.outro(b.mood)
-      else sfx.whoosh(forward)
+      player.current?.show(n)
+      if (n === N) sfx.outro(b.mood)
+      else if (!b.scenes[n].verdict) sfx.whoosh(forward)
     },
-    [b.mood, step],
+    [N, b, step],
   )
 
   // automatisch weiter
@@ -289,9 +267,9 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
   // Fortschritt merken
   useEffect(() => {
     const v = visit.current
-    v.frac = Math.max(v.frac, Math.min(1, (step + Math.min(1, t / dur)) / SUMMARY))
-    if (step === SUMMARY) v.done = true
-  }, [step, t, dur])
+    v.frac = Math.max(v.frac, Math.min(1, (step + (Number.isFinite(dur) ? Math.min(1, t / dur) : 0)) / N))
+    if (step === N) v.done = true
+  }, [step, t, dur, N])
 
   // Tastatur (Desktop)
   useEffect(() => {
@@ -333,135 +311,63 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
   const day = b.day
   const no = day ? sessionNo(level, day) : undefined
 
-  // Bild je Schritt; der vorige bleibt darunter liegen, bis der neue eingeblendet ist
-  const painting = (s: number) => {
-    const { img, cam } = camOf(b, s)
-    const d = stepDur(b, s)
-    return <Painting key={`L${s}`} file={b.images[img].file} cam={cam} dur={Number.isFinite(d) ? d : 14000} intro={s === 0} paused={paused} />
-  }
-
-  const textOf = (s: number): ReactNode => {
-    if (s === 0)
-      return (
-        <h1 className="bite-hook">
-          <Words text={b.hook} delay={650} step={90} />
-        </h1>
-      )
-    if (s <= 3)
-      return (
-        <p className="bite-para">
-          <Words text={b.slides[s - 1].text} delay={250} step={40} sound={b.mood} />
-        </p>
-      )
-    if (s === 4)
-      return (
-        <div className="bite-verdict">
-          <div className={`stamp-big ${b.verdict}`}>{VERDICT_LABEL[b.verdict]}</div>
-          <p className="bite-why">
-            <Words text={b.why} delay={900} step={40} />
-          </p>
-        </div>
-      )
-    return (
-      <div className="bite-sum">
-        <h2>Kurz gesagt</h2>
-        <ul>
-          {b.summary.map((x, i) => (
-            <li key={i} style={{ animationDelay: `${300 + i * 380}ms` }}>
-              <Words text={x} delay={300 + i * 380} step={0} />
-            </li>
-          ))}
-        </ul>
-        <div className="row bite-actions">
-          <button
-            className="btn"
-            onClick={() => {
-              setState((x) => toggleSaved(x, b.id))
-              if (!saved) {
-                sfx.save()
-                haptic('leicht')
-              }
-            }}
-            aria-pressed={saved}
-          >
-            <Icon name="BOOKMARK" size={18} hatched={saved} /> {saved ? 'Gemerkt' : 'Merken'}
-          </button>
-          {day && (
-            <button
-              className="btn"
-              onClick={() => {
-                visit.current.link++
-                go(`/thema/${day}`)
-              }}
-            >
-              {no ? `Session ${no}` : 'Zur Session'}
-            </button>
-          )}
-        </div>
-        <p className="bite-credits small muted">
-          Fotos: {b.images.map((im) => `${im.author} (${im.license})`).join(' · ')}, Wikimedia Commons
-          <br />
-          {b.sources.join(' · ')}
-        </p>
-        <div className="bite-next" aria-hidden>
-          <Chevron />
-        </div>
-      </div>
-    )
-  }
-
-  const back = fwd ? '' : ' back'
   return (
-    <div className={`bite feed-in-${dir}${step >= 4 ? ' late' : ''}${paused ? ' paused' : ''}`} {...swipe} onWheel={onWheel}>
-      <div className="bite-bars">
-        {Array.from({ length: STEPS }, (_, i) => (
-          <span key={i} className="bite-bar">
-            <i style={{ width: `${i < step ? 100 : i > step ? 0 : step === SUMMARY ? 100 : Math.min(100, (t / dur) * 100)}%` }} />
-          </span>
-        ))}
-      </div>
+    <div className={`bite feed-in-${dir}${paused ? ' paused' : ''}`} {...swipe} onWheel={onWheel}>
+      <div className="bite-stage" ref={host} />
       <div className="bite-area">
         <Icon name={b.area} size={20} />
         <span>{AREAS[b.area].name}</span>
       </div>
-
-      <div className="bite-pic">
-        {prevStep != null && prevStep !== step && painting(prevStep)}
-        {painting(step)}
-        <InkBorder r={16} w={3.2} />
-      </div>
-
-      <div className="bite-text">
-        {prevStep != null && prevStep !== step && (
-          <div key={`T${prevStep}`} className={`tlayer leave${back}`} aria-hidden>
-            {textOf(prevStep)}
+      {step === N && (
+        <div className="bite-sum">
+          <h2>Kurz gesagt</h2>
+          <ul>
+            {b.summary.map((x, i) => (
+              <li key={i} style={{ animationDelay: `${300 + i * 380}ms` }}>
+                <Words text={x} delay={300 + i * 380} step={0} />
+              </li>
+            ))}
+          </ul>
+          <div className="row bite-actions">
+            <button
+              className="btn"
+              onClick={() => {
+                setState((x) => toggleSaved(x, b.id))
+                if (!saved) {
+                  sfx.save()
+                  haptic('leicht')
+                }
+              }}
+              aria-pressed={saved}
+            >
+              <Icon name="BOOKMARK" size={18} hatched={saved} /> {saved ? 'Gemerkt' : 'Merken'}
+            </button>
+            {day && (
+              <button
+                className="btn"
+                onClick={() => {
+                  visit.current.link++
+                  go(`/thema/${day}`)
+                }}
+              >
+                {no ? `Session ${no}` : 'Zur Session'}
+              </button>
+            )}
           </div>
-        )}
-        <div key={`T${step}`} className={`tlayer enter${back}`}>
-          {textOf(step)}
+          <p className="bite-credits small muted">
+            {b.images.length > 0 && (
+              <>
+                Bilder: {[...new Set(b.images.map((im) => `${im.author} (${im.license})`))].join(' · ')}, Wikimedia Commons
+                <br />
+              </>
+            )}
+            {b.sources.join(' · ')}
+          </p>
+          <div className="bite-next" aria-hidden>
+            <Chevron />
+          </div>
         </div>
-      </div>
-    </div>
-  )
-}
-
-/** Gemälde mit Kamerafahrt; beim Aufhänger mit Tusche-Klecks aufgedeckt */
-function Painting({ file, cam, dur, intro, paused }: { file: string; cam: [number, number, number]; dur: number; intro: boolean; paused: boolean }) {
-  const [x, y, z] = cam
-  return (
-    <div className={`painting${intro ? ' intro' : ''}`}>
-      <img
-        src={imgUrl(file)}
-        alt=""
-        draggable={false}
-        style={{
-          transformOrigin: `${x}% ${y}%`,
-          ['--z0' as string]: String(z),
-          ['--z1' as string]: String(z * 1.09),
-          animationDuration: `${dur + 1200}ms`,
-          animationPlayState: paused ? 'paused' : 'running',
-        }}
-      />
+      )}
     </div>
   )
 }
