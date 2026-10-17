@@ -56,7 +56,7 @@ export const GESELLSCHAFT: Bite[] = [
         ink(g, E(236, 500, 56), { w: 3.4, d: 1200, t: 600 })
         ink(g, E(236, 500, 14), { w: 3, d: 1600, t: 300 })
         text(g, 236, 590, 'Holzschild', { anchor: 'middle', d: 1700, cls: 's' })
-        text(g, 150, 470, 'Lederkappe?', { anchor: 'middle', d: 1900, cls: 's' })
+        text(g, 170, 434, 'Lederkappe?', { anchor: 'middle', d: 1900, cls: 's' })
       },
       hieb(g) {
         const dome = (x: number, y: number, d: number) => {
@@ -209,7 +209,7 @@ export const GESELLSCHAFT: Bite[] = [
       },
       { t: T('Auch Kelten kannten Hörnerhelme – etwa den Helm, der in London in der Themse gefunden wurde. Auch er war **Prunk**.', 64), gfx: { kelten: {} } },
       { t: T('Woher das Bild also kommt:', 64, { kind: 'big' }), gfx: { f: { draw: 'formel', args: [['Hörnerhelm', '=', 'Ritual der Bronzezeit', '+', 'Oper 1876'], 300] } } },
-      { t: T('Wagners Ring spielt in einer germanischen **Sagenwelt** – historische Genauigkeit war nie das Ziel.', 64), gfx: { oper: { tf: [0.8, 36, 80] } } },
+      { t: T('Wagners Ring spielt in einer germanischen **Sagenwelt** – historische Genauigkeit war nie das Ziel.', 64), gfx: { oper: { tf: [0.8, 36, 140] } } },
       recap(
         [{ gfx: 'helm', cls: 'a1' }, { pic: 0, id: 'g' }, { gfx: 'oper' }, { pic: 1, id: 'v' }],
         ['Wikinger: keine Hörner gefunden', 'echter Helm: rund', 'Hörner aus der Oper 1876', 'Hörnerhelme: Bronzezeit'],
@@ -272,12 +272,12 @@ export const GESELLSCHAFT: Bite[] = [
         ink(hp, hat, { w: 2.6, t: 0 })
         text(st(top, 'h2', '--dl:1800ms'), 155, 262, '1,68 m', { anchor: 'middle', d: 1500 })
         text(st(top, 'f2', '--dl:2300ms'), 155, 262, '1,57 m', { anchor: 'middle', fade: false })
-        text(g, 155, 675, 'Napoleon', { cls: 's', anchor: 'middle', d: 900 })
+        text(g, 155, 664, 'Napoleon', { cls: 's', anchor: 'middle', d: 900 })
         const avg = st(g, 'x1', '--dl:200ms')
         hatch(avg, RR(222, 320, 70, 330, 6), 0, true)
         ink(avg, RR(222, 320, 70, 330, 6), { w: 2.8, t: 0 })
         text(avg, 257, 308, '1,65 m', { anchor: 'middle', fade: false })
-        text(avg, 257, 675, 'Ø Franzose', { cls: 's', anchor: 'middle', fade: false })
+        text(avg, 257, 664, 'Ø Franzose', { cls: 's', anchor: 'middle', fade: false })
       },
       rulers(g) {
         const u1 = 54.2
@@ -457,7 +457,7 @@ export const GESELLSCHAFT: Bite[] = [
         const sail: P[] = [[113, 332], [142, 366], [113, 382], [113, 332]]
         hatch(ship, sail, 800, true)
         ink(ship, sail, { w: 2.4, d: 600, t: 300 })
-        text(g, 180, 470, 'Rumpf zuerst hinter dem Horizont', { anchor: 'middle', cls: 's', d: 2600 })
+        text(g, 180, 470, 'Rumpf zuerst hinter dem Horizont', { anchor: 'middle', cls: 's halo', d: 2600 })
       },
       erato(g) {
         const cx = 180
@@ -478,7 +478,7 @@ export const GESELLSCHAFT: Bite[] = [
         dashes(g, L([cx, cy], s1), { w: 2, d: 1500 })
         dashes(g, L([cx, cy], s2), { w: 2, d: 1500 })
         ink(g, E(cx, cy, 60, 60, -110, -90), { w: 2.6, d: 2000, t: 300 })
-        text(g, cx - 22, cy - 72, '7,2°', { anchor: 'end', d: 2200, size: 18 })
+        text(g, cx - 58, cy - 68, '7,2°', { anchor: 'end', d: 2200, size: 18, cls: 'halo' })
         text(g, cx + 8, cy - r - 44, 'Syene', { cls: 's', d: 700 })
         text(g, s2[0] - 16, s2[1] - 44, 'Alexandria', { cls: 's', anchor: 'end', d: 800 })
         text(g, cx, 668, 'Umfang ≈ 40.000 km', { anchor: 'middle', d: 2600, size: 20, cls: 'halo' })
@@ -824,7 +824,7 @@ export const GESELLSCHAFT: Bite[] = [
       { t: T('Das alte Sprichwort sagt nein. Auf Latein: _Ignorantia legis non excusat_ – Unkenntnis des Gesetzes entschuldigt nicht.', 64), gfx: { waage: { cls: 'a1', tf: [0.8, 36, 80] } } },
       { t: T('Die Idee: Sonst könnte sich jeder herausreden. Recht soll für **alle** gelten – ob sie es kennen oder nicht.', 64), gfx: { waage: { cls: 'a1', tf: [0.8, 36, 80] } } },
       { t: T('Im deutschen Strafrecht ist es aber **feiner**. Wer nicht weiß, dass etwas verboten ist, irrt sich über das Verbot.', 64), gfx: { baum: {} } },
-      { t: T('§ 17 Strafgesetzbuch: Fehlt die Einsicht, Unrecht zu tun, handelt man **ohne Schuld** – wenn man den Irrtum nicht vermeiden konnte.', 64), gfx: { baum: { cls: 'a1' } } },
+      { t: T('§ 17 Strafgesetzbuch: Fehlt die Einsicht, Unrecht zu tun, handelt man **ohne Schuld** – wenn man den Irrtum nicht vermeiden konnte.', 64), gfx: { baum: { cls: 'a1', tf: [1, 0, 40] } } },
       { t: T('Wer sich hätte erkundigen können – bei einer Anwältin oder Behörde –, wird bestraft. Höchstens **milder**.', 64), gfx: { baum: { cls: 'a1 a2', tf: [1, 0, 50] } } },
       { t: T('Die Gerichte prüfen streng:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['vermeidbar', '=', 'du hättest es herausfinden können'], 330] } } },
       { t: T('Wer ein Geschäft betreibt, muss die Regeln seiner Branche kennen. Wer unsicher ist, muss **nachfragen**.', 64), gfx: { punkte: { args: [['Regeln der eigenen Branche kennen', 'bei Zweifeln nachfragen', 'Gewissen anstrengen'], 320] } } },
@@ -1037,7 +1037,7 @@ export const GESELLSCHAFT: Bite[] = [
       },
       herkunft(g) {
         timeline(g, 30, 330, 430, [
-          { at: 0.05, label: 'um 1550', sub: 'Osmanisches Reich', up: true },
+          { at: 0.15, label: 'um 1550', sub: 'Osmanisches Reich', up: true },
           { at: 0.45, label: '1593', sub: 'Leiden' },
           { at: 0.92, label: '1637', sub: 'Absturz', up: true, big: true },
         ], 0, 600)
@@ -1135,9 +1135,9 @@ export const GESELLSCHAFT: Bite[] = [
     draw: {
       autos(g) {
         ink(g, L([20, 560], [340, 560]), { w: 3, t: 500 })
-        car(g, 110, 556, 2, 200)
+        car(g, 100, 556, 2, 200)
         const two = pop(g, 1200)
-        car(two, 260, 556, 2, 0)
+        car(two, 270, 556, 2, 0)
         text(g, 110, 600, 'Kennzeichen …3', { anchor: 'middle', cls: 's', d: 700 })
         text(two, 260, 600, 'Zweitwagen …8', { anchor: 'middle', cls: 's', fade: false })
         cross(g, 110, 470, 1.4, 900)
@@ -1214,7 +1214,7 @@ export const GESELLSCHAFT: Bite[] = [
         gfx: { geld: {} },
       },
       { t: T('Die Leute **züchteten** Kobras. Als die Prämie wegfiel, ließen sie sie frei – mehr Schlangen als vorher.', 64), gfx: { kurve: {} } },
-      { t: T('Den Namen prägte der Ökonom Horst Siebert 2001. Für Delhi gibt es aber **keinen Beleg** aus der Zeit.', 64), gfx: { kurve: { cls: 'a1' } } },
+      { t: T('Den Namen prägte der Ökonom Horst Siebert 2001. Für Delhi gibt es aber **keinen Beleg** aus der Zeit.', 64), gfx: { kurve: { cls: 'a1', tf: [0.85, 27, 60] } } },
       { t: T('Gut dokumentiert ist dagegen **Hanoi**: Die französische Kolonialverwaltung baute um 1900 eine moderne Kanalisation – ein Paradies für Ratten.', 64), gfx: { kanal: {} } },
       { t: T('1902 bezahlte sie Rattenfänger. Bald wurden an einem einzigen Tag über 20.000 Ratten getötet – und es wurden **nicht weniger**.', 64), gfx: { zahl: { args: ['20.000', 'getötete Ratten an einem Tag, 1902', 420] } } },
       { t: T('Dann durften alle mitmachen. Als Beweis genügte der **Schwanz**:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['1 Rattenschwanz', '=', '1 Cent'], 330] } } },
@@ -1354,7 +1354,7 @@ export const GESELLSCHAFT: Bite[] = [
         const sc = st(sw, 'f1', '--dl:300ms')
         arrow(sc, L([104, 452], [290, 452]), { w: 2.6, t: 0, head: 9 })
         const r = st(sw, 'x1', '--o:50% 50%;--dl:900ms')
-        ink(r, E(122, 402, 26, 36, -100, 250), { w: 3, t: 0 })
+        ink(r, L([104, 440], [136, 440]), { w: 4, t: 0 })
         const zehn = st(g, 'f2', '--dl:300ms')
         text(zehn, 196, 560, '≈ 10 €', { anchor: 'middle', size: 44, fade: false })
       },
@@ -1384,7 +1384,7 @@ export const GESELLSCHAFT: Bite[] = [
       { t: T('Wir lesen Preise von **links nach rechts** – und die erste Ziffer bleibt hängen.', 64), gfx: { etikett: { cls: 'a1' } } },
       { t: T('Das Gehirn schätzt eine Zahl, **bevor** es sie ganz gelesen hat. Die erste Ziffer wiegt am schwersten.', 64), gfx: { etikett: { cls: 'a1' } } },
       { t: T('9,99 € fühlt sich nach „neun-irgendwas“ an – obwohl es praktisch **zehn Euro** sind.', 64), gfx: { etikett: { cls: 'a1 a2' } } },
-      { t: T('Im Kopf läuft ungefähr diese Rechnung:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['9,99 €', '≈', '9 € und ein bisschen'], 320, 'gefühlt'] }, f2: { draw: 'formel', args: [['9,99 €', '≈', '10 €'], 460, 'tatsächlich'] } } },
+      { t: T('Im Kopf läuft ungefähr diese Rechnung:', 64, { kind: 'big' }), gfx: { f1: { draw: 'formel', args: [['9,99 €', '≈', '9 € und ein bisschen'], 320, 'gefühlt'] }, f2: { draw: 'formel', args: [['9,99 €', '≈', '10 €'], 510, 'tatsächlich'] } } },
       { t: T('Studien bestätigen den **Linke-Ziffer-Effekt**: 2,99 wirkt deutlich günstiger als 3,00.', 64), gfx: { paare: {} } },
       { t: T('Ein Versuch mit Versandkatalogen: Dasselbe Kleid verkaufte sich für **39 Dollar** besser als für 34 oder 44.', 64), gfx: { kleid: {} } },
       { t: T('Sogar bei Gebrauchtwagen: Knapp unter einer runden Kilometer- bzw. Meilenzahl bringt ein Auto spürbar **mehr Geld**.', 64), gfx: { tacho: {} } },

@@ -1,7 +1,7 @@
 import type { Bite } from '../feed'
 import { img } from './img'
 import {
-  B, E, HOOK, L, RR, T, arrow, bigText, blank, clock, crowd, dashes, eye, fig, group, hatch, ink, mk, pop, rays, st, strike, text, timeline, vbars, type P,
+  B, E, HOOK, L, RR, T, arrow, bigText, blank, clock, crowd, dashes, eye, fig, group, hatch, ink, mk, pop, rays, st, text, timeline, vbars, type P,
 } from './draw'
 import { recap } from './common'
 
@@ -151,11 +151,10 @@ export const KULTUR: Bite[] = [
         ink(g, L([180, 240], [180, 580]), { w: 2, d: 300, t: 400 })
         text(g, 60, 290, 'lonely', { size: 24, cls: 'it', d: 600 })
         text(g, 60, 330, 'erster Beleg:', { cls: 's', d: 800 })
-        text(g, 60, 360, '1607', { size: 22, d: 900 })
+        text(st(g, 'h1', '--dl:300ms'), 60, 360, '1607', { size: 22, d: 900 })
         text(g, 60, 386, 'Shakespeare', { cls: 's', d: 1000 })
         for (let k = 0; k < 6; k++) ink(g, L([200, 290 + k * 30], [300, 290 + k * 30]), { w: 1.4, d: 700 + k * 80, t: 200 })
         const old = st(g, 'f1', '--dl:300ms')
-        strike(old, [56, 362], [124, 352])
         text(old, 60, 440, 'älter!', { size: 22, fade: false })
         text(old, 60, 466, 'andere Autoren', { cls: 's', fade: false })
       },
@@ -281,7 +280,7 @@ export const KULTUR: Bite[] = [
       { t: T('Diese Gruppe hörte viel **früher** auf – bei gleichem Lohn.', 64), gfx: { ergebnis: {} } },
       { t: T('Bezahlt wurde pro Figur – mit jeder weiteren **weniger**:', 64), gfx: { f1: { draw: 'formel', args: [['1. Figur: 2,00 $', '→', '2. Figur: 1,89 $', '→', '3. Figur: 1,78 $'], 320] } } },
       { t: T('Selbst wer Lego liebte, gab in der Zerlege-Gruppe früh auf. Die **Freude** am Bauen half nur, wenn die Figuren blieben.', 64), gfx: { ergebnis: {} } },
-      { t: T('Albert Camus deutete Sisyphos 1942 anders: Wer die Sinnlosigkeit erkennt und trotzdem weitermacht, ist **frei**.', 64), gfx: { gipfel: {} } },
+      { t: T('Albert Camus deutete Sisyphos 1942 anders: Wer die Sinnlosigkeit erkennt und trotzdem weitermacht, ist **frei**.', 64, { kind: 'mid', w: 250 }), gfx: { gipfel: {} } },
       { t: T('Albert Camus, 1913 bis 1960, bekam **1957** den Literaturnobelpreis.', 64), gfx: { z2: { draw: 'zahl', args: ['1957', 'Literaturnobelpreis für Camus', 420] } } },
       { t: T('Sein Begriff ist das **Absurde**:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['Mensch sucht Sinn', '+', 'Welt schweigt', '=', 'das Absurde'], 330] } } },
       { t: T('Seine Antwort: nicht aufgeben. _„Der Kampf gegen Gipfel vermag ein Menschenherz auszufüllen.“_', 64, { kind: 'mid', w: 250 }), gfx: { gipfel: {} } },
@@ -425,7 +424,7 @@ export const KULTUR: Bite[] = [
         const a = (75 * Math.PI) / 180
         arrow(g, L([180, 256], [180 + Math.cos(a) * 300, 256 + Math.sin(a) * 300]), { w: 3, d: 1000, t: 500 })
         ink(g, E(180, 256, 90, 90, 75, 90), { w: 2.4, d: 1600, t: 300 })
-        text(g, 210, 380, '15°', { size: 26, d: 1800 })
+        text(g, 236, 372, '15°', { size: 26, d: 1800 })
       },
       flach(g) {
         ink(g, RR(120, 230, 120, 150, 6), { w: 3.2, t: 600 })
@@ -611,7 +610,7 @@ export const KULTUR: Bite[] = [
       { t: T('Mozart selbst komponierte schon mit **fünf Jahren** kleine Stücke.', 450), pics: { m: { img: 0, x: 16, y: 56, w: 328, h: 370, cam: [50, 30, 1.5] } } },
       recap(
         [{ gfx: 'noten' }, { gfx: 'uhr' }, { gfx: 'gleich' }, { pic: 0, id: 'm', cam: [50, 30, 1.4] }],
-        ['1993: kurzer Effekt', 'nur 15 Minuten', 'jede muntere Musik', 'Mozart selbst: Genie, kein Medikament'],
+        ['1993: kurzer Effekt', 'nur 15 Minuten', 'jede muntere Musik', 'Genie, kein Medikament'],
       ),
     ],
     summary: ['1993: kurzer Effekt auf räumliches Denken.', 'Muntermachende Musik wirkt ähnlich.', 'Meta-Analyse 2010: kein Mozart-Effekt.'],
@@ -642,7 +641,7 @@ export const KULTUR: Bite[] = [
           ink(p, RR(60, y, 240, 48, 6), { w: 2.6, t: 0 })
           text(p, 180, y + 30, lab, { anchor: 'middle', fade: false, size: 16, cls: 'halo' })
         })
-        const clean = pop(st(g, 'm1', '--m1: translate(320px, -40px) rotate(12deg); --dl: 400ms; transition-duration: 1.4s'), 1200, '50% 100%')
+        const clean = pop(st(g, 'h1', '--dl: 400ms'), 1200, '50% 100%')
         blank(clean, RR(60, 352, 240, 48, 6))
         hatch(clean, RR(60, 352, 240, 48, 6), 0, true)
         ink(clean, RR(60, 352, 240, 48, 6), { w: 2.6, t: 0 })
@@ -654,7 +653,7 @@ export const KULTUR: Bite[] = [
         hatch(strip, RR(40, 300, 46, 190, 2), 500)
         ink(strip, RR(40, 300, 46, 190, 2), { w: 2.6, d: 600, t: 400 })
         dashes(g, L([86, 290], [86, 500]), { w: 2.2, d: 800 })
-        text(g, 180, 560, '1715: links am meisten', { anchor: 'middle', d: 1000 })
+        text(g, 180, 652, '1715: links am meisten', { anchor: 'middle', d: 1000 })
       },
       ergaenzt(g) {
         dashes(g, RR(16, 120, 72, 200, 4), { w: 2.4, d: 300 })

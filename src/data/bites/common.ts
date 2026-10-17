@@ -83,7 +83,7 @@ const formel: Draw = (g, ...a) => {
 
 const zahl: Draw = (g, ...a) => {
   const [value, label, y = 400] = a as unknown as [string, string, number?]
-  const size = value.length <= 4 ? 120 : value.length <= 7 ? 86 : 60
+  const size = Math.min(120, Math.floor(320 / (value.length * 0.6)))
   const t = text(g, 180, y, value, { anchor: 'middle', size, cls: 'bigt' })
   t.classList.remove('fade')
   lines(g, 180, y + 50, wrap(label, 30), { size: 18, anchor: 'middle' })

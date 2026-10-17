@@ -1,7 +1,7 @@
 import type { Bite } from '../feed'
 import { img } from './img'
 import {
-  B, E, HOOK, L, RR, T, arrow, balance, bigText, blank, bolt, brain, bubble, bulb, clock, cross, dashes, eye, fig, globe, group, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, strike, text, timeline, vbars, type P,
+  B, E, HOOK, L, RR, T, arrow, balance, bigText, blank, bolt, brain, bubble, bulb, clock, cross, dashes, eye, fig, globe, group, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, vbars, type P,
 } from './draw'
 import { recap } from './common'
 
@@ -147,7 +147,7 @@ export const NATUR: Bite[] = [
         ink(g, E(cx, cy, r), { w: 3.2, t: 800 })
         ink(g, L([cx, cy], [cx, cy - r]), { w: 2.6, d: 600, t: 200 })
         ink(g, L([cx, cy], [cx + Math.cos((a1 * Math.PI) / 180) * r, cy + Math.sin((a1 * Math.PI) / 180) * r]), { w: 2.6, d: 700, t: 200 })
-        text(g, cx - 10, cy + 10, '84 %', { anchor: 'middle', size: 32, d: 1000, cls: 'halo' })
+        text(g, cx, cy + 62, '84 %', { anchor: 'middle', size: 32, d: 1000, cls: 'halo' })
         text(g, cx, cy + r + 40, 'rote Blutkörperchen', { anchor: 'middle', d: 1200 })
         for (const [x, y] of [[50, 250], [300, 560], [310, 250]] as const) {
           ink(g, E(x, y, 22, 14), { w: 2.4, d: 1300, t: 300 })
@@ -377,7 +377,7 @@ export const NATUR: Bite[] = [
         text(st(g, 'h1', '--dl:900ms'), 180, 420, '3,5 mg', { anchor: 'middle', size: 64, d: 200 })
         text(st(g, 'f1', '--dl:1100ms'), 180, 420, '35 mg', { anchor: 'middle', size: 64, fade: false })
         arrow(st(g, 'f1', '--dl:700ms'), B([150, 470], [160, 500], [190, 500], [200, 470]), { w: 2.6, t: 0, head: 8 })
-        strike(st(g, 'f2', '--dl:300ms'), [80, 410], [290, 390])
+        cross(st(g, 'f2', '--dl:300ms'), 300, 400, 0.8)
       },
       eisen(g) {
         hbars(g, [
@@ -396,7 +396,6 @@ export const NATUR: Bite[] = [
           if (i % 2 === 0) {
             const c = st(g, 'x1', `--o:50% 50%;--dl:${300 + i * 100}ms`)
             ink(c, E(x, y, 30), { w: 1.6, t: 0 })
-            ink(c, L([x - 30, y], [x + 30, y]), { w: 1.6, t: 0 })
           }
         }
         text(st(g, 'f1', '--dl:900ms'), 140, 460, 'gebunden', { anchor: 'middle', fade: false, cls: 's' })
@@ -567,8 +566,8 @@ export const NATUR: Bite[] = [
         const c: P[] = [...B([60, 330], [20, 330], [20, 270], [70, 260]), ...B([70, 260], [80, 200], [180, 190], [190, 240]).slice(1), ...B([190, 240], [220, 200], [320, 220], [300, 280]).slice(1), ...B([300, 280], [340, 290], [330, 340], [290, 340]).slice(1), [60, 330]]
         hatch(g, c, 600)
         ink(g, c, { w: 3, t: 800 })
-        for (const [x, y] of [[110, 240], [170, 225], [240, 240]] as const) text(g, x, y + 6, '+', { anchor: 'middle', size: 26, d: 1000 })
-        for (const [x, y] of [[90, 316], [170, 322], [260, 316]] as const) text(g, x, y + 6, '−', { anchor: 'middle', size: 26, d: 1300 })
+        for (const [x, y] of [[110, 240], [170, 225], [240, 240]] as const) text(g, x, y + 16, '+', { anchor: 'middle', size: 26, d: 1000, cls: 'halo' })
+        for (const [x, y] of [[90, 316], [170, 322], [260, 316]] as const) text(g, x, y + 6, '−', { anchor: 'middle', size: 26, d: 1300, cls: 'halo' })
         bolt(g, [[170, 340], [210, 420], [180, 430], [220, 540]], 1800, 4.6)
         ink(g, L([20, 560], [340, 560]), { w: 3, d: 200, t: 500 })
       },
@@ -1040,32 +1039,32 @@ export const NATUR: Bite[] = [
       berge(g) {
         mountain(g, 20, 170, 440, [95, 230], 0)
         text(g, 95, 216, 'Everest', { anchor: 'middle', d: 600 })
-        text(g, 95, 470, '8.849 m', { anchor: 'middle', d: 800, size: 18 })
+        text(g, 95, 470, '8.849 m', { anchor: 'middle', d: 800, size: 18, cls: 'halo' })
         ink(g, L([0, 440], [360, 440]), { w: 2.6, d: 200, t: 600 })
-        text(g, 352, 432, 'Meer', { anchor: 'end', cls: 's', d: 400 })
-        mountain(g, 200, 340, 440, [270, 340], 400, true)
-        text(g, 270, 326, 'Mauna Kea', { anchor: 'middle', d: 900 })
+        text(g, 354, 432, 'Meer', { anchor: 'end', cls: 's', d: 400 })
+        mountain(g, 185, 322, 440, [254, 340], 400, true)
+        text(g, 254, 326, 'Mauna Kea', { anchor: 'middle', d: 900 })
         const under = st(g, 'f1', '--dl:300ms')
         hatch(under, [[0, 444], [360, 444], [360, 680], [0, 680]], 0)
-        blank(under, [[170, 444], [370, 444], [370, 676], [130, 676]])
-        hatch(under, [[170, 444], [370, 444], [370, 676], [130, 676]], 0, true)
-        ink(under, [[130, 676], [170, 444]], { w: 3, t: 0 })
+        blank(under, [[155, 444], [370, 444], [370, 676], [115, 676]])
+        hatch(under, [[155, 444], [370, 444], [370, 676], [115, 676]], 0, true)
+        ink(under, [[115, 676], [155, 444]], { w: 3, t: 0 })
         ink(under, [[370, 444], [372, 676]], { w: 3, t: 0 })
-        text(under, 270, 560, 'über 10.000 m', { anchor: 'middle', fade: false, size: 20, cls: 'halo' })
+        text(under, 255, 560, 'über 10.000 m', { anchor: 'middle', fade: false, size: 20, cls: 'halo' })
       },
       erde(g) {
         hatch(g, E(180, 420, 160, 140), 600)
         ink(g, E(180, 420, 160, 140), { w: 3.4, t: 900 })
         ink(g, L([10, 420], [350, 420]), { w: 1.6, d: 400, t: 600 })
-        text(g, 20, 412, 'Äquator', { cls: 's', d: 600 })
+        text(g, 30, 410, 'Äquator', { cls: 's halo', d: 600 })
         mk('circle', { cx: 180, cy: 420, r: 5, class: 'k fade', style: '--d:700ms' }, g)
         const ev: P = [180 + Math.cos(-1.1) * 160, 420 + Math.sin(-1.1) * 140]
         ink(g, L([180, 420], [340, 420]), { w: 3, d: 1000, t: 400 })
         ink(g, L([180, 420], ev), { w: 3, d: 1200, t: 400 })
         mountain(g, 330, 356, 420, [346, 396], 1300, true)
-        text(g, 300, 380, 'Chimborazo', { anchor: 'middle', d: 1400 })
+        text(g, 270, 404, 'Chimborazo', { anchor: 'middle', d: 1400, cls: 'halo' })
         text(g, ev[0] + 10, ev[1] - 20, 'Everest', { anchor: 'middle', d: 1500 })
-        text(st(g, 'f1', '--dl:300ms'), 260, 456, '+ 2 km weiter draußen', { anchor: 'middle', fade: false, size: 16, cls: 'halo' })
+        text(st(g, 'f1', '--dl:300ms'), 220, 456, '+ 2 km weiter draußen', { anchor: 'middle', fade: false, size: 16, cls: 'halo' })
       },
     },
     scenes: [
@@ -1203,6 +1202,7 @@ export const NATUR: Bite[] = [
         ink(g, L([10, 600], [350, 600]), { w: 3, t: 400 })
         const flow = st(g, 'm1', '--m1: translate(190px, 250px); --dl: 400ms; transition-duration: 2.4s')
         const c: P[] = [...B([100, 300], [60, 300], [50, 340], [80, 360]), ...B([80, 360], [70, 400], [130, 420], [160, 380]).slice(1), ...B([160, 380], [190, 360], [180, 300], [140, 300]).slice(1), [100, 300]]
+        blank(flow, c)
         hatch(flow, c, 200, true)
         ink(flow, c, { w: 3, d: 100, t: 600 })
       },
@@ -1239,7 +1239,7 @@ export const NATUR: Bite[] = [
       },
       { t: T('Pompeji war eine römische Stadt mit etwa **11.000** Einwohnern – mit Läden, Bädern und Theatern.', 64), gfx: { zahl: { args: ['11.000', 'Einwohner', 420] } } },
       { t: T('Das genaue Datum ist umstritten: Eine Inschrift, entdeckt 2018, deutet auf **Oktober** statt August.', 64), gfx: { z1: { draw: 'zahl', args: ['Oktober?', '79 n. Chr.', 420] } } },
-      { t: T('Stundenlang regneten **Bimssteine** auf Pompeji, Dächer stürzten ein. Viele Bewohner flohen in dieser Zeit.', 64), gfx: { bims: {} } },
+      { t: T('Stundenlang regneten **Bimssteine** auf Pompeji, Dächer stürzten ein. Viele Bewohner flohen in dieser Zeit.', 64), gfx: { bims: { tf: [0.75, 45, 205] } } },
       { t: T('Die Aschewolke stieg rund 30 Kilometer hoch. Sein Neffe Plinius der Jüngere verglich sie mit einer **Pinie**.', 64), gfx: { z2: { draw: 'zahl', args: ['30 km', 'hohe Aschewolke', 420] } } },
       { t: T('Die meisten Zurückgebliebenen starben am nächsten Morgen – durch **pyroklastische Ströme**.', 64), gfx: { strom: { cls: 'a1' } } },
       { t: T('Plinius der Ältere fuhr mit Schiffen los, um Menschen zu **retten** – und starb am Strand.', 64), gfx: { strom: { cls: 'a1' } } },
@@ -1254,7 +1254,7 @@ export const NATUR: Bite[] = [
       { t: T('Unter der Asche blieb die Stadt fast **1.700 Jahre** verborgen – ausgegraben wird seit 1748.', 64), gfx: { z5: { draw: 'zahl', args: ['1748', 'Beginn der Ausgrabungen', 420] } } },
       { t: T('Man fand Brote im Ofen, **Graffiti** an Wänden, Wahlwerbung – ein Schnappschuss des römischen Alltags.', 64), gfx: { p2: { draw: 'punkte', args: [['Brote im Ofen', 'Graffiti und Wahlwerbung', 'Wandmalereien'], 320] } } },
       { t: T('Der Ablauf in Kürze:', 64, { kind: 'big' }), gfx: { f2: { draw: 'formel', args: [['Bimsregen', '→', 'Dächer brechen', '→', 'Glutwolke', '→', 'Tod in Sekunden'], 320] } } },
-      { t: T('Der Vesuv ist bis heute **aktiv** – zuletzt brach er 1944 aus. Über eine halbe Million Menschen leben in seiner Gefahrenzone.', 64), gfx: { bims: {} } },
+      { t: T('Der Vesuv ist bis heute **aktiv** – zuletzt brach er 1944 aus. Über eine halbe Million Menschen leben in seiner Gefahrenzone.', 64), gfx: { bims: { tf: [0.75, 45, 205] } } },
       recap(
         [{ pic: 0, id: 'b', cam: [50, 50, 1.1] }, { gfx: 'bims' }, { gfx: 'strom', cls: 'a1' }, { gfx: 'abguss', cls: 'a1' }],
         ['79 n. Chr.: Vesuv', 'erst Bimsregen', 'dann Glutwolken', 'Gipsabgüsse seit 1863'],
@@ -1382,10 +1382,10 @@ export const NATUR: Bite[] = [
       wort(g) {
         bigText(g, 180, 430, 'Bug', { size: 120, d: 200 })
         const b = group(g)
-        hatch(b, E(270, 300, 14, 20), 900, true)
-        ink(b, E(270, 300, 14, 20), { w: 2.4, d: 800, t: 300 })
-        ink(b, E(270, 274, 8), { w: 2.2, d: 900, t: 200 })
-        for (const s of [-1, 1]) for (let k = 0; k < 3; k++) ink(b, L([270 + s * 12, 290 + k * 10], [270 + s * 26, 284 + k * 12]), { w: 1.6, d: 1000, t: 100 })
+        hatch(b, E(290, 250, 14, 20), 900, true)
+        ink(b, E(290, 250, 14, 20), { w: 2.4, d: 800, t: 300 })
+        ink(b, E(290, 224, 8), { w: 2.2, d: 900, t: 200 })
+        for (const s of [-1, 1]) for (let k = 0; k < 3; k++) ink(b, L([290 + s * 12, 240 + k * 10], [290 + s * 26, 234 + k * 12]), { w: 1.6, d: 1000, t: 100 })
         b.animate([{ transform: 'translate(0, 0)' }, { transform: 'translate(-30px, 20px)' }, { transform: 'translate(10px, 40px)' }], { duration: 2400, delay: 1200, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' })
         text(g, 180, 520, 'Englisch: Käfer, Ungeziefer', { anchor: 'middle', d: 1200 })
       },
@@ -1499,7 +1499,7 @@ export const NATUR: Bite[] = [
         ink(plate, L([180, 270], [180, 380]), { w: 3, d: 600, t: 300 })
         plate.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(60px)', offset: 0.5 }, { transform: 'translateY(0)' }], { duration: 2400, delay: 1200, iterations: Infinity, easing: 'ease-in-out' })
         ink(g, RR(100, 470, 160, 20, 3), { w: 3, d: 900, t: 400 })
-        const labs: [number, number, string][] = [[20, 330, 'Gießinstrument'], [300, 330, 'Legierung'], [20, 540, 'Ölfarbe'], [300, 540, 'Presse']]
+        const labs: [number, number, string][] = [[20, 236, 'Gießinstrument'], [300, 236, 'Legierung'], [20, 540, 'Ölfarbe'], [300, 540, 'Presse']]
         labs.forEach(([x, y, l], i) => text(g, x === 20 ? 30 : 330, y, l, { anchor: x === 20 ? 'start' : 'end', d: 1400 + i * 300, cls: 's' }))
       },
       buecher(g) {

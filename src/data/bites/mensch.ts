@@ -75,7 +75,7 @@ export const MENSCH: Bite[] = [
         text(g, 40, 250, 'Anteil der Nacht, gemessen', { cls: 's', d: 200 })
       },
       typen(g) {
-        const rows: [number, 'curl' | 'back' | 'free', string, string][] = [[230, 'curl', 'Embryo', '„harte Schale, weicher Kern“'], [370, 'back', 'Soldat', '„still, zurückhaltend“'], [510, 'free', 'Freifaller', '„gesellig, forsch“']]
+        const rows: [number, 'curl' | 'back' | 'free', string, string][] = [[230, 'curl', 'Embryo', '„außen hart, innen weich“'], [370, 'back', 'Soldat', '„still, zurückhaltend“'], [510, 'free', 'Freifaller', '„gesellig, forsch“']]
         rows.forEach(([y, pose, lab, sub], i) => {
           const d = i * 450
           const gr = st(g, i ? 'h1' : '', '--dl:100ms')
@@ -262,7 +262,7 @@ export const MENSCH: Bite[] = [
         ink(g, [...L([90, 550], [165, 470]).slice(0), ...L([165, 470], [240, 390]).slice(1), ...L([240, 390], [315, 300]).slice(1)], { w: 3.4, d: 600, t: 900 })
         ink(g, [...L([90, 400], [165, 385]), ...L([165, 385], [240, 370]).slice(1), ...L([240, 370], [315, 350]).slice(1)], { w: 3, d: 1500, t: 900 })
         text(g, 320, 290, 'tatsächlich', { anchor: 'end', d: 1400 })
-        text(g, 90, 390, 'geschätzt', { d: 2300 })
+        text(g, 90, 430, 'geschätzt', { d: 2300 })
       },
       test(g) {
         for (const [x, lab, d] of [[40, 'Logik', 0], [190, 'Grammatik', 500]] as const) {
@@ -544,10 +544,10 @@ export const MENSCH: Bite[] = [
         check(g, 270, 580, 1.3, 1700)
       },
       sonne(g) {
-        ink(g, E(300, 140, 34), { w: 3, t: 600 })
+        ink(g, E(300, 250, 34), { w: 3, t: 600 })
         for (let k = 0; k < 10; k++) {
           const a = (k / 10) * Math.PI * 2
-          ink(g, L([300 + Math.cos(a) * 44, 140 + Math.sin(a) * 44], [300 + Math.cos(a) * 60, 140 + Math.sin(a) * 60]), { w: 2.2, d: 400 + k * 40, t: 120 })
+          ink(g, L([300 + Math.cos(a) * 44, 250 + Math.sin(a) * 44], [300 + Math.cos(a) * 60, 250 + Math.sin(a) * 60]), { w: 2.2, d: 400 + k * 40, t: 120 })
         }
         ink(g, L([20, 560], [340, 560]), { w: 3, t: 500 })
         const pit: P[] = [[70, 470], [130, 470], ...B([130, 470], [160, 500], [150, 540], [128, 560]).slice(1), [72, 560], ...B([72, 560], [50, 540], [40, 500], [70, 470]).slice(1)]
@@ -564,7 +564,7 @@ export const MENSCH: Bite[] = [
         text(al, 200, 600, 'Alexander', { anchor: 'middle', d: 900 })
         text(g, 100, 600, 'Diogenes', { anchor: 'middle', d: 900 })
         const rays = st(g, 'f1', '--dl:1200ms')
-        for (const dx of [-14, 0, 14]) dashes(rays, L([270, 180], [110 + dx, 440]), { w: 1.6, t: 0 })
+        for (const dx of [-14, 0, 14]) dashes(rays, L([262, 284], [110 + dx, 440]), { w: 1.6, t: 0 })
       },
       wort(g) {
         const words: [number, string][] = [[60, 'kyon'], [180, 'Kyniker'], [300, 'zynisch']]
@@ -751,7 +751,7 @@ export const MENSCH: Bite[] = [
       zeit(g) {
         const at = (y: number) => (y + 320) / 520
         timeline(g, 30, 330, 430, [
-          { at: at(-300), label: 'um 300 v. Chr.', sub: 'Zenon', up: true },
+          { at: 0.12, label: 'um 300 v. Chr.', sub: 'Zenon', up: true },
           { at: at(50), label: 'um 50', sub: 'Seneca' },
           { at: at(100), label: 'um 100', sub: 'Epiktet', up: true },
           { at: at(170), label: 'um 170', sub: 'Marc Aurel', big: true },
@@ -770,7 +770,7 @@ export const MENSCH: Bite[] = [
       },
       sturm(g) {
         const cloud: P[] = [...B([90, 330], [60, 330], [60, 280], [100, 280]), ...B([100, 280], [100, 230], [170, 220], [180, 260]).slice(1), ...B([180, 260], [200, 230], [270, 240], [260, 290]).slice(1), ...B([260, 290], [300, 290], [300, 330], [270, 330]).slice(1), [90, 330]]
-        const c = st(g, 'm1', '--m1: translate(-260px, -40px); --dl: 300ms; transition-duration: 1.6s')
+        const c = st(g, 'h1', '--dl: 300ms')
         hatch(c, cloud, 500, true)
         ink(c, cloud, { w: 3, t: 700 })
         ink(c, [[170, 340], [150, 390], [178, 390], [156, 450]], { w: 4, d: 700, t: 300 })
@@ -790,7 +790,7 @@ export const MENSCH: Bite[] = [
         ink(g, E(180, 400, 72), { w: 3.4, d: 400, t: 700 })
         text(g, 180, 392, 'Urteil', { anchor: 'middle', size: 19, d: 900 })
         text(g, 180, 420, 'Handeln', { anchor: 'middle', size: 19, d: 1000 })
-        for (const [x, y, s, d] of [[180, 296, 'Wetter', 1300], [76, 450, 'andere', 1450], [284, 450, 'Vergangenes', 1600]] as const) text(g, x, y, s, { anchor: 'middle', d, cls: 's' })
+        for (const [x, y, s, d] of [[180, 296, 'Wetter', 1300], [92, 474, 'andere', 1450], [268, 474, 'Vergangenes', 1600]] as const) text(g, x, y, s, { anchor: 'middle', d, cls: 's' })
         text(g, 180, 600, 'in deiner Macht: innen', { anchor: 'middle', d: 1800 })
       },
       kette(g) {
@@ -1105,7 +1105,7 @@ export const MENSCH: Bite[] = [
           const a = (k / 10) * Math.PI * 2
           ink(sun, L([180 + Math.cos(a) * 40, 270 + Math.sin(a) * 40], [180 + Math.cos(a) * 54, 270 + Math.sin(a) * 54]), { w: 2.2, t: 0 })
         }
-        text(sun, 180, 222, 'Sommer', { anchor: 'middle', fade: false })
+        text(sun, 180, 200, 'Sommer', { anchor: 'middle', fade: false })
         arrow(sun, B([150, 296], [120, 330], [100, 350], [92, 376]), { w: 2.4, t: 0 })
         arrow(sun, B([210, 296], [240, 330], [260, 360], [268, 396]), { w: 2.4, t: 0 })
       },
@@ -1179,7 +1179,7 @@ export const MENSCH: Bite[] = [
         goat(leg, 220, 262, 0.7)
         text(leg, 260, 254, '× 2', { fade: false })
         const pick = st(g, 'x2', '--o:50% 50%;--dl:200ms')
-        ring(pick, 65, 445, 62, 132)
+        ring(pick, 65, 445, 62, 120)
         const q = st(g, 'x4', '--o:50% 50%;--dl:300ms')
         question(q, 180, 450, 1.6)
       },
