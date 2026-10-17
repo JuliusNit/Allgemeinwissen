@@ -17,7 +17,7 @@ Alles hier ist ein **Vorschlag**: Julius prüft und trägt es in App Store Conne
 | Datenschutz-URL | https://juliusnit.github.io/Allgemeinwissen/#/datenschutz (erst nach Rechtsprüfung, Platzhalter füllen) |
 | Support-URL | https://juliusnit.github.io/Allgemeinwissen/#/impressum (Kontakt) |
 | Konto löschen (Google Play verlangt einen Web-Link) | https://juliusnit.github.io/Allgemeinwissen/#/profil → Konto → „Konto löschen“, alternativ per Mail an die Adresse aus dem Impressum |
-| Zugang für die Prüfung | Testkonto (E-Mail + Passwort) in „App-Prüfungsinformationen“ eintragen – mit Geburtsjahr ≥ 16 Jahre, damit Apple den Austausch sieht. Hinweis: „Ohne Konto starten“ zeigt den Lernpfad ohne Anmeldung. |
+| Zugang für die Prüfung | Testkonto (E-Mail + Passwort) in „App-Prüfungsinformationen“ eintragen. Hinweis: „Ohne Konto starten“ zeigt den Lernpfad ohne Anmeldung. |
 
 ## 2 · Texte
 
@@ -47,11 +47,11 @@ Alles hier ist ein **Vorschlag**: Julius prüft und trägt es in App Store Conne
 > • Streak und Lernpfad zeigen, wie weit du bist.
 > • Lernzettel als Bild oder PDF teilen und speichern.
 >
-> AUSTAUSCH
-> Lerne mit Freunden: Direktnachrichten, Themenkanäle (ab 16) und @KI für Fragen in der Gruppe. Melden und Blockieren sind eingebaut.
+> ENTDECKEN
+> Wissenshäppchen wie kurze Videos: ein Aufhänger, drei Absätze mit Fotos und Ton, dann der Faktencheck – belegt, umstritten oder Hype? Die Reihenfolge passt sich an das an, was dich interessiert.
 >
 > OHNE KONTO NUTZBAR
-> Lernpfad, Videos, Lernzettel und Karteikarten funktionieren ohne Anmeldung. Ein Konto brauchst du nur für die KI, den Austausch und die Sicherung deines Fortschritts.
+> Lernpfad, Videos, Lernzettel und Karteikarten funktionieren ohne Anmeldung. Ein Konto brauchst du nur für die KI und die Sicherung deines Fortschritts.
 >
 > Keine Werbung, kein Tracking.
 
@@ -74,12 +74,13 @@ Gilt nur mit Konto; ohne Konto verlässt nichts das Gerät außer Video-Aufrufen
 | Kategorie in App Store Connect | Was genau | Wohin |
 |---|---|---|
 | Kontaktinformationen → E-Mail-Adresse | Anmeldung, Konto-Mails | Supabase |
-| Kontaktinformationen → Name | Anzeigename im Profil und Austausch | Supabase |
+| Kontaktinformationen → Name | Anzeigename im Profil | Supabase |
 | Kennungen → Nutzer-ID | Konto-ID | Supabase |
 | Nutzerinhalte → Fotos oder Videos | Profilbild (verkleinert) | Supabase |
-| Nutzerinhalte → Andere Nutzerinhalte | Lernfortschritt, Notizen, Chatverläufe mit der KI, Nachrichten im Austausch, Meldungen | Supabase; KI-Texte an den KI-Anbieter |
+| Nutzerinhalte → Andere Nutzerinhalte | Lernfortschritt, Notizen, Chatverläufe mit der KI, gemerkte Wissenshäppchen | Supabase; KI-Texte an den KI-Anbieter |
+| Nutzungsdaten → Produktinteraktion | Wie weit/lange Wissenshäppchen angesehen wurden (nur Reihenfolge in „Entdecken“) | Supabase |
 | Nutzungsdaten → Produktinteraktion | Zähler der KI-Anfragen pro Tag (Tageslimit), keine Inhalte | Supabase |
-| Sonstige Daten | Geburtsjahr (Altersgrenze im Austausch) | Supabase |
+| Sonstige Daten | Geburtsjahr (Altersangabe beim Konto) | Supabase |
 
 Nicht erfasst: Standort, Kontakte, Gesundheit, Finanzen, Browserverlauf, Suchverlauf, Diagnosedaten (kein Absturz-SDK), Werbedaten.
 
@@ -95,19 +96,19 @@ UserDefaults (`CA92.1`, nur eigene App) und Datei-Zeitstempel (`C617.1`, Dateien
 - Daten werden **erhoben**, **nicht geteilt** (Supabase und KI-Anbieter sind Auftragsverarbeiter – Vertrag Voraussetzung, siehe oben).
 - Verschlüsselung bei der Übertragung: **ja** (HTTPS).
 - Löschung: **ja**, in der App (Profil → Konto) und über den Web-Link oben.
-- Datentypen: Persönliche Infos → Name, E-Mail-Adresse, Nutzer-IDs, Sonstige Infos (Geburtsjahr) · Fotos → Fotos (Profilbild) · Nachrichten → Andere In-App-Nachrichten · App-Aktivitäten → App-Interaktionen (KI-Zähler), Andere nutzergenerierte Inhalte (Fortschritt, Notizen, KI-Chats).
+- Datentypen: Persönliche Infos → Name, E-Mail-Adresse, Nutzer-IDs, Sonstige Infos (Geburtsjahr) · Fotos → Fotos (Profilbild) · App-Aktivitäten → App-Interaktionen (KI-Zähler, angesehene Wissenshäppchen), Andere nutzergenerierte Inhalte (Fortschritt, Notizen, KI-Chats).
   Zweck jeweils „App-Funktionalität“ und „Kontoverwaltung“, Erhebung optional (nur mit Konto).
 - Android-Sicherung: `allowBackup` ist an – der App-Speicher (Fortschritt) kann in der Google-Sicherung des Nutzers landen. Gehört nicht zu „erhoben“ (geht nicht an uns).
 
 ## 6 · Altersfreigabe
 
-**Vorschlag App Store: 13+.** Ausschlaggebend sind „Nachrichten und Chat“ (Direktnachrichten unter Freunden, öffentliche Kanäle ab 16), „nutzergenerierte Inhalte“ und der KI-Chat. Inhalte selbst: Lernstoff, keine Gewalt, kein Glücksspiel, kein offener Webzugang (externe Links öffnen nur Videoseiten).
-Im Fragebogen ehrlich ankreuzen: Nutzer-Interaktion ja, KI-Assistent ja, Moderation (Melden/Blockieren) ja, Altersprüfung über Geburtsjahr ja.
+**Vorschlag App Store: 13+.** Ausschlaggebend ist der KI-Chat (freier Text). Der Austausch mit anderen Nutzern ist seit 17.10.2026 ausgeblendet – damit entfallen „Nachrichten und Chat“ und nutzergenerierte Inhalte anderer. Inhalte selbst: Lernstoff, keine Gewalt, kein Glücksspiel, kein offener Webzugang (externe Links öffnen nur Videoseiten).
+Im Fragebogen ehrlich ankreuzen: Nutzer-Interaktion nein (solange der Austausch aus ist), KI-Assistent ja, Altersprüfung über Geburtsjahr ja.
 
 **Google Play (IARC):** Fragebogen ausfüllen; erwartbar USK ab 12 bzw. „Nutzer interagieren“.
 **Zielgruppe in der Play Console:** ab 13 angeben. Unter 13 greift das Families-Programm (strengere Regeln für KI-Chat, Nachrichten, Datenerhebung) – passt erst nach der Rechtsklärung zu Art. 8 DSGVO.
 
-**Entscheidung offen (Julius):** Die Inhalte zielen ab Klasse 5 (≈ 10 Jahre). Mit 13+ können jüngere Kinder die App nur mit Zustimmung der Eltern laden (Bildschirmzeit/Family Link). Für unter 13 bräuchte es einen Kindermodus ohne Austausch und ohne KI-Freitext.
+**Entscheidung offen (Julius):** Die Inhalte zielen ab Klasse 5 (≈ 10 Jahre). Mit 13+ können jüngere Kinder die App nur mit Zustimmung der Eltern laden (Bildschirmzeit/Family Link). Für unter 13 bräuchte es einen Kindermodus ohne KI-Freitext.
 
 ## 7 · Export-Compliance
 

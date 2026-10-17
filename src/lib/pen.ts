@@ -51,6 +51,11 @@ const SELECTOR = [
   '.qa-list > li',
   '.friend-row',
   '.lp li',
+  '.pmenu',
+  '.pmenu-item',
+  '.saved-list button',
+  '.bite-bar',
+  '.stamp-big',
 ].join(',')
 
 /** CSS-Randbreite → Tusche-Grundbreite: kraeftiger als der CSS-Rand, wie die Muenzen auf Home */

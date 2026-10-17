@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AREAS, DAYS } from '../data/plan'
 import { adviseFocus, describeError } from '../lib/ai'
 import { areaStats, dayDone, STAT_AREAS } from '../lib/stats'
@@ -6,6 +6,7 @@ import { pathDays } from '../lib/path'
 import { NATIVE, saveFile, shareFile } from '../lib/native'
 import { DEFAULT_REMINDER, setReminder } from '../lib/reminder'
 import { AfterNinety } from '../components/AfterNinety'
+import { imgUrl, loadBites, type Bite } from '../data/feed'
 import { cloud, deleteAccount, saveDayVideos, saveLevel, signOut, useAiReady, useAuth } from '../lib/cloud'
 import { DEFAULT_API_URL, DEFAULT_MODEL, dayState, exportJson, getState, videosOf, importJson, resetAll, setState, today, useStore, type Settings } from '../lib/store'
 import { Avatar } from '../components/Avatar'
@@ -36,40 +37,162 @@ async function resizeImage(f: File, px = 192): Promise<string> {
   }
 }
 
-export function ProfileView() {
-  const profile = useStore((s) => s.profile)
+export type ProfileSection = 'ich' | 'konto' | 'wissensstand' | 'staerken' | 'nach90' | 'gemerkt' | 'ki' | 'erinnerung' | 'sicherung' | 'editor' | 'rechtliches'
+
+const SECTIONS: { id: ProfileSection; label: string }[] = [
+  { id: 'ich', label: 'Ich' },
+  { id: 'konto', label: 'Konto' },
+  { id: 'wissensstand', label: 'Wissensstand' },
+  { id: 'staerken', label: 'Stärken' },
+  { id: 'nach90', label: 'Nach Tag 90' },
+  { id: 'gemerkt', label: 'Gemerkt' },
+  { id: 'ki', label: 'KI' },
+  { id: 'erinnerung', label: 'Erinnerung' },
+  { id: 'sicherung', label: 'Sicherung' },
+  { id: 'editor', label: 'Editor' },
+  { id: 'rechtliches', label: 'Rechtliches' },
+]
+
+export function parseSection(x: string | undefined): ProfileSection {
+  return SECTIONS.some((s) => s.id === x) ? (x as ProfileSection) : 'ich'
+}
+
+/** Profil: links immer das Menü, rechts der gewählte Bereich (#/profil/<bereich>) */
+export function ProfileView({ section, go }: { section: ProfileSection; go: (hash: string) => void }) {
+  const auth = useAuth()
+  const items = SECTIONS.filter((x) => (x.id !== 'erinnerung' || NATIVE) && (x.id !== 'editor' || (cloud && auth.role === 'editor')))
+  const cur = items.some((x) => x.id === section) ? section : 'ich'
+  return (
+    <div className="profile">
+      <div className="pgrid">
+        <nav className="pmenu" aria-label="Profil">
+          {items.map((x) => (
+            <button key={x.id} className={`pmenu-item${x.id === cur ? ' active' : ''}`} aria-current={x.id === cur ? 'page' : undefined} onClick={() => go(x.id === 'ich' ? '/profil' : `/profil/${x.id}`)}>
+              {x.label}
+            </button>
+          ))}
+        </nav>
+        <section className="pbody">
+          {cur === 'ich' && <Me />}
+          {cur === 'konto' && <Account />}
+          {cur === 'wissensstand' && <Knowledge />}
+          {cur === 'staerken' && <Strengths />}
+          {cur === 'nach90' && <Ninety />}
+          {cur === 'gemerkt' && <Saved go={go} />}
+          {cur === 'ki' && <AiSettings />}
+          {cur === 'erinnerung' && <ReminderSettings />}
+          {cur === 'sicherung' && <Backup />}
+          {cur === 'editor' && <Editor />}
+          {cur === 'rechtliches' && (
+            <Frame className="card">
+              <h2>Rechtliches</h2>
+              <LegalLinks />
+            </Frame>
+          )}
+        </section>
+      </div>
+    </div>
+  )
+}
+
+/** Startseite: du selbst */
+function Me() {
+  const s = useStore((x) => x)
+  const auth = useAuth()
+  const profile = s.profile
   const picRef = useRef<HTMLInputElement>(null)
+  const path = pathDays(s.level)
+  const done = path.filter((d) => dayDone(s, d)).length
 
   async function pickAvatar(f: File) {
     const avatar = await resizeImage(f)
-    setState((s) => ({ ...s, profile: { ...s.profile, avatar } }))
+    setState((x) => ({ ...x, profile: { ...x.profile, avatar } }))
   }
 
   return (
-    <div className="profile">
-      <Streak />
+    <Frame className="card me">
+      <Streak inline />
       <div className="profile-head">
         <button className="avatar-btn" onClick={() => picRef.current?.click()} aria-label="Profilbild ändern">
-          <Avatar src={profile.avatar} name={profile.name} size={96} />
+          <Avatar src={profile.avatar} name={profile.name} size={88} />
           <span className="avatar-edit">ändern</span>
         </button>
         <input ref={picRef} type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && void pickAvatar(e.target.files[0])} />
-        <div>
-          <input className="name-input" value={profile.name} onChange={(e) => setState((s) => ({ ...s, profile: { ...s.profile, name: e.target.value } }))} aria-label="Name" />
+        <div className="me-name">
+          <input className="name-input" value={profile.name} onChange={(e) => setState((x) => ({ ...x, profile: { ...x.profile, name: e.target.value } }))} aria-label="Name" />
           {profile.avatar && (
-            <button className="btn ghost small" onClick={() => setState((s) => ({ ...s, profile: { ...s.profile, avatar: undefined } }))}>Bild entfernen</button>
+            <button className="btn ghost small" onClick={() => setState((x) => ({ ...x, profile: { ...x.profile, avatar: undefined } }))}>Bild entfernen</button>
           )}
         </div>
       </div>
+      <p className="small">{auth.user ? auth.user.email : cloud ? 'Ohne Konto' : 'Nur auf diesem Gerät'}</p>
+      {cloud && !auth.user && <AccountButton />}
+      <div className="me-stats">
+        <div><b>{done}</b><span className="small muted">von {path.length} Sessions</span></div>
+        <div><b>{s.cards.length}</b><span className="small muted">Karten</span></div>
+        <div><b>{s.feed.saved.length}</b><span className="small muted">gemerkt</span></div>
+      </div>
+    </Frame>
+  )
+}
 
-      <Account />
-      {NATIVE && <ReminderSettings />}
-      <Editor />
-      <Strengths />
-      <AiSettings />
-      <Backup />
-      <LegalLinks />
-    </div>
+function Knowledge() {
+  const level = useStore((s) => s.level)
+  const [msg, setMsg] = useState<string | null>(null)
+  return (
+    <Frame className="card">
+      <h2>Wissensstand</h2>
+      <LevelPicker value={level} onChange={(l) => { setMsg(null); saveLevel(l).catch((e: Error) => setMsg(e.message)) }} />
+      {msg && <div className="chat-error">{msg}</div>}
+    </Frame>
+  )
+}
+
+function Ninety() {
+  const s = useStore((x) => x)
+  const allDone = DAYS.every((d) => dayDone(s, d.day))
+  // Offene Sessions im eigenen Pfad (Schulstoff steht nicht im Pfad)
+  const open = pathDays(s.level).filter((d) => !dayDone(s, d)).length
+  return (
+    <Frame className="card">
+      <h2>Nach Tag 90</h2>
+      {!allDone && open > 0 && <p className="muted small">Noch {open} Sessions</p>}
+      <AfterNinety />
+    </Frame>
+  )
+}
+
+/** Gemerkte Wissenshäppchen */
+function Saved({ go }: { go: (hash: string) => void }) {
+  const saved = useStore((s) => s.feed.saved)
+  const [bites, setBites] = useState<Bite[] | null>(null)
+  useEffect(() => {
+    void loadBites().then(setBites)
+  }, [])
+  const list = bites ? saved.map((id) => bites.find((b) => b.id === id)).filter((b): b is Bite => !!b) : []
+  return (
+    <Frame className="card">
+      <h2>Gemerkt</h2>
+      {!bites ? (
+        <p className="muted small">Lädt …</p>
+      ) : !list.length ? (
+        <p className="muted small">Noch nichts gemerkt.</p>
+      ) : (
+        <ul className="saved-list">
+          {list.map((b) => (
+            <li key={b.id}>
+              <button onClick={() => go(`/entdecken/${b.id}`)}>
+                <img src={imgUrl(b.images[0].file)} alt="" loading="lazy" />
+                <span>
+                  <b>{b.hook}</b>
+                  <span className="small muted">{AREAS[b.area].name}</span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Frame>
   )
 }
 
@@ -79,11 +202,7 @@ function Strengths() {
   const hasKey = useAiReady()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const done = DAYS.filter((d) => dayDone(s, d.day)).length
   const rows = STAT_AREAS.map((a) => areaStats(s, a)).filter((x) => x.answers || x.done)
-  const allDone = done >= DAYS.length
-  // Offene Sessions im eigenen Pfad (Schulstoff steht nicht im Pfad)
-  const open = pathDays(s.level).filter((d) => !dayDone(s, d)).length
 
   async function advise() {
     setBusy(true)
@@ -135,9 +254,6 @@ function Strengths() {
       {error && <div className="chat-error">{error}</div>}
       <button className="btn" onClick={advise} disabled={busy || !hasKey}>{busy ? 'KI wertet aus …' : focus.advice ? 'Neu einschätzen lassen' : 'KI-Einschätzung: was liegt mir?'}</button>
 
-      <h2 className="spaced">Nach den 90 Tagen</h2>
-      {!allDone && open > 0 && <p className="muted small">Noch {open} Sessions</p>}
-      <AfterNinety />
     </Frame>
   )
 }
@@ -239,8 +355,6 @@ function Backup() {
 
 function Account() {
   const auth = useAuth()
-  const level = useStore((s) => s.level)
-  const [msg, setMsg] = useState<string | null>(null)
   const [erase, setErase] = useState(false)
   return (
     <Frame className="card">
@@ -257,9 +371,6 @@ function Account() {
       ) : (
         <p className="muted small">Ohne Server – alles bleibt auf diesem Gerät.</p>
       )}
-      <h2 className="spaced">Wissensstand</h2>
-      <LevelPicker value={level} onChange={(l) => { setMsg(null); saveLevel(l).catch((e: Error) => setMsg(e.message)) }} />
-      {msg && <div className="chat-error">{msg}</div>}
       {auth.user && (
         <div className="row spaced">
           <button className="btn small" onClick={() => confirm('Abmelden? Der Fortschritt bleibt auf diesem Gerät.') && void signOut()}>Abmelden</button>

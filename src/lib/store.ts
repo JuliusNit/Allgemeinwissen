@@ -96,6 +96,38 @@ export interface Focus {
   likes?: Record<string, number> // Selbsteinschätzung je Grobbereich (LIKE_GROUPS), 0–4
 }
 
+/** Wissenshäppchen (Entdecken): Verhalten je Häppchen, daraus lib/feed.ts das Gefallen */
+export interface BiteLog {
+  first: string
+  last: string
+  /** wie oft geöffnet */
+  views: number
+  /** angesehene Zeit gesamt (ms) und erwartete Dauer eines Durchlaufs (ms) */
+  ms: number
+  dur: number
+  /** weitester Stand im Häppchen (0–1) */
+  best: number
+  /** bis zur Zusammenfassung gekommen */
+  done: number
+  /** zurückgewischt, um etwas nochmal zu sehen */
+  back: number
+  /** nach wenigen Sekunden weitergewischt */
+  skips: number
+  /** angehalten (Finger gehalten) */
+  holds: number
+  /** zur passenden Session gesprungen */
+  link: number
+  /** berechnetes Gefallen −1…1 (lib/feed.ts → biteLike) */
+  like: number
+}
+
+export interface FeedState {
+  log: Record<string, BiteLog>
+  saved: string[]
+  /** heute geöffnete Häppchen (Grenze ohne Premium) */
+  daily?: { date: string; ids: string[] }
+}
+
 export interface State {
   version: 1
   days: Record<number, DayState>
@@ -125,12 +157,16 @@ export interface State {
   content: Record<number, Video[]>
   /** Zeitpunkt der letzten Änderung am Fortschritt (Abgleich mit dem Konto, lib/cloud.ts) */
   progressAt?: string
+  /** Wissenshäppchen: Verhalten, Gemerkt, Tageszähler */
+  feed: FeedState
+  /** Ton im Entdecken-Feed (Geräte-Einstellung) */
+  feedSound?: boolean
   /** Tägliche Erinnerung der nativen App (lib/reminder.ts), Geräte-Einstellung */
   reminder?: Reminder
 }
 
 /** Teil des Zustands, der ins Konto wandert – ohne Einstellungen/API-Key, Editor-Videolisten, Profil (eigene Tabelle) und Geräte-Flags */
-export const PROGRESS_KEYS = ['days', 'cards', 'cardLog', 'reviews', 'basis', 'exams', 'community', 'focus', 'recapSeen'] as const
+export const PROGRESS_KEYS = ['days', 'cards', 'cardLog', 'reviews', 'basis', 'exams', 'community', 'focus', 'recapSeen', 'feed'] as const
 export type Progress = Pick<State, (typeof PROGRESS_KEYS)[number]>
 
 const KEY = 'allgemeinwissen-v1'
@@ -152,6 +188,7 @@ const initial: State = {
   community: [],
   profile: { name: '' },
   focus: {},
+  feed: { log: {}, saved: [] },
   content: {},
   settings: { apiUrl: DEFAULT_API_URL, apiKey: DEV_KEY, model: DEFAULT_MODEL, thinking: false },
 }
@@ -173,6 +210,7 @@ function normalize(parsed: Partial<State>): State {
     version: 1,
     profile: { ...initial.profile, ...parsed.profile },
     focus: { ...parsed.focus },
+    feed: { log: {}, saved: [], ...parsed.feed },
     content: { ...parsed.content },
     exams: { ...parsed.exams },
     basis: { ...parsed.basis },
@@ -328,10 +366,10 @@ export function progressEmpty(p: Partial<Progress>): boolean {
 }
 
 export function resetAll() {
-  setState((s) => ({ ...initial, settings: s.settings, profile: s.profile, level: s.level, onboarded: s.onboarded, owner: s.owner, guest: s.guest, content: s.content, reminder: s.reminder }))
+  setState((s) => ({ ...initial, settings: s.settings, feedSound: s.feedSound, profile: s.profile, level: s.level, onboarded: s.onboarded, owner: s.owner, guest: s.guest, content: s.content, reminder: s.reminder }))
 }
 
 /** Nach dem Löschen des Kontos: alles Persönliche weg, nur Einstellungen und die öffentlichen Videolisten bleiben */
 export function wipeAll() {
-  setState((s) => ({ ...initial, settings: { ...s.settings, apiKey: DEV_KEY }, onboarded: s.onboarded, content: s.content, reminder: s.reminder }))
+  setState((s) => ({ ...initial, settings: { ...s.settings, apiKey: DEV_KEY }, feedSound: s.feedSound, onboarded: s.onboarded, content: s.content, reminder: s.reminder }))
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { AREAS, type AreaId } from './data/plan'
 import { dueCards } from './lib/srs'
 import { cloud, useAuth } from './lib/cloud'
@@ -6,25 +6,28 @@ import { useStore } from './lib/store'
 import { Icon, type IconName } from './components/Icons'
 import { HatchDefs } from './components/Ink'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { CommunityView } from './views/CommunityView'
 import { DayView } from './views/DayView'
 import { ExamView } from './views/ExamView'
 import { HomeView } from './views/HomeView'
 import { Onboarding } from './views/Onboarding'
-import { ProfileView } from './views/ProfileView'
+import { parseSection, ProfileView, type ProfileSection } from './views/ProfileView'
+import { unlockAudio } from './lib/sound'
 import { ReviewView } from './views/ReviewView'
 import { BasisView } from './views/BasisView'
 import { StatsView } from './views/StatsView'
 import { TopicView } from './views/TopicView'
 import { LegalView, type LegalPage } from './views/LegalView'
 
-type Tab = 'exam' | 'home' | 'chat' | 'stats' | 'profil'
+// Austausch (views/CommunityView.tsx) ist vorerst ausgeblendet; an seiner Stelle steht „Entdecken“
+const FeedView = lazy(() => import('./views/FeedView'))
+
+type Tab = 'exam' | 'home' | 'feed' | 'stats' | 'profil'
 
 type Route =
   | { tab: 'home'; day?: number; topic?: number; review?: string; vday?: number; video?: string; at?: number }
-  | { tab: 'chat'; channel?: string }
+  | { tab: 'feed'; bite?: string }
   | { tab: 'stats'; area?: AreaId; day?: number }
-  | { tab: 'profil'; legal?: LegalPage }
+  | { tab: 'profil'; legal?: LegalPage; section?: ProfileSection }
   | { tab: 'exam'; day?: number }
 
 function parseHash(): Route {
@@ -40,12 +43,12 @@ function parseHash(): Route {
     if (c === 'video' && d && e) return { tab: 'home', review: b, vday: Math.min(90, Math.max(1, Number(d) || 1)), video: decodeURIComponent(e), at: f ? Number(f) || 0 : undefined }
     return { tab: 'home', review: b }
   }
-  if (a === 'chat') return { tab: 'chat', channel: b }
+  if (a === 'entdecken') return { tab: 'feed', bite: b ? decodeURIComponent(b) : undefined }
   if (a === 'statistik') {
     const area = b && b in AREAS ? (b as AreaId) : undefined
     return { tab: 'stats', area, day: area && c ? Number(c) || undefined : undefined }
   }
-  if (a === 'profil') return { tab: 'profil' }
+  if (a === 'profil') return { tab: 'profil', section: parseSection(b) }
   if (a === 'datenschutz' || a === 'impressum') return { tab: 'profil', legal: a }
   if (a === 'pruefung') return { tab: 'exam', day: b ? Math.min(90, Math.max(1, Number(b) || 1)) : undefined }
   return { tab: 'home' }
@@ -53,7 +56,7 @@ function parseHash(): Route {
 
 const NAV: { tab: Tab; label: string; icon: IconName; hash: string }[] = [
   { tab: 'exam', label: 'Prüfung', icon: 'EXAM', hash: '/pruefung' },
-  { tab: 'chat', label: 'Austausch', icon: 'CHAT', hash: '/chat' },
+  { tab: 'feed', label: 'Entdecken', icon: 'FEED', hash: '/entdecken' },
   { tab: 'home', label: 'Home', icon: 'HOME', hash: '/' },
   { tab: 'stats', label: 'Statistik', icon: 'STATS', hash: '/statistik' },
   { tab: 'profil', label: 'Profil', icon: 'PROFILE', hash: '/profil' },
@@ -80,7 +83,12 @@ export default function App() {
       if (!location.hash.includes('/video/')) videoFromSession = false
     }
     window.addEventListener('hashchange', on)
-    return () => window.removeEventListener('hashchange', on)
+    // Ton (Entdecken) erst nach einer Berührung erlaubt
+    window.addEventListener('pointerdown', unlockAudio, { passive: true })
+    return () => {
+      window.removeEventListener('hashchange', on)
+      window.removeEventListener('pointerdown', unlockAudio)
+    }
   }, [])
 
   const go = (hash: string) => {
@@ -166,9 +174,13 @@ export default function App() {
           ) : (
             <HomeView go={go} />
           ))}
-        {route.tab === 'chat' && <CommunityView channel={route.channel} go={go} />}
+        {route.tab === 'feed' && (
+          <Suspense fallback={null}>
+            <FeedView bite={route.bite} go={go} />
+          </Suspense>
+        )}
         {route.tab === 'stats' && <StatsView area={route.area} day={route.day} go={go} />}
-        {route.tab === 'profil' && (route.legal ? <LegalView page={route.legal} /> : <ProfileView />)}
+        {route.tab === 'profil' && (route.legal ? <LegalView page={route.legal} /> : <ProfileView section={route.section ?? 'ich'} go={go} />)}
         {route.tab === 'exam' && <ExamView day={route.day} go={go} />}
         </ErrorBoundary>
       </main>

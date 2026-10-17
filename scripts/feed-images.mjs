@@ -1,0 +1,103 @@
+// Fotos für „Entdecken“ (src/data/bites/*.ts) von Wikimedia Commons laden und verkleinern.
+// Nur freie Lizenzen (gemeinfrei, CC0, CC BY, CC BY-SA); Urheber und Lizenz stehen in src/data/bites/img.ts.
+// Ziel: public/feed/<name>.webp, max. 900 × 1100 px.
+// Aufruf: node scripts/feed-images.mjs [name …]   (ohne Namen: alle fehlenden)
+import fs from 'node:fs'
+import path from 'node:path'
+import sharp from 'sharp'
+
+const OUT = path.resolve('public/feed')
+const UA = 'Allgemeinwissen-App/1.0 (https://github.com/JuliusNit/Allgemeinwissen)'
+
+export const IMAGES = {
+  "hund-schlaf": "File:Little Man the Pillow (5415264131).jpg",
+  "baby-gaehnt": "File:Yawning Infant, August 2018.jpg",
+  "schach": "File:Schachfiguren, Bauern -- 2022 -- 0022 (bw).jpg",
+  "marshmallows": "File:White Marshmallows.jpg",
+  "e-coli": "File:E. coli Bacteria (7316101966).jpg",
+  "giraffen-necking": "File:Giraffe Ithala KZN South Africa Luca Galuzzi 2004.JPG",
+  "mrt-gehirn": "File:MRI of Human Brain.jpg",
+  "spinat": "File:Spinach leaves.jpg",
+  "newton-baum": "File:Newton's Apple Tree - geograph.org.uk - 4299416.jpg",
+  "apfelbaum": "File:Tree with red apples in Barkedal 4.jpg",
+  "orion": "File:The Orion Constellation.jpg",
+  "gps-satellit": "File:GPS Satellite NASA art-iif.jpg",
+  "goldbarren": "File:Gold Ingots on white background.jpg",
+  "lachendes-kind": "File:Laughing Toddler (colorized).jpg",
+  "gjermundbu-helm": "File:Cultural History (historisk) Museum Oslo. VIKINGR Norwegian Viking-Age Exhibition 08 Iron helmet from Gjermundbu (Gjermundbuhjelmen). Best-preserved viking helmet, grave find, destroyed in funeral. Equestrian warrior 950-1000. 4696.jpg",
+  "veksoe-helm": "File:Bronzehjelm fra Veksø B13552- 00002.tif",
+  "napoleon-hut": "File:DHM - Zweispitz Napoleon.jpg",
+  "blaue-murmel": "File:The Earth seen from Apollo 17.jpg",
+  "gizeh": "File:All Gizah Pyramids.jpg",
+  "sokrates-buste": "File:Socrates Louvre.jpg",
+  "pithoi-knossos": "File:Knossos pithoi pottery, Crete 001.JPG",
+  "weiche": "File:Railway switch lever on Grötö.jpg",
+  "marc-aurel": "File:Rome Capitoline Marcus Aurelius statue original.jpg",
+  "sanduhr": "File:Hourglass with sand.jpg",
+  "laeufer": "File:Running Styles (8049103309).jpg",
+  "globe-theatre": "File:London - Shakespeare's Globe Theatre Replica 1997.jpg",
+  "lego": "File:Lego Color Bricks.jpg",
+  "maerchenwald": "File:Dark Path (79235983).jpeg",
+  "mona-lisa-louvre": "File:Tourists amidst Dense Crowd Taking Selfies in front of the Mona Lisa, Louvre, Paris.jpg",
+  "sonnenblumen": "File:Sunflower field - panoramio (11).jpg",
+  "geige": "File:Violin by Daniel Jason Karjadi.jpg",
+  "rijksmuseum": "File:Rijksmuseum (25648152215).jpg",
+  "reiten-wald": "File:Horse riding on the bridleway - geograph.org.uk - 5753156.jpg",
+  "gerichtssaal": "File:Courtroom at Spangdahlem Air Base (8410867).jpg",
+  "nato-flaggen": "File:160211-D-DT527-007 NATO country flags wave at the entrance of NATO headquarters in Brussels 2016.JPG",
+  "wahlurne": "File:Ballot dropped into ballot box 2024 Swedish EU election at Stångenässkolan, Brastad.jpg",
+  "tulpenfeld": "File:Red-Tulip Fields-Bollenstreek Hillegom.jpg",
+  "kobra": "File:Indian Cobra Naja naja by Dr Raju Kasambe DSCN4991 (19).jpg",
+  "euro": "File:One stands out 002 2025 01 01.jpg",
+  "preisschilder": "File:Dual Price Labels - Leva and Euro 03.jpg",
+  "goldfisch": "File:Carassius auratus auratus (goldfish) 2.jpg",
+  "bibliothek": "File:Sias Library - Students Studying 2017.jpg",
+  "storch": "File:White stork (Ciconia ciconia) in flight with transmitter.jpg",
+  "ziege": "File:Closeup goat portrait.jpg",
+  "everest": "File:Everest North Face toward Base Camp Tibet Luca Galuzzi 2006.jpg",
+  "chinesische-mauer": "File:Great Wall of China July 2006.JPG",
+  "erde-nachts": "File:Chicago, Illinois, pictured at night from the International Space Station (iss075e0099858).jpg",
+  "pompeji-vesuv": "File:Forum (Pompeii) and the Vesuvio.jpg",
+  "gefrorene-gracht": "File:Spoorsingel people skating, Provenierswijk, Rotterdam (2021) 01.jpg",
+  "motte": "File:Brahmaea wallichii insulata (Brahmeid Moth).jpg",
+  "gutenberg-bibel": "File:Gutenberg Bible, New York Public Library, USA. Pic 01.jpg",
+  "gluehfaden": "File:Low-key photograph of light bulb, Straume, Norway julesvernex2.jpg",
+  "turing-statue": "File:Alan Turing by Stephen Kettle 2007.jpg",
+  "blitz-eiffelturm": "File:Lightning striking the Eiffel Tower - NOAA.jpg",
+  "logbuch-bug": "File:First Computer Bug, 1947.jpg",
+}
+async function thumb(title) {
+  const u = 'https://commons.wikimedia.org/w/api.php?' + new URLSearchParams({
+    action: 'query', format: 'json', titles: title, prop: 'imageinfo', iiprop: 'url|extmetadata', iiurlwidth: '1400',
+    iiextmetadatafilter: 'LicenseShortName',
+  })
+  const j = await (await fetch(u, { headers: { 'User-Agent': UA } })).json()
+  const ii = Object.values(j.query.pages)[0].imageinfo?.[0]
+  if (!ii) throw new Error(`nicht gefunden: ${title}`)
+  const lic = ii.extmetadata?.LicenseShortName?.value ?? ''
+  if (!/public domain|cc0|no restrictions|^cc by(-sa)? [\d.]+$/i.test(lic)) throw new Error(`keine freie Lizenz (${lic}): ${title}`)
+  return ii.thumburl ?? ii.url
+}
+
+const only = process.argv.slice(2)
+fs.mkdirSync(OUT, { recursive: true })
+for (const [name, title] of Object.entries(IMAGES)) {
+  const file = path.join(OUT, `${name}.webp`)
+  if (only.length ? !only.includes(name) : fs.existsSync(file)) continue
+  try {
+    const url = await thumb(title)
+    let res
+    for (let i = 0; i < 4; i++) {
+      res = await fetch(url, { headers: { 'User-Agent': UA } })
+      if (res.status !== 429) break
+      await new Promise((r) => setTimeout(r, 4000 * (i + 1)))
+    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const buf = Buffer.from(await res.arrayBuffer())
+    await sharp(buf).resize({ width: 900, height: 1100, fit: 'inside', withoutEnlargement: true }).webp({ quality: 72 }).toFile(file)
+    console.log(`✓ ${name} (${Math.round(fs.statSync(file).size / 1024)} KB)`)
+  } catch (e) {
+    console.log(`✗ ${name}: ${e.message}`)
+  }
+  await new Promise((r) => setTimeout(r, 600))
+}

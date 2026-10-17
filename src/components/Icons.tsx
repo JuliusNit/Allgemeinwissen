@@ -4,7 +4,7 @@ import { InkPaths } from './Ink'
 
 // Alle Icons im 24er-Raster, gezeichnet mit der Tusche-Feder aus lib/ink.
 
-export type IconName = AreaId | 'REVIEW' | 'HOME' | 'STATS' | 'PROFILE' | 'CHAT' | 'EXAM' | 'CHECK' | 'LOCK' | 'BACK' | 'BOLT' | 'CRYSTAL' | 'MAIL' | 'FLAME'
+export type IconName = AreaId | 'REVIEW' | 'HOME' | 'STATS' | 'PROFILE' | 'CHAT' | 'EXAM' | 'CHECK' | 'LOCK' | 'BACK' | 'BOLT' | 'CRYSTAL' | 'MAIL' | 'FLAME' | 'FEED' | 'SOUND' | 'MUTE' | 'BOOKMARK'
 
 interface IconDef {
   strokes: Stroke[]
@@ -244,6 +244,31 @@ const DEFS: Record<IconName, IconDef> = {
       bez([12.6, 13.8], [15.6, 15.4], [15.2, 19.4], [12, 19.4], 0.8),
     ],
     fill: 'M12 21.6C5.4 21.6 3.6 15.4 6.4 10.6C7.4 12.6 8.6 13.2 9.4 13C8.4 8.4 10.6 4.6 13.4 2.4C13.6 6.6 20.4 9.8 18.6 16C17.8 19.4 15 21.6 12 21.6Z',
+  },
+  // Entdecken: Karte mit Abspielzeichen, dahinter die nächste
+  FEED: {
+    strokes: [
+      roundRect(5.4, 5.2, 13.2, 17, 2.6),
+      bez([7.6, 2.4], [7.6, 2.4], [16.4, 2.4], [16.4, 2.4], 0.9),
+      ...poly([[10.2, 9.6], [15.4, 13.7], [10.2, 17.8]], true),
+    ],
+    fill: 'M8 5.2H16A2.6 2.6 0 0 1 18.6 7.8V19.6A2.6 2.6 0 0 1 16 22.2H8A2.6 2.6 0 0 1 5.4 19.6V7.8A2.6 2.6 0 0 1 8 5.2Z',
+  },
+  SOUND: {
+    strokes: [
+      ...poly([[3, 9.4], [7, 9.4], [12, 4.8], [12, 19.2], [7, 14.6], [3, 14.6]], true),
+      arc(12.4, 12, 4.4, -50, 50),
+      arc(12.4, 12, 8.2, -52, 52),
+    ],
+    fill: 'M3 9.4H7L12 4.8V19.2L7 14.6H3Z',
+  },
+  MUTE: {
+    strokes: [...poly([[3, 9.4], [7, 9.4], [12, 4.8], [12, 19.2], [7, 14.6], [3, 14.6]], true), line([15.4, 9], [21, 15]), line([21, 9], [15.4, 15])],
+    fill: 'M3 9.4H7L12 4.8V19.2L7 14.6H3Z',
+  },
+  BOOKMARK: {
+    strokes: poly([[6, 2.8], [18, 2.8], [18, 21.4], [12, 16.6], [6, 21.4]], true),
+    fill: 'M6 2.8H18V21.4L12 16.6L6 21.4Z',
   },
   MAIL: { strokes: [roundRect(2.6, 5, 18.8, 14, 2.4), ...poly([[3.4, 6.2], [12, 13], [20.6, 6.2]])] },
 }

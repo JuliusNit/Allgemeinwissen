@@ -1,0 +1,67 @@
+import type { BiteImage } from '../feed'
+
+// Fotos von Wikimedia Commons (freie Lizenzen), geladen mit scripts/feed-images.mjs nach public/feed/<name>.webp
+const IMG = {
+  'hund-schlaf': ['David Shankbone from USA', 'CC BY 2.0'],
+  'baby-gaehnt': ['Martin Falbisoner', 'CC BY-SA 4.0'],
+  'schach': ['Dietmar Rabich', 'CC BY-SA 4.0'],
+  'marshmallows': ['John Morgan', 'CC BY 2.0'],
+  'e-coli': ['NIAID', 'gemeinfrei'],
+  'giraffen-necking': ['Luca Galuzzi (Lucag)', 'CC BY-SA 2.5'],
+  'mrt-gehirn': ['Asnaebsa', 'CC BY-SA 4.0'],
+  'spinat': ['Nillerdk', 'CC BY 3.0'],
+  'newton-baum': ['Richard Croft', 'CC BY-SA 2.0'],
+  'apfelbaum': ['W.carter', 'CC0'],
+  'orion': ['Igor da Bari', 'CC BY 4.0'],
+  'gps-satellit': ['NASA', 'gemeinfrei'],
+  'goldbarren': ['Szaaman', 'gemeinfrei'],
+  'lachendes-kind': ['Katie Thomas', 'CC BY 2.0'],
+  'gjermundbu-helm': ['Wolfmann', 'CC BY-SA 4.0'],
+  'veksoe-helm': ['Nationalmuseet, Roberto Fortuna og Kira Ursem', 'CC BY-SA 3.0'],
+  'napoleon-hut': ['Wolfgang Sauber', 'CC BY-SA 3.0'],
+  'blaue-murmel': ['NASA, Apollo 17', 'gemeinfrei'],
+  'gizeh': ['Ricardo Liberato', 'CC BY-SA 2.0'],
+  'sokrates-buste': ['Louvre (Foto)', 'gemeinfrei'],
+  'pithoi-knossos': ['Moonik', 'CC BY-SA 3.0'],
+  'weiche': ['W.carter', 'gemeinfrei'],
+  'marc-aurel': ['Nicholas Hartmann', 'CC BY-SA 4.0'],
+  'sanduhr': ['John Morgan', 'CC BY 2.0'],
+  'laeufer': ['Chris Hunkeler', 'CC BY-SA 2.0'],
+  'globe-theatre': ['Txllxt TxllxT', 'CC BY-SA 4.0'],
+  'lego': ['Alan Chia', 'CC BY-SA 2.0'],
+  'maerchenwald': ['Vad 7', 'CC BY 3.0'],
+  'mona-lisa-louvre': ['Julian Lupyan', 'CC0'],
+  'sonnenblumen': ['Björn S.', 'CC BY-SA 3.0'],
+  'geige': ['Daniel Jason Karjadi', 'CC BY-SA 2.0'],
+  'rijksmuseum': ['Frans de Wit', 'CC BY-SA 2.0'],
+  'reiten-wald': ['Steve Daniels', 'CC BY-SA 2.0'],
+  'gerichtssaal': ['U.S. Air Force', 'gemeinfrei'],
+  'nato-flaggen': ['U.S. Department of Defense', 'gemeinfrei'],
+  'wahlurne': ['W.carter', 'CC BY-SA 4.0'],
+  'tulpenfeld': ['acediscovery', 'CC BY 4.0'],
+  'kobra': ['Dr. Raju Kasambe', 'CC BY-SA 4.0'],
+  'euro': ['Friedrich Haag', 'CC BY-SA 4.0'],
+  'preisschilder': ['DemieK07', 'CC BY 4.0'],
+  'goldfisch': ['James St. John', 'CC BY 2.0'],
+  'bibliothek': ['Gary Todd', 'CC0'],
+  'storch': ['Charles J. Sharp', 'CC BY-SA 4.0'],
+  'ziege': ['Ali', 'CC BY 2.0'],
+  'everest': ['Luca Galuzzi (Lucag)', 'CC BY-SA 2.5'],
+  'chinesische-mauer': ['Velatrix', 'CC0'],
+  'erde-nachts': ['NASA Johnson Space Center', 'gemeinfrei'],
+  'pompeji-vesuv': ['Commonists', 'CC BY-SA 4.0'],
+  'gefrorene-gracht': ['Donald Trung Quoc Don', 'CC BY-SA 4.0'],
+  'motte': ['Arthur Chapman', 'CC BY 2.0'],
+  'gutenberg-bibel': ['Joshua Keller', 'CC BY 2.0'],
+  'gluehfaden': ['Jules Verne Times Two', 'CC BY-SA 4.0'],
+  'turing-statue': ['DeFacto', 'CC BY-SA 4.0'],
+  'blitz-eiffelturm': ['Gabriel Loppé', 'gemeinfrei'],
+  'logbuch-bug': ['U.S. Naval History and Heritage Command', 'gemeinfrei'],
+} as const
+
+export type ImgName = keyof typeof IMG
+
+export function img(name: ImgName): BiteImage {
+  const [author, license] = IMG[name]
+  return { file: `${name}.webp`, author, license }
+}

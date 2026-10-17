@@ -3,7 +3,7 @@
 // **[PLATZHALTER: …]** im Text und muessen vor dem Launch ersetzt werden. Aendert sich der Datenfluss
 // (neuer Anbieter, neue Tabelle, Tracking), hier nachziehen.
 
-export const LEGAL_DATE = '16.10.2026'
+export const LEGAL_DATE = '17.10.2026'
 
 export const DATENSCHUTZ = `## 1 · Verantwortlicher
 
@@ -16,7 +16,7 @@ Fragen zum Datenschutz und alle Anträge (Auskunft, Löschung …) an diese Adre
 ## 2 · Überblick
 
 - Die App lässt sich **ohne Konto** nutzen; dann bleibt der Lernfortschritt auf deinem Gerät.
-- Ein **Konto** brauchst du für die KI und den Austausch. Dann liegen Konto, Profil, Fortschritt und Nachrichten auf dem App-Server (Supabase).
+- Ein **Konto** brauchst du für die KI und die Sicherung deines Fortschritts. Dann liegen Konto, Profil und Fortschritt auf dem App-Server (Supabase).
 - Keine Werbung, kein Tracking, keine Analyse-Werkzeuge, keine Cookies zu Werbe- oder Statistikzwecken.
 
 ## 3 · Bereitstellung der App (Hosting)
@@ -30,6 +30,8 @@ Die App für iPhone und Android kommt über den **App Store** (Apple) bzw. **Goo
 Im Speicher der App bzw. des Browsers (localStorage) liegen:
 
 - Lernfortschritt: Sessions, Notizen, Video-Notizen und -Positionen, Karteikarten, Chatverläufe mit der KI, Prüfungsergebnisse, Wissensstand
+- „Entdecken“: gemerkte Wissenshäppchen und wie weit und wie lange du sie angesehen hast – nur, um die Reihenfolge der Häppchen an deine Interessen anzupassen
+- ob der Ton in „Entdecken“ an oder aus ist
 - Name und Profilbild
 - ein eigener KI-Schlüssel, falls du ohne Konto einen einträgst (verlässt das Gerät nur in Richtung der eingetragenen KI-Adresse)
 - mit Konto: die Anmeldung (Sitzungs-Token von Supabase)
@@ -44,18 +46,18 @@ Anbieter des App-Servers: **Supabase Inc.**, **[PLATZHALTER: Anschrift laut Supa
 Gespeichert werden:
 
 - **Konto:** E-Mail-Adresse, Passwort (nur verschlüsselt als Hash), Name, Wissensstand, Geburtsjahr, Zeitpunkte von Registrierung und Anmeldung
-- **Profil:** Name, Profilbild, Rolle – Name und Bild sehen andere angemeldete Nutzer im Austausch
+- **Profil:** Name, Profilbild, Rolle
 - **Fortschritt:** derselbe Lernfortschritt wie unter 4 (ohne KI-Schlüssel und Einstellungen), damit er nach einem Gerätewechsel oder einer Neuinstallation wieder da ist
-- **Austausch:** Nachrichten, Freundschaften und Anfragen, Blockierungen, Meldungen
+- **Austausch:** derzeit nicht verfügbar (siehe 7). Nachrichten, Freundschaften, Blockierungen und Meldungen aus der Zeit davor bleiben gespeichert, bis du dein Konto löschst
 - **KI-Nutzung:** Anzahl der KI-Anfragen pro Tag (für das Tageslimit), keine Inhalte
 
 Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Nutzungsvertrag). Die Daten bleiben gespeichert, bis du dein Konto löschst.
 
 ## 6 · KI-Funktionen
 
-Für Anknüpfen, Fragen, Verständnischeck, Lernzettel, Karteikarten, Prüfungsmodus, Stärkenberatung und @KI im Austausch schickt die App Text an ein Sprachmodell:
+Für Anknüpfen, Fragen, Verständnischeck, Lernzettel, Karteikarten, Prüfungsmodus, und Stärkenberatung schickt die App Text an ein Sprachmodell:
 
-- **Inhalt:** dein Chatverlauf in der jeweiligen Funktion, deine Notizen und Antworten, Titel und Teilthemen der Session, dein Vorname; bei @KI im Austausch die letzten 20 Nachrichten des Kanals bzw. der Direktnachricht mit den Namen der Schreibenden
+- **Inhalt:** dein Chatverlauf in der jeweiligen Funktion, deine Notizen und Antworten, Titel und Teilthemen der Session, dein Vorname
 - **Weg:** mit Konto über den App-Server (Supabase Edge Function), ohne Konto mit eigenem Schlüssel direkt aus dem Browser
 - **Anbieter des Modells:** Server unter ai.inference2.corpus.music – Betreiber: **[PLATZHALTER: Name und Anschrift des Betreibers]**, Standort: **[PLATZHALTER: Land/Region]**, Speicherung der Anfragen beim Anbieter: **[PLATZHALTER: z. B. keine Speicherung / Löschung nach … Tagen]**, Auftragsverarbeitungsvertrag: **[PLATZHALTER]**
 
@@ -65,28 +67,27 @@ Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO.
 
 ## 7 · Austausch
 
-- **Öffentliche Kanäle** sehen alle angemeldeten Nutzer ab 16 Jahren. Unter 16 – oder ohne Angabe des Geburtsjahrs – gibt es nur Freunde und Direktnachrichten; das setzt der Server durch.
-- **Direktnachrichten** lesen nur die beiden Beteiligten, schreiben geht nur unter Freunden.
-- **Freunde finden:** Andere können dein Profil über den Namen suchen und dir eine Anfrage schicken.
-- **Blockieren** blendet Nachrichten der blockierten Person aus und beendet die Freundschaft.
-- **Melden:** Die gemeldete Nachricht (Text, Absender, Kanal) und der Grund gehen an die Moderation der App. Erledigte Meldungen werden gelöscht.
-- Eigene Nachrichten kannst du jederzeit löschen; die Moderation kann Nachrichten löschen, die gegen Regeln verstoßen.
+Der Austausch (Kanäle, Freunde, Direktnachrichten) ist derzeit nicht verfügbar; die App zeigt keine Nachrichten mehr an und verschickt keine. Früher gespeicherte Daten werden mit dem Konto gelöscht (siehe 11).
 
-## 8 · Videos (YouTube, Vimeo)
+## 8 · Fotos in „Entdecken“
+
+Die Fotos stammen von Wikimedia Commons und liegen in der App selbst; beim Ansehen wird keine Verbindung zu Wikimedia aufgebaut.
+
+## 9 · Videos (YouTube, Vimeo)
 
 Lernvideos sind eingebettet. Erst wenn du ein Video öffnest, lädt die App den Player von **YouTube** im erweiterten Datenschutzmodus (youtube-nocookie.com; Google Ireland Ltd., Gordon House, Barrow Street, Dublin 4, Irland) bzw. von **Vimeo** (Vimeo.com Inc., USA, mit „Do Not Track“). Dabei erhält der Anbieter deine IP-Adresse und technische Daten; beim Abspielen kann er Cookies oder ähnliche Speicher setzen und Daten in die USA übermitteln (EU-US Data Privacy Framework). Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO bzw. § 25 Abs. 1 TDDDG – durch das Öffnen des Videos. Datenschutz bei Google: policies.google.com/privacy, bei Vimeo: vimeo.com/privacy.
 
-## 9 · Kinder und Jugendliche
+## 10 · Kinder und Jugendliche
 
-Die App richtet sich auch an Schülerinnen und Schüler ab Klasse 5. Beim Anlegen eines Kontos fragt sie das Geburtsjahr ab; unter 16 Jahren sind öffentliche Kanäle gesperrt. **[PLATZHALTER: Regelung zur Einwilligung der Eltern nach Art. 8 DSGVO für Konten unter 16 – rechtlich klären]**
+Die App richtet sich auch an Schülerinnen und Schüler ab Klasse 5. Beim Anlegen eines Kontos fragt sie das Geburtsjahr ab. **[PLATZHALTER: Regelung zur Einwilligung der Eltern nach Art. 8 DSGVO für Konten unter 16 – rechtlich klären]**
 
-## 10 · Löschung
+## 11 · Löschung
 
 - **Konto löschen:** Profil → Konto → „Konto löschen“. Damit werden Konto, Profil, Fortschritt, Geburtsjahr, Nachrichten, Freundschaften, Blockierungen und eigene Meldungen sofort vom Server gelöscht, außerdem der Fortschritt auf dem Gerät.
 - **Ohne Konto:** Profil → „Fortschritt löschen“ oder Browserdaten löschen.
 - **Sicherung:** Profil → „Exportieren“ lädt deinen Fortschritt als Datei herunter (Datenübertragbarkeit).
 
-## 11 · Deine Rechte
+## 12 · Deine Rechte
 
 Du hast das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21). Eine Einwilligung kannst du jederzeit für die Zukunft widerrufen. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren, z. B. **[PLATZHALTER: zuständige Aufsichtsbehörde]**.
 
@@ -110,14 +111,10 @@ Telefon: **[PLATZHALTER: Telefonnummer oder zweiter schneller Kontaktweg]**
 
 ## Inhalte
 
-Lehrplan, Lernzettel und Texte der App: **[PLATZHALTER: Name]**. Die eingebetteten Lernvideos stammen von Dritten (u. a. YouTube-Kanäle von Studyflix, simpleclub, MrWissen2go, Terra X, Kurzgesagt); für deren Inhalt sind die jeweiligen Anbieter verantwortlich. KI-Antworten werden automatisch erzeugt und können Fehler enthalten.
+Lehrplan, Lernzettel und Texte der App: **[PLATZHALTER: Name]**. Die eingebetteten Lernvideos stammen von Dritten (u. a. YouTube-Kanäle von Studyflix, simpleclub, MrWissen2go, Terra X, Kurzgesagt); für deren Inhalt sind die jeweiligen Anbieter verantwortlich. KI-Antworten werden automatisch erzeugt und können Fehler enthalten. Fotos in „Entdecken“: Wikimedia Commons, Urheber und Lizenz stehen am Ende jedes Häppchens.
 
 ## Haftung für Links und eingebettete Inhalte
 
 Für Inhalte externer Seiten und Videos sind deren Betreiber verantwortlich. Bei Bekanntwerden von Rechtsverletzungen werden betroffene Links und Videos entfernt.
-
-## Nutzerbeiträge
-
-Nachrichten im Austausch stammen von den Nutzerinnen und Nutzern. Rechtswidrige Beiträge lassen sich an jeder Nachricht über „…“ → „Melden“ melden oder an die E-Mail-Adresse oben schicken.
 
 Stand: ${LEGAL_DATE} · Entwurf`

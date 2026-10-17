@@ -49,7 +49,27 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 - `src/lib/srs.ts` – vereinfachtes SM-2 für Karteikarten.
 - `src/lib/ink.ts`, `components/Ink.tsx`, `Icons.tsx`, `Coin.tsx` – Tusche-Optik: exakte Formen, Strichbreite je nach Richtung.
 - Design: schwarz auf weiß, Schraffur statt Flächen, Farbe nur grün/rot in der Statistik. Navigation unten:
-  Prüfung · Austausch · Home (Lernpfad) · Statistik · Profil.
+  Prüfung · Entdecken · Home (Lernpfad) · Statistik · Profil.
+- **Entdecken** (`#/entdecken[/id]`, `src/views/FeedView.tsx`, lazy): Wissenshäppchen wie kurze Videos. Inhalte in
+  `src/data/bites/*.ts` (50 Stück, je Überthema, vorab geschrieben, mit Quellen und Stempel belegt/umstritten/hype),
+  Typen + Lader in `src/data/feed.ts`. Ablauf je Häppchen: Begrüßung (Bild per Kreis aufgedeckt, Wörter fliegen ein) →
+  Aufhänger → 3 Absätze (alter blendet aus, neuer ein; **fett** = Tusche-Unterstrich) → Stempel → Zusammenfassung mit
+  Merken / Session / Bild- und Quellennachweis. Läuft von selbst (Lesezeit je Wortzahl), links/rechts wischen oder tippen =
+  vor/zurück, hoch/runter = nächstes/voriges Häppchen, Finger halten = Pause; Desktop: Pfeiltasten, Mausrad.
+  Bilder: echte Fotos (keine Gemälde, kein Filter) mit freier Lizenz von Wikimedia Commons, `scripts/feed-images.mjs` lädt
+  sie nach `public/feed/*.webp` (max. 900 px), Urheber + Lizenz in `src/data/bites/img.ts` – CC BY/BY-SA verlangen den
+  Nachweis, der am Ende jedes Häppchens steht. Ton: `src/lib/sound.ts`, alles live per Web Audio (Musik je `mood`,
+  Geräuschkulisse je `ambience`, Effekte zu jeder Bewegung), freigeschaltet beim ersten Antippen (`unlockAudio`),
+  an/aus oben rechts (`feedSound`, Geräte-Einstellung). Reihenfolge: `src/lib/feed.ts` (Recherche und Gewichte im
+  Kopfkommentar): Gefallen je Häppchen aus Sehdauer relativ zur Länge, Fortschritt, Zurückwischen, Halten, Merken,
+  Session-Sprung, schnellem Wegwischen (`feed.log`); Interesse je Überthema = Regler „Was hat dir gefallen?“ als
+  Startwert + Feed-Verhalten + Lernverhalten (eigene Fragen, Notizen, Antwortlänge, Präzision, Reaktion auf Fehler,
+  freiwillige Prüfungen; richtig/falsch nur leicht), alles relativ zum eigenen Schnitt. Erst ein anderes Thema als die
+  letzte Session, dann eins daraus, Zufall nach Unsicherheit, jede 4. Stelle erkunden, nie 3× dasselbe Überthema.
+  Premium-Funktion: ohne Premium 3 neue Häppchen am Tag (`feed.daily`), danach Premium-Kasten; Premium gibt es noch
+  nicht zu kaufen – `isPremium` ist bis dahin nur für Editor und `npm run dev` offen. `feed` gehört zu `PROGRESS_KEYS`.
+- **Profil** (`#/profil[/bereich]`): links immer das Menü (Ich · Konto · Wissensstand · Stärken · Nach Tag 90 · Gemerkt ·
+  KI · Erinnerung (App) · Sicherung · Editor · Rechtliches), rechts der Bereich. „Ich“ = Bild, Name, Streak, Kennzahlen.
 - **Regel keine Erklärtexte (gilt für jede Änderung):** Keine hellgrauen Hinweis-/Erklärzeilen (`muted small` o. ä.), die
   beschreiben, was die Oberfläche ohnehin zeigt – keine Legenden („Grün = …“), Bedienhinweise („Antippen öffnet …“),
   Untertitel, die die Überschrift umschreiben, oder Methodik-Erklärungen. Erlaubt bleiben nur echte Information:
@@ -94,14 +114,15 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   (E-Mail, Name, Geburtsjahr, Passwort mit Stärke-Skala – Pflicht nur 8+ Zeichen, sonst rote Meldung über „Registrieren“ – + Wiederholung) und Wissensstand.
   Unter „Registrieren“ und im Profil: Links auf `#/datenschutz` und `#/impressum` (`LegalLinks`). Konten ohne Geburtsjahr fragt `BirthYearOnly` einmal.
   Ohne Supabase nur Name + Wissensstand lokal. Mit Supabase auch „Ohne Konto starten“ (`guest` im Zustand, Name + Wissensstand lokal);
-  Konto erst für KI und Austausch (`AccountButton` in `components/NeedAccount.tsx` → `askAccount`, Fortschritt geht ins Konto über).
+  Konto erst für KI und Sicherung (`AccountButton` in `components/NeedAccount.tsx` → `askAccount`, Fortschritt geht ins Konto über).
 - `src/data/school.ts` – Wissensstand (Schule + Klasse / Studium / Ausbildung-Beruf), `SCHOOL_GRADE` (Jahrgangsstufe je Tag nach
   bayerischem LehrplanPLUS, Gymnasium G9) und `DAY_FACH` (Schulfach je Schulstoff-Tag). `src/data/lehrplan.ts` – Lernbereiche
   je Fach und Jgst. 5–13 aus lehrplanplus.bayern.de (gekürzt), Grundlage für Grundcheck und Stationsseite. Studium/Beruf: aller Schulstoff = Wiederholungstag; Schule Kl. G: Stoff < G.
   Wiederholungstage: in der Grundwiederholung (Station ihres Fachs), Videos optional, Prompts fragen Teilthemen ab und suchen Lücken.
 - Rollen: `user` (Standard) und `editor` (nur per SQL vergeben, Trigger schützt die Spalte). Nur der Editor ändert
   Videolisten (✎, ★, + Video, „anderes Video“) – gespeichert in `day_videos` für alle; darf außerdem jede Chat-Nachricht löschen.
-- Austausch: Kanäle ohne „#“ (IDs bleiben Slugs), Freunde (Suche nach Name, Anfrage → annehmen) + Direktnachrichten
+- Austausch (**vorerst ausgeblendet**, 17.10.2026: kein Knopf, `#/chat` führt auf Home; Code, Tabellen und Edge Function
+  `ki-chat` bleiben für später): Kanäle ohne „#“ (IDs bleiben Slugs), Freunde (Suche nach Name, Anfrage → annehmen) + Direktnachrichten
   (`messages.channel = 'dm'` + `recipient`, nur unter Freunden lesbar/schreibbar) – `supabase/004_freunde.sql`.
   Routen `#/chat/freunde`, `#/chat/dm-<konto-id>`. Melden + Blockieren (`supabase/005_melden_blockieren.sql`): „…“ an fremden
   Nachrichten → Melden (Grund) / Blockieren (Nachrichten ausgeblendet per RLS, Freundschaft endet); Liste „Blockiert“ unter Freunde;
