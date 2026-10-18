@@ -131,6 +131,68 @@ export const IMAGES = {
   "dna-modell": "File:20251019 Replica DNA double helix model Berlin 03.jpg",
   "karyogramm": "File:Human karyotype (248 27) Human karyotype.jpg",
   "blaues-auge": "File:A blue eye.jpg",
+  "petrischale": "File:Colonie batteriche o vita marina?.jpg",
+  "fleming": "File:Professor Alexander Fleming at work in his laboratory at St Mary's Hospital, London, during the Second World War. D17801 (cropped).jpg",
+  "impfung": "File:US Navy 100913-N-8191S-001 Capt. Mark E. Brouker, commanding officer of Naval Hospital Bremerton, is vaccinated for influenza.jpg",
+  "jenner": "File:Edward Jenner vaccinating a boy. Oil painting by E.-E. Hille Wellcome L0029094 (cropped).jpg",
+  "augenhintergrund": "File:Fundus photograph of a healthy right eye (OD) from a myopic female Asian patient. Age 22.png",
+  "espresso": "File:Close-up of espresso machine with two brown coffee cups.jpg",
+  "kaffeekirschen": "File:The fireside university of modern invention, discovery, industry and art for home circle study and entertainment (1902) (14756117666).jpg",
+  "fuchsie": "File:Magenta Beauties (6465210241).jpg",
+  "subpixel": "File:Red-Square-sub-pixel-weirdness.jpg",
+  "karussell": "File:ManègeLR1.jpg",
+  "chili": "File:Red chili peppers drying on a footbridge.jpg",
+  "scoville": "File:Scoville, Wilbur Prof med.jpg",
+  "geburtstagstorte": "File:Italy - birthday cake with candles 5.jpg",
+  "teststreifen": "File:U.S. Air Force Staff Sgt. Thomas C. Sullivan Jr., a laboratory technician assigned to the 319th Medical Support Squadron, places a medical sample into a test tube rack at the medical laboratory on Grand Forks 130522-F-JB669-061.jpg",
+  "b24": "File:Consolidated B-24M Liberator Equipped for Icing Research (GRC-1946-C-15318).jpg",
+  "hochsprung": "File:Iryna Gerashchenko DSC08638.jpg",
+  "galton": "File:Sir Francis Galton, 1890s.jpg",
+  "gefaengnis": "File:Cell bars from the Marshalsea prison, Charles Dickens Museum.jpg",
+  "vampirfledermaus": "File:Desmodus rotundus 91479551.jpg",
+  "roulette": "File:Roulette casino.JPG",
+  "monte-carlo": "File:Monte Carlo Casino, Monaco (Riviera)-LCCN2002707976.jpg",
+  "gorilla": "File:Mountain gorilla (Gorilla beringei beringei) female 2.jpg",
+  "anker": "File:Ship's anchor by HMS Unicorn - geograph.org.uk - 4545244.jpg",
+  "gandhi": "File:Mahatma-Gandhi, studio, 1931.jpg",
+  "muenzwurf": "File:Coin Toss (3635981474).jpg",
+  "golf": "File:Putting Green Butler Park Pitch and Putt Golf Course Austin.jpg",
+  "kapuziner": "File:Capuchin Costa Rica.jpg",
+  "tabletten": "File:Medicine cocktail tablets and pills in glass.jpg",
+  "menschenmenge": "File:Pedestrians on Charles Bridge.jpg",
+  "taschenuhr": "File:Vienna - Vintage pocket watch - 0599.jpg",
+  "strand": "File:Italy-Taormina Beach - Creative Commons by gnuckx (3492293192).jpg",
+  "geldscheine": "File:One stands out 002 2025 01 01.jpg",
+  "sparschwein": "File:-finance -wealth -savings -security -coin.jpg",
+  "simbabwe-schein": "File:Zimbabwe dollar notes 1 to 100 trillion 2007 08 Front.jpg",
+  "inflation-1923": "File:GER-116-Reichsbanknote-10 Billion Mark (1923).jpg",
+  "schafe-weide": "File:Sheep grazing pasture near Drummin - geograph.org.uk - 2058475.jpg",
+  "ostrom": "File:Nobel Prize 2009-Press Conference KVA-30.jpg",
+  "kabeljau": "File:Atlantic Cod, Atlantischer Kabeljau (Gadus morhua).jpg",
+  "eisstand": "File:2016-08-02 Strand Sankt-Peter-Ording 08.jpg",
+  "containerhafen": "File:Container ship NYK Themis at the Port of Los Angeles.jpg",
+  "ricardo": "File:D. Ricardo - engraved by W. Holl. LCCN90708977.jpg",
+  "dampfmaschine": "File:Woolfsche Balanciermaschine 1858.JPG",
+  "jevons": "File:William Stanley Jevons portrait extract.jpg",
+  "diamant": "File:Diamond Hoax P4212651.jpg",
+  "adam-smith": "File:Adam Smith The Muir portrait (cropped 2).jpg",
+  "gerhard-mercator": "File:Gerardus Mercator 3.jpg",
+  "sahara-nacht": "File:Sand dunes, Libyan Desert, Dakhla Oasis, Egypt.jpg",
+  "totes-meer": "File:Swimming in Dead Sea (7) (5365311878).jpg",
+  "meer-wellen": "File:Long Spit Sea of Azov2.jpg",
+  "tsunami": "File:KataNoiReceding.jpg",
+  "dart-boje": "File:Crew of the USCGC William Hart inspect a deep water buoy that measures Tsunamis - 211116-G-G2014-1001.jpg",
+  "erdbeben": "File:Rescue workers near the semi-collapsed ten-story Uranus Building on Xuanyuan Road after the 2024 Hualien earthquake.jpg",
+  "richter": "File:Charles Richter analyzing a seismograph log.jpg",
+  "haiti": "File:Downtown Port au Prince after earthquake.jpg",
+  "wegener": "File:Alfred Wegener ca.1924-30.jpg",
+  "kumulus": "File:White Cumulus Clouds against Blue Sky with Sun Shining.jpg",
+  "hurrikan": "File:Dennis 2005-07-07 1550Z.jpg",
+  "foucault": "File:Foucault pendulum at Panthéon de Paris (24466666577).jpg",
+  "himalaya": "File:Everest, Himalayas.jpg",
+  "ammonit": "File:Ammonite section.JPG",
+  "zugspitze": "File:Zugspitze - Summit (6761797085).jpg",
+  "rechenzentrum": "File:Racks Amravati Data Center.jpg",
 }
 async function thumb(title) {
   try {
@@ -176,14 +238,21 @@ for (const [name, title] of Object.entries(IMAGES)) {
   const file = path.join(OUT, `${name}.webp`)
   if (only.length ? !only.includes(name) : fs.existsSync(file)) continue
   try {
-    let url = await thumb(title)
+    // Wikimedia liefert nur Standardbreiten aus (z. B. 960, 500); andere Größen werden abgelehnt oder gedrosselt
+    const orig = (await thumb(title)).replace(/\/thumb(\/[0-9a-f]\/[0-9a-f]{2}\/[^/]+)\/.*$/, '$1')
+    const file0 = orig.split('/').pop()
+    const tries = /\.(jpe?g|png|tiff?)$/i.test(file0)
+      ? [960, 500].map((w) => orig.replace(/(\/commons)(\/[0-9a-f]\/[0-9a-f]{2}\/)/, `$1/thumb$2`) + `/${w}px-${file0}${/\.tiff?$/i.test(file0) ? '.jpg' : ''}`)
+      : []
+    tries.push(orig)
     let res
-    for (let i = 0; i < 6; i++) {
-      res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(60000) })
-      if (res.status !== 429) break
-      // Vorschaugrößen werden bei Last gedrosselt – dann die Originaldatei nehmen
-      if (i === 1 && url.includes('/thumb/')) url = await fromPage(title)
-      await new Promise((r) => setTimeout(r, 4000 * (i + 1)))
+    for (const url of tries) {
+      for (let i = 0; i < 3; i++) {
+        res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(60000) })
+        if (res.status !== 429) break
+        await new Promise((r) => setTimeout(r, (Number(res.headers.get('retry-after') ?? 5) + 3) * 1000))
+      }
+      if (res.ok) break
     }
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const buf = Buffer.from(await res.arrayBuffer())

@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, bubble, check, cross, crowd, dashes, fig, hatch, ink, mk, question, st, text, timeline, vbars, type P } from './draw'
 import { axes, ball, box, bullets, carrow, dot, earth, house, lens, plot, rad, sun } from './kit'
 
@@ -56,7 +57,7 @@ export const AHA_DENKEN: Bite[] = [
     hook: 'Wie viele Leute braucht es, damit zwei am selben Tag Geburtstag haben?',
     mood: 'verspielt',
     ambience: 'stadt',
-    images: [],
+    images: [img('geburtstagstorte')],
     draw: {
       party(g) {
         crowd(g, 40, 400, 9, 35, 1.6, 0, 100)
@@ -144,7 +145,7 @@ export const AHA_DENKEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { party: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Schätz mal: Wie viele Menschen müssen in einem Raum sein, damit es **wahrscheinlich** ist, dass zwei am selben Tag Geburtstag haben?', 64), gfx: { kalender: {} } },
       { t: T('Viele tippen auf 180 – die Hälfte von 365. Die richtige Antwort ist erstaunlich klein: **23**.', 64), gfx: { z1: { draw: 'zahl', args: ['23', 'Menschen reichen für über 50 %', 430] } } },
       { t: T('Bei 23 Leuten liegt die Chance schon bei gut **50 Prozent**. Bei 70 Leuten sind es 99,9 Prozent.', 64), gfx: { kurve: {} } },
@@ -173,7 +174,7 @@ export const AHA_DENKEN: Bite[] = [
     hook: 'Ein Test ist zu 99 Prozent genau – und du bist trotzdem wahrscheinlich gesund?',
     mood: 'raetsel',
     ambience: 'uhr',
-    images: [],
+    images: [img('teststreifen')],
     draw: {
       test(g) {
         ink(g, RR(90, 200, 180, 70, 16), { w: 3, t: 700 })
@@ -255,7 +256,7 @@ export const AHA_DENKEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { test: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Stell dir eine seltene Krankheit vor: Nur **eine von 1.000** Personen hat sie.', 64), gfx: { menge: {} } },
       { t: T('Ein Test erkennt sie in 99 Prozent der Fälle – und schlägt bei Gesunden nur in **1 Prozent** der Fälle falsch Alarm.', 64), gfx: { genau: {} } },
       { t: T('Dein Test ist positiv. Wie wahrscheinlich bist du krank? Die meisten sagen: **99 Prozent**.', 64), gfx: { gefuehl: {} } },
@@ -285,7 +286,7 @@ export const AHA_DENKEN: Bite[] = [
     hook: 'Wo panzert man ein Flugzeug: dort, wo die Einschusslöcher sind?',
     mood: 'dunkel',
     ambience: 'wind',
-    images: [],
+    images: [img('b24')],
     draw: {
       flieger(g) {
         bomber(g, 180, 230, 1)
@@ -390,7 +391,7 @@ export const AHA_DENKEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { flieger: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Im Zweiten Weltkrieg untersuchten US-Fachleute Bomber, die von Einsätzen **zurückkamen**. Viele waren von Kugeln durchlöchert.', 64), gfx: { loecher: {} } },
       { t: T('Die Löcher häuften sich an **Flügeln und Rumpf**. Wenige Treffer gab es an den Motoren und am Cockpit.', 64), gfx: { loecher: {} } },
       { t: T('Die naheliegende Idee: Dort, wo die meisten Löcher sind, braucht es **mehr Panzerung**.', 64), gfx: { loecher: { cls: 'a1' } } },
@@ -420,7 +421,7 @@ export const AHA_DENKEN: Bite[] = [
     hook: 'Warum wird es nach einem Rekord meistens wieder schlechter?',
     mood: 'raetsel',
     ambience: 'uhr',
-    images: [],
+    images: [img('hochsprung'), img('galton')],
     draw: {
       spitze(g) {
         axes(g, 30, 420, 330, 100)
@@ -510,7 +511,7 @@ export const AHA_DENKEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { spitze: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein Fluglehrer erzählte: Wer nach einer **tollen Landung** gelobt wird, landet danach meist schlechter.', 64), gfx: { lob: {} } },
       { t: T('Und wer nach einer **miesen Landung** angeschrien wird, landet danach meist besser. Schimpfen wirkt also, Lob schadet?', 64), gfx: { tadel: {} } },
       { t: T('Der Psychologe Daniel Kahneman erkannte: weder noch. Das ist die **Regression zur Mitte**.', 480), gfx: { spitze: {} } },
@@ -525,7 +526,7 @@ export const AHA_DENKEN: Bite[] = [
       { t: T('Darum braucht jede Studie eine **Kontrollgruppe**: Auch ihr geht es oft besser – nur der Unterschied zeigt die Wirkung.', 64), gfx: { kontrolle: {} } },
       { t: T('Blitzer werden oft dort aufgestellt, wo es gerade besonders viele Unfälle gab. Danach sinken die Zahlen – zum Teil **von allein**.', 64), gfx: { blitzer: {} } },
       { t: T('Ein Trainerwechsel nach einer Pechsträhne wirkt oft – auch, weil es danach **ohnehin** besser geworden wäre.', 64), gfx: { trainer: {} } },
-      { t: T('Entdeckt hat das Francis Galton um 1886: Sehr große Eltern haben im Schnitt **etwas kleinere** Kinder, sehr kleine Eltern etwas größere.', 64), gfx: { galton: {} } },
+      { t: T('Entdeckt hat das Francis Galton um 1886: Sehr große Eltern haben im Schnitt **etwas kleinere** Kinder, sehr kleine Eltern etwas größere.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 35, 1.2], cap: 'Francis Galton' } } },
       { t: T('Alle werden trotzdem nicht gleich: Neue Ausreißer entstehen ständig – nur sind es **andere** Menschen.', 64), gfx: { streuung: {} } },
       { t: T('Merkregel: Nach einem extremen Ergebnis ist das nächste wahrscheinlich **weniger extrem**.', 64), gfx: { ende: {} } },
       { t: T('Extreme kehren zur Mitte zurück – **ganz ohne Grund**.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
@@ -728,7 +729,7 @@ export const AHA_DENKEN: Bite[] = [
     hook: 'Warum handeln zwei vernünftige Menschen zusammen unvernünftig?',
     mood: 'dunkel',
     ambience: 'stadt',
-    images: [],
+    images: [img('gefaengnis'), img('vampirfledermaus')],
     draw: {
       zellen(g) {
         for (const x of [40, 200]) {
@@ -799,7 +800,7 @@ export const AHA_DENKEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { zellen: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Zwei Komplizen werden verhaftet und **getrennt** verhört. Jeder kann schweigen oder gestehen – ohne zu wissen, was der andere tut.', 64), gfx: { matrix: {} } },
       { t: T('Schweigen beide, gibt es für jeden nur **ein Jahr**: Die Beweise reichen nicht für mehr.', 64), gfx: { matrix: {} } },
       { t: T('Gesteht nur einer, kommt er als Kronzeuge **frei** – und der andere bekommt zehn Jahre.', 64), gfx: { matrix: { cls: 'a2' } } },
@@ -814,7 +815,7 @@ export const AHA_DENKEN: Bite[] = [
       { t: T('Der Politologe Robert Axelrod ließ 1980 Computerprogramme gegeneinander antreten – Runde um Runde **Gefangenendilemma**.', 64), gfx: { axelrod: {} } },
       { t: T('Es gewann die einfachste Strategie: **Wie du mir, so ich dir**.', 64), gfx: { titfortat: {} } },
       { t: T('Sie beginnt freundlich, macht dann einfach den letzten Zug des Gegners nach – und **verzeiht** sofort, wenn er wieder kooperiert.', 64), gfx: { titfortat: {} } },
-      { t: T('Die Natur kennt das auch: Vampirfledermäuse teilen Blut bevorzugt mit Artgenossen, die **ihnen früher** geholfen haben.', 64), gfx: { fledermaus: {} } },
+      { t: T('Die Natur kennt das auch: Vampirfledermäuse teilen Blut bevorzugt mit Artgenossen, die **ihnen früher** geholfen haben.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Und im Kleinen: Bei Gruppenarbeiten lohnt sich Faulenzen für jeden Einzelnen – bis **alle** faulenzen.', 64), gfx: { beide: {} } },
       { t: T('Auch Verträge, Kontrollen und ein guter Ruf lösen das Dilemma: Sie ändern, **was sich lohnt**.', 64), gfx: { matrix: { cls: 'a1 a2' } } },
       { t: T('Erdacht haben das Spiel Merrill Flood und Melvin Dresher 1950. Albert Tucker erfand die **Geschichte** mit den Gefangenen dazu.', 480), gfx: { zellen: {} } },
@@ -926,7 +927,7 @@ export const AHA_DENKEN: Bite[] = [
     hook: 'Im Casino kam 26-mal hintereinander Schwarz. Was kommt jetzt?',
     mood: 'dunkel',
     ambience: 'uhr',
-    images: [],
+    images: [img('roulette'), img('monte-carlo')],
     draw: {
       rad(g) {
         wheel(g, 180, 260, 130)
@@ -982,8 +983,8 @@ export const AHA_DENKEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { rad: {} } },
-      { t: T('Monte Carlo, 18. August 1913: Am Roulettetisch fällt die Kugel immer wieder auf **Schwarz**.', 64), gfx: { serie: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
+      { t: T('Monte Carlo, 18. August 1913: Am Roulettetisch fällt die Kugel immer wieder auf **Schwarz**.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Casino von Monte Carlo' } } },
       { t: T('Nach 15-mal Schwarz setzen die Spieler immer mehr auf **Rot**. Jetzt muss es doch endlich kommen!', 64), gfx: { serie: {} } },
       { t: T('Es kam Schwarz. Wieder und wieder – insgesamt **26-mal** in Folge. Die Spieler verloren Millionen Francs.', 64), gfx: { serie: {} } },
       { t: T('Ihr Denkfehler heißt **Spielerfehlschluss**: der Glaube, Zufall gleiche sich auf kurze Sicht aus.', 64), gfx: { gedaechtnis: {} } },

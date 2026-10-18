@@ -1507,7 +1507,7 @@ export const AHA_KOERPER: Bite[] = [
     hook: 'Wie Bakterien in elf Tagen gegen Antibiotika gewinnen',
     mood: 'dunkel',
     ambience: 'blasen',
-    images: [],
+    images: [img('petrischale'), img('fleming')],
     draw: {
       schale(g) {
         ink(g, E(180, 250, 150, 120), { w: 3.2, t: 800 })
@@ -1621,8 +1621,8 @@ export const AHA_KOERPER: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { schale: {} } },
-      { t: T('Das erste Antibiotikum fand Alexander Fleming 1928 durch Zufall: Ein **Schimmelpilz** auf seiner Bakterienschale hielt die Bakterien fern.', 64), gfx: { fleming: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
+      { t: T('Das erste Antibiotikum fand Alexander Fleming 1928 durch Zufall: Ein **Schimmelpilz** auf seiner Bakterienschale hielt die Bakterien fern.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Alexander Fleming im Labor' } } },
       { t: T('Schon 1945 warnte er in seiner Nobelpreisrede: Wer zu wenig nimmt, **züchtet** widerstandsfähige Keime. Wie das abläuft, zeigt ein Experiment.', 64), gfx: { fleming: {} } },
       { t: T('Forscher der Harvard Medical School bauten 2016 eine riesige Schale: 60 mal 120 Zentimeter Nährboden.', 64), gfx: { platte: {} } },
       { t: T('Außen kein Antibiotikum, nach innen immer mehr – jeder Streifen **zehnmal stärker** als der vorige. In der Mitte tausendmal mehr, als die Bakterien vertragen.', 64), gfx: { platte: {} } },
@@ -1652,7 +1652,7 @@ export const AHA_KOERPER: Bite[] = [
     hook: 'Wie trainiert eine Impfung dein Immunsystem?',
     mood: 'hell',
     ambience: 'herz',
-    images: [],
+    images: [img('impfung'), img('jenner')],
     draw: {
       spritze(g) {
         ink(g, RR(60, 220, 200, 50, 8), { w: 3.2, t: 700 })
@@ -1794,7 +1794,7 @@ export const AHA_KOERPER: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { spritze: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Dringt ein neuer Erreger ein, braucht dein Immunsystem beim ersten Mal **mehrere Tage**, um die passende Abwehr aufzubauen.', 64), gfx: { erstkontakt: {} } },
       { t: T('In dieser Zeit vermehrt sich der Erreger ungestört – und du wirst **krank**.', 64), gfx: { erstkontakt: { cls: 'a1' } } },
       { t: T('Erkannt wird er an seinen Oberflächen-Merkmalen, den **Antigenen** – fast wie an einem Gesicht.', 64), gfx: { antigen: {} } },
@@ -1805,7 +1805,7 @@ export const AHA_KOERPER: Bite[] = [
       { t: T('Beim nächsten Kontakt starten sie die Abwehr **viel schneller** und stärker. Oft merkst du gar nichts.', 64), gfx: { zweimal: {} } },
       { t: T('Eine Impfung macht den ersten Durchgang **ohne die Krankheit**: Sie zeigt dem Körper nur die Merkmale des Erregers.', 64), gfx: { impf: {} } },
       { t: T('Mal mit abgetöteten oder abgeschwächten Erregern, mal nur mit einem Teilstück – oder mit dem **Bauplan** dafür, wie bei mRNA-Impfstoffen.', 64), gfx: { arten: {} } },
-      { t: T('Das Wort kommt von der **Kuh**: Edward Jenner schützte 1796 einen Jungen mit harmlosen Kuhpocken vor den echten Pocken.', 64), gfx: { kuh: {} } },
+      { t: T('Das Wort kommt von der **Kuh**: Edward Jenner schützte 1796 einen Jungen mit harmlosen Kuhpocken vor den echten Pocken.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Hillemacher: Jenner impft James Phipps' } } },
       { t: T('Schon vorher gab es die **Variolation**: Man ritzte Material aus Pockenbläschen in die Haut – riskant, aber oft schützend.', 64), gfx: { variolation: {} } },
       { t: T('Die Pocken töteten allein im 20. Jahrhundert rund **300 Millionen** Menschen. 1980 erklärte die WHO sie für ausgerottet – durch Impfung.', 64), gfx: { pocken: {} } },
       { t: T('Impfungen schützen auch andere: Sind genug Menschen immun, findet ein Erreger **kaum noch Wirte**. Das heißt Herdenschutz.', 64), gfx: { herde: {} } },

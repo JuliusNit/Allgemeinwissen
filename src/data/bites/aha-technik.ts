@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, bolt, check, cross, dashes, fig, hatch, hbars, ink, letter, question, rays, st, text, timeline, type P } from './draw'
 import { arcArrow, ball, box, bullets, carrow, dot, drop, thermo, water, waveP } from './kit'
 
@@ -202,7 +203,7 @@ export const AHA_TECHNIK: Bite[] = [
     hook: 'Wie findet ein Foto seinen Weg durchs Internet?',
     mood: 'verspielt',
     ambience: 'stadt',
-    images: [],
+    images: [img('rechenzentrum')],
     draw: {
       netz(g) {
         const n: P[] = [[50, 260], [130, 140], [180, 300], [250, 180], [310, 300]]
@@ -290,7 +291,7 @@ export const AHA_TECHNIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { netz: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Du schickst ein Foto ab. Es reist aber nicht am Stück, sondern wird in **Tausende** kleine Pakete zerlegt.', 64), gfx: { zerlegen: {} } },
       { t: T('Jedes Paket ist meist nur rund **1.500 Bytes** groß – ein winziger Schnipsel des Bildes.', 64), gfx: { zerlegen: {} } },
       { t: T('Auf jedem steht wie auf einem Briefumschlag: **Absender**, Empfänger – als IP-Adresse – und eine laufende Nummer.', 64), gfx: { paket: {} } },

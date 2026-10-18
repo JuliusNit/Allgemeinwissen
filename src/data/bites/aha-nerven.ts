@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, brain, check, cross, dashes, eye, fig, hatch, hbars, ink, lie, question, st, text, timeline, vbars, type P } from './draw'
 import { arcArrow, axes, ball, box, dot, drop, flame, house, plot, rad, thermo, waveP } from './kit'
 
@@ -64,7 +65,7 @@ export const AHA_NERVEN: Bite[] = [
     hook: 'Du hast ein Loch im Blickfeld – und merkst es nicht.',
     mood: 'raetsel',
     ambience: 'atem',
-    images: [],
+    images: [img('augenhintergrund')],
     draw: {
       test(g) {
         ink(g, L([60, 250], [100, 250]), { w: 4, t: 200 })
@@ -211,7 +212,7 @@ export const AHA_NERVEN: Bite[] = [
       { t: T('Der Punkt ist nicht weg. Sein Bild fällt nur auf eine Stelle deiner Netzhaut, die **nichts sehen** kann.', 64), gfx: { auge: { cls: 'a1' } } },
       { t: T('Die Netzhaut ist mit Millionen Lichtsinneszellen ausgekleidet: **Stäbchen** für Hell und Dunkel, Zapfen für Farben.', 64), gfx: { zellen: {} } },
       { t: T('Ihre Nervenfasern laufen aber **vor** den Sinneszellen entlang – auf der Seite, von der das Licht kommt.', 64), gfx: { verkabelt: {} } },
-      { t: T('An einer Stelle müssen alle Fasern gebündelt nach hinten aus dem Auge: der **Sehnerv**. Dort ist kein Platz für Sinneszellen.', 64), gfx: { auge: { cls: 'a1' } } },
+      { t: T('An einer Stelle müssen alle Fasern gebündelt nach hinten aus dem Auge: der **Sehnerv**. Dort ist kein Platz für Sinneszellen.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Netzhaut – hell: der blinde Fleck' } } },
       { t: T('Dieser Fleck ist nur 1,5 Millimeter groß. Im Blickfeld ist er aber so breit wie rund **zehn Vollmonde** nebeneinander.', 64), gfx: { monde: {} } },
       { t: T('Warum merkst du nichts? Erstens deckt das **andere Auge** die Lücke ab: Die blinden Flecken liegen an verschiedenen Stellen.', 64), gfx: { zwei: {} } },
       { t: T('Zweitens **füllt dein Gehirn** die Lücke einfach auf – mit dem Muster, das drumherum liegt.', 64), gfx: { fuellen: {} } },
@@ -234,7 +235,7 @@ export const AHA_NERVEN: Bite[] = [
     hook: 'Kaffee macht wach – ohne dir Energie zu geben. Wie geht das?',
     mood: 'verspielt',
     ambience: 'stadt',
-    images: [],
+    images: [img('espresso'), img('kaffeekirschen')],
     draw: {
       tasse(g) {
         ink(g, [[100, 200], [110, 380], [250, 380], [260, 200]], { w: 3.2, t: 700 })
@@ -369,7 +370,7 @@ export const AHA_NERVEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { tasse: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Während du wach bist, sammelt sich in deinem Gehirn ein Stoff namens **Adenosin** an – ein Nebenprodukt des Energieverbrauchs.', 64), gfx: { adenosin: {} } },
       { t: T('Adenosin dockt an spezielle **Rezeptoren** der Nervenzellen an. Je mehr besetzt sind, desto stärker werden sie gebremst – du wirst müde.', 64), gfx: { rezeptor: {} } },
       { t: T('Das ist dein **Schlafdruck**: Er steigt den ganzen Tag. Im Schlaf wird das Adenosin abgebaut – morgens bist du wieder frisch.', 64), gfx: { druck: {} } },
@@ -383,7 +384,7 @@ export const AHA_NERVEN: Bite[] = [
       { t: T('Und wenn das Koffein nachlässt? Dann trifft dich das angestaute Adenosin **auf einmal**: der Koffein-Absturz.', 64), gfx: { crash: {} } },
       { t: T('Wer täglich Kaffee trinkt, bildet **mehr Rezeptoren**. Dann braucht es mehr Koffein für dieselbe Wirkung – und ohne kommen Kopfschmerzen.', 64), gfx: { gewohnt: {} } },
       { t: T('Nach einer Pause von etwa **einer Woche** hat sich das Gehirn meist wieder umgestellt.', 64), gfx: { pause: {} } },
-      { t: T('Koffein steckt auch in Tee, Cola und Schokolade. Pflanzen bilden es als **Insektengift** gegen Fraßfeinde.', 64), gfx: { pflanze: {} } },
+      { t: T('Koffein steckt auch in Tee, Cola und Schokolade. Pflanzen bilden es als **Insektengift** gegen Fraßfeinde.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Bienen mögen es in kleinen Mengen: Koffein im Nektar hilft ihnen, sich Blüten **besser zu merken** – sie kommen wieder.', 64), gfx: { biene: {} } },
       { t: T('Für gesunde Erwachsene gelten bis etwa **400 Milligramm** pro Tag als unbedenklich – rund vier Tassen Filterkaffee.', 64), gfx: { tassen: {} } },
       { t: T('Kaffee schaltet Müdigkeit nicht ab – er **blockiert ihre Botschaft**.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
@@ -536,7 +537,7 @@ export const AHA_NERVEN: Bite[] = [
     hook: 'Magenta gibt es im Regenbogen nicht. Wie kannst du es dann sehen?',
     mood: 'raetsel',
     ambience: 'atem',
-    images: [],
+    images: [img('fuchsie'), img('subpixel')],
     draw: {
       bogen(g) {
         hatch(g, [...E(180, 420, 150, 150, 180, 360), ...E(180, 420, 110, 110, 360, 180)], 900)
@@ -652,13 +653,13 @@ export const AHA_NERVEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { bogen: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Licht ist eine Welle. Jede Farbe im Regenbogen hat **eine Wellenlänge** – von Violett bei etwa 400 bis Rot bei 700 Nanometern.', 64), gfx: { band: {} } },
       { t: T('Magenta – dieses leuchtende Pink-Lila – kommt in diesem Band **nirgends** vor. Es gibt keine Magenta-Wellenlänge.', 64), gfx: { fehlt: {} } },
       { t: T('Dein Auge misst Farbe mit drei Sorten **Zapfen**: für kurze, mittlere und lange Wellen – grob Blau, Grün und Rot.', 64), gfx: { zapfen: {} } },
       { t: T('Jede Farbe ist für dein Gehirn ein **Mischverhältnis** dieser drei Signale. Gelb heißt zum Beispiel: Rot und Grün stark, Blau schwach.', 64), gfx: { mischung: {} } },
       { t: T('Dieselbe Mischung entsteht auch aus rotem plus grünem Licht – dein Auge sieht **genauso Gelb**.', 64), gfx: { f1: { draw: 'formel', args: [['rotes Licht', '+', 'grünes Licht', '→', 'Gelb'], 380] } } },
-      { t: T('Bildschirme nutzen das: Sie haben nur **rote, grüne und blaue** Pünktchen – und zeigen damit fast alle Farben.', 64), gfx: { pixel: {} } },
+      { t: T('Bildschirme nutzen das: Sie haben nur **rote, grüne und blaue** Pünktchen – und zeigen damit fast alle Farben.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Und Magenta? Es entsteht, wenn Rot- und Blau-Zapfen stark feuern, die **Grün-Zapfen aber nicht**.', 64), gfx: { magenta: {} } },
       { t: T('Mit einer einzigen Wellenlänge geht das nicht: Alles zwischen Rot und Blau ist Grün – und würde die Grün-Zapfen **reizen**.', 64), gfx: { gruen: {} } },
       { t: T('Das Gehirn macht daraus eine **eigene Farbe**: Es biegt das Band zu einem Kreis und schließt die Lücke zwischen Rot und Violett mit Magenta.', 64), gfx: { kreis: {} } },
@@ -679,7 +680,7 @@ export const AHA_NERVEN: Bite[] = [
     hook: 'Warum dreht sich alles, wenn du vom Karussell steigst?',
     mood: 'verspielt',
     ambience: 'wind',
-    images: [],
+    images: [img('karussell')],
     draw: {
       karussell(g) {
         ink(g, [[60, 160], [180, 90], [300, 160], [60, 160]], { w: 3, t: 700 })
@@ -807,7 +808,7 @@ export const AHA_NERVEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { karussell: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Dein Gleichgewichtsorgan sitzt im **Innenohr**, gleich neben der Hörschnecke.', 64), gfx: { ohr: {} } },
       { t: T('Es besteht unter anderem aus drei **Bogengängen**: ringförmigen Röhren, die in drei Richtungen stehen – wie die Ecke eines Würfels.', 64), gfx: { drei: {} } },
       { t: T('Jeder Ring ist mit Flüssigkeit gefüllt. Und in jedem steht eine kleine, gallertartige **Klappe** mit Sinneshärchen.', 64), gfx: { ring: {} } },
@@ -837,7 +838,7 @@ export const AHA_NERVEN: Bite[] = [
     hook: 'Warum brennt Chili im Mund, obwohl gar nichts heiß ist?',
     mood: 'verspielt',
     ambience: 'feuer',
-    images: [],
+    images: [img('chili'), img('scoville')],
     draw: {
       schote(g) {
         chili(g, 170, 260, 1.5)
@@ -960,7 +961,7 @@ export const AHA_NERVEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { schote: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Chili ist nicht heiß. Trotzdem schwitzt du, dein Gesicht wird rot und der Mund **brennt**.', 64), gfx: { schwitzen: {} } },
       { t: T('Schuld ist **Capsaicin**. Die Pflanze bildet es vor allem in den hellen Scheidewänden der Schote – nicht in den Kernen.', 64), gfx: { schnitt: {} } },
       { t: T('In deinem Mund sitzen Sensoren für Hitze. Sie heißen **TRPV1** und schlagen ab etwa 43 Grad Alarm.', 64), gfx: { sensor: {} } },
@@ -969,7 +970,7 @@ export const AHA_NERVEN: Bite[] = [
       { t: T('Scharf ist darum **kein Geschmack** wie süß oder salzig, sondern ein Hitze- und Schmerzsignal.', 64), gfx: { v1: { draw: 'vergleich', args: [['Geschmack', 'süß', 'salzig', 'sauer', 'bitter', 'umami'], ['Schmerz', 'scharf', 'brennend'], 330] } } },
       { t: T('Wasser hilft kaum: Capsaicin ist **fettlöslich**. Wasser spült es nicht weg, sondern verteilt es nur weiter.', 64), gfx: { wasser: {} } },
       { t: T('Besser sind **Milch** oder Joghurt: Das Eiweiß Kasein und das Milchfett lösen das Capsaicin von den Sensoren.', 64), gfx: { milch: {} } },
-      { t: T('Gemessen wird Schärfe in **Scoville**: Wie oft muss man den Extrakt mit Zuckerwasser verdünnen, bis niemand mehr etwas spürt?', 64), gfx: { scoville: {} } },
+      { t: T('Gemessen wird Schärfe in **Scoville**: Wie oft muss man den Extrakt mit Zuckerwasser verdünnen, bis niemand mehr etwas spürt?', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 35, 1.2], cap: 'Wilbur Scoville' } } },
       { t: T('Paprika liegt bei null, eine Jalapeño bei einigen Tausend – die Züchtung Carolina Reaper bei weit über **einer Million**.', 64), gfx: { sorten: {} } },
       { t: T('Warum macht die Pflanze das? Gegen **Säugetiere**: Ihre Zähne zermahlen die Samen.', 64), gfx: { maus: {} } },
       { t: T('Vögel spüren Capsaicin **gar nicht** – ihr Sensor ist anders gebaut. Sie fressen die Früchte und tragen die Samen unversehrt weit fort.', 64), gfx: { vogel: {} } },

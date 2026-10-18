@@ -1584,7 +1584,7 @@ export const AHA_PHYSIK: Bite[] = [
       { t: T('Licht von Sternen, die weiter weg sind, als Licht in dieser Zeit reisen konnte, hat uns **noch gar nicht erreicht**.', 64), gfx: { horizont: {} } },
       { t: T('Weil sich der Raum seitdem ausgedehnt hat, reicht unser Blick heute **46 Milliarden** Lichtjahre weit – das beobachtbare Universum.', 64), gfx: { beobachtbar: {} } },
       { t: T('Und Sterne leben nicht ewig. Es gibt schlicht **nicht genug** leuchtende Sterne, um jeden Blickwinkel zu füllen.', 64), gfx: { leben: {} } },
-      { t: T('Kurioserweise ahnte das zuerst ein Dichter: **Edgar Allan Poe** schrieb die Idee 1848 in sein Prosagedicht „Eureka“.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 30, 1.05], cam2: [50, 30, 1.2], cap: 'Edgar Allan Poe, 1848' } } },
+      { t: T('Kurioserweise ahnte das zuerst ein Dichter: **Edgar Allan Poe** schrieb die Idee 1848 in sein Prosagedicht „Eureka“.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 30, 1.05], cam2: [50, 30, 1.2], cap: 'Edgar Allan Poe' } } },
       { t: T('Zweitens: Das Universum **dehnt sich aus**. Licht von fernen Galaxien wird dabei gestreckt – rötlicher und schwächer.', 64), gfx: { dehnung: {} } },
       { t: T('Das Leuchten des jungen Universums ist so stark gestreckt, dass es heute als **Mikrowellen** ankommt – unsichtbar für dein Auge.', 64), gfx: { mikrowelle: {} } },
       { t: T('1965 entdeckten Arno Penzias und Robert Wilson dieses Rauschen zufällig. Erst hielten sie es für **Taubendreck** in ihrer Antenne.', 64), pics: { p3: { img: 3, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Hornantenne, Holmdel' } } },
