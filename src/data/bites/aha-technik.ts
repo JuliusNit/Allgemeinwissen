@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, bolt, bulb, check, clock, cross, dashes, eye, fig, group, hatch, hbars, ink, letter, mk, mountain, pop, question, rays, st, text, timeline, type P } from './draw'
-import { arcArrow, ball, box, bullets, carrow, clipBox, dot, drop, earth, flow, geo, glide, mapRegion, ripple, sea, smooth, spin, sun, thermo, water, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, bubble, bulb, car, check, clock, cross, dashes, eye, fig, group, hatch, hbars, ink, letter, mk, mountain, pop, question, rays, text, timeline, type P } from './draw'
+import { ball, box, carrow, clipBox, dot, drop, earth, flake, flow, geo, glide, ground, mapRegion, ripple, sea, smooth, spin, sun, thermo, travelWave, water, waveP, wobble } from './kit'
 
 // Technik: Alltagsgeräte und wie sie wirklich funktionieren, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -131,11 +131,17 @@ function fiber(g: Element, x0: number, x1: number, y: number, h: number, d = 0, 
   arrow(g, pts, { w: 2.2, d: d + 500, t: 1200, head: 9 })
 }
 
-/** Kühlschrank-Umriss, oben links */
+/** Kühlschrank, oben links: Gefrierfach oben, zwei Griffe, Dichtung, Füße */
 function fridge(g: Element, x: number, y: number, w: number, h: number, d = 0): void {
+  blank(g, RR(x, y, w, h, 10))
   ink(g, RR(x, y, w, h, 10), { w: 3, d, t: 700 })
-  ink(g, L([x + 4, y + h * 0.35], [x + w - 4, y + h * 0.35]), { w: 2, d: d + 300, t: 300 })
-  for (const yy of [y + h * 0.1, y + h * 0.45]) ink(g, L([x + w - 16, yy], [x + w - 16, yy + 30]), { w: 2.6, d: d + 400, t: 200 })
+  ink(g, RR(x + 5, y + 5, w - 10, h - 10, 7), { w: 1, d: d + 200, t: 600 })
+  ink(g, L([x + 4, y + h * 0.32], [x + w - 4, y + h * 0.32]), { w: 2, d: d + 300, t: 300 })
+  for (const yy of [y + h * 0.1, y + h * 0.42]) {
+    blank(g, RR(x + w - 20, yy, 8, 40, 4))
+    ink(g, RR(x + w - 20, yy, 8, 40, 4), { w: 2, d: d + 400, t: 200 })
+  }
+  for (const xx of [x + 10, x + w - 20]) ink(g, RR(xx, y + h, 10, 6, 2), { w: 1.6, d: d + 500, t: 100 })
 }
 
 export const AHA_TECHNIK: Bite[] = [
@@ -1026,78 +1032,184 @@ export const AHA_TECHNIK: Bite[] = [
     images: [],
     draw: {
       katze(g) {
-        cat(g, 180, 300, 1.4)
-        question(g, 280, 150, 0.6, 900)
+        cat(g, 170, 420, 1.6)
+        // Kamera-Sucher: Ecken und gestrichelter Erkennungsrahmen
+        for (const [x, y, sx, sy] of [[40, 90, 1, 1], [320, 90, -1, 1], [40, 440, 1, -1], [320, 440, -1, -1]] as const) ink(g, [[x, y + sy * 24], [x, y], [x + sx * 24, y]], { w: 2.4, d: 900, t: 200 })
+        dashes(g, RR(80, 130, 180, 300, 6), { w: 1.4, d: 1300, dash: 6, gap: 5 })
+        question(g, 290, 160, 0.6, 1700)
       },
       regeln(g) {
-        bullets(g, 40, 380, ['spitze Ohren?', 'Schnurrhaare?', 'Fell?', 'aber: Katze von hinten?'], { gap: 50, size: 19 })
-        cross(g, 300, 540, 0.7, 1500)
+        // Regeln wie „spitze Ohren“ – doch von hinten sieht man davon nichts
+        const icon = (x: number, y: number, k: number, d: number) => {
+          ink(g, RR(x - 30, y - 30, 60, 60, 8), { w: 2, d, t: 300 })
+          if (k === 0) ink(g, [[x - 16, y + 14], [x - 8, y - 16], [x, y + 4], [x + 8, y - 16], [x + 16, y + 14]], { w: 2, d: d + 200, t: 300 })
+          if (k === 1) for (const dy of [-8, 0, 8]) { ink(g, L([x - 22, y + dy], [x - 4, y + dy / 2]), { w: 1.4, d: d + 200, t: 150 }); ink(g, L([x + 4, y + dy / 2], [x + 22, y + dy]), { w: 1.4, d: d + 200, t: 150 }) }
+          if (k === 2) for (let i = 0; i < 6; i++) ink(g, B([x - 18 + i * 7, y + 16], [x - 20 + i * 7, y], [x - 14 + i * 7, y - 8], [x - 16 + i * 7, y - 18]), { w: 1.2, d: d + 200 + i * 30, t: 100 })
+          check(g, x + 22, y - 34, 0.5, d + 500)
+        }
+        icon(60, 380, 0, 0)
+        icon(150, 380, 1, 300)
+        icon(240, 380, 2, 600)
+        // Katze von hinten: nur Rücken, Ohrspitzen, Schwanz
+        const back: P[] = [...B([130, 640], [110, 590], [120, 520], [150, 500]), ...B([150, 500], [170, 470], [200, 470], [214, 500]), ...B([214, 500], [244, 520], [252, 590], [234, 640])]
+        blank(g, back)
+        hatch(g, back, 1200)
+        ink(g, back, { w: 2.6, d: 1000, t: 600 })
+        for (const k of [-1, 1]) ink(g, [[182 + k * 14, 482], [182 + k * 22, 456], [182 + k * 28, 486]], { w: 2.2, d: 1300, t: 200 })
+        ink(g, B([234, 630], [280, 640], [300, 600], [290, 560]), { w: 3, d: 1400, t: 300 })
+        question(g, 300, 510, 0.6, 1700)
       },
       beispiele(g) {
-        for (let i = 0; i < 6; i++) {
+        // beschriftete Lernbilder: Katzen in vielen Lagen – und Dinge, die keine Katzen sind
+        const items: [string, boolean][] = [['katze', true], ['hund', false], ['katze2', true], ['tasse', false], ['katze3', true], ['auto', false]]
+        items.forEach(([k, yes], i) => {
           const x = 70 + (i % 3) * 110
-          const y = 400 + Math.floor(i / 3) * 120
-          ink(g, RR(x - 44, y - 44, 88, 88, 6), { w: 2.2, d: i * 100, t: 300 })
-          if (i % 2 === 0) cat(g, x, y + 30, 0.4, 300 + i * 100)
-          else text(g, x, y + 6, 'keine', { anchor: 'middle', cls: 's', d: 300 + i * 100 })
-        }
-        text(g, 180, 650, 'Millionen beschriftete Bilder', { anchor: 'middle', cls: 's', d: 1200 })
+          const y = 400 + Math.floor(i / 3) * 130
+          const d = i * 120
+          ink(g, RR(x - 46, y - 46, 92, 92, 6), { w: 2.2, d, t: 300 })
+          const c = clipBox(g, x - 44, y - 44, 88, 88)
+          if (k === 'katze') cat(c, x, y + 40, 0.48, d + 200)
+          if (k === 'katze2') cat(group(c, '', `transform: rotate(-12deg); transform-origin: ${x}px ${y}px`), x + 6, y + 44, 0.44, d + 200)
+          if (k === 'katze3') {
+            const l: P[] = [...B([x - 36, y + 26], [x - 36, y], [x + 30, y - 6], [x + 34, y + 26])]
+            hatch(c, [...l, [x - 36, y + 26]], d + 400)
+            ink(c, l, { w: 2, d: d + 200, t: 300 })
+            ink(c, [[x + 18, y - 2], [x + 22, y - 18], [x + 28, y - 4]], { w: 1.8, d: d + 300, t: 150 })
+            ink(c, B([x - 36, y + 20], [x - 46, y + 10], [x - 40, y - 6], [x - 30, y - 4]), { w: 2, d: d + 400, t: 150 })
+          }
+          if (k === 'hund') {
+            const b: P[] = [[x - 30, y + 10], [x - 28, y - 10], [x + 14, y - 12], [x + 20, y - 26], [x + 34, y - 22], [x + 36, y - 8], [x + 22, y - 6], [x + 20, y + 10]]
+            blank(c, b)
+            ink(c, b, { w: 2, d: d + 200, t: 300 })
+            for (const lx of [-24, -12, 8, 16]) ink(c, L([x + lx, y + 8], [x + lx, y + 30]), { w: 1.8, d: d + 300, t: 100 })
+            ink(c, E(x + 24, y - 20, 4, 8), { w: 1.4, d: d + 400, t: 100 })
+          }
+          if (k === 'tasse') {
+            ink(c, [[x - 20, y - 16], [x - 16, y + 24], [x + 16, y + 24], [x + 20, y - 16]], { w: 2, d: d + 200, t: 300 })
+            ink(c, E(x, y - 16, 20, 5), { w: 1.6, d: d + 300, t: 200 })
+            ink(c, E(x + 24, y + 2, 8, 10, -90, 90), { w: 1.8, d: d + 400, t: 200 })
+          }
+          if (k === 'auto') car(c, x, y + 18, 0.9, d + 200)
+          if (yes) check(g, x + 36, y - 50, 0.5, d + 600)
+          else cross(g, x + 36, y - 50, 0.45, d + 600)
+        })
       },
       netz(g) {
-        net(g, 0)
+        net(g, 0, { flow: true })
       },
       gewichte(g) {
         net(g, 0)
-        text(g, 180, 650, 'jede Verbindung: ein Gewicht', { anchor: 'middle', cls: 's', d: 1400 })
+        ink(g, L([154, 452], [154, 360]), { w: 1, d: 1300, t: 200 })
+        text(g, 154, 352, '0,7', { anchor: 'middle', size: 16, d: 1400 })
+        ink(g, L([244, 498], [244, 600]), { w: 1, d: 1500, t: 200 })
+        text(g, 244, 618, '−1,2', { anchor: 'middle', size: 16, d: 1600 })
       },
       raten(g) {
-        net(g, 0)
-        text(g, 180, 650, 'Antwort: „Hund“ – falsch', { anchor: 'middle', cls: 's', d: 1300 })
+        net(g, 0, { flow: true, out: 1 })
+        cross(g, 330, 552, 0.5, 1400)
       },
       fehler(g) {
-        box(g, 40, 380, 120, 70, ['Antwort:', 'Hund'], { size: 16 })
-        box(g, 200, 380, 120, 70, ['richtig:', 'Katze'], { size: 16, fill: true, d: 300 })
-        arrow(g, L([180, 470], [180, 520]), { w: 2.4, d: 700, t: 300, head: 9 })
-        box(g, 40, 530, 280, 70, ['alle Gewichte', 'ein Stückchen anpassen'], { size: 15, d: 900 })
+        // Fehler messen und rückwärts durchs Netz verteilen
+        net(g, 0, { flow: true, out: 1, back: true })
+        ink(g, L([310, 520], [340, 520]), { w: 1.4, d: 1000, t: 100 })
+        ink(g, L([310, 440], [340, 440]), { w: 1.4, d: 1000, t: 100 })
+        arrow(g, L([336, 516], [336, 446]), { w: 2.2, d: 1100, t: 300, head: 8 })
       },
       tal(g) {
-        ink(g, B([30, 380], [120, 640], [240, 640], [330, 380]), { w: 3, t: 800 })
-        for (let i = 0; i < 5; i++) {
-          const t = 0.08 + i * 0.1
-          const x = 30 + 300 * (3 * t * (1 - t) * (1 - t) * 0.3 + 3 * t * t * (1 - t) * 0.7 + t * t * t)
-          const y = 380 * Math.pow(1 - t, 3) + 3 * t * Math.pow(1 - t, 2) * 640 + 3 * t * t * (1 - t) * 640 + Math.pow(t, 3) * 380
-          ball(g, x, y - 14, 10, { d: 600 + i * 300, fill: i === 4 ? 'dicht' : 'leer', t: 200 })
+        // Wanderer im Nebel tastet sich Schritt für Schritt ins Tal (tiefster Punkt = kleinster Fehler)
+        const valley = B([20, 380], [120, 660], [240, 660], [340, 400])
+        ink(g, valley, { w: 3, t: 800 })
+        hatch(g, [...valley, [340, 680], [20, 680]], 600)
+        for (let i = 0; i < 4; i++) {
+          const m = wobble(g, { dx: i % 2 ? 12 : -12, ms: 4000 + i * 500, d: 700 })
+          dashes(m, smooth([[20, 420 + i * 40], [120, 412 + i * 40], [240, 426 + i * 40], [340, 418 + i * 40]]), { w: 1, d: 300 + i * 100, dash: 16, gap: 12 })
         }
-        text(g, 180, 670, 'Schritt für Schritt bergab zum kleinsten Fehler', { anchor: 'middle', cls: 's', d: 2200 })
+        const steps: P[] = []
+        for (let i = 0; i <= 8; i++) {
+          const t = 0.06 + i * 0.05
+          const u = 1 - t
+          steps.push([u * u * u * 20 + 3 * u * u * t * 120 + 3 * u * t * t * 240 + t * t * t * 340, u * u * u * 380 + 3 * u * u * t * 660 + 3 * u * t * t * 660 + t * t * t * 400])
+        }
+        steps.forEach(([x, y], i) => ink(g, E(x, y + 2, 4, 1.6), { w: 1.2, d: 900 + i * 160, t: 100 }))
+        const w = mk('g', { opacity: 0 }, g)
+        fig(w, 0, 0, 1.2, {})
+        mk('set', { attributeName: 'opacity', to: 1, begin: '1s', fill: 'freeze' }, w)
+        mk('animateMotion', { path: `M${steps.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}`, dur: '5s', begin: '1s', fill: 'freeze', calcMode: 'discrete' }, w)
+        dot(g, 180, 640, 4, 2200)
       },
       schichten(g) {
-        box(g, 20, 420, 96, 70, 'Kanten', { size: 16 })
-        box(g, 132, 420, 96, 70, 'Formen', { size: 16, d: 300 })
-        box(g, 244, 420, 96, 70, ['Ohren,', 'Augen'], { size: 15, d: 600, fill: true })
-        arrow(g, L([118, 455], [130, 455]), { w: 2, d: 500, t: 150, head: 6 })
-        arrow(g, L([230, 455], [242, 455]), { w: 2, d: 800, t: 150, head: 6 })
-        text(g, 180, 560, 'das Netz findet die Merkmale selbst', { anchor: 'middle', cls: 's', d: 1100 })
+        // was die Schichten erkennen: erst Kanten, dann Formen, dann Teile wie Ohren und Augen
+        const panel = (x: number, d: number) => ink(g, RR(x, 400, 96, 96, 8), { w: 2.2, d, t: 300 })
+        panel(20, 0)
+        for (let i = 0; i < 9; i++) {
+          const a = rad(i * 40)
+          const cx = 38 + (i % 3) * 30
+          const cy = 418 + Math.floor(i / 3) * 30
+          ink(g, L([cx - Math.cos(a) * 9, cy - Math.sin(a) * 9], [cx + Math.cos(a) * 9, cy + Math.sin(a) * 9]), { w: 1.8, d: 200 + i * 40, t: 100 })
+        }
+        panel(132, 300)
+        ink(g, E(158, 428, 12), { w: 1.6, d: 500, t: 200 })
+        ink(g, [[190, 416], [204, 440], [176, 440], [190, 416]], { w: 1.6, d: 600, t: 200 })
+        ink(g, B([146, 470], [160, 452], [176, 488], [196, 466]), { w: 1.6, d: 700, t: 200 })
+        ink(g, RR(196, 456, 20, 26, 6), { w: 1.6, d: 800, t: 200 })
+        panel(244, 600)
+        ink(g, [[256, 446], [266, 414], [278, 442]], { w: 2, d: 900, t: 200 })
+        ink(g, [[290, 446], [300, 414], [312, 442]], { w: 2, d: 950, t: 200 })
+        for (const x of [270, 300]) {
+          ink(g, E(x, 466, 9, 6), { w: 1.6, d: 1000, t: 150 })
+          mk('ellipse', { cx: x, cy: 466, rx: 1.4, ry: 4, class: 'k fade', style: '--d:1100ms' }, g)
+        }
+        arrow(g, L([118, 448], [130, 448]), { w: 2, d: 500, t: 150, head: 6 })
+        arrow(g, L([230, 448], [242, 448]), { w: 2, d: 800, t: 150, head: 6 })
+        text(g, 68, 520, 'Kanten', { anchor: 'middle', cls: 's', d: 300 })
+        text(g, 180, 520, 'Formen', { anchor: 'middle', cls: 's', d: 600 })
+        text(g, 292, 520, 'Teile', { anchor: 'middle', cls: 's', d: 900 })
+        cat(g, 180, 650, 0.5, 1300)
       },
       jahr(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.6, label: '2012', sub: 'Durchbruch beim Bilder-Erkennen', up: true }])
+        timeline(g, 30, 330, 470, [{ at: 0.6, label: '2012', sub: 'AlexNet', up: true }])
+        // Grafikkarte, auf der das Netz trainiert wurde
+        const card = RR(90, 540, 180, 70, 6)
+        ink(g, card, { w: 2.6, d: 900, t: 400 })
+        for (const x of [140, 220]) {
+          ink(g, E(x, 575, 24), { w: 2, d: 1100, t: 300 })
+          const f = spin(g, x, 575, 700, 1400)
+          for (let k = 0; k < 5; k++) ink(f, L([x, 575], [x + Math.cos(rad(k * 72)) * 20, 575 + Math.sin(rad(k * 72)) * 20]), { w: 1.4, d: 1200, t: 100 })
+        }
+        for (let k = 0; k < 8; k++) ink(g, L([100 + k * 18, 610], [100 + k * 18, 620]), { w: 1.6, d: 1300, t: 60 })
       },
       husky(g) {
-        ink(g, RR(60, 380, 240, 200, 6), { w: 2.6, t: 500 })
-        for (let i = 0; i < 9; i++) {
-          const x = 80 + (i % 5) * 50
-          const y = 400 + Math.floor(i / 5) * 30
-          for (let k = 0; k < 3; k++) ink(g, L([x - 6 * Math.cos(rad(k * 60)), y - 6 * Math.sin(rad(k * 60))], [x + 6 * Math.cos(rad(k * 60)), y + 6 * Math.sin(rad(k * 60))]), { w: 1.4, d: 300 + i * 50, t: 100 })
+        // Wolf im Schnee: die KI schaut auf den Schnee (Wärmefleck), nicht aufs Tier
+        ink(g, RR(40, 380, 280, 220, 6), { w: 2.6, t: 500 })
+        for (let i = 0; i < 12; i++) {
+          const x = 60 + (i % 6) * 46
+          const y = 400 + Math.floor(i / 6) * 34
+          for (let k = 0; k < 3; k++) ink(g, L([x - 5 * Math.cos(rad(k * 60)), y - 5 * Math.sin(rad(k * 60))], [x + 5 * Math.cos(rad(k * 60)), y + 5 * Math.sin(rad(k * 60))]), { w: 1.2, d: 300 + i * 40, t: 100 })
         }
-        ink(g, B([60, 540], [140, 520], [220, 530], [300, 520]), { w: 2, d: 600, t: 400 })
-        text(g, 180, 620, '„Wolf“ – wegen des Schnees', { anchor: 'middle', cls: 's', d: 1100 })
+        ink(g, smooth([[40, 540], [120, 524], [220, 534], [320, 522]]), { w: 2, d: 500, t: 400 })
+        const wolf: P[] = [[130, 540], [132, 510], [176, 504], [190, 486], [204, 482], [212, 494], [200, 504], [196, 520], [192, 540]]
+        blank(g, wolf)
+        hatch(g, wolf, 900, true)
+        ink(g, wolf, { w: 2.2, d: 700, t: 400 })
+        ink(g, B([132, 512], [118, 506], [112, 520], [104, 530]), { w: 2, d: 800, t: 200 })
+        // Aufmerksamkeit der KI: Flecken auf dem Schnee
+        for (const [x, y, r] of [[80, 574, 26], [270, 566, 30], [250, 420, 22]] as const) {
+          dashes(g, E(x, y, r, r * 0.6), { w: 1.6, d: 1300, dash: 4, gap: 4 })
+          dashes(g, E(x, y, r * 0.55, r * 0.35), { w: 1.2, d: 1400, dash: 3, gap: 4 })
+        }
+        text(g, 180, 630, 'Wolf?', { anchor: 'middle', size: 18, d: 1700 })
       },
       woerter(g) {
-        box(g, 30, 420, 300, 60, 'Der Himmel ist …', { size: 18 })
-        text(g, 180, 540, 'blau: 62 % · grau: 21 % · klar: 9 %', { anchor: 'middle', cls: 's', d: 800 })
-        text(g, 180, 600, 'Sprachmodelle raten das nächste Wort', { anchor: 'middle', cls: 's', d: 1100 })
+        bubble(g, 30, 390, 300, 60, 'l', 0)
+        text(g, 50, 428, 'Der Himmel ist …', { size: 18, d: 300 })
+        hbars(g, [
+          { label: 'blau', v: 62, fmt: (v) => `${Math.round(v)} %`, dense: true },
+          { label: 'grau', v: 21, fmt: (v) => `${Math.round(v)} %` },
+          { label: 'klar', v: 9, fmt: (v) => `${Math.round(v)} %` },
+        ], { x: 60, y: 500, w: 240, h: 22, gap: 52, max: 100, d: 700 })
       },
       ende(g) {
-        net(g, 0)
+        net(g, 0, { flow: true })
       },
     },
     scenes: [
@@ -1134,57 +1246,115 @@ export const AHA_TECHNIK: Bite[] = [
     images: [],
     draw: {
       kurve(g) {
-        const outer = B([30, 160], [200, 160], [300, 200], [320, 400])
-        const inner = B([30, 210], [170, 210], [260, 240], [270, 400])
-        ink(g, outer, { w: 2.8, t: 700 })
-        ink(g, inner, { w: 2.8, d: 200, t: 700 })
+        // gebogene Faser im Schnitt: Mantel, Kern; der Lichtstrahl springt an der Grenze hin und her und folgt der Biegung
+        const outer = B([20, 150], [200, 150], [300, 200], [320, 420])
+        const inner = B([20, 214], [170, 214], [256, 244], [266, 420])
         const at = (t: number, k: number): P => {
           const a = outer[Math.round(t * (outer.length - 1))]
           const b = inner[Math.round(t * (inner.length - 1))]
           return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]
         }
+        const band: P[] = [...outer, ...inner.slice().reverse()]
+        blank(g, band)
+        hatch(g, band, 600)
+        const core: P[] = [...Array.from({ length: 41 }, (_, i) => at(i / 40, 0.3)), ...Array.from({ length: 41 }, (_, i) => at(1 - i / 40, 0.7))]
+        blank(g, core)
+        ink(g, outer, { w: 2.8, t: 700 })
+        ink(g, inner, { w: 2.8, d: 200, t: 700 })
+        ink(g, Array.from({ length: 41 }, (_, i) => at(i / 40, 0.3)), { w: 1.2, d: 400, t: 700 })
+        ink(g, Array.from({ length: 41 }, (_, i) => at(i / 40, 0.7)), { w: 1.2, d: 400, t: 700 })
         const ray: P[] = [at(0, 0.5)]
-        for (let i = 1; i < 8; i++) ray.push(at(i / 8, i % 2 ? 0.1 : 0.9))
+        for (let i = 1; i < 10; i++) ray.push(at(i / 10, i % 2 ? 0.32 : 0.68))
         ray.push(at(1, 0.5))
-        arrow(g, ray, { w: 2.2, d: 800, t: 1200, head: 9 })
+        ink(g, ray, { w: 1.6, d: 800, t: 1200 })
+        flow(g, ray, { n: 3, ms: 2400, d: 1600, r: 3 })
       },
       gerade(g) {
-        rays(g, 70, 470, 18, 34, 10)
-        ball(g, 70, 470, 12, { fill: 'dicht', d: 200 })
-        arrow(g, L([100, 470], [320, 470]), { w: 2.6, d: 500, t: 600, head: 10 })
-        text(g, 200, 520, 'Licht läuft geradeaus', { anchor: 'middle', cls: 's', d: 900 })
+        // Laserpointer: der Strahl läuft schnurgerade bis zur Wand
+        const body: P[] = [[30, 456], [110, 456], [118, 462], [118, 478], [110, 484], [30, 484], [30, 456]]
+        blank(g, body)
+        hatch(g, body, 400, true)
+        ink(g, body, { w: 2.4, t: 400 })
+        ink(g, RR(62, 450, 14, 6, 2), { w: 1.6, d: 300, t: 100 })
+        const beam = L([120, 470], [300, 470])
+        ink(g, beam, { w: 1.8, d: 500, t: 600 })
+        flow(g, beam, { n: 3, ms: 900, d: 1100, r: 2.4 })
+        ink(g, L([304, 370], [304, 600]), { w: 3, d: 300, t: 400 })
+        hatch(g, RR(306, 370, 20, 230, 2), 600, true)
+        rays(g, 300, 470, 6, 14, 8, 1100)
       },
       flach(g) {
+        const glass = RR(20, 360, 320, 160, 4)
+        hatch(g, glass, 300)
         ink(g, L([20, 520], [340, 520]), { w: 2.6, t: 500 })
-        text(g, 320, 500, 'Glas', { anchor: 'end', cls: 's', d: 300 })
+        text(g, 320, 500, 'Glas', { anchor: 'end', cls: 's halo', d: 300 })
         text(g, 320, 554, 'Luft', { anchor: 'end', cls: 's', d: 300 })
-        arrow(g, [[40, 400], [160, 516], [280, 400]], { w: 2.4, d: 600, t: 900, head: 9 })
-        text(g, 160, 590, 'flacher Winkel: alles wird gespiegelt', { anchor: 'middle', cls: 's', d: 1200 })
+        dashes(g, L([170, 420], [170, 620]), { w: 1.2, d: 500, dash: 4, gap: 4 })
+        const p: P[] = [[40, 410], [170, 516], [300, 410]]
+        arrow(g, p, { w: 2.4, d: 600, t: 900, head: 9 })
+        flow(g, p, { n: 2, ms: 1600, d: 1500, r: 2.4 })
+        ink(g, E(170, 520, 40, 40, 219, 270), { w: 1.4, d: 1300, t: 300 })
+        ink(g, E(170, 520, 40, 40, 270, 321), { w: 1.4, d: 1400, t: 300 })
       },
       steil(g) {
+        const glass = RR(20, 360, 320, 160, 4)
+        hatch(g, glass, 300)
         ink(g, L([20, 520], [340, 520]), { w: 2.6, t: 500 })
-        arrow(g, [[130, 380], [160, 516], [176, 620]], { w: 2.4, d: 500, t: 700, head: 9 })
-        text(g, 260, 600, 'steil: tritt aus', { anchor: 'middle', cls: 's', d: 900 })
+        text(g, 320, 500, 'Glas', { anchor: 'end', cls: 's halo', d: 300 })
+        text(g, 320, 554, 'Luft', { anchor: 'end', cls: 's', d: 300 })
+        dashes(g, L([160, 420], [160, 620]), { w: 1.2, d: 500, dash: 4, gap: 4 })
+        const p: P[] = [[120, 380], [160, 516], [190, 630]]
+        arrow(g, p, { w: 2.4, d: 500, t: 700, head: 9 })
+        flow(g, p, { n: 2, ms: 1400, d: 1300, r: 2.4 })
+        arrow(g, L([160, 516], [196, 400]), { w: 0.9, d: 900, t: 300, head: 6 })
       },
       faser(g) {
-        fiber(g, 20, 340, 480, 70)
-        text(g, 180, 560, 'Licht prallt hin und her', { anchor: 'middle', cls: 's', d: 1500 })
+        // Längsschnitt: Schutzhülle, Mantel, Kern; der Strahl wird immer wieder flach gespiegelt
+        hatch(g, RR(20, 420, 320, 120, 10), 300, true)
+        ink(g, RR(20, 420, 320, 120, 10), { w: 2.6, t: 600 })
+        blank(g, RR(20, 440, 320, 80, 2))
+        hatch(g, RR(20, 440, 320, 80, 2), 500)
+        blank(g, RR(20, 460, 320, 40, 2))
+        for (const y of [440, 520]) ink(g, L([20, y], [340, y]), { w: 1.6, d: 300, t: 500 })
+        for (const y of [460, 500]) ink(g, L([20, y], [340, y]), { w: 1.2, d: 400, t: 500 })
+        const pts: P[] = []
+        for (let i = 0; i <= 8; i++) pts.push([20 + 40 * i, i % 2 ? 498 : 462])
+        ink(g, pts, { w: 1.6, d: 800, t: 1200 })
+        flow(g, pts, { n: 3, ms: 2000, d: 1600, r: 2.6 })
+        text(g, 30, 410, 'Hülle', { cls: 's', d: 900 })
+        text(g, 30, 594, 'Mantel', { cls: 's', d: 1000 })
+        ink(g, L([66, 578], [72, 514]), { w: 1, d: 1000, t: 200 })
+        text(g, 200, 594, 'Kern', { cls: 's', d: 1100 })
+        ink(g, L([210, 580], [214, 496]), { w: 1, d: 1100, t: 200 })
       },
       haar(g) {
-        ball(g, 120, 470, 60, { fill: 'hell' })
-        ball(g, 120, 470, 8, { fill: 'dicht', d: 400 })
+        // maßstabsgetreu: Faser 125 µm, Kern 9 µm, Haar 70 µm
+        blank(g, E(120, 470, 60))
+        hatch(g, E(120, 470, 60), 400)
+        ink(g, E(120, 470, 60), { w: 2.6, t: 600 })
+        blank(g, E(120, 470, 4.4))
+        ink(g, E(120, 470, 4.4), { w: 1.6, d: 400, t: 200 })
         text(g, 120, 570, 'Faser: 0,125 mm', { anchor: 'middle', cls: 's', d: 700 })
         text(g, 120, 594, 'Kern: 0,009 mm', { anchor: 'middle', cls: 's', d: 800 })
-        ink(g, E(270, 470, 40), { w: 2.4, d: 900, t: 400 })
+        blank(g, E(270, 470, 34))
+        for (let k = 0; k < 6; k++) ink(g, E(270, 470, 34 - k * 5, 34 - k * 5, k * 40, k * 40 + 200), { w: 0.8, d: 1000 + k * 60, t: 150 })
+        ink(g, E(270, 470, 34), { w: 2.4, d: 900, t: 400 })
         text(g, 270, 570, 'Haar: 0,07 mm', { anchor: 'middle', cls: 's', d: 1100 })
       },
       colladon(g) {
-        ink(g, RR(40, 360, 110, 160, 6), { w: 2.8, t: 600 })
-        const jet = B([150, 470], [220, 470], [280, 520], [300, 640])
-        ink(g, jet, { w: 2.6, d: 400, t: 700 })
-        ink(g, B([150, 490], [210, 490], [262, 530], [278, 640]), { w: 2.6, d: 400, t: 700 })
-        rays(g, 289, 668, 8, 18, 6, 1200)
-        text(g, 95, 560, '1842: Licht im Wasserstrahl', { anchor: 'middle', cls: 's', d: 900 })
+        // Wasserbehälter mit Lampe dahinter: der Strahl leuchtet im Bogen, das Licht folgt ihm
+        ink(g, RR(30, 360, 120, 170, 6), { w: 2.8, t: 600 })
+        hatch(g, RR(32, 400, 116, 128, 4), 500)
+        ink(g, smooth([[32, 400], [70, 396], [110, 404], [148, 400]]), { w: 1.4, d: 400, t: 300 })
+        sun(g, 70, 450, 12, 300, 8)
+        const top = B([150, 466], [220, 466], [280, 520], [298, 640])
+        const bot = B([150, 486], [212, 486], [262, 532], [276, 640])
+        ink(g, top, { w: 2.4, d: 400, t: 700 })
+        ink(g, bot, { w: 2.4, d: 400, t: 700 })
+        const mid = B([150, 476], [216, 476], [272, 526], [287, 640])
+        flow(g, mid, { n: 4, ms: 1500, d: 1100, r: 2.2 })
+        rays(g, 287, 656, 8, 18, 6, 1200)
+        ink(g, E(287, 664, 24, 6), { w: 1.4, d: 1200, t: 300 })
       },
       daempfung(g) {
         hbars(g, [
@@ -1195,25 +1365,53 @@ export const AHA_TECHNIK: Bite[] = [
       },
       kao(g) {
         timeline(g, 30, 330, 470, [
-          { at: 0.3, label: '1966', sub: 'Charles Kao: reines Glas', up: true },
+          { at: 0.3, label: '1966', sub: 'Harlow, England', up: true },
           { at: 0.85, label: '2009', sub: 'Nobelpreis', big: true },
         ])
+        // Medaille
+        ink(g, E(150, 600, 34), { w: 2.6, d: 1200, t: 500 })
+        ink(g, E(150, 600, 26), { w: 1.2, d: 1300, t: 400 })
+        ink(g, [[130, 568], [120, 530], [140, 530], [150, 566]], { w: 1.8, d: 1400, t: 200 })
+        ink(g, [[170, 568], [180, 530], [160, 530], [150, 566]], { w: 1.8, d: 1400, t: 200 })
       },
       pulse(g) {
-        fiber(g, 20, 340, 420, 50, 0, 8)
+        // Lichtpulse laufen durch die Faser: Puls = 1, Lücke = 0
+        hatch(g, RR(20, 400, 320, 60, 8), 200)
+        ink(g, RR(20, 400, 320, 60, 8), { w: 2.4, t: 500 })
+        blank(g, RR(20, 418, 320, 24, 2))
+        ink(g, L([20, 418], [340, 418]), { w: 1.2, d: 300, t: 400 })
+        ink(g, L([20, 442], [340, 442]), { w: 1.2, d: 300, t: 400 })
+        const mv = glide(g, 280, 0, { ms: 4000, d: 800, loop: true })
         const bits = [1, 0, 1, 1, 0, 1, 0, 0, 1]
-        bits.forEach((b, i) => text(g, 40 + i * 35, 520, String(b), { anchor: 'middle', size: 22, d: 900 + i * 80 }))
-        text(g, 180, 580, 'Licht an = 1, Licht aus = 0', { anchor: 'middle', cls: 's', d: 1700 })
+        bits.forEach((b, i) => {
+          if (b) hatch(mv, RR(-260 + i * 34, 422, 22, 16, 3), 900 + i * 50, true)
+        })
+        bits.forEach((b, i) => text(g, 44 + i * 34, 520, String(b), { anchor: 'middle', size: 22, d: 900 + i * 80 }))
+        for (let i = 0; i < 9; i++) ink(g, RR(33 + i * 34, 540, 22, 16, 3), { w: 1.2, d: 1000 + i * 80, t: 100 })
+        bits.forEach((b, i) => { if (b) hatch(g, RR(33 + i * 34, 540, 22, 16, 3), 1100 + i * 80, true) })
       },
       farben(g) {
+        // mehrere Farben (Wellenlängen) werden in eine Faser gebündelt
         for (let i = 0; i < 4; i++) {
-          const y = 400 + i * 50
-          ink(g, waveP(40, 320, y, 8, 30 + i * 12), { w: 2, d: i * 200, t: 700 })
+          const y = 360 + i * 50
+          travelWave(g, 30, 150, y, 8, 20 + i * 8, { ms: 800 + i * 200, d: i * 200, w: 1.8 })
+          ink(g, B([150, y], [180, y], [190, 470], [210, 470]), { w: 1.4, d: 600 + i * 100, t: 400 })
         }
-        text(g, 180, 640, 'viele Farben in einer Faser', { anchor: 'middle', cls: 's', d: 1000 })
+        const tri: P[] = [[200, 440], [240, 470], [200, 500], [200, 440]]
+        blank(g, tri)
+        hatch(g, tri, 1000)
+        ink(g, tri, { w: 2.2, d: 900, t: 300 })
+        hatch(g, RR(240, 458, 100, 24, 6), 1100)
+        ink(g, RR(240, 458, 100, 24, 6), { w: 2, d: 1000, t: 300 })
+        for (let i = 0; i < 4; i++) flow(g, L([244, 470], [340, 470]), { n: 1, ms: 700 + i * 150, d: 1400 + i * 100, r: 1.8 + i * 0.4 })
       },
       ende(g) {
-        fiber(g, 20, 340, 480, 60)
+        hatch(g, RR(20, 450, 320, 60, 8), 200)
+        ink(g, RR(20, 450, 320, 60, 8), { w: 2.4, t: 500 })
+        const pts: P[] = []
+        for (let i = 0; i <= 8; i++) pts.push([20 + 40 * i, i % 2 ? 494 : 466])
+        ink(g, pts, { w: 1.6, d: 600, t: 1000 })
+        flow(g, pts, { n: 3, ms: 2000, d: 1400, r: 2.6 })
       },
     },
     scenes: [
@@ -1249,97 +1447,201 @@ export const AHA_TECHNIK: Bite[] = [
     images: [],
     draw: {
       geraet(g) {
-        ink(g, RR(40, 120, 280, 200, 12), { w: 3, t: 700 })
-        ink(g, RR(60, 140, 180, 160, 6), { w: 2.4, d: 300, t: 500 })
-        for (let i = 0; i < 3; i++) ball(g, 280, 170 + i * 40, 9, { d: 500 + i * 100, t: 200 })
-        ink(g, E(150, 280, 70, 12), { w: 2.2, d: 700, t: 300 })
+        // Mikrowelle: Gehäuse, Tür mit Lochgitter-Fenster, Bedienfeld mit Anzeige und Drehknopf; drinnen dreht sich der Teller
+        ink(g, RR(30, 140, 300, 210, 12), { w: 3, t: 700 })
+        ink(g, RR(46, 156, 200, 178, 8), { w: 2.4, d: 300, t: 500 })
+        const win = RR(62, 172, 168, 146, 6)
+        ink(g, win, { w: 1.6, d: 400, t: 400 })
+        for (let r = 0; r < 9; r++) for (let c = 0; c < 11; c++) mk('circle', { cx: 70 + c * 15, cy: 180 + r * 16, r: 1.2, class: 'k fade', style: `--d:${600 + (r + c) * 15}ms` }, g)
+        ink(g, RR(262, 166, 52, 24, 3), { w: 1.8, d: 500, t: 200 })
+        text(g, 288, 184, '2:00', { anchor: 'middle', cls: 's', d: 700 })
+        ink(g, E(288, 230, 16), { w: 2, d: 600, t: 300 })
+        ink(g, L([288, 230], [296, 218]), { w: 1.6, d: 700, t: 100 })
+        for (let k = 0; k < 4; k++) ink(g, RR(266 + (k % 2) * 24, 264 + Math.floor(k / 2) * 22, 20, 14, 3), { w: 1.4, d: 800 + k * 50, t: 100 })
+        ink(g, RR(250, 300, 4, 30, 2), { w: 1.6, d: 900, t: 100 })
+        for (const x of [60, 300]) ink(g, L([x, 350], [x, 360]), { w: 2.6, d: 900, t: 100 })
+        const t = wobble(g, { dx: 10, ms: 3000, d: 1100 })
+        ink(t, E(146, 300, 60, 9), { w: 1.8, d: 800, t: 300 })
+        const bowl: P[] = [...B([116, 296], [116, 270], [176, 270], [176, 296]), [116, 296]]
+        blank(t, bowl)
+        hatch(t, bowl, 1100)
+        ink(t, bowl, { w: 1.8, d: 900, t: 300 })
+        for (const x of [132, 160]) ink(g, B([x, 262], [x - 5, 248], [x + 5, 236], [x, 222]), { w: 1.2, d: 1400, t: 300 })
       },
       welle(g) {
-        ink(g, waveP(30, 330, 470, 40, 120), { w: 3, t: 900 })
-        text(g, 180, 560, '2,45 Milliarden Schwingungen pro Sekunde', { anchor: 'middle', cls: 's', d: 900 })
+        // Schnitt: das Magnetron erzeugt die Wellen, ein Hohlleiter führt sie in den Garraum
+        ink(g, RR(30, 360, 300, 260, 10), { w: 3, t: 700 })
+        ink(g, RR(50, 400, 200, 200, 6), { w: 2.2, d: 300, t: 500 })
+        const mag = RR(262, 380, 50, 50, 4)
+        hatch(g, mag, 600, true)
+        ink(g, mag, { w: 2.2, d: 400, t: 300 })
+        for (let k = 0; k < 4; k++) ink(g, L([262 + k * 12 + 6, 380], [262 + k * 12 + 6, 372]), { w: 1.4, d: 500, t: 80 })
+        ink(g, [[262, 400], [226, 400], [226, 412]], { w: 2, d: 600, t: 300 })
+        ink(g, [[262, 420], [240, 420], [240, 412]], { w: 2, d: 600, t: 300 })
+        travelWave(g, 60, 240, 470, 18, 60, { ms: 800, d: 900, w: 2 })
+        travelWave(g, 60, 240, 540, 18, 60, { ms: 800, d: 1000, w: 2 })
+        ink(g, E(150, 588, 70, 8), { w: 1.6, d: 800, t: 300 })
       },
       molekuel(g) {
+        // Wassermolekül mit Teilladungen; das elektrische Feld zieht am Minus- und am Plus-Ende
         water(g, 180, 470, 2.6)
-        text(g, 180, 400, '−', { anchor: 'middle', size: 28, d: 600 })
-        text(g, 180, 580, '+', { anchor: 'middle', size: 28, d: 700 })
-        text(g, 180, 640, 'Wasser: ein winziger Magnet für Elektrizität', { anchor: 'middle', cls: 's', d: 1000 })
+        text(g, 180, 420, 'δ−', { anchor: 'middle', size: 22, d: 600 })
+        text(g, 116, 560, 'δ+', { anchor: 'middle', size: 20, d: 700 })
+        text(g, 244, 560, 'δ+', { anchor: 'middle', size: 20, d: 700 })
+        for (const y of [360, 620]) {
+          arrow(g, L([60, y], [300, y]), { w: 1.8, d: 900, t: 400, head: 8 })
+        }
+        text(g, 30, 366, '+', { anchor: 'middle', size: 22, d: 1000 })
+        text(g, 330, 366, '−', { anchor: 'middle', size: 22, d: 1000 })
       },
       drehen(g) {
-        for (let i = 0; i < 3; i++) {
-          const x = 80 + i * 100
-          const m = st(g, 'm1', `--m1: rotate(${i % 2 ? -150 : 150}deg); transform-origin: ${x}px 480px; transition-duration: 0.6s; --dl: ${300 + i * 100}ms`)
-          water(m, x, 480, 1.4)
-          arcArrow(g, x, 480, 40, 210, 330, { d: 900 })
+        // das Feld wechselt ständig die Richtung, die Moleküle drehen mit und stoßen aneinander
+        const flip = mk('g', {}, g)
+        mk('animateTransform', { attributeName: 'transform', type: 'scale', values: '1 1;-1 1;1 1', dur: '0.8s', begin: '1s', repeatCount: 'indefinite', calcMode: 'discrete' }, flip)
+        const wr = mk('g', { transform: 'translate(180 380)' }, g)
+        wr.appendChild(flip)
+        arrow(flip, L([-120, 0], [120, 0]), { w: 2, d: 300, t: 400, head: 9 })
+        for (let i = 0; i < 6; i++) {
+          const x = 70 + (i % 3) * 110
+          const y = 470 + Math.floor(i / 3) * 100
+          const m = wobble(g, { deg: 70, ox: x, oy: y, ms: 800, d: 900 + i * 40 })
+          water(m, x, y, 1.2)
         }
-        text(g, 180, 600, 'hin und her – Reibung macht Wärme', { anchor: 'middle', cls: 's', d: 1100 })
+        for (const [x, y] of [[125, 470], [235, 470], [125, 570], [235, 570]] as const) {
+          const p = mk('g', { class: 'blink', style: `--d:${1200 + x}ms` }, g)
+          rays(p, x, y, 4, 10, 6, 1200)
+        }
       },
       teller(g) {
-        ink(g, E(180, 540, 130, 22), { w: 2.8, t: 600 })
-        const food: P[] = [...B([110, 534], [110, 470], [250, 470], [250, 534]), [110, 534]]
+        // die Wellen gehen durch den Teller und werden vom wasserreichen Essen geschluckt
+        for (const x of [120, 180, 240]) {
+          const p = L([x, 330], [x, 470])
+          ink(g, p.map(([px, py]) => [px + Math.sin(py / 9) * 5, py] as P), { w: 1.4, d: 300, t: 500 })
+          flow(g, p.map(([px, py]) => [px + Math.sin(py / 9) * 5, py] as P), { n: 2, ms: 900, d: 800, r: 2 })
+        }
+        ink(g, E(180, 548, 130, 22), { w: 2.8, t: 600 })
+        ink(g, E(180, 544, 96, 14), { w: 1.2, d: 200, t: 500 })
+        const food: P[] = [...B([110, 540], [110, 476], [250, 476], [250, 540]), [110, 540]]
         blank(g, food)
         hatch(g, food, 400, true)
         ink(g, food, { w: 2.6, d: 300, t: 500 })
-        text(g, 180, 430, 'viel Wasser: heiß', { anchor: 'middle', cls: 's', d: 800 })
-        text(g, 180, 600, 'Teller: kaum Wasser', { anchor: 'middle', cls: 's', d: 1000 })
+        for (const x of [140, 180, 220]) {
+          const s = wobble(g, { dy: -6, ms: 1600, d: 900 + x })
+          ink(s, B([x, 470], [x - 6, 454], [x + 6, 440], [x, 424]), { w: 1.2, d: 900, t: 300 })
+        }
       },
       tiefe(g) {
+        // Schnitt durchs Essen: nur der äußere Rand wird direkt erhitzt, nach innen wandert die Wärme langsam
         ink(g, RR(60, 400, 240, 180, 10), { w: 2.8, t: 600 })
         const outer: P[] = [[64, 404], [296, 404], [296, 576], [64, 576], [64, 404]]
         hatch(g, outer, 400, true)
         blank(g, RR(100, 440, 160, 100, 6))
         ink(g, RR(100, 440, 160, 100, 6), { w: 1.8, d: 600, t: 300 })
-        text(g, 180, 496, 'innen: Wärmeleitung', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 180, 620, 'Mikrowellen dringen nur wenige Zentimeter ein', { anchor: 'middle', cls: 's', d: 1100 })
+        for (const [a, b] of [[[180, 446], [180, 476]], [[180, 534], [180, 504]], [[106, 490], [136, 490]], [[254, 490], [224, 490]]] as [P, P][]) {
+          arrow(g, L(a, b), { w: 1.6, d: 900, t: 300, head: 6 })
+          flow(g, L(a, b), { n: 1, ms: 1600, d: 1300, r: 1.8 })
+        }
+        ink(g, L([310, 404], [310, 440]), { w: 1.4, d: 1000, t: 200 })
+        for (const y of [404, 440]) ink(g, L([304, y], [316, y]), { w: 1.4, d: 1000, t: 100 })
+        text(g, 320, 428, '≈ 2 cm', { cls: 's', d: 1100 })
       },
       stehend(g) {
-        ink(g, waveP(30, 330, 470, 50, 240), { w: 2.6, t: 800 })
-        ink(g, waveP(30, 330, 470, -50, 240), { w: 1.6, d: 300, t: 800 })
-        for (const x of [90, 210, 330]) dot(g, x - 0.1, 470, 5, 1000)
-        text(g, 180, 580, 'manche Stellen heiß, andere kalt', { anchor: 'middle', cls: 's', d: 1200 })
+        // stehende Welle: an den Bäuchen wird es heiß, an den Knoten bleibt es kalt
+        const wv = mk('g', {}, g)
+        mk('animateTransform', { attributeName: 'transform', type: 'scale', values: '1 1;1 -1;1 1', dur: '1.2s', begin: '0.9s', repeatCount: 'indefinite', calcMode: 'spline', keySplines: '.45 0 .55 1;.45 0 .55 1', keyTimes: '0;.5;1' }, wv)
+        const wr = mk('g', { transform: 'translate(0 470)' }, g)
+        wr.appendChild(wv)
+        ink(wv, waveP(30, 330, 0, 50, 240, Math.PI / 2), { w: 2.6, t: 800 })
+        for (const x of [90, 210, 330]) dot(g, x, 470, 5, 1000)
+        for (const x of [30, 150, 270]) {
+          hatch(g, E(x, 560, 18, 10), 1300, true)
+          ink(g, E(x, 560, 18, 10), { w: 1.4, d: 1200, t: 200 })
+        }
+        ink(g, L([20, 560], [340, 560]), { w: 0.8, d: 1100, t: 400 })
       },
       schoko(g) {
         ink(g, RR(40, 440, 280, 60, 6), { w: 2.8, t: 600 })
+        for (let i = 1; i < 7; i++) ink(g, L([40 + i * 40, 444], [40 + i * 40, 496]), { w: 1, d: 300, t: 150 })
         for (const x of [90, 210]) {
-          blank(g, E(x, 470, 20, 16))
-          hatch(g, E(x, 470, 20, 16), 700, true)
-          ink(g, E(x, 470, 20, 16), { w: 2, d: 600, t: 300 })
+          const melt: P[] = smooth([[x - 22, 470], [x - 10, 456], [x + 12, 458], [x + 22, 472], [x + 8, 486], [x - 14, 484], [x - 22, 470]], 4)
+          blank(g, melt)
+          hatch(g, melt, 700, true)
+          ink(g, melt, { w: 2, d: 600, t: 300 })
         }
         ink(g, L([90, 530], [210, 530]), { w: 1.8, d: 900, t: 300 })
         for (const x of [90, 210]) ink(g, L([x, 522], [x, 538]), { w: 1.8, d: 900, t: 100 })
         text(g, 150, 560, 'etwa 6 cm', { anchor: 'middle', cls: 's', d: 1000 })
-        text(g, 180, 620, '6 cm × 2 × 2,45 Mrd. ≈ Lichtgeschwindigkeit', { anchor: 'middle', cls: 's', d: 1300 })
+        text(g, 180, 620, '6 cm × 2 × 2,45 Mrd./s ≈ 300.000 km/s', { anchor: 'middle', cls: 's', d: 1300 })
       },
       spencer(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.4, label: '1945', sub: 'Percy Spencer', up: true }])
+        timeline(g, 30, 330, 400, [{ at: 0.4, label: '1945', sub: 'Percy Spencer', up: true }])
+        // „Radarange“: fast zwei Meter hoch, daneben ein Mensch zum Vergleich
+        const cab = RR(150, 450, 90, 200, 6)
+        ink(g, cab, { w: 2.8, d: 800, t: 500 })
+        ink(g, RR(162, 470, 66, 60, 4), { w: 1.6, d: 1000, t: 300 })
+        for (let k = 0; k < 5; k++) ink(g, L([162, 560 + k * 14], [228, 560 + k * 14]), { w: 1, d: 1100 + k * 40, t: 100 })
+        fig(g, 280, 650, 5.2, { d: 1200 })
       },
       riegel(g) {
-        ink(g, RR(110, 440, 140, 50, 8), { w: 2.8, t: 500 })
-        for (let i = 1; i < 4; i++) ink(g, L([110 + i * 35, 444], [110 + i * 35, 486]), { w: 1.6, d: 300, t: 200 })
-        for (const x of [150, 210]) drop(g, x, 520, 0.6, 700)
-        text(g, 180, 600, 'geschmolzen in der Hosentasche', { anchor: 'middle', cls: 's', d: 1000 })
+        // Hosentasche mit geschmolzenem Schokoriegel, daneben das Radar-Magnetron
+        ink(g, smooth([[60, 380], [70, 520], [160, 560], [260, 520], [280, 380]]), { w: 2.6, t: 700 })
+        ink(g, L([60, 380], [280, 380]), { w: 2, d: 300, t: 400 })
+        const bar: P[] = [[110, 420], [240, 420], [240, 470], [110, 470], [110, 420]]
+        blank(g, bar)
+        ink(g, bar, { w: 2.4, d: 500, t: 300 })
+        for (let i = 1; i < 4; i++) ink(g, L([110 + i * 32, 424], [110 + i * 32, 466]), { w: 1.2, d: 600, t: 150 })
+        for (const x of [150, 210]) {
+          drop(g, x, 500, 0.6, 900)
+          ink(g, L([x, 470], [x, 486]), { w: 2, d: 800, t: 100 })
+        }
+        const mag = RR(250, 580, 70, 50, 6)
+        hatch(g, mag, 1100, true)
+        ink(g, mag, { w: 2.2, d: 1000, t: 300 })
+        for (const r of [20, 34]) ink(g, E(250, 590, r, r, 200, 250), { w: 1.4, d: 1200 + r * 10, t: 200 })
       },
       tuer(g) {
-        ink(g, RR(80, 380, 200, 200, 8), { w: 3, t: 600 })
-        for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) dot(g, 105 + i * 30, 405 + j * 30, 3, 400 + (i + j) * 30)
-        text(g, 180, 630, 'Löcher kleiner als die Welle (12 cm)', { anchor: 'middle', cls: 's', d: 1200 })
+        // Türgitter: winzige Löcher – die Welle (12 cm) passt nicht hindurch
+        ink(g, RR(60, 380, 240, 170, 8), { w: 3, t: 600 })
+        for (let i = 0; i < 14; i++) for (let j = 0; j < 10; j++) mk('circle', { cx: 74 + i * 16, cy: 394 + j * 16, r: 2.2, class: 'k fade', style: `--d:${400 + (i + j) * 20}ms` }, g)
+        ink(g, waveP(40, 320, 600, 16, 280), { w: 2.2, d: 900, t: 700 })
+        arrow(g, L([110, 636], [250, 636]), { w: 1.4, d: 1300, t: 300, head: 6 })
+        arrow(g, L([250, 636], [110, 636]), { w: 1.4, d: 1300, t: 300, head: 6 })
+        text(g, 180, 660, '12 cm', { anchor: 'middle', cls: 's', d: 1400 })
       },
       gabel(g) {
-        ink(g, L([120, 560], [220, 440]), { w: 3, t: 500 })
-        for (const k of [0, 1, 2]) ink(g, L([220 + k * 6, 440 - k * 6], [244 + k * 6, 412 - k * 6]), { w: 2.4, d: 300, t: 200 })
-        bolt(g, [[260, 380], [280, 400], [270, 404], [294, 430]], 700, 3)
-        text(g, 180, 620, 'Spitzen und Kanten: Funken', { anchor: 'middle', cls: 's', d: 1000 })
+        // Gabel: zwischen den Zinkenspitzen springen Funken
+        const handle: P[] = [[100, 600], [190, 470], [200, 476], [112, 608], [100, 600]]
+        blank(g, handle)
+        hatch(g, handle, 500)
+        ink(g, handle, { w: 2.4, t: 500 })
+        for (const k of [0, 1, 2, 3]) ink(g, L([194 + k * 5, 470 - k * 3], [232 + k * 8, 412 - k * 8]), { w: 2.2, d: 300 + k * 60, t: 200 })
+        for (const [x, y] of [[236, 404], [252, 392]] as const) {
+          const f = mk('g', { class: 'blink', style: `--d:${900 + x}ms` }, g)
+          bolt(f, [[x, y], [x + 8, y - 10], [x + 2, y - 12], [x + 10, y - 24]], 900, 2)
+        }
+        rays(g, 250, 380, 12, 24, 8, 1100)
       },
       eis(g) {
+        // links Eis: Moleküle im Sechseck-Gitter festgehalten; rechts flüssiges Wasser: frei beweglich
         for (let i = 0; i < 6; i++) {
-          const x = 90 + (i % 3) * 90
-          const y = 440 + Math.floor(i / 3) * 90
-          ink(g, RR(x - 26, y - 26, 52, 52, 4), { w: 2.2, d: i * 100, t: 300 })
-          water(g, x, y, 0.7, 30 * i, 300 + i * 100)
+          const a = rad(i * 60)
+          const x = 100 + Math.cos(a) * 50
+          const y = 480 + Math.sin(a) * 50
+          water(g, x, y, 0.7, i * 60, 200 + i * 80)
+          const a2 = rad((i + 1) * 60)
+          dashes(g, L([x, y], [100 + Math.cos(a2) * 50, 480 + Math.sin(a2) * 50]), { w: 1, d: 800, dash: 4, gap: 4 })
         }
-        text(g, 180, 640, 'im Eis festgehalten: drehen kaum', { anchor: 'middle', cls: 's', d: 1100 })
+        ink(g, L([180, 380], [180, 600]), { w: 1.2, d: 300, t: 400 })
+        for (let i = 0; i < 6; i++) {
+          const m = wobble(g, { deg: 80, ox: 230 + (i % 2) * 60, oy: 410 + Math.floor(i / 2) * 70, ms: 700 + i * 60, d: 900 })
+          water(m, 230 + (i % 2) * 60, 410 + Math.floor(i / 2) * 70, 0.7, i * 37, 500 + i * 80)
+        }
+        flake(g, 100, 610, 14, 1200)
+        drop(g, 260, 620, 0.8, 1300)
       },
       ende(g) {
-        water(g, 180, 470, 2)
+        const m = wobble(g, { deg: 60, ox: 180, oy: 480, ms: 900, d: 600 })
+        water(m, 180, 480, 2)
       },
     },
     scenes: [
@@ -1377,12 +1679,30 @@ export const AHA_TECHNIK: Bite[] = [
     images: [],
     draw: {
       fridge(g) {
-        fridge(g, 120, 80, 120, 340)
+        // Küche: Kühlschrank mit Gefrierfach und Griffen, Arbeitsplatte, Fliesen, Magnet und Zettel
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) ink(g, RR(250 + c * 24, 120 + r * 24, 22, 22, 2), { w: 0.8, d: 200 + (r + c) * 30, t: 80 })
+        ink(g, L([240, 230], [340, 230]), { w: 2.6, d: 300, t: 300 })
+        ink(g, RR(244, 230, 92, 190, 4), { w: 2, d: 400, t: 400 })
+        ink(g, L([290, 230], [290, 420]), { w: 1.4, d: 500, t: 300 })
+        fridge(g, 90, 80, 140, 340)
+        ink(g, RR(118, 230, 30, 36, 2), { w: 1.4, d: 900, t: 200 })
+        for (const y of [240, 248, 256]) ink(g, L([122, y], [144, y]), { w: 0.8, d: 1000, t: 80 })
+        dot(g, 133, 228, 3, 1000)
+        ground(g, 20, 340, 420, 300, { grass: false })
       },
       pumpe(g) {
-        fridge(g, 120, 340, 120, 300)
-        carrow(g, [150, 560], [300, 540], -30, { d: 800 })
-        text(g, 300, 510, 'Wärme raus', { anchor: 'middle', cls: 's', d: 1000 })
+        fridge(g, 100, 340, 130, 300)
+        // Wärme wandert von innen über die Rückseite in die Küche
+        for (const y of [440, 500, 560]) {
+          const p = B([150, y], [200, y], [230, y - 10], [250, y - 20])
+          ink(g, p, { w: 1.4, d: 700, t: 400 })
+          flow(g, p, { n: 2, ms: 1200, d: 1100, r: 2.2 })
+        }
+        for (const x of [270, 300, 330]) {
+          const s = wobble(g, { dy: -10, ms: 1800, d: 900 + x })
+          ink(s, B([x, 600], [x - 8, 560], [x + 8, 520], [x, 480]), { w: 1.6, d: 1000, t: 400 })
+        }
+        thermo(g, 40, 400, 120, 0.2, 900)
       },
       hinten(g) {
         ink(g, RR(110, 340, 140, 300, 8), { w: 3, t: 600 })
@@ -1394,56 +1714,126 @@ export const AHA_TECHNIK: Bite[] = [
           if (i < 6) p.push(...B([a, y], [b, y], [b, y + 36], [a, y + 36]).slice(1))
         }
         ink(g, p, { w: 2.2, d: 300, t: 1200 })
-        rays(g, 280, 420, 10, 22, 6, 1300)
-        text(g, 180, 670, 'die Rückseite ist warm', { anchor: 'middle', cls: 's', d: 1400 })
+        flow(g, p, { n: 4, ms: 4000, d: 1500, r: 2.6 })
+        for (let k = 0; k < 8; k++) ink(g, L([132 + k * 14, 360], [132 + k * 14, 620]), { w: 0.8, d: 1100 + k * 30, t: 200 })
+        ink(g, RR(150, 600, 60, 30, 6), { w: 2, d: 1300, t: 300 })
+        for (const x of [276, 300, 324]) {
+          const s = wobble(g, { dy: -10, ms: 1800, d: 1300 + x })
+          ink(s, B([x, 560], [x - 8, 520], [x + 8, 480], [x, 440]), { w: 1.6, d: 1400, t: 400 })
+        }
       },
       schweiss(g) {
-        fig(g, 180, 620, 4.4)
-        for (const [x, y] of [[150, 470], [212, 470]] as const) drop(g, x, y, 0.5, 600, false)
-        for (const x of [140, 220]) ink(g, B([x, 440], [x - 6, 420], [x + 6, 400], [x, 380]), { w: 1.6, d: 1000, t: 300 })
-        text(g, 180, 670, 'Verdunsten kühlt', { anchor: 'middle', cls: 's', d: 1200 })
+        sun(g, 300, 320, 16, 0, 10)
+        fig(g, 160, 640, 5)
+        for (const [x, y] of [[132, 500], [186, 498], [150, 560]] as const) {
+          drop(g, x, y, 0.4, 600, false)
+          flow(g, L([x, y - 10], [x + 6, y - 100]), { n: 2, ms: 1600, d: 1100, r: 1.6, kind: 'ring' })
+        }
+        thermo(g, 290, 440, 120, 0.4, 900)
       },
       kreis(g) {
-        box(g, 20, 330, 140, 64, ['verdampft', 'innen: kalt'], { size: 15 })
-        box(g, 200, 330, 140, 64, ['Kompressor', 'drückt zusammen'], { size: 15, d: 300 })
-        box(g, 200, 560, 140, 64, ['hinten: warm', 'wird flüssig'], { size: 15, fill: true, d: 600 })
-        box(g, 20, 560, 140, 64, ['Ventil', 'Druck sinkt'], { size: 15, d: 900 })
-        carrow(g, [164, 362], [196, 362], 0, { d: 1100, head: 8 })
-        carrow(g, [270, 400], [270, 554], 0, { d: 1300, head: 8 })
-        carrow(g, [196, 592], [164, 592], 0, { d: 1500, head: 8 })
-        carrow(g, [90, 554], [90, 400], 0, { d: 1700, head: 8 })
+        // Kältekreislauf: Verdampfer (innen) → Kompressor → Verflüssiger (hinten) → Ventil → zurück
+        const loop: P[] = [[90, 360], [270, 360], [270, 590], [90, 590], [90, 360]]
+        ink(g, loop, { w: 2, d: 200, t: 1200 })
+        flow(g, loop, { n: 6, ms: 6000, d: 1400, r: 3 })
+        const coil = (x: number, y: number, d: number) => ink(g, Array.from({ length: 60 }, (_, i) => [x - 40 + (i / 59) * 80, y + Math.sin((i / 59) * Math.PI * 6) * 12] as P), { w: 2, d, t: 500 })
+        blank(g, RR(40, 330, 100, 60, 8))
+        coil(90, 360, 300)
+        flake(g, 56, 344, 8, 600)
+        text(g, 90, 322, 'Verdampfer', { anchor: 'middle', cls: 's', d: 700 })
+        blank(g, E(270, 360, 30))
+        hatch(g, E(270, 360, 30), 700, true)
+        ink(g, E(270, 360, 30), { w: 2.4, d: 500, t: 400 })
+        text(g, 270, 320, 'Kompressor', { anchor: 'middle', cls: 's', d: 900 })
+        blank(g, RR(220, 560, 100, 60, 8))
+        coil(270, 590, 800)
+        text(g, 270, 640, 'Verflüssiger', { anchor: 'middle', cls: 's', d: 1100 })
+        blank(g, [[76, 576], [104, 604], [104, 576], [76, 604], [76, 576]])
+        ink(g, [[76, 576], [104, 604], [104, 576], [76, 604], [76, 576]], { w: 2.2, d: 1000, t: 300 })
+        text(g, 90, 640, 'Ventil', { anchor: 'middle', cls: 's', d: 1300 })
       },
       verdampfer(g) {
-        box(g, 110, 330, 140, 64, ['verdampft', 'innen: kalt'], { size: 15 })
-        for (let i = 0; i < 3; i++) carrow(g, [120 + i * 60, 540], [140 + i * 40, 402], 10, { d: 700 + i * 100, head: 8 })
-        text(g, 180, 580, 'nimmt Wärme aus dem Essen auf', { anchor: 'middle', cls: 's', d: 1100 })
+        // im Innenraum: Rohre hinter der Rückwand nehmen die Wärme aus Milch, Käse und Obst auf
+        ink(g, RR(60, 330, 240, 300, 8), { w: 3, t: 600 })
+        for (const y of [430, 530]) ink(g, L([64, y], [296, y]), { w: 2, d: 300, t: 400 })
+        const coil = Array.from({ length: 80 }, (_, i) => [80 + (i / 79) * 200, 350 + Math.sin((i / 79) * Math.PI * 10) * 8] as P)
+        ink(g, coil, { w: 1.8, d: 500, t: 700 })
+        ink(g, RR(90, 380, 24, 50, 4), { w: 1.8, d: 600, t: 300 })
+        ink(g, [[94, 380], [102, 370], [110, 380]], { w: 1.6, d: 700, t: 150 })
+        ink(g, [[150, 430], [186, 430], [186, 404], [150, 414], [150, 430]], { w: 1.8, d: 700, t: 300 })
+        for (const x of [230, 252]) ball(g, x, 418, 11, { d: 800, fill: 'hell', t: 200 })
+        ink(g, RR(110, 496, 80, 34, 6), { w: 1.8, d: 800, t: 300 })
+        for (const [x, y] of [[102, 380], [168, 410], [240, 404], [150, 494]] as const) {
+          const p = L([x, y - 6], [x + 6, 362])
+          arrow(g, p, { w: 1.2, d: 1100, t: 300, head: 5 })
+          flow(g, p, { n: 1, ms: 1200, d: 1400, r: 1.8 })
+        }
       },
       kompressor(g) {
-        ink(g, RR(110, 400, 140, 140, 12), { w: 3, t: 600 })
-        for (let i = 0; i < 8; i++) dot(g, 130 + (i % 4) * 34, 480 + Math.floor(i / 4) * 36, 4, 300 + i * 40)
-        const piston = st(g, 'm1', '--m1: translateY(40px); transition-duration: 1s; --dl: 800ms')
-        ink(piston, L([116, 404], [244, 404]), { w: 3, t: 300 })
-        text(g, 180, 600, 'zusammengedrückt: heiß', { anchor: 'middle', cls: 's', d: 1000 })
+        // Kolben drückt das Gas zusammen – die Teilchen drängen sich, die Temperatur steigt
+        ink(g, RR(110, 380, 140, 180, 12), { w: 3, t: 600 })
+        const pis = wobble(g, { dy: 60, ms: 1600, d: 900 })
+        hatch(pis, RR(114, 384, 132, 20, 4), 700, true)
+        ink(pis, RR(114, 384, 132, 20, 4), { w: 2.2, d: 600, t: 300 })
+        ink(pis, L([180, 384], [180, 320]), { w: 3, d: 600, t: 300 })
+        let seed = 3
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 18; i++) {
+          const m = wobble(g, { dx: (rnd() - 0.5) * 14, dy: (rnd() - 0.5) * 14, ms: 300 + rnd() * 300, d: 900 })
+          dot(m, 126 + rnd() * 108, 470 + rnd() * 80, 3, 300 + i * 40)
+        }
+        thermo(g, 290, 400, 120, 0.85, 900)
       },
       pumpeLuft(g) {
+        // Fahrradpumpe: Hand drückt den Griff, unten wird es warm
         ink(g, RR(150, 400, 60, 180, 6), { w: 2.8, t: 500 })
-        ink(g, L([180, 400], [180, 340]), { w: 2.4, d: 200, t: 200 })
-        ink(g, L([150, 340], [210, 340]), { w: 2.8, d: 300, t: 200 })
+        const h = wobble(g, { dy: 40, ms: 1200, d: 900 })
+        ink(h, L([180, 400], [180, 340]), { w: 2.4, d: 200, t: 200 })
+        ink(h, L([140, 340], [220, 340]), { w: 3.4, d: 300, t: 200 })
+        ink(h, smooth([[150, 336], [160, 318], [190, 314], [214, 322], [216, 340]]), { w: 2, d: 400, t: 300 })
         ink(g, B([210, 560], [260, 560], [270, 600], [300, 600]), { w: 2.4, d: 500, t: 300 })
-        for (const x of [236, 256]) ink(g, B([x, 540], [x - 8, 510], [x + 8, 480], [x, 450]), { w: 1.8, d: 900, t: 400 })
-        text(g, 180, 640, 'Luftpumpe: wird warm', { anchor: 'middle', cls: 's', d: 1100 })
+        ink(g, RR(130, 580, 100, 10, 3), { w: 2.2, d: 500, t: 200 })
+        for (const x of [236, 256]) {
+          const s = wobble(g, { dy: -8, ms: 1600, d: 900 + x })
+          ink(s, B([x, 540], [x - 8, 510], [x + 8, 480], [x, 450]), { w: 1.8, d: 900, t: 400 })
+        }
+        hatch(g, RR(154, 520, 52, 56, 4), 1000)
       },
       tuer(g) {
+        // offene Tür: vorn kommt kühle Luft heraus, hinten mehr Wärme (plus Motorwärme) wieder hinein
         fridge(g, 120, 360, 120, 260)
         ink(g, [[240, 362], [310, 330], [310, 590], [240, 618]], { w: 2.6, d: 400, t: 500 })
-        text(g, 180, 660, 'Küche wird insgesamt wärmer', { anchor: 'middle', cls: 's', d: 1100 })
+        for (const y of [420, 480, 540]) flow(g, L([200, y], [280, y + 10]), { n: 2, ms: 1400, d: 1000, r: 2, kind: 'dash' })
+        for (const y of [420, 470, 520, 570]) {
+          const p = L([118, y], [40, y - 20])
+          arrow(g, p, { w: 1.8, d: 1200, t: 300, head: 7 })
+          flow(g, p, { n: 2, ms: 900, d: 1500, r: 2.4 })
+        }
+        thermo(g, 40, 560, 70, 0.7, 1300)
       },
       linde(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.35, label: '1876', sub: 'Carl von Linde', up: true }])
+        timeline(g, 30, 330, 420, [{ at: 0.35, label: '1876', sub: 'München', up: true }])
+        // Brauereifässer im Kühlkeller
+        for (let i = 0; i < 3; i++) {
+          const x = 90 + i * 90
+          ink(g, E(x, 560, 36, 50), { w: 2.4, d: 900 + i * 150, t: 400 })
+          for (const dy of [-30, 0, 30]) ink(g, E(x, 560 + dy, 36 * Math.sqrt(1 - (dy / 50) ** 2), 4, 0, 180), { w: 1.2, d: 1100 + i * 150, t: 200 })
+        }
+        flake(g, 300, 470, 12, 1500)
       },
       eis(g) {
-        for (let i = 0; i < 4; i++) ink(g, RR(60 + i * 64, 440 + (i % 2) * 20, 52, 52, 4), { w: 2.4, d: i * 150, t: 300 })
-        text(g, 180, 580, 'früher: Eisblöcke aus Seen', { anchor: 'middle', cls: 's', d: 900 })
+        // Eisernte: Blöcke werden aus dem zugefrorenen See gesägt
+        ink(g, smooth([[20, 500], [120, 496], [240, 504], [340, 498]]), { w: 2.4, t: 500 })
+        hatch(g, [[20, 500], [340, 498], [340, 640], [20, 640]], 400)
+        for (let i = 0; i < 3; i++) {
+          const b = RR(60 + i * 70, 440, 56, 50, 4)
+          blank(g, b)
+          ink(g, b, { w: 2.4, d: 600 + i * 150, t: 300 })
+          ink(g, L([66 + i * 70, 452], [90 + i * 70, 448]), { w: 1, d: 800 + i * 150, t: 100 })
+        }
+        fig(g, 290, 498, 2.2, { d: 900, arms: 'push' })
+        ink(g, L([310, 470], [334, 540]), { w: 2.2, d: 1100, t: 200 })
+        for (let k = 0; k < 5; k++) ink(g, L([314 + k * 4, 484 + k * 11], [320 + k * 4, 482 + k * 11]), { w: 1, d: 1200, t: 60 })
       },
       gase(g) {
         timeline(g, 30, 330, 470, [
@@ -1451,18 +1841,36 @@ export const AHA_TECHNIK: Bite[] = [
           { at: 0.55, label: '1987', sub: 'Montreal: Verbot', big: true },
           { at: 0.85, label: 'heute', sub: 'Isobutan' },
         ])
+        earth(g, 180, 600, 40, 1400, { lon: 0, lat: -70, w: 0.8 })
+        dashes(g, E(180, 600, 52), { w: 1.2, d: 1600, dash: 5, gap: 5 })
       },
       waermepumpe(g) {
-        house(g, 200, 600, 120)
-        ink(g, RR(50, 520, 90, 80, 6), { w: 2.6, d: 300, t: 400 })
-        ink(g, E(95, 560, 24), { w: 2, d: 500, t: 300 })
-        carrow(g, [144, 560], [194, 560], -16, { d: 900 })
-        thermo(g, 40, 360, 120, 0.2, 600)
-        text(g, 180, 650, 'holt Wärme aus kalter Luft', { anchor: 'middle', cls: 's', d: 1200 })
+        // Außengerät mit Ventilator holt Wärme aus der kalten Luft und pumpt sie ins Haus
+        ink(g, L([20, 620], [340, 620]), { w: 2.6, t: 400 })
+        ink(g, [[190, 620], [190, 470], [270, 410], [340, 470], [340, 620]], { w: 2.6, d: 200, t: 600 })
+        ink(g, RR(250, 540, 60, 50, 4), { w: 2, d: 500, t: 300 })
+        for (let k = 0; k < 5; k++) ink(g, L([256 + k * 11, 546], [256 + k * 11, 584]), { w: 1, d: 600 + k * 40, t: 100 })
+        const unit = RR(50, 520, 100, 90, 6)
+        ink(g, unit, { w: 2.6, d: 300, t: 400 })
+        ink(g, E(100, 565, 32), { w: 2, d: 500, t: 300 })
+        const f = spin(g, 100, 565, 900, 900)
+        for (let k = 0; k < 3; k++) {
+          const a = rad(k * 120)
+          ink(f, B([100, 565], [100 + Math.cos(a) * 14 - Math.sin(a) * 10, 565 + Math.sin(a) * 14 + Math.cos(a) * 10], [100 + Math.cos(a) * 26, 565 + Math.sin(a) * 26], [100 + Math.cos(a + 0.4) * 26, 565 + Math.sin(a + 0.4) * 26]), { w: 2, d: 700, t: 200 })
+        }
+        const p = B([150, 560], [170, 560], [180, 570], [250, 565])
+        ink(g, p, { w: 2.4, d: 800, t: 400 })
+        flow(g, p, { n: 3, ms: 1400, d: 1200, r: 2.6 })
+        thermo(g, 40, 360, 120, 0.15, 600)
+        flake(g, 120, 400, 12, 900)
       },
       ende(g) {
         fridge(g, 120, 400, 120, 220)
-        carrow(g, [244, 510], [320, 480], -20, { d: 800 })
+        for (const y of [460, 520, 580]) {
+          const p = B([244, y], [280, y - 10], [300, y - 20], [330, y - 40])
+          ink(g, p, { w: 1.6, d: 700, t: 400 })
+          flow(g, p, { n: 2, ms: 1200, d: 1100, r: 2.2 })
+        }
       },
     },
     scenes: [
@@ -1491,27 +1899,72 @@ export const AHA_TECHNIK: Bite[] = [
   },
 ]
 
-/** Katze sitzend, Pfoten auf y */
+/** Sitzende Katze von vorn-seitlich, Pfoten bei (x, y), Höhe ≈ 150 × s: Ohren, Mandelaugen mit Schlitzpupillen, Schnurrhaare, Schwanz */
 function cat(g: Element, x: number, y: number, s = 1, d = 0): void {
   const P = (a: number, b: number): P => [x + a * s, y + b * s]
-  const body: P[] = [...B(P(-40, 0), P(-50, -60), P(-30, -110), P(-20, -120)), ...L(P(-20, -120), P(-26, -150)).slice(1), ...L(P(-26, -150), P(-6, -132)).slice(1), ...L(P(-6, -132), P(10, -132)).slice(1), ...L(P(10, -132), P(26, -150)).slice(1), ...L(P(26, -150), P(22, -120)).slice(1), ...B(P(22, -120), P(34, -110), P(50, -60), P(40, 0)).slice(1), P(-40, 0)]
+  const w = Math.min(1.3, Math.max(0.5, s))
+  // Schwanz um die Pfoten gelegt
+  ink(g, B(P(30, -4), P(70, 0), P(76, -40), P(56, -58)), { w: 4 * w, d: d + 700, t: 400 })
+  const body: P[] = [...B(P(-30, -84), P(-50, -60), P(-48, -16), P(-36, 0)), P(36, 0), ...B(P(36, 0), P(48, -16), P(50, -60), P(30, -84)).slice(1)]
   blank(g, body)
-  ink(g, body, { w: 2.6, d, t: 800 })
-  for (const k of [-1, 1]) dot(g, x + k * 10 * s, y - 110 * s, 3 * s, d + 600)
-  ink(g, B(P(40, -6), P(80, -10), P(80, -60), P(66, -70)), { w: 2.4, d: d + 700, t: 400 })
+  hatch(g, body, d + 600)
+  ink(g, body, { w: 2.6 * w, d, t: 700 })
+  // Vorderbeine und Pfoten
+  for (const k of [-1, 1]) {
+    ink(g, L(P(k * 10, -60), P(k * 12, -4)), { w: 1.6 * w, d: d + 300, t: 300 })
+    const paw = E(x + k * 16 * s, y - 4 * s, 10 * s, 5 * s)
+    blank(g, paw)
+    ink(g, paw, { w: 1.8 * w, d: d + 400, t: 200 })
+  }
+  // Brustfell
+  ink(g, [P(-12, -78), P(-6, -70), P(0, -78), P(6, -70), P(12, -78)], { w: 1.2 * w, d: d + 500, t: 200 })
+  // Kopf mit Ohren
+  const head: P[] = [...B(P(-30, -104), P(-34, -132), P(-20, -148), P(0, -148)), ...B(P(0, -148), P(20, -148), P(34, -132), P(30, -104)).slice(1), ...B(P(30, -104), P(24, -86), P(-24, -86), P(-30, -104)).slice(1)]
+  blank(g, head)
+  ink(g, head, { w: 2.6 * w, d: d + 100, t: 600 })
+  for (const k of [-1, 1]) {
+    const ear: P[] = [P(k * 14, -146), P(k * 28, -168), P(k * 32, -128)]
+    blank(g, ear)
+    ink(g, ear, { w: 2.4 * w, d: d + 200, t: 300 })
+    ink(g, [P(k * 18, -146), P(k * 27, -160), P(k * 29, -136)], { w: 1 * w, d: d + 400, t: 200 })
+    // Mandelauge mit Schlitzpupille
+    const eye: P[] = [...B(P(k * 6, -120), P(k * 10, -127), P(k * 18, -127), P(k * 22, -120)), ...B(P(k * 22, -120), P(k * 18, -114), P(k * 10, -114), P(k * 6, -120)).slice(1)]
+    ink(g, eye, { w: 1.6 * w, d: d + 500, t: 200 })
+    mk('ellipse', { cx: x + k * 14 * s, cy: y - 120 * s, rx: 1.6 * s, ry: 4.6 * s, class: 'k fade', style: `--d:${d + 700}ms` }, g)
+    for (const dy of [-104, -100]) ink(g, L(P(k * 10, dy), P(k * 40, dy + (dy + 102) * 3)), { w: 0.8 * w, d: d + 800, t: 150 })
+  }
+  ink(g, [P(-4, -108), P(4, -108), P(0, -103), P(-4, -108)], { w: 1.4 * w, d: d + 600, t: 150 })
+  ink(g, B(P(0, -103), P(0, -98), P(-6, -96), P(-8, -99)), { w: 1 * w, d: d + 700, t: 100 })
+  ink(g, B(P(0, -103), P(0, -98), P(6, -96), P(8, -99)), { w: 1 * w, d: d + 700, t: 100 })
 }
 
-/** Netz aus drei Schichten: Bild → versteckt → Katze/keine */
-function net(g: Element, d = 0): void {
+/** Netz aus Schichten: Bildpunkte → versteckte Knoten → Katze/keine; Gewichte als unterschiedlich dicke Linien, Signale laufen */
+function net(g: Element, d = 0, o: { flow?: boolean; out?: 0 | 1; back?: boolean } = {}): void {
+  // Eingabe: kleines Pixelbild einer Katze
+  const px = ['0011100', '0111110', '1101011', '1111111', '0111110', '0011100']
+  px.forEach((row, r) => row.split('').forEach((v, c) => {
+    const q = RR(20 + c * 8, 440 + r * 8, 8, 8, 0)
+    if (v === '1') hatch(g, q, d + 100 + (r * 7 + c) * 10, true)
+    ink(g, q, { w: 0.6, d: d + (r * 7 + c) * 10, t: 50 })
+  }))
   const layers: P[][] = [
-    [[60, 380], [60, 450], [60, 520], [60, 590]],
-    [[180, 410], [180, 485], [180, 560]],
-    [[300, 440], [300, 530]],
+    [[110, 400], [110, 450], [110, 500], [110, 550]],
+    [[200, 410], [200, 475], [200, 540]],
+    [[290, 440], [290, 520]],
   ]
-  for (let l = 0; l < 2; l++) for (const a of layers[l]) for (const b of layers[l + 1]) ink(g, L([a[0] + 12, a[1]], [b[0] - 12, b[1]]), { w: 1.2, d: d + 300 + l * 300, t: 400 })
-  layers.forEach((ls, l) => ls.forEach(([x, y], i) => neuron(g, x, y, d + l * 300 + i * 60, l === 2 && i === 0)))
-  text(g, 300, 410, 'Katze', { anchor: 'middle', cls: 's', d: d + 1000 })
-  text(g, 300, 570, 'keine', { anchor: 'middle', cls: 's', d: d + 1100 })
+  for (const a of layers[0]) ink(g, L([78, 464], [a[0] - 12, a[1]]), { w: 0.8, d: d + 200, t: 300 })
+  let k = 0
+  for (let l = 0; l < 2; l++)
+    for (const a of layers[l])
+      for (const b of layers[l + 1]) {
+        const wt = 0.6 + ((k++ * 37) % 10) / 5
+        const p = L([a[0] + 12, a[1]], [b[0] - 12, b[1]])
+        ink(g, p, { w: wt, d: d + 300 + l * 300, t: 400 })
+        if (o.flow && k % 2) flow(g, o.back ? p.slice().reverse() : p, { n: 1, ms: 1400, d: d + 1200 + k * 60, r: 2 })
+      }
+  layers.forEach((ls, l) => ls.forEach(([x, y], i) => neuron(g, x, y, d + l * 300 + i * 60, l === 2 ? i === (o.out ?? 0) : (i + l) % 2 === 0)))
+  text(g, 290, 410, 'Katze', { anchor: 'middle', cls: 's', d: d + 1000 })
+  text(g, 290, 556, 'keine', { anchor: 'middle', cls: 's', d: d + 1100 })
 }
 
 const rad = (a: number) => (a * Math.PI) / 180
