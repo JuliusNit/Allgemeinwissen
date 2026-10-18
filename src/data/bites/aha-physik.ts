@@ -1,17 +1,17 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, bigText, blank, bolt, check, clock, countUp, cross, dashes, eye, fig, group, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, vbars, type P } from './draw'
-import { arcArrow, axes, ball, bird, bow, cloud, dot, drop, earth, eyeFront, flow, foilAt, glide, ground, house, jet, pie, plot, rad, rain, ripple, sea, smooth, spin, stars, sun, thermo, travelWave, tree, waveP, wing, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, bigText, blank, bolt, clock, countUp, cross, dashes, eye, fig, group, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, vbars, type P } from './draw'
+import { arcArrow, axes, ball, bird, bow, cloud, dot, dplot, drop, earth, eyeFront, flake, flow, foilAt, glide, ground, house, jet, mapRegion, moonFace, pie, plot, rad, rain, ripple, sea, smooth, spin, stars, sun, thermo, travelWave, tree, waveP, wing, wobble } from './kit'
 
 // Physik & Kosmos: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
-/** Mond mit Kratern */
+/** Mond mit Kratern (Ränder auf der Schattenseite kräftiger) und dunklen Meeren */
 function moon(g: Element, cx: number, cy: number, r: number, d = 0): void {
   blank(g, E(cx, cy, r))
+  for (const [a, b, rx, ry] of [[-0.25, -0.2, 0.32, 0.22], [0.2, 0.15, 0.24, 0.3], [-0.3, 0.35, 0.18, 0.12]] as const) hatch(g, E(cx + a * r, cy + b * r, rx * r, ry * r), d + 500)
   ink(g, E(cx, cy, r), { w: 3, d, t: 700 })
-  for (const [a, b, k] of [[-0.35, -0.3, 0.22], [0.3, -0.1, 0.16], [-0.1, 0.35, 0.18], [0.35, 0.42, 0.1], [-0.5, 0.15, 0.1]] as const) {
-    const c = E(cx + a * r, cy + b * r, k * r)
-    hatch(g, c, d + 600)
-    ink(g, c, { w: 1.8, d: d + 400, t: 400 })
+  for (const [a, b, k] of [[-0.45, -0.45, 0.14], [0.38, -0.32, 0.12], [-0.05, 0.55, 0.16], [0.5, 0.42, 0.09], [-0.62, 0.12, 0.08], [0.1, -0.62, 0.07]] as const) {
+    ink(g, E(cx + a * r, cy + b * r, k * r, k * r, 200, 380), { w: 1.8, d: d + 400, t: 300 })
+    ink(g, E(cx + a * r, cy + b * r, k * r, k * r, 20, 200), { w: 0.9, d: d + 450, t: 300 })
   }
 }
 
@@ -24,14 +24,34 @@ function twinkle(g: Element, pts: P[], d = 0, s = 6): void {
   })
 }
 
-/** Raumstation: Rumpf mit zwei Solarflügeln */
+/** Raumstation (ISS-artig): langer Gitterträger, acht Solarflügel mit Zellenraster, Module in der Mitte; Breite ≈ 130 × s */
 function station(g: Element, x: number, y: number, s = 1, d = 0): void {
-  ink(g, RR(x - 12 * s, y - 7 * s, 24 * s, 14 * s, 3), { w: 2.4, d, t: 300 })
-  for (const k of [-1, 1]) {
-    const p = RR(k < 0 ? x - 44 * s : x + 16 * s, y - 11 * s, 28 * s, 22 * s, 2)
-    hatch(g, p, d + 300, true)
-    ink(g, p, { w: 2, d: d + 150, t: 300 })
-  }
+  const w = Math.min(1.2, Math.max(0.6, s))
+  for (const sx of [-1, 1])
+    for (const k of [0, 1])
+      for (const sy of [-1, 1]) {
+        const px = x + sx * (40 + k * 14) * s - 5 * s
+        const py = sy < 0 ? y - 38 * s : y + 4 * s
+        const pan = RR(px, py, 10 * s, 34 * s, 1)
+        blank(g, pan)
+        hatch(g, pan, d + 400, true)
+        ink(g, pan, { w: 1.4 * w, d: d + 200 + k * 80, t: 250 })
+        if (s >= 0.6) for (let j = 1; j < 4; j++) ink(g, L([px, py + j * 8.5 * s], [px + 10 * s, py + j * 8.5 * s]), { w: 0.8 * w, d: d + 500, t: 80 })
+      }
+  const truss = RR(x - 64 * s, y - 2.5 * s, 128 * s, 5 * s, 1)
+  blank(g, truss)
+  ink(g, truss, { w: 1.8 * w, d, t: 400 })
+  if (s >= 0.6) for (let k = -6; k <= 6; k++) ink(g, L([x + k * 9 * s - 3 * s, y - 2.5 * s], [x + k * 9 * s + 3 * s, y + 2.5 * s]), { w: 0.8 * w, d: d + 300, t: 60 })
+  const mod = RR(x - 6 * s, y - 22 * s, 12 * s, 44 * s, 5 * s)
+  blank(g, mod)
+  ink(g, mod, { w: 2 * w, d: d + 100, t: 400 })
+  for (const k of [-12, 0, 12]) ink(g, L([x - 6 * s, y + k * s], [x + 6 * s, y + k * s]), { w: 0.9 * w, d: d + 400, t: 80 })
+  const side = RR(x - 18 * s, y + 8 * s, 36 * s, 8 * s, 3 * s)
+  blank(g, side)
+  ink(g, side, { w: 1.6 * w, d: d + 200, t: 300 })
+  const rad1: P[] = [[x + 14 * s, y - 8 * s], [x + 26 * s, y - 16 * s], [x + 26 * s, y - 10 * s], [x + 14 * s, y - 2.5 * s]]
+  hatch(g, rad1, d + 500)
+  ink(g, [...rad1, rad1[0]], { w: 1 * w, d: d + 300, t: 200 })
 }
 
 export const AHA_PHYSIK: Bite[] = [
@@ -1024,135 +1044,234 @@ export const AHA_PHYSIK: Bite[] = [
     images: [],
     draw: {
       iss(g) {
-        earth(g, 180, 280, 110)
-        dashes(g, E(180, 280, 150), { w: 1.6, d: 600, dash: 6, gap: 8 })
-        const o = group(g)
-        o.style.transformOrigin = '180px 280px'
-        station(o, 180, 130, 1, 800)
-        o.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], { duration: 14000, iterations: Infinity })
+        stars(g, 20, 70, 320, 380, 34, 0, (x, y) => Math.hypot(x - 180, y - 280) < 170)
+        earth(g, 180, 280, 110, 0, { lon: 10, lat: 30 })
+        ink(g, E(180, 280, 117), { w: 0.9, d: 500, t: 700 })
+        dashes(g, E(180, 280, 150), { w: 1.4, d: 600, dash: 6, gap: 8 })
+        const o = spin(g, 180, 280, 24000, 900)
+        station(o, 180, 130, 0.8, 800)
       },
       hoehe(g) {
-        ink(g, E(180, 1040, 620, 620, 254, 286), { w: 3.2, t: 900 })
-        dashes(g, E(180, 1040, 660, 660, 255, 285), { w: 1.6, d: 500 })
-        station(g, 180, 380, 0.7, 900)
-        text(g, 236, 405, '400 km', { cls: 's', d: 1100 })
-        text(g, 180, 540, 'Erde, maßstabsgetreu', { anchor: 'middle', d: 1300 })
-        text(g, 180, 566, 'Radius 6.371 km', { anchor: 'middle', cls: 's', d: 1400 })
+        // Erde maßstabsgetreu: Radius 620 px = 6.371 km, die ISS 400 km = 39 px darüber
+        const surf = E(180, 1040, 620, 620, 252, 288)
+        blank(g, [...surf, [340, 680], [20, 680]])
+        hatch(g, [...E(180, 1040, 620, 620, 252, 288), ...E(180, 1040, 560, 560, 288, 252)], 900)
+        ink(g, surf, { w: 3.2, t: 900 })
+        ink(g, E(180, 1040, 630, 630, 253, 287), { w: 0.9, d: 400, t: 900 })
+        dashes(g, E(180, 1040, 659, 659, 255, 285), { w: 1.4, d: 500 })
+        station(g, 180, 381, 0.32, 900)
+        arrow(g, L([250, 418], [250, 386]), { w: 1.6, d: 1200, t: 200, head: 6 })
+        arrow(g, L([250, 386], [250, 418]), { w: 1.6, d: 1200, t: 200, head: 6 })
+        text(g, 260, 408, '400 km', { cls: 's', d: 1300 })
+        text(g, 180, 560, 'maßstabsgetreu', { anchor: 'middle', cls: 's halo', d: 1400 })
+        for (const [x, s] of [[80, 0.12], [118, 0.09], [300, 0.1]] as const) tree(g, x, 1040 - Math.sqrt(620 * 620 - (x - 180) ** 2), s, 1000)
       },
       prozent(g) {
         vbars(g, [
           { label: 'am Boden', v: 100, fmt: (v) => `${Math.round(v)} %` },
           { label: 'auf der ISS', v: 90, fmt: (v) => `${Math.round(v)} %`, dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 250 })
+        ], { x: 90, base: 600, w: 70, gap: 110, h: 220 })
+        fig(g, 125, 346, 1.3, { d: 900 })
+        station(g, 235, 336, 0.4, 1100)
       },
       fallen(g) {
-        ink(g, RR(100, 320, 160, 120, 16), { w: 3, t: 700 })
-        fig(g, 180, 410, 1.6, { d: 400, arms: 'up' })
-        arrow(g, L([180, 452], [180, 600]), { w: 4, d: 900, t: 500, head: 12 })
-        text(g, 196, 548, 'fällt mit', { d: 1200 })
+        // Blick in ein Modul: Astronautin, Stift und Apfel schweben – alles fällt gleich schnell mit
+        const m = RR(60, 300, 240, 200, 34)
+        ink(g, m, { w: 3, t: 700 })
+        ink(g, RR(72, 312, 216, 176, 26), { w: 1.2, d: 300, t: 700 })
+        for (const x of [110, 180, 250]) ink(g, RR(x - 16, 314, 32, 8, 3), { w: 1.4, d: 500, t: 200 })
+        ink(g, E(260, 400, 18), { w: 2, d: 600, t: 300 })
+        ink(g, E(260, 400, 12), { w: 1, d: 700, t: 300 })
+        const a = wobble(g, { dy: -8, deg: 0, ms: 4200, d: 900 })
+        const f = group(a, '', 'transform: rotate(-18deg); transform-origin: 160px 420px')
+        fig(f, 160, 450, 2.2, { d: 400, arms: 'up' })
+        const p = wobble(g, { dx: 6, dy: -10, ms: 3600, d: 1000 })
+        ink(p, L([226, 352], [246, 342]), { w: 2.4, d: 700, t: 200 })
+        const ap = wobble(g, { dx: -5, dy: 8, ms: 3000, d: 1100 })
+        ball(ap, 104, 360, 8, { d: 800, fill: 'hell', w: 1.8 })
+        ink(ap, L([104, 352], [106, 345]), { w: 1.4, d: 900, t: 100 })
+        for (const x of [104, 160, 236, 330]) arrow(g, L([x, 520], [x, 600]), { w: x === 330 ? 3.6 : 2.2, d: 1300 + (x % 7) * 40, t: 400, head: x === 330 ? 11 : 8 })
       },
       aufzug(g) {
-        ink(g, L([110, 300], [110, 640]), { w: 2.6, t: 600 })
-        ink(g, L([250, 300], [250, 640]), { w: 2.6, t: 600 })
-        ink(g, L([180, 300], [180, 372]), { w: 2, d: 300, t: 300 })
-        ink(g, L([180, 392], [180, 418]), { w: 2, d: 400, t: 200 })
-        ink(g, RR(124, 420, 112, 130, 6), { w: 3, d: 300, t: 600 })
-        fig(g, 180, 518, 1.4, { d: 600, arms: 'up' })
-        arrow(g, L([290, 430], [290, 560]), { w: 3, d: 900, t: 500, head: 10 })
-        text(g, 290, 590, 'freier Fall', { anchor: 'middle', cls: 's', d: 1100 })
+        // Schacht, gerissenes Seil, die Kabine fällt – darin schwebt die Person
+        for (const x of [100, 260]) ink(g, L([x, 290], [x, 650]), { w: 2.6, t: 600 })
+        for (let y = 300; y < 650; y += 40) for (const x of [100, 260]) ink(g, L([x, y], [x + (x < 180 ? -8 : 8), y + 8]), { w: 1, d: 300, t: 60 })
+        ink(g, L([180, 290], [180, 330]), { w: 2.2, d: 300, t: 300 })
+        ink(g, [[180, 330], [176, 338], [182, 342], [178, 350]], { w: 1.4, d: 500, t: 200 })
+        const cab = glide(g, 0, 70, { ms: 2600, d: 900 })
+        ink(cab, [[180, 404], [176, 396], [183, 390], [179, 382]], { w: 1.4, d: 500, t: 200 })
+        ink(cab, L([180, 404], [180, 420]), { w: 2.2, d: 400, t: 200 })
+        ink(cab, RR(116, 420, 128, 140, 6), { w: 3, d: 300, t: 600 })
+        ink(cab, L([180, 424], [180, 556]), { w: 1, d: 600, t: 300 })
+        const fl = wobble(cab, { dy: -6, ms: 2000, d: 1000 })
+        fig(fl, 150, 520, 1.6, { d: 600, arms: 'up' })
+        for (const x of [290, 306]) dashes(g, L([x, 300], [x, 420]), { w: 1.4, d: 1000, dash: 10, gap: 8 })
       },
       hammer(g) {
-        ink(g, B([30, 620], [120, 600], [240, 610], [330, 600]), { w: 3, t: 600 })
-        const a = group(g, 'm1', '--m1: translateY(220px); transition-duration: 1.4s; transition-timing-function: ease-in; --dl: 300ms')
-        ink(a, L([110, 330], [110, 384]), { w: 3.4, d: 200, t: 300 })
-        ink(a, RR(92, 318, 36, 16, 3), { w: 3, d: 100, t: 300 })
-        const b = group(g, 'm1', '--m1: translateY(224px); transition-duration: 1.4s; transition-timing-function: ease-in; --dl: 300ms')
-        ink(b, B([250, 380], [240, 360], [252, 330], [262, 318]), { w: 2.2, d: 200, t: 300 })
-        for (let k = 0; k < 5; k++) ink(b, L([250 + k * 2.4, 372 - k * 11], [262 + k * 2.4, 366 - k * 11]), { w: 1.6, d: 400 + k * 50, t: 100 })
-        text(g, 110, 300, 'Hammer', { anchor: 'middle', cls: 's', d: 500 })
-        text(g, 254, 300, 'Feder', { anchor: 'middle', cls: 's', d: 600 })
-        text(g, 180, 650, 'Mond, Apollo 15, 1971', { anchor: 'middle', cls: 's', d: 800 })
+        // Mondoberfläche, Astronaut lässt Hammer und Feder gleichzeitig fallen
+        earth(g, 300, 330, 22, 0, { lon: -30, lat: 0, w: 0.9 })
+        stars(g, 20, 290, 240, 80, 14, 0)
+        const grd: P[] = smooth([[20, 620], [110, 606], [230, 614], [340, 602]])
+        ink(g, grd, { w: 3, t: 600 })
+        for (const [x, y, rx] of [[70, 640, 22], [250, 642, 16]] as const) ink(g, E(x, y, rx, rx * 0.25), { w: 1.4, d: 500, t: 300 })
+        fig(g, 180, 616, 3.6, { d: 200, arms: 'down' })
+        const a = group(g, 'm1', '--m1: translateY(196px); transition-duration: 1.4s; transition-timing-function: ease-in; --dl: 300ms')
+        ink(a, L([110, 400], [110, 430]), { w: 3, d: 200, t: 300 })
+        ink(a, RR(96, 388, 28, 12, 3), { w: 2.6, d: 100, t: 300 })
+        const b = group(g, 'm1', '--m1: translateY(200px); transition-duration: 1.4s; transition-timing-function: ease-in; --dl: 300ms')
+        ink(b, B([250, 430], [240, 412], [252, 390], [262, 380]), { w: 2, d: 200, t: 300 })
+        for (let k = 0; k < 5; k++) ink(b, L([250 + k * 2.4, 424 - k * 9], [262 + k * 2.4, 418 - k * 9]), { w: 1.4, d: 400 + k * 50, t: 100 })
+        text(g, 110, 376, 'Hammer', { anchor: 'middle', cls: 's', d: 500 })
+        text(g, 256, 370, 'Feder', { anchor: 'middle', cls: 's', d: 600 })
       },
       training(g) {
-        ink(g, L([110, 470], [250, 470]), { w: 4, t: 500 })
-        for (const x of [100, 260]) {
-          hatch(g, RR(x - 14, 420, 28, 100, 6), 500, true)
-          ink(g, RR(x - 14, 420, 28, 100, 6), { w: 2.8, d: 200, t: 500 })
-        }
-        clock(g, 180, 590, 34, 60, 0, 600)
-        text(g, 240, 596, '2 h täglich', { d: 1000 })
+        // Laufband mit Gummigurten, die die Läuferin auf das Band ziehen
+        const tb: P[] = [[60, 560], [300, 560], [300, 580], [60, 580], [60, 560]]
+        blank(g, tb)
+        hatch(g, tb, 500, true)
+        ink(g, tb, { w: 2.6, t: 500 })
+        for (const x of [70, 290]) ink(g, E(x, 570, 9), { w: 1.6, d: 300, t: 200 })
+        flow(g, L([280, 560], [80, 560]), { n: 4, ms: 900, d: 800, r: 2, kind: 'dash' })
+        const run = wobble(g, { dy: -4, ms: 500, d: 900 })
+        fig(run, 180, 558, 3, { d: 300, arms: 'push' })
+        for (const x of [130, 230]) ink(g, L([180, 500], [x, 560]), { w: 1.4, d: 700, t: 300 })
+        ink(g, RR(150, 520, 60, 12, 4), { w: 1.6, d: 600, t: 200 })
+        clock(g, 296, 360, 32, 60, 0, 600)
+        const hand = spin(g, 296, 360, 4000, 1300)
+        ink(hand, L([296, 360], [296, 336]), { w: 2, d: 1300, t: 100 })
       },
       kugel(g) {
-        ball(g, 180, 460, 70, { fill: 'hell', w: 3, t: 800 })
-        ink(g, E(160, 436, 26, 26, 200, 260), { w: 2.6, d: 700, t: 300 })
-        for (const [x, y, r] of [[80, 360, 10], [290, 380, 14], [270, 560, 8], [90, 560, 12]] as const) {
-          const f = group(g, 'float', `--d:${x * 5}ms`)
-          ball(f, x, y, r, { d: 900, fill: 'hell', w: 2 })
+        // schwebende Wasserkugel, die nachschwingt; kleine Tropfen drumherum; Strohhalm
+        const w = mk('g', {}, g)
+        mk('animateTransform', { attributeName: 'transform', type: 'scale', values: '1 1;1.06 0.95;0.96 1.04;1 1', dur: '1.6s', repeatCount: 'indefinite', additive: 'sum' }, w)
+        const wb = mk('g', { transform: 'translate(180 460)' }, g)
+        wb.appendChild(w)
+        ball(w, 0, 0, 72, { fill: 'hell', w: 3, t: 800 })
+        ink(w, E(-22, -24, 26, 26, 200, 260), { w: 2.6, d: 700, t: 300 })
+        mk('ellipse', { cx: -26, cy: -30, rx: 12, ry: 7, fill: '#fff', class: 'fade', style: '--d:1000ms', transform: 'rotate(-30 -26 -30)' }, w)
+        ink(g, L([262, 400], [232, 430]), { w: 2.4, d: 900, t: 300 })
+        ink(g, L([268, 406], [238, 436]), { w: 2.4, d: 900, t: 300 })
+        for (const [x, y, r] of [[80, 360, 10], [290, 380, 7], [270, 570, 8], [90, 560, 12], [60, 470, 5]] as const) {
+          const f = wobble(g, { dx: (x % 3) * 3 - 3, dy: -6, ms: 2400 + x * 5, d: 1000 })
+          ball(f, x, y, r, { d: 900, fill: 'hell', w: 1.8 })
         }
-        text(g, 180, 640, 'Wasser im Orbit', { anchor: 'middle', cls: 's', d: 1200 })
       },
       kanone(g) {
-        earth(g, 180, 330, 100)
-        mountain(g, 160, 200, 232, [180, 206], 300, true)
-        text(g, 180, 92, 'Newtons Kanone', { anchor: 'middle', d: 600 })
-        const a = st(g, 'x1', '--o: 186px 206px')
-        arrow(a, B([186, 206], [214, 206], [236, 226], [250, 260]), { w: 2.4, t: 0, head: 8 })
-        const b = st(g, 'x2', '--o: 186px 206px')
-        arrow(b, B([186, 206], [240, 208], [284, 246], [278, 313]), { w: 2.4, t: 0, head: 8 })
+        earth(g, 180, 340, 100, 0, { lon: 0, lat: 45 })
+        // Berg mit Kanone am Nordpol
+        mountain(g, 160, 200, 244, [180, 214], 300, true)
+        ink(g, RR(178, 202, 24, 8, 3), { w: 2.2, d: 500, t: 200 })
+        ink(g, E(182, 212, 5), { w: 1.6, d: 600, t: 200 })
+        const a = st(g, 'x1', '--o: 202px 206px')
+        arrow(a, B([204, 206], [224, 206], [242, 224], [252, 262]), { w: 2.4, t: 0, head: 8 })
+        const b = st(g, 'x2', '--o: 202px 206px')
+        arrow(b, B([204, 206], [250, 208], [292, 250], [282, 322]), { w: 2.4, t: 0, head: 8 })
         const c = st(g, 'f3')
-        dashes(c, E(180, 330, 124, 124, -88, 268), { w: 2.2, d: 0 })
-        text(c, 300, 112, '28.000 km/h', { anchor: 'middle', fade: false })
+        dashes(c, E(180, 340, 134, 134, -84, 268), { w: 2.2, d: 0 })
+        const orb = spin(c, 180, 340, 6000, 0)
+        ball(orb, 180, 206, 5, { fill: 'dicht', t: 0 })
       },
       orbit(g) {
-        earth(g, 180, 450, 90)
-        dashes(g, E(180, 450, 140), { w: 1.6, d: 500, dash: 6, gap: 8 })
-        const o = group(g)
-        o.style.transformOrigin = '180px 450px'
-        station(o, 180, 310, 0.8, 700)
-        o.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], { duration: 9000, iterations: Infinity })
-        clock(g, 314, 616, 22, 0, 0, 900)
-        text(g, 248, 650, '90 min', { anchor: 'middle', cls: 's', d: 1100 })
+        stars(g, 20, 290, 320, 360, 26, 0, (x, y) => Math.hypot(x - 180, y - 450) < 160)
+        earth(g, 180, 450, 90, 0, { lon: 60, lat: 20 })
+        dashes(g, E(180, 450, 140), { w: 1.4, d: 500, dash: 6, gap: 8 })
+        const o = spin(g, 180, 450, 9000, 700)
+        station(o, 180, 310, 0.45, 700)
+        clock(g, 312, 610, 24, 0, 0, 900)
+        const h = spin(g, 312, 610, 9000, 900)
+        ink(h, L([312, 610], [312, 592]), { w: 2, d: 900, t: 100 })
       },
       aufgaenge(g) {
-        for (let i = 0; i < 16; i++) sun(g, 72 + (i % 4) * 72, 330 + Math.floor(i / 4) * 72, 10, i * 90, 8)
-        text(g, 180, 640, '16 Sonnenaufgänge pro Tag', { anchor: 'middle', d: 1600 })
+        // Tag- und Nachtseite: auf jeder Runde einmal Sonnenaufgang
+        sun(g, 40, 340, 18, 0, 10)
+        for (const y of [380, 420, 460]) {
+          const p = L([70, y], [110, y])
+          flow(g, p, { n: 2, ms: 900, d: 400, r: 1.8, kind: 'dash' })
+        }
+        blank(g, E(200, 440, 90))
+        hatch(g, E(200, 440, 90, 90, 270, 450), 600, true)
+        earth(g, 200, 440, 90, 200, { lon: 20, lat: 10 })
+        hatch(g, [...E(200, 440, 90, 90, -90, 90), [200, 530]], 700, true)
+        dashes(g, E(200, 440, 122), { w: 1.2, d: 500, dash: 6, gap: 8 })
+        const o = spin(g, 200, 440, 6000, 900)
+        station(o, 200, 318, 0.3, 900)
+        for (let i = 0; i < 16; i++) {
+          const x = 36 + i * 19
+          const p = pop(g, 1200 + i * 90, '50% 100%')
+          ink(p, L([x - 8, 620], [x + 8, 620]), { w: 1.4, t: 0 })
+          ink(p, E(x, 620, 5, 5, 180, 360), { w: 1.6, t: 0 })
+        }
       },
       wort(g) {
-        cross(g, 60, 382, 1, 0)
-        text(g, 92, 392, 'schwerelos', { size: 26, d: 0 })
-        check(g, 60, 472, 1, 600)
-        text(g, 92, 482, 'freier Fall', { size: 26, d: 600 })
-        check(g, 60, 562, 1, 1000)
-        text(g, 92, 572, 'Mikrogravitation', { size: 24, d: 1000 })
+        // Beschleunigungsmesser an Bord: Zeiger fast auf null – ein Millionstel der Schwere am Boden
+        const cx = 180
+        const cy = 480
+        ink(g, E(cx, cy, 120, 120, 180, 360), { w: 3, t: 700 })
+        ink(g, L([cx - 120, cy], [cx + 120, cy]), { w: 2.4, d: 200, t: 400 })
+        for (let k = 0; k <= 10; k++) {
+          const a = rad(180 + k * 18)
+          ink(g, L([cx + Math.cos(a) * 104, cy + Math.sin(a) * 104], [cx + Math.cos(a) * (k % 5 ? 112 : 96), cy + Math.sin(a) * (k % 5 ? 112 : 96)]), { w: k % 5 ? 1.4 : 2.4, d: 300 + k * 40, t: 80 })
+        }
+        text(g, cx - 92, cy - 12, '0', { anchor: 'middle', d: 800 })
+        text(g, cx + 88, cy - 12, '1 g', { anchor: 'middle', d: 800 })
+        const nd = wobble(g, { deg: 1.2, ox: cx, oy: cy, ms: 900, d: 1400 })
+        const n = group(nd, '', `transform: rotate(-89deg); transform-origin: ${cx}px ${cy}px`)
+        ink(n, L([cx, cy], [cx + 96, cy]), { w: 3, d: 900, t: 400 })
+        ball(g, cx, cy, 8, { d: 900, fill: 'dicht', t: 0 })
+        text(g, cx, cy + 40, '≈ 0,000001 g', { anchor: 'middle', size: 20, d: 1500 })
       },
       parabel(g) {
-        ink(g, L([30, 600], [110, 440]), { w: 2.4, t: 500 })
-        ink(g, B([110, 440], [150, 330], [210, 330], [250, 440]), { w: 4.4, d: 500, t: 800 })
-        ink(g, L([250, 440], [330, 600]), { w: 2.4, d: 1300, t: 500 })
-        text(g, 180, 318, '≈ 20 s schwebend', { anchor: 'middle', d: 1100 })
+        // Flugbahn: Steigflug, dann Bogen (Schwebephase), dann Abfangen; das Flugzeug folgt der Bahn
+        ground(g, 20, 340, 640, 0)
+        const path: P[] = [...L([20, 600], [100, 450]), ...B([100, 450], [140, 340], [220, 340], [260, 450]).slice(1), ...L([260, 450], [340, 600]).slice(1)]
+        dashes(g, path, { w: 1.4, d: 200, dash: 6, gap: 6 })
+        ink(g, B([100, 450], [140, 340], [220, 340], [260, 450]), { w: 4, d: 900, t: 900 })
+        const pl = mk('g', { opacity: 0 }, g)
+        jet(pl, 0, 0, 0.22, 0)
+        mk('set', { attributeName: 'opacity', to: 1, begin: '1.2s', fill: 'freeze' }, pl)
+        mk('animateMotion', { path: `M${path.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}`, dur: '6s', begin: '1.2s', repeatCount: 'indefinite', rotate: 'auto' }, pl)
+        dashes(g, L([100, 450], [100, 640]), { w: 1, d: 1400, dash: 3, gap: 5 })
+        dashes(g, L([260, 450], [260, 640]), { w: 1, d: 1400, dash: 3, gap: 5 })
+        arrow(g, L([110, 500], [250, 500]), { w: 1.6, d: 1600, t: 300, head: 7 })
+        arrow(g, L([250, 500], [110, 500]), { w: 1.6, d: 1600, t: 300, head: 7 })
+        fig(g, 180, 470, 1, { d: 1800, arms: 'up' })
       },
       trampolin(g) {
-        ink(g, E(180, 600, 90, 14), { w: 2.8, t: 600 })
-        ink(g, L([100, 606], [96, 640]), { w: 2.6, d: 300, t: 200 })
-        ink(g, L([260, 606], [264, 640]), { w: 2.6, d: 300, t: 200 })
-        const f = group(g, 'float')
-        fig(f, 180, 480, 1.7, { d: 500, arms: 'up' })
+        // Trampolin mit Federn, die Person hängt oben einen Moment in der Luft; hinten eine Achterbahn
+        const track: P[] = smooth([[200, 420], [240, 330], [280, 420], [310, 380], [340, 410]])
+        ink(g, track, { w: 1.8, t: 800 })
+        for (let i = 4; i < track.length - 2; i += 6) ink(g, L(track[i], [track[i][0], 470]), { w: 1, d: 600, t: 150 })
+        const car = mk('g', { opacity: 0 }, g)
+        ink(car, RR(-9, -10, 18, 9, 3), { w: 1.6, t: 0 })
+        mk('set', { attributeName: 'opacity', to: 1, begin: '1s', fill: 'freeze' }, car)
+        mk('animateMotion', { path: `M${track.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}`, dur: '4s', begin: '1s', repeatCount: 'indefinite', rotate: 'auto' }, car)
+        ink(g, E(150, 600, 100, 16), { w: 2.8, t: 600 })
+        ink(g, E(150, 600, 82, 12), { w: 1.4, d: 200, t: 600 })
+        for (let k = 0; k < 16; k++) {
+          const a = rad(k * 22.5)
+          ink(g, L([150 + Math.cos(a) * 83, 600 + Math.sin(a) * 12.5], [150 + Math.cos(a) * 99, 600 + Math.sin(a) * 15.5]), { w: 1, d: 400 + k * 20, t: 60 })
+        }
+        for (const x of [60, 240, 110, 190]) ink(g, L([x, 608], [x + (x < 150 ? -4 : 4), 646]), { w: 2.4, d: 300, t: 200 })
+        const f = wobble(g, { dy: -40, ms: 1800, d: 800 })
+        fig(f, 150, 520, 2.2, { d: 500, arms: 'up' })
       },
       gerade(g) {
-        earth(g, 180, 470, 100)
-        dashes(g, E(180, 470, 140), { w: 1.6, d: 500, dash: 6, gap: 8 })
-        station(g, 180, 330, 0.7, 600)
-        arrow(g, L([214, 330], [336, 330]), { w: 2.6, d: 1000, t: 500, head: 10 })
-        text(g, 276, 316, 'ohne Schwerkraft', { anchor: 'middle', cls: 's', d: 1200 })
-        text(g, 180, 646, 'mit Schwerkraft: Kreisbahn', { anchor: 'middle', cls: 's', d: 1400 })
+        earth(g, 180, 470, 100, 0, { lon: -60, lat: 20 })
+        dashes(g, E(180, 470, 140), { w: 1.4, d: 500, dash: 6, gap: 8 })
+        station(g, 180, 330, 0.36, 600)
+        dashes(g, L([210, 330], [346, 330]), { w: 1.6, d: 1000, dash: 8, gap: 6 })
+        arrow(g, L([206, 314], [290, 314]), { w: 2.8, d: 1100, t: 400, head: 10 })
+        arrow(g, L([180, 350], [180, 400]), { w: 2.8, d: 1400, t: 300, head: 10 })
+        const fl = mk('g', { opacity: 0 }, g)
+        ball(fl, 0, 0, 4, { fill: 'dicht', t: 0 })
+        mk('set', { attributeName: 'opacity', to: 1, begin: '2s', fill: 'freeze' }, fl)
+        mk('animateMotion', { path: 'M210 330L346 330', dur: '2s', begin: '2s', repeatCount: 'indefinite' }, fl)
       },
       ende(g) {
-        earth(g, 180, 500, 70)
-        dashes(g, E(180, 500, 106), { w: 1.6, d: 500, dash: 6, gap: 8 })
-        const o = group(g)
-        o.style.transformOrigin = '180px 500px'
-        station(o, 180, 394, 0.6, 700)
-        o.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], { duration: 9000, iterations: Infinity })
+        earth(g, 180, 500, 70, 0, { lon: 100, lat: 10 })
+        dashes(g, E(180, 500, 106), { w: 1.4, d: 500, dash: 6, gap: 8 })
+        const o = spin(g, 180, 500, 9000, 700)
+        station(o, 180, 394, 0.32, 700)
       },
     },
     scenes: [
@@ -1188,123 +1307,207 @@ export const AHA_PHYSIK: Bite[] = [
     images: [],
     draw: {
       kueste(g) {
-        moon(g, 270, 150, 40)
-        for (const [y, d] of [[320, 300], [360, 450], [400, 600]] as const) ink(g, waveP(20, 340, y, 6, 60, y / 40), { w: 2.4, d, t: 900 })
+        // Nachtküste: Mond, Leuchtturm auf dem Fels, Pegel am Steg – das Wasser steigt und fällt
+        stars(g, 20, 70, 320, 180, 22, 0, (x, y) => Math.hypot(x - 270, y - 140) < 56)
+        moon(g, 270, 140, 34)
+        const rock: P[] = [[20, 450], [20, 300], [44, 292], [70, 312], [92, 340], [104, 390], [118, 450]]
+        blank(g, rock)
+        hatch(g, rock, 500, true)
+        ink(g, rock, { w: 2.6, d: 200, t: 600 })
+        const lt: P[] = [[46, 292], [50, 236], [66, 236], [70, 294]]
+        blank(g, lt)
+        ink(g, lt, { w: 2.4, d: 400, t: 400 })
+        ink(g, RR(46, 222, 24, 14, 2), { w: 2, d: 500, t: 200 })
+        ink(g, [[44, 222], [58, 210], [72, 222]], { w: 2, d: 600, t: 200 })
+        for (const y of [252, 270]) ink(g, L([49, y], [67, y]), { w: 1.2, d: 600, t: 100 })
+        const beam = wobble(g, { deg: 14, ox: 58, oy: 229, ms: 4000, d: 900 })
+        dashes(beam, L([72, 229], [170, 214]), { w: 1.2, d: 900, dash: 6, gap: 6 })
+        // Steg mit Pegel
+        ink(g, L([200, 300], [340, 300]), { w: 2.6, d: 300, t: 400 })
+        for (const x of [220, 300]) ink(g, L([x, 300], [x, 450]), { w: 2.4, d: 400, t: 400 })
+        for (let k = 0; k < 6; k++) ink(g, L([300, 330 + k * 20], [310, 330 + k * 20]), { w: 1.4, d: 600 + k * 40, t: 80 })
+        const w = wobble(g, { dy: -40, ms: 7000, d: 900 })
+        for (const [y, d] of [[410, 300], [428, 450], [446, 600]] as const) ink(w, waveP(110, 340, y, 4, 50, y / 40), { w: 2, d, t: 900 })
+        const boat = wobble(w, { deg: 5, ox: 160, oy: 404, ms: 2200, d: 1000 })
+        ink(boat, [[136, 398], [184, 398], [176, 410], [144, 410], [136, 398]], { w: 2, d: 900, t: 300 })
+        ink(boat, L([160, 398], [160, 362]), { w: 1.8, d: 1000, t: 200 })
+        const sail: P[] = [[162, 364], [182, 394], [162, 394]]
+        hatch(boat, sail, 1200)
+        ink(boat, [...sail, sail[0]], { w: 1.6, d: 1100, t: 200 })
       },
       zug(g) {
-        earth(g, 130, 470, 70)
-        moon(g, 300, 470, 22, 300)
-        arrow(g, L([212, 470], [268, 470]), { w: 3, d: 900, t: 400, head: 10 })
-        text(g, 240, 444, 'Schwerkraft', { anchor: 'middle', cls: 's', d: 1100 })
+        earth(g, 120, 470, 76, 0, { lon: -20, lat: 0 })
+        moon(g, 306, 470, 22, 300)
+        dashes(g, E(120, 470, 186, 186, -20, 20), { w: 1.2, d: 500, dash: 5, gap: 6 })
+        // Zug des Mondes auf drei Punkte: nah stark, Mitte mittel, fern schwach
+        for (const [x, len, dd] of [[52, 34, 900], [120, 42, 1100], [188, 52, 1300]] as const) {
+          dot(g, x, 470, 3.4, dd - 100)
+          arrow(g, L([x + 4, 470], [x + 4 + len, 470]), { w: 2.6, d: dd, t: 300, head: 8 })
+        }
+        text(g, 240, 446, 'Schwerkraft', { anchor: 'middle', cls: 's', d: 1500 })
       },
       berge(g) {
         moon(g, 322, 470, 18, 200)
         const near = st(g, 'x1', '--o: 150px 470px')
-        hatch(near, [...E(150, 470, 105, 76, -90, 90), ...E(150, 470, 70, 70, 90, -90)], 0)
-        ink(near, E(150, 470, 105, 76, -90, 90), { w: 2.6, t: 0 })
-        text(near, 262, 380, 'zum Mond hin', { anchor: 'middle', cls: 's', fade: false })
+        hatch(near, [...E(150, 470, 112, 80, -90, 90), ...E(150, 470, 74, 74, 90, -90)], 0)
+        ink(near, E(150, 470, 112, 80, -90, 90), { w: 2.6, t: 0 })
+        arrow(near, L([270, 470], [292, 470]), { w: 2, t: 0, head: 7 })
         const far = st(g, 'x2', '--o: 150px 470px')
-        hatch(far, [...E(150, 470, 105, 76, 90, 270), ...E(150, 470, 70, 70, 270, 90)], 0)
-        ink(far, E(150, 470, 105, 76, 90, 270), { w: 2.6, t: 0 })
-        text(far, 52, 380, 'gegenüber', { anchor: 'middle', cls: 's', fade: false })
-        earth(g, 150, 470, 70, 0)
+        hatch(far, [...E(150, 470, 112, 80, 90, 270), ...E(150, 470, 74, 74, 270, 90)], 0)
+        ink(far, E(150, 470, 112, 80, 90, 270), { w: 2.6, t: 0 })
+        arrow(far, L([30, 470], [8, 470]), { w: 2, t: 0, head: 7 })
+        earth(g, 150, 470, 74, 0, { lon: -10, lat: 10 })
+        dashes(g, L([150, 470], [300, 470]), { w: 1, d: 800, dash: 4, gap: 6 })
       },
       pfeile(g) {
-        drop(g, 60, 470, 0.9, 0)
+        // Wasser fern – Erdmitte – Wasser nah: Zug nimmt zum Mond hin zu
+        moon(g, 330, 470, 16, 0)
+        ink(g, E(160, 470, 104), { w: 1.4, d: 100, t: 600 })
+        drop(g, 56, 470, 0.9, 0)
         ball(g, 160, 470, 30, { d: 100, fill: 'hell' })
-        drop(g, 260, 470, 0.9, 200)
-        text(g, 60, 530, 'fern', { anchor: 'middle', cls: 's', d: 300 })
+        drop(g, 264, 470, 0.9, 200)
+        text(g, 56, 530, 'fern', { anchor: 'middle', cls: 's', d: 300 })
         text(g, 160, 530, 'Erdmitte', { anchor: 'middle', cls: 's', d: 400 })
-        text(g, 260, 530, 'nah', { anchor: 'middle', cls: 's', d: 500 })
-        text(g, 340, 330, 'Mond →', { anchor: 'end', d: 600 })
+        text(g, 264, 530, 'nah', { anchor: 'middle', cls: 's', d: 500 })
         const pull = st(g, 'h1')
-        arrow(pull, L([46, 410], [78, 410]), { w: 2.6, d: 800, t: 300, head: 8 })
-        arrow(pull, L([136, 404], [192, 404]), { w: 2.6, d: 1000, t: 300, head: 9 })
-        arrow(pull, L([236, 410], [320, 410]), { w: 2.6, d: 1200, t: 300, head: 9 })
+        arrow(pull, L([42, 410], [74, 410]), { w: 2.6, d: 800, t: 300, head: 8 })
+        arrow(pull, L([136, 404], [190, 404]), { w: 2.6, d: 1000, t: 300, head: 9 })
+        arrow(pull, L([240, 410], [314, 410]), { w: 2.6, d: 1200, t: 300, head: 9 })
         const rel = st(g, 'x1', '--o: 160px 590px')
-        arrow(rel, L([80, 590], [40, 590]), { w: 3, t: 0, head: 10 })
+        arrow(rel, L([80, 590], [36, 590]), { w: 3, t: 0, head: 10 })
         dot(rel, 160, 590, 5)
-        arrow(rel, L([240, 590], [280, 590]), { w: 3, t: 0, head: 10 })
-        text(rel, 160, 640, 'relativ zur Erde', { anchor: 'middle', cls: 's', fade: false })
+        arrow(rel, L([240, 590], [284, 590]), { w: 3, t: 0, head: 10 })
+        dashes(rel, L([56, 500], [56, 576]), { w: 1, t: 0, dash: 4, gap: 4 })
+        dashes(rel, L([264, 500], [264, 576]), { w: 1, t: 0, dash: 4, gap: 4 })
       },
       dreh(g) {
-        hatch(g, [...E(160, 460, 105, 76), ...E(160, 460, 70, 70, 360, 0)], 600)
-        ink(g, E(160, 460, 105, 76), { w: 2.6, t: 800 })
-        earth(g, 160, 460, 70, 200)
-        moon(g, 322, 460, 16, 400)
-        arcArrow(g, 160, 460, 128, 196, 256, { d: 900, t: 500 })
-        const p = group(g)
-        p.style.transformOrigin = '160px 460px'
-        dot(p, 160, 388, 6, 1000)
-        p.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], { duration: 8000, iterations: Infinity })
+        // die Erde dreht sich unter den beiden Flutbergen; das Haus kommt zweimal hindurch
+        hatch(g, [...E(160, 460, 112, 80), ...E(160, 460, 72, 72, 360, 0)], 600)
+        ink(g, E(160, 460, 112, 80), { w: 2.6, t: 800 })
+        moon(g, 326, 460, 16, 400)
+        const r = spin(g, 160, 460, 8000, 900)
+        earth(r, 160, 460, 72, 200, { lon: 0, lat: 90 })
+        const hs = group(r, '', 'transform-origin: 160px 380px')
+        ink(hs, RR(154, 378, 12, 10, 1), { w: 1.8, d: 900, t: 200 })
+        ink(hs, [[152, 378], [160, 371], [168, 378]], { w: 1.8, d: 1000, t: 150 })
+        arcArrow(g, 160, 460, 132, 196, 256, { d: 900, t: 500 })
       },
       uhr(g) {
-        clock(g, 180, 440, 90, 0, 300)
-        text(g, 180, 590, '+ 50 Minuten pro Tag', { anchor: 'middle', size: 20, d: 1000 })
+        // Flut-Uhr: heute 12:00, morgen 12:50 – der Mond ist auf seiner Bahn ein Stück weiter
+        clock(g, 180, 440, 92, 0, 0, 0)
+        const sec: P[] = [[180, 440], ...E(180, 440, 80, 80, -90, -90 + 300), [180, 440]]
+        hatch(g, sec, 1200)
+        const m = group(g, '', 'transform-origin: 180px 440px')
+        mk('animateTransform', { attributeName: 'transform', type: 'rotate', from: '0 180 440', to: '300 180 440', dur: '2.4s', begin: '1s', fill: 'freeze' }, m)
+        ink(m, L([180, 440], [180, 372]), { w: 2.6, d: 700, t: 300 })
+        earth(g, 300, 600, 18, 1300, { lon: 0, lat: 90, w: 0.8 })
+        dashes(g, E(300, 600, 46, 46, 180, 300), { w: 1, d: 1500, dash: 3, gap: 4 })
+        moon(g, 254, 600, 6, 1600)
+        moon(g, 256, 578, 6, 1800)
+        arcArrow(g, 300, 600, 56, 182, 202, { d: 1900, t: 300, w: 1.6, head: 6 })
       },
       sonne(g) {
         hbars(g, [
           { label: 'Mond', v: 100, fmt: (v) => `${Math.round(v)} %` },
           { label: 'Sonne', v: 46, fmt: (v) => `${Math.round(v)} %`, dense: true },
-        ], { y: 380, gap: 120 })
+        ], { y: 380, gap: 120, x: 70, w: 260 })
+        moon(g, 40, 400, 16, 300)
+        sun(g, 40, 520, 12, 700, 8)
         text(g, 30, 620, 'Stärke der Gezeitenkraft', { cls: 's', d: 1200 })
       },
       spring(g) {
-        sun(g, 50, 470, 24, 0, 10)
-        hatch(g, [...E(200, 470, 110, 62), ...E(200, 470, 50, 50, 360, 0)], 900)
-        ink(g, E(200, 470, 110, 62), { w: 2.6, d: 300, t: 800 })
-        earth(g, 200, 470, 50, 200)
-        moon(g, 334, 470, 14, 500)
-        text(g, 200, 600, 'Springflut', { anchor: 'middle', d: 1100 })
+        sun(g, 40, 470, 22, 0, 10)
+        for (const y of [430, 470, 510]) flow(g, L([72, y], [130, y]), { n: 2, ms: 900, d: 600, r: 1.8, kind: 'dash' })
+        hatch(g, [...E(200, 470, 116, 66), ...E(200, 470, 52, 52, 360, 0)], 900)
+        ink(g, E(200, 470, 116, 66), { w: 2.6, d: 300, t: 800 })
+        earth(g, 200, 470, 52, 200, { lon: 0, lat: 90 })
+        moon(g, 336, 470, 14, 500)
+        hatch(g, [...E(336, 470, 14, 14, -90, 90)], 900, true)
+        dashes(g, L([62, 470], [322, 470]), { w: 1, d: 1000, dash: 4, gap: 6 })
+        hatch(g, [...E(200, 470, 52, 52, -90, 90)], 700, true)
       },
       nipp(g) {
-        sun(g, 50, 470, 24, 0, 10)
-        hatch(g, [...E(200, 470, 70, 84), ...E(200, 470, 50, 50, 360, 0)], 900)
-        ink(g, E(200, 470, 70, 84), { w: 2.6, d: 300, t: 800 })
-        earth(g, 200, 470, 50, 200)
-        moon(g, 200, 334, 14, 500)
-        text(g, 200, 600, 'Nippflut', { anchor: 'middle', d: 1100 })
+        sun(g, 40, 470, 22, 0, 10)
+        for (const y of [430, 470, 510]) flow(g, L([72, y], [130, y]), { n: 2, ms: 900, d: 600, r: 1.8, kind: 'dash' })
+        hatch(g, [...E(200, 470, 72, 88), ...E(200, 470, 52, 52, 360, 0)], 900)
+        ink(g, E(200, 470, 72, 88), { w: 2.6, d: 300, t: 800 })
+        earth(g, 200, 470, 52, 200, { lon: 0, lat: 90 })
+        hatch(g, [...E(200, 470, 52, 52, -90, 90)], 700, true)
+        moon(g, 200, 330, 14, 500)
+        hatch(g, [...E(200, 330, 14, 14, -90, 90)], 900, true)
+        dashes(g, L([200, 344], [200, 418]), { w: 1, d: 1000, dash: 4, gap: 6 })
+        ink(g, RR(200, 452, 14, 14, 0), { w: 0.9, d: 1100, t: 200 })
       },
       fundy(g) {
-        vbars(g, [
-          { label: 'Fundy-Bucht', v: 16, fmt: (v) => `${Math.round(v)} m` },
-          { label: 'Nordsee', v: 3.5, fmt: (v) => `${v.toFixed(1).replace('.', ',')} m` },
-          { label: 'Ostsee', v: 0.15, fmt: () => 'wenige cm', dense: true },
-        ], { x: 40, base: 600, w: 70, gap: 110, h: 260 })
+        // Hafen in der Fundy-Bucht: Kutter liegt bei Ebbe auf dem Schlick, bei Flut schwimmt er 16 m höher
+        ink(g, L([20, 620], [340, 620]), { w: 2.6, t: 500 })
+        hatch(g, RR(20, 620, 320, 30, 2), 300, true)
+        ink(g, L([240, 290], [340, 290]), { w: 2.6, d: 200, t: 400 })
+        for (const x of [250, 330]) ink(g, L([x, 290], [x, 620]), { w: 2.6, d: 300, t: 500 })
+        for (let k = 0; k <= 4; k++) {
+          const y = 616 - k * 75
+          ink(g, L([330, y], [340, y]), { w: 1.4, d: 500 + k * 60, t: 80 })
+          text(g, 326, y + 4, `${k * 4} m`, { anchor: 'end', cls: 's', d: 600 + k * 60, size: 11 })
+        }
+        const tide = mk('g', {}, g)
+        mk('animateTransform', { attributeName: 'transform', type: 'translate', values: '0 0;0 -300;0 -300;0 0;0 0', keyTimes: '0;0.4;0.5;0.9;1', dur: '9s', begin: '1s', repeatCount: 'indefinite', calcMode: 'spline', keySplines: '.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1' }, tide)
+        ink(tide, waveP(20, 246, 616, 3, 40), { w: 2, d: 800, t: 600 })
+        const hull: P[] = [[90, 598], [190, 598], [178, 616], [100, 616], [90, 598]]
+        blank(tide, hull)
+        hatch(tide, hull, 1000, true)
+        ink(tide, hull, { w: 2.2, d: 900, t: 300 })
+        ink(tide, RR(130, 580, 30, 18, 2), { w: 2, d: 1000, t: 200 })
+        ink(tide, L([118, 598], [118, 556]), { w: 1.8, d: 1100, t: 200 })
       },
       mittelmeer(g) {
-        const sea: P[] = [...B([40, 470], [80, 380], [190, 360], [250, 400]), ...B([250, 400], [320, 440], [330, 540], [260, 560]).slice(1), ...B([260, 560], [180, 590], [70, 560], [40, 470]).slice(1)]
-        hatch(g, sea, 600)
-        ink(g, sea, { w: 3, t: 900 })
-        blank(g, RR(16, 440, 34, 22, 4))
-        ink(g, L([20, 444], [44, 444]), { w: 2.4, d: 800, t: 200 })
-        ink(g, L([20, 458], [44, 458]), { w: 2.4, d: 800, t: 200 })
-        text(g, 16, 396, 'Gibraltar', { cls: 's', d: 1000 })
-        text(g, 180, 630, 'Mittelmeer: oft unter 30 cm', { anchor: 'middle', cls: 's', d: 1200 })
+        const pr = mapRegion(g, 20, 330, 320, 220, -10, 37, 29, 47, 0)
+        // durch die Straße von Gibraltar strömt nur wenig Wasser
+        const [gx, gy] = pr(-5.6, 36)
+        for (const dy of [-3, 3]) flow(g, L([gx - 26, gy + dy], [gx + 22, gy + dy]), { n: 2, ms: 1400, d: 1200, r: 1.8, kind: 'dash' })
+        text(g, gx - 2, gy - 22, 'Gibraltar', { cls: 's halo', d: 1000 })
+        text(g, 180, 584, 'Mittelmeer: oft unter 30 cm', { anchor: 'middle', cls: 's', d: 1200 })
       },
       boden(g) {
-        ink(g, L([20, 560], [340, 560]), { w: 3, t: 500 })
-        house(g, 100, 558, 90, 300)
-        const u = group(g, 'float')
-        arrow(u, L([260, 520], [260, 420]), { w: 3, d: 800, t: 400, head: 10 })
-        arrow(u, L([260, 470], [260, 570]), { w: 3, d: 1200, t: 400, head: 10 })
-        text(g, 180, 640, 'Erdgezeiten: einige Dutzend Zentimeter', { anchor: 'middle', cls: 's', d: 1400 })
+        // Boden mit Schichten, Haus und Baum heben und senken sich gemeinsam
+        const lift = wobble(g, { dy: -8, ms: 4000, d: 900 })
+        ground(lift, 20, 340, 520, 0)
+        house(lift, 70, 520, 80, 300)
+        tree(lift, 260, 520, 0.6, 400)
+        for (const [y, dd] of [[560, 500], [600, 600], [640, 700]] as const) ink(lift, smooth([[20, y], [120, y - 6], [240, y + 4], [340, y - 2]]), { w: 1.4, d: dd, t: 600 })
+        hatch(lift, [[20, 600], [120, 594], [240, 604], [340, 598], [340, 640], [20, 640]], 900)
+        ink(g, L([336, 470], [336, 540]), { w: 1.6, d: 1000, t: 200 })
+        for (const y of [470, 540]) ink(g, L([330, y], [342, y]), { w: 1.6, d: 1100, t: 100 })
+        text(g, 328, 510, '30 cm', { anchor: 'end', cls: 's halo', d: 1200 })
       },
       tag(g) {
-        clock(g, 180, 440, 90, 0, 300)
-        text(g, 180, 590, '+ 2 Millisekunden pro Jahrhundert', { anchor: 'middle', size: 18, d: 1000 })
+        // Bremse: Die Erde dreht die Flutberge etwas vor die Mondlinie; der Mond zieht sie zurück
+        const r = group(g, '', 'transform: rotate(-12deg); transform-origin: 140px 470px')
+        hatch(r, [...E(140, 470, 108, 76), ...E(140, 470, 70, 70, 360, 0)], 600)
+        ink(r, E(140, 470, 108, 76), { w: 2.6, t: 800 })
+        earth(g, 140, 470, 70, 200, { lon: 0, lat: 90 })
+        arcArrow(g, 140, 470, 126, 150, 210, { d: 900, t: 500 })
+        moon(g, 326, 470, 14, 400)
+        dashes(g, L([140, 470], [312, 470]), { w: 1, d: 900, dash: 4, gap: 6 })
+        dashes(g, L([140, 470], [140 + Math.cos(rad(-12)) * 150, 470 + Math.sin(rad(-12)) * 150]), { w: 1.2, d: 1100, dash: 6, gap: 4 })
+        arrow(g, L([248, 440], [254, 466]), { w: 2.2, d: 1400, t: 300, head: 8 })
+        clock(g, 300, 600, 30, 0, 0, 1500)
       },
       mondweg(g) {
-        earth(g, 80, 470, 50)
-        moon(g, 250, 470, 16, 300)
-        dashes(g, L([134, 470], [230, 470]), { w: 1.6, d: 600 })
-        arrow(g, L([272, 470], [330, 470]), { w: 3, d: 900, t: 400, head: 10 })
-        text(g, 180, 560, '3,8 cm pro Jahr', { anchor: 'middle', size: 20, d: 1200 })
+        // Laser von der Sternwarte zum Spiegel der Apollo-Landestelle und zurück; der Mond weicht langsam aus
+        earth(g, 70, 470, 52, 0, { lon: -20, lat: 20 })
+        const away = glide(g, 30, 0, { ms: 8000, d: 1200 })
+        moon(away, 270, 470, 20, 300)
+        ink(away, RR(250, 462, 6, 6, 1), { w: 1.4, d: 800, t: 100 })
+        for (const dy of [-2, 2]) flow(g, L([122, 466 + dy], [248, 466 + dy]), { n: 3, ms: 900, d: 1000, r: 1.6, kind: 'dash' })
+        ink(g, L([122, 466], [248, 466]), { w: 1, d: 900, t: 400 })
+        arrow(g, L([296, 520], [334, 520]), { w: 2.4, d: 1500, t: 300, head: 8 })
       },
       ende(g) {
-        hatch(g, [...E(180, 520, 90, 62), ...E(180, 520, 54, 54, 360, 0)], 700)
-        ink(g, E(180, 520, 90, 62), { w: 2.6, t: 800 })
-        earth(g, 180, 520, 54, 200)
+        moon(g, 330, 520, 14, 300)
+        hatch(g, [...E(180, 520, 92, 62), ...E(180, 520, 54, 54, 360, 0)], 700)
+        ink(g, E(180, 520, 92, 62), { w: 2.6, t: 800 })
+        const r = spin(g, 180, 520, 9000, 900)
+        earth(r, 180, 520, 54, 200, { lon: 0, lat: 90 })
       },
     },
     scenes: [
@@ -1340,140 +1543,306 @@ export const AHA_PHYSIK: Bite[] = [
     images: [],
     draw: {
       bahn(g) {
-        sun(g, 190, 250, 30)
-        dashes(g, E(180, 250, 150, 100), { w: 1.6, d: 600 })
-        ball(g, 330, 250, 12, { d: 1200, fill: 'hell' })
-        text(g, 300, 290, 'Januar', { anchor: 'end', cls: 's', d: 1300 })
+        stars(g, 20, 80, 320, 340, 26, 0, (x, y) => Math.abs((x - 180) / 160) ** 2 + Math.abs((y - 250) / 110) ** 2 < 1.1)
+        sun(g, 196, 250, 30)
+        const orbit = E(180, 250, 150, 100)
+        dashes(g, orbit, { w: 1.4, d: 600 })
+        for (let k = 0; k < 12; k++) {
+          const a = rad(k * 30)
+          ink(g, L([180 + Math.cos(a) * 144, 250 + Math.sin(a) * 96], [180 + Math.cos(a) * 156, 250 + Math.sin(a) * 104]), { w: 1.4, d: 900 + k * 30, t: 80 })
+        }
+        const e = mk('g', { opacity: 0 }, g)
+        earth(e, 0, 0, 13, 0, { lon: 0, lat: 20, w: 0.8 })
+        mk('set', { attributeName: 'opacity', to: 1, begin: '1.2s', fill: 'freeze' }, e)
+        mk('animateMotion', { path: `M${orbit.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}`, dur: '12s', begin: '1.2s', repeatCount: 'indefinite' }, e)
+        dot(g, 330, 250, 4, 1500)
       },
       abstand(g) {
-        sun(g, 46, 400, 16, 0, 8)
-        dashes(g, L([88, 400], [298, 400]), { w: 1.6, d: 400 })
-        ball(g, 314, 400, 12, { d: 800, fill: 'hell' })
-        text(g, 90, 376, 'Januar · 147 Mio. km', { d: 900 })
+        // Lineal in Millionen Kilometern; beide Abstände maßstabsgetreu
+        sun(g, 34, 470, 14, 0, 8)
+        const x0 = 34
+        const k = 1.95
+        ink(g, L([x0, 600], [x0 + 160 * k, 600]), { w: 2.4, d: 200, t: 600 })
+        for (let v = 0; v <= 150; v += 25) {
+          ink(g, L([x0 + v * k, 600], [x0 + v * k, v % 50 ? 608 : 614]), { w: 1.4, d: 300 + v * 4, t: 80 })
+          if (v % 50 === 0) text(g, x0 + v * k, 634, `${v}`, { anchor: 'middle', cls: 's', d: 400 + v * 4 })
+        }
+        text(g, 340, 656, 'Mio. km', { anchor: 'end', cls: 's', d: 900 })
+        const jan = x0 + 147 * k
+        dashes(g, L([60, 440], [jan - 14, 440]), { w: 1.4, d: 500 })
+        earth(g, jan, 440, 12, 800, { lon: 0, lat: 20, w: 0.8 })
+        dashes(g, L([jan, 456], [jan, 596]), { w: 1, d: 900, dash: 3, gap: 4 })
+        flake(g, jan - 34, 410, 9, 1000)
         const b = st(g, 'f1')
-        sun(b, 46, 540, 16, 0, 8)
-        dashes(b, L([88, 540], [306, 540]), { w: 1.6, t: 0 })
-        ball(b, 322, 540, 12, { t: 0, fill: 'hell' })
-        text(b, 90, 516, 'Juli · 152 Mio. km', { fade: false })
+        const jul = x0 + 152 * k
+        dashes(b, L([60, 520], [jul - 14, 520]), { w: 1.4, t: 0 })
+        earth(b, jul, 520, 12, 0, { lon: 0, lat: 20, w: 0.8 })
+        dashes(b, L([jul, 536], [jul, 596]), { w: 1, t: 0, dash: 3, gap: 4 })
+        sun(b, jul - 36, 492, 6, 0, 8)
       },
       achse(g) {
-        earth(g, 180, 460, 90)
-        const dx = Math.sin(rad(23.4))
-        const dy = -Math.cos(rad(23.4))
-        ink(g, L([180 + dx * 92, 460 + dy * 92], [180 + dx * 140, 460 + dy * 140]), { w: 3, d: 800, t: 300 })
-        ink(g, L([180 - dx * 92, 460 - dy * 92], [180 - dx * 140, 460 - dy * 140]), { w: 3, d: 800, t: 300 })
-        dashes(g, L([180, 366], [180, 310]), { w: 1.6, d: 1000 })
-        ink(g, E(180, 460, 120, 120, -90, -66.6), { w: 2, d: 1200, t: 300 })
-        text(g, 206, 326, '23,4°', { anchor: 'middle', cls: 's', d: 1300 })
+        const tilt = group(g, '', 'transform: rotate(23.4deg); transform-origin: 180px 470px')
+        earth(tilt, 180, 470, 90, 0, { lon: 10, lat: 0 })
+        ink(tilt, L([180, 380], [180, 330]), { w: 3, d: 800, t: 300 })
+        ink(tilt, L([180, 560], [180, 610]), { w: 3, d: 800, t: 300 })
+        ink(tilt, E(180, 470, 90, 12, 0, 180), { w: 1.4, d: 900, t: 400 })
+        dashes(tilt, E(180, 470, 90, 12, 180, 360), { w: 1, d: 900, dash: 4, gap: 4 })
+        dashes(tilt, L([180, 330], [180, 230]), { w: 1.2, d: 1200, dash: 4, gap: 6 })
+        star(g, 180 + Math.sin(rad(23.4)) * 240, 470 - Math.cos(rad(23.4)) * 240, 9, { d: 1500, fill: true })
+        dashes(g, L([180, 380], [180, 300]), { w: 1.4, d: 1000 })
+        ink(g, E(180, 470, 132, 132, -90, -66.6), { w: 2, d: 1200, t: 300 })
+        text(g, 196, 330, '23,4°', { anchor: 'start', cls: 's', d: 1300 })
       },
       orbit2(g) {
-        sun(g, 180, 460, 26)
-        dashes(g, E(180, 460, 130, 64, 14, 166), { w: 1.4, d: 500 })
-        dashes(g, E(180, 460, 130, 64, 194, 346), { w: 1.4, d: 500 })
-        const dx = Math.sin(rad(23.4))
-        const dy = -Math.cos(rad(23.4))
-        for (const [x, n, k] of [[50, 'Juni', 0], [310, 'Dezember', 1]] as const) {
-          ball(g, x, 460, 22, { d: 800 + k * 300, fill: 'hell' })
-          ink(g, L([x + dx * 24, 460 + dy * 24], [x + dx * 50, 460 + dy * 50]), { w: 2.6, d: 1000 + k * 300, t: 200 })
-          ink(g, L([x - dx * 24, 460 - dy * 24], [x - dx * 50, 460 - dy * 50]), { w: 2.6, d: 1000 + k * 300, t: 200 })
-          text(g, x, 540, n, { anchor: 'middle', cls: 's', d: 1100 + k * 300 })
+        sun(g, 180, 470, 26)
+        dashes(g, E(180, 470, 136, 66, 14, 166), { w: 1.4, d: 500 })
+        dashes(g, E(180, 470, 136, 66, 194, 346), { w: 1.4, d: 500 })
+        for (const [x, n, k] of [[44, 'Juni', 0], [316, 'Dezember', 1]] as const) {
+          const t = group(g, '', `transform: rotate(23.4deg); transform-origin: ${x}px 470px`)
+          earth(t, x, 470, 24, 800 + k * 300, { lon: 10, lat: 0, w: 0.8 })
+          ink(t, L([x, 444], [x, 418]), { w: 2.4, d: 1000 + k * 300, t: 200 })
+          ink(t, L([x, 496], [x, 522]), { w: 2.4, d: 1000 + k * 300, t: 200 })
+          // Nachtseite: von der Sonne abgewandt
+          hatch(g, k ? [...E(x, 470, 24, 24, -90, 90), [x, 494]] : [...E(x, 470, 24, 24, 90, 270), [x, 446]], 1300 + k * 300, true)
+          text(g, x, 556, n, { anchor: 'middle', cls: 's', d: 1100 + k * 300 })
+          star(g, x + Math.sin(rad(23.4)) * 80, 470 - Math.cos(rad(23.4)) * 80, 5, { d: 1600, fill: true })
         }
       },
       winkel(g) {
-        ink(g, L([60, 440], [300, 440]), { w: 3, t: 400 })
-        for (const x of [150, 180, 210]) arrow(g, L([x, 300], [x, 436]), { w: 2.4, d: 300, t: 400, head: 9 })
-        hatch(g, RR(140, 443, 80, 8, 3), 700, true)
-        text(g, 300, 330, 'Sommer: steil', { anchor: 'end', cls: 's', d: 800 })
+        // gleiches Lichtbündel, steil (62°) und flach (16°): der beleuchtete Streifen wird fast viermal so breit
+        ground(g, 30, 330, 440, 0)
+        const beam = (x: number, y: number, deg: number, len: number, w: number, gr: Element, d: number) => {
+          const dx = Math.cos(rad(deg))
+          const dy = Math.sin(rad(deg))
+          const nx = -dy
+          const ny = dx
+          const hits: P[] = []
+          for (const s of [-w / 2, 0, w / 2]) {
+            const bx = x + nx * s
+            const by = y + ny * s
+            const t = (440 - by) / dy
+            const p = L([bx + dx * (t - len), by + dy * (t - len)], [bx + dx * (t - 3), by + dy * (t - 3)])
+            arrow(gr, p, { w: 2.2, d, t: d ? 400 : 0, head: 8 })
+            flow(gr, p, { n: 2, ms: 1000, d: d + 500, r: 2 })
+            hits.push([bx + dx * t, 440])
+          }
+          return hits
+        }
+        const s = beam(180, 440, 62, 140, 70, g, 300)
+        hatch(g, RR(s[2][0], 443, s[0][0] - s[2][0], 8, 3), 700, true)
+        ink(g, E(s[2][0] - 30, 440, 36, 36, -62, 0), { w: 1.4, d: 900, t: 300 })
+        text(g, s[2][0] - 58, 426, '62°', { cls: 's', d: 1000 })
         const w = st(g, 'x1', '--o: 180px 600px')
-        ink(w, L([30, 640], [340, 640]), { w: 3, t: 0 })
-        for (const x of [160, 220, 280]) arrow(w, L([x - 104, 576], [x - 4, 634]), { w: 2.4, t: 0, head: 9 })
-        hatch(w, RR(150, 643, 140, 8, 3), 0, true)
-        text(w, 300, 530, 'Winter: flach', { anchor: 'end', cls: 's', fade: false })
+        ink(w, L([30, 640], [330, 640]), { w: 2.6, t: 0 })
+        const lines = [[-35, 0], [0, 0], [35, 0]]
+        const hits: P[] = []
+        lines.forEach(([s0]) => {
+          const dx = Math.cos(rad(16))
+          const dy = Math.sin(rad(16))
+          const bx = 200 - dy * s0
+          const by = 640 + dx * s0 - 8
+          const t = (640 - by) / dy
+          arrow(w, L([bx + dx * (t - 200), by + dy * (t - 200)], [bx + dx * (t - 3), by + dy * (t - 3)]), { w: 2.2, t: 0, head: 8 })
+          hits.push([bx + dx * t, 640])
+        })
+        hatch(w, RR(Math.min(...hits.map((h) => h[0])), 643, Math.abs(hits[0][0] - hits[2][0]), 8, 3), 0)
+        text(w, 330, 628, '16°', { anchor: 'end', cls: 's', fade: false })
       },
       lampe(g) {
+        // Taschenlampe: senkrecht ein kleiner, heller Fleck – schräg ein großer, blasser
         ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
         const lamp = (ox: number, oy: number, deg: number, d: number): [P, P] => {
           const r = ([x, y]: P): P => [ox + x * Math.cos(rad(deg)) - y * Math.sin(rad(deg)), oy + x * Math.sin(rad(deg)) + y * Math.cos(rad(deg))]
-          ink(g, [[-10, -70], [10, -70], [10, 0], [-10, 0], [-10, -70]].map((q) => r(q as P)), { w: 2.6, d, t: 400 })
-          ink(g, [[-16, 0], [16, 0], [10, 18], [-10, 18], [-16, 0]].map((q) => r(q as P)), { w: 2.6, d: d + 200, t: 300 })
-          return [r([-8, 22]), r([8, 22])]
+          const body: P[] = [[-9, -80], [9, -80], [9, -10], [-9, -10], [-9, -80]]
+          blank(g, body.map(r))
+          ink(g, body.map(r), { w: 2.4, d, t: 400 })
+          for (const y of [-70, -64, -58]) ink(g, L(r([-9, y]), r([9, y])), { w: 1, d: d + 300, t: 80 })
+          ink(g, [r([-4, -40]), r([4, -40]), r([4, -30]), r([-4, -30]), r([-4, -40])], { w: 1.4, d: d + 300, t: 100 })
+          const head: P[] = [[-9, -10], [9, -10], [16, 8], [-16, 8], [-9, -10]]
+          blank(g, head.map(r))
+          ink(g, head.map(r), { w: 2.4, d: d + 200, t: 300 })
+          return [r([-14, 10]), r([14, 10])]
         }
-        const [a, b] = lamp(70, 430, 0, 200)
-        dashes(g, L(a, [42, 592]), { w: 1.4, d: 600 })
-        dashes(g, L(b, [98, 592]), { w: 1.4, d: 600 })
-        hatch(g, E(70, 600, 30, 6), 900, true)
-        const [c, e] = lamp(300, 400, 40, 400)
-        dashes(g, L(e, [150, 592]), { w: 1.4, d: 900 })
-        dashes(g, L(c, [280, 592]), { w: 1.4, d: 900 })
-        hatch(g, E(215, 600, 66, 6), 1200)
-        text(g, 70, 640, 'senkrecht', { anchor: 'middle', cls: 's', d: 1300 })
-        text(g, 215, 640, 'schräg', { anchor: 'middle', cls: 's', d: 1400 })
+        const [a, b] = lamp(70, 440, 0, 200)
+        dashes(g, L(a, [44, 592]), { w: 1.2, d: 600 })
+        dashes(g, L(b, [96, 592]), { w: 1.2, d: 600 })
+        hatch(g, E(70, 600, 28, 6), 900, true)
+        ink(g, E(70, 600, 28, 6), { w: 1.4, d: 900, t: 300 })
+        const [c, e] = lamp(300, 400, 42, 400)
+        dashes(g, L(e, [146, 592]), { w: 1.2, d: 900 })
+        dashes(g, L(c, [284, 592]), { w: 1.2, d: 900 })
+        hatch(g, E(215, 600, 70, 7), 1200)
+        ink(g, E(215, 600, 70, 7), { w: 1, d: 1200, t: 300 })
       },
       weg(g) {
+        // Lufthülle über einem Stück Erde: mittags kurzer Weg, abends langer Weg mit viel Streuung
+        const band: P[] = [...E(180, 980, 680, 680, 254, 286), ...E(180, 980, 600, 600, 286, 254)]
+        hatch(g, band, 600)
         ink(g, E(180, 980, 600, 600, 252, 288), { w: 3, t: 800 })
-        dashes(g, E(180, 980, 680, 680, 254, 286), { w: 1.6, d: 400 })
+        ink(g, E(180, 980, 680, 680, 254, 286), { w: 1.2, d: 400, t: 800 })
         fig(g, 180, 382, 1.2, { d: 500 })
-        arrow(g, L([180, 260], [180, 340]), { w: 2.6, d: 800, t: 400, head: 9 })
-        text(g, 196, 290, 'Sommer: kurz', { cls: 's', d: 1000 })
-        arrow(g, L([20, 362], [158, 368]), { w: 2.6, d: 1200, t: 500, head: 9 })
-        text(g, 20, 340, 'Winter: lang', { cls: 's', d: 1400 })
+        const s = L([180, 270], [180, 340])
+        arrow(g, s, { w: 3, d: 800, t: 400, head: 9 })
+        flow(g, s, { n: 2, ms: 800, d: 1300, r: 2.4 })
+        sun(g, 180, 248, 10, 700, 8)
+        const l = L([24, 356], [160, 366])
+        arrow(g, l, { w: 1.6, d: 1200, t: 500, head: 8 })
+        flow(g, l, { n: 2, ms: 1800, d: 1700, r: 1.8 })
+        sun(g, 14, 352, 7, 1100, 8)
+        for (const x of [50, 80, 110, 140]) arrow(g, L([x, 360], [x + 6, 334]), { w: 1.2, d: 1400 + x * 3, t: 200, head: 5 })
       },
       tag(g) {
-        hbars(g, [
-          { label: 'Juni', v: 16.3, fmt: (v) => `${Math.round(v)} h` },
-          { label: 'Dezember', v: 7.8, fmt: (v) => `${Math.round(v)} h`, dense: true },
-        ], { y: 380, gap: 120, max: 24 })
-        text(g, 30, 620, 'Sonnenstunden möglich, Mitte Deutschlands', { cls: 's', d: 1200 })
+        // Sonnenbahnen über dem Horizont: im Juni hoch und lang, im Dezember flach und kurz (Striche = Stunden)
+        ground(g, 20, 340, 600, 0)
+        house(g, 160, 600, 40, 200)
+        const arc = (rx: number, ry: number, hours: number, d: number, dense: boolean) => {
+          const pts = E(180, 600, rx, ry, 180, 360)
+          ink(g, pts, { w: dense ? 2.4 : 1.6, d, t: 900 })
+          const n = Math.round(hours)
+          for (let k = 0; k <= n; k++) {
+            const a = rad(180 + (k / n) * 180)
+            const p: P = [180 + Math.cos(a) * rx, 600 + Math.sin(a) * ry]
+            dot(g, p[0], p[1], 2.4, d + 400 + k * 50)
+          }
+          return pts
+        }
+        const jun = arc(150, 240, 16, 300, true)
+        arc(70, 80, 8, 900, false)
+        const s = mk('g', { opacity: 0 }, g)
+        sun(s, 0, 0, 9, 0, 8)
+        mk('set', { attributeName: 'opacity', to: 1, begin: '1.6s', fill: 'freeze' }, s)
+        mk('animateMotion', { path: `M${jun.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}`, dur: '8s', begin: '1.6s', repeatCount: 'indefinite' }, s)
       },
       thermo2(g) {
-        thermo(g, 120, 340, 200, 0.85)
-        thermo(g, 240, 340, 200, 0.25, 300)
-        text(g, 120, 620, 'Sommer', { anchor: 'middle', d: 800 })
-        text(g, 240, 620, 'Winter', { anchor: 'middle', d: 900 })
+        // Sommerbaum mit voller Krone, Winterbaum kahl im Schnee
+        thermo(g, 40, 380, 180, 0.85)
+        tree(g, 130, 600, 0.8, 300)
+        ground(g, 20, 180, 600, 200)
+        thermo(g, 320, 380, 180, 0.2, 400)
+        ink(g, L([190, 600], [340, 600]), { w: 2.6, d: 500, t: 500 })
+        hatch(g, RR(190, 596, 110, 4, 2), 900)
+        const x = 250
+        ink(g, B([x - 6, 600], [x - 4, 560], [x - 4, 520], [x - 2, 490]), { w: 2.6, d: 600, t: 400 })
+        ink(g, B([x + 6, 600], [x + 4, 560], [x + 4, 520], [x + 2, 490]), { w: 2.6, d: 600, t: 400 })
+        for (const [a, b, c, dd] of [[[x, 530], [x - 30, 500], [x - 52, 470]], [[x, 516], [x + 28, 486], [x + 44, 452]], [[x, 494], [x - 8, 466], [x - 14, 436]], [[x - 30, 500], [x - 40, 476], [x - 36, 456]], [[x + 28, 486], [x + 46, 476], [x + 60, 480]]].map((p, i) => [...p, 800 + i * 100]) as [P, P, P, number][]) ink(g, [a, b, c], { w: 1.8, d: dd, t: 200 })
+        for (let i = 0; i < 10; i++) {
+          const f = mk('g', {}, g)
+          mk('animateTransform', { attributeName: 'transform', type: 'translate', from: '0 0', to: '-14 180', dur: `${4 + (i % 3)}s`, begin: `${(i * 0.4).toFixed(1)}s`, repeatCount: 'indefinite' }, f)
+          dot(f, 200 + ((i * 47) % 130), 400 + ((i * 29) % 40), 2, 0)
+        }
       },
       kalt(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.15, label: '21. Dez.', sub: 'kürzester Tag', up: true },
-          { at: 0.75, label: 'Ende Jan.', sub: 'oft am kältesten', big: true },
-        ])
+        // Licht und Temperatur übers Jahr: die Temperatur hinkt rund einen Monat hinterher
+        const x0 = 40
+        const w = 290
+        axes(g, x0, 600, x0 + w + 10, 320, { d: 0 })
+        const months = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
+        months.forEach((m, i) => text(g, x0 + 12 + i * (w / 12), 620, m, { anchor: 'middle', cls: 's', d: 200 + i * 30, size: 11 }))
+        const light = (t: number) => 0.5 - 0.42 * Math.cos(2 * Math.PI * (t + 10 / 365))
+        const temp = (t: number) => 0.5 - 0.36 * Math.cos(2 * Math.PI * (t - 20 / 365))
+        dplot(g, x0, 590, w, 240, light, 500)
+        plot(g, x0, 590, w, 240, temp, { d: 1000, t: 1200, w: 3 })
+        sun(g, x0 + w * 0.5, 330, 8, 900, 8)
+        thermo(g, x0 + w * 0.6 + 4, 380, 50, 0.8, 1500)
+        // Minima
+        const tl = 1 - 10 / 365
+        const tt = 20 / 365
+        dot(g, x0 + w * tl, 590 - 240 * light(tl), 4, 1800)
+        dot(g, x0 + w * tt, 590 - 240 * temp(tt), 5, 2000)
+        arrow(g, L([x0 + w * tl - 4, 580], [x0 + w + 14, 580]), { w: 1.4, d: 2200, t: 200, head: 6 })
+        arrow(g, L([x0, 580], [x0 + w * tt, 580]), { w: 1.4, d: 2400, t: 200, head: 6 })
       },
       aequator(g) {
-        hatch(g, [...E(180, 460, 120, 120, -11.5, 11.5), ...E(180, 460, 120, 120, 168.5, 191.5)], 900, true)
-        ink(g, E(180, 460, 120), { w: 3, t: 800 })
-        ink(g, L([62, 436], [298, 436]), { w: 2, d: 600, t: 400 })
-        ink(g, L([62, 484], [298, 484]), { w: 2, d: 700, t: 400 })
-        text(g, 180, 630, 'Äquator: Sonne immer hoch', { anchor: 'middle', cls: 's', d: 1100 })
+        // Sonnenlicht trifft den Äquator fast senkrecht; dort wechseln Regen- und Trockenzeit
+        sun(g, 30, 470, 16, 0, 8)
+        for (const y of [380, 430, 470, 510, 560]) {
+          const p = L([56, y], [60 + 120 - Math.sqrt(Math.max(0, 120 * 120 - (y - 470) ** 2)) + 50, y])
+          arrow(g, p, { w: 1.6, d: 300, t: 400, head: 7 })
+        }
+        earth(g, 230, 470, 110, 200, { lon: 20, lat: 0 })
+        ink(g, E(230, 470, 110, 10, 0, 180), { w: 1.8, d: 900, t: 500 })
+        cloud(g, 300, 330, 0.5, 1100, true)
+        rain(g, 280, 330, 40, 50, { n: 5, d: 1300 })
+        sun(g, 300, 620, 10, 1300, 8)
       },
       pol(g) {
-        ink(g, L([30, 480], [170, 480]), { w: 3, t: 400 })
-        ink(g, E(100, 434, 60, 18), { w: 2, d: 300, t: 700 })
-        sun(g, 160, 434, 7, 900, 8)
-        text(g, 100, 530, 'Polartag', { anchor: 'middle', d: 1000 })
-        ink(g, L([190, 480], [330, 480]), { w: 3, d: 200, t: 400 })
-        dashes(g, E(260, 528, 60, 18), { w: 1.6, d: 600 })
-        text(g, 260, 600, 'Polarnacht', { anchor: 'middle', d: 1200 })
+        // links Polartag: die Sonne zieht Kreise über dem Horizont; rechts Polarnacht: Sterne, Polarlicht
+        ink(g, L([20, 520], [170, 520]), { w: 2.6, t: 400 })
+        hatch(g, RR(20, 520, 150, 10, 2), 500)
+        const path = E(95, 470, 62, 18)
+        dashes(g, path, { w: 1.2, d: 300 })
+        const s = mk('g', { opacity: 0 }, g)
+        sun(s, 0, 0, 7, 0, 8)
+        mk('set', { attributeName: 'opacity', to: 1, begin: '0.9s', fill: 'freeze' }, s)
+        mk('animateMotion', { path: `M${path.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}`, dur: '6s', begin: '0.9s', repeatCount: 'indefinite' }, s)
+        ink(g, [[60, 520], [70, 504], [86, 498], [100, 504], [108, 520]], { w: 1.8, d: 600, t: 300 })
+        const night = RR(190, 330, 150, 190, 10)
+        hatch(g, night, 600, true)
+        ink(g, night, { w: 2.4, d: 300, t: 600 })
+        ink(g, L([190, 520], [340, 520]), { w: 2.6, d: 400, t: 400 })
+        dashes(g, E(265, 548, 60, 18), { w: 1.2, d: 700 })
+        for (let i = 0; i < 3; i++) {
+          const a = wobble(g, { dx: 6, ms: 3000 + i * 600, d: 900 })
+          ink(a, smooth([[200, 380 + i * 12], [240, 360 + i * 12], [280, 392 + i * 12], [330, 370 + i * 12]]), { w: 2.4, d: 900 + i * 150, t: 600 })
+        }
+        for (const [x, y] of [[210, 350], [300, 342], [326, 410], [214, 440], [270, 460]] as const) {
+          blank(g, E(x, y, 3))
+          ink(g, E(x, y, 2), { w: 1.2, d: 1200, t: 100 })
+        }
       },
       kepler(g) {
-        dashes(g, E(180, 460, 150, 120), { w: 1.6, t: 0 })
-        sun(g, 270, 460, 14, 200, 10)
-        arrow(g, E(180, 460, 150, 120, -30, 30), { w: 3.4, d: 700, t: 400, head: 10 })
-        arrow(g, E(180, 460, 150, 120, 172, 188), { w: 2.4, d: 1100, t: 400, head: 8 })
-        text(g, 180, 620, 'nah: schneller · fern: langsamer', { anchor: 'middle', cls: 's', d: 1300 })
+        // Zweites Keplersches Gesetz: gleiche Zeit, gleiche Fläche – nah ein kurzer, breiter Sektor, fern ein schmaler, langer
+        const orbit = E(180, 470, 150, 120)
+        dashes(g, orbit, { w: 1.4, t: 0 })
+        const F: P = [270, 470]
+        sun(g, F[0], F[1], 14, 200, 10)
+        const at = (deg: number): P => [180 + Math.cos(rad(deg)) * 150, 470 + Math.sin(rad(deg)) * 120]
+        hatch(g, [F, ...E(180, 470, 150, 120, -24, 24), F], 900)
+        ink(g, [at(-24), F, at(24)], { w: 1.4, d: 800, t: 300 })
+        hatch(g, [F, ...E(180, 470, 150, 120, 172, 188), F], 1100)
+        ink(g, [at(172), F, at(188)], { w: 1.4, d: 1000, t: 300 })
+        const e = mk('g', { opacity: 0 }, g)
+        earth(e, 0, 0, 9, 0, { w: 0.6 })
+        mk('set', { attributeName: 'opacity', to: 1, begin: '1.4s', fill: 'freeze' }, e)
+        // Bahnzeit nach Keplergleichung: nah schneller
+        const pts: string[] = []
+        const ecc = 0.6
+        for (let i = 0; i <= 48; i++) {
+          const M = (i / 48) * 2 * Math.PI
+          let Ea = M
+          for (let j = 0; j < 8; j++) Ea = M + ecc * Math.sin(Ea)
+          pts.push(`${(180 + 150 * Math.cos(Ea)).toFixed(1)} ${(470 + 120 * Math.sin(Ea)).toFixed(1)}`)
+        }
+        mk('animateMotion', { path: `M${pts.join('L')}`, dur: '8s', begin: '1.4s', repeatCount: 'indefinite' }, e)
       },
       mars(g) {
-        ball(g, 180, 460, 80, { fill: 'hell', w: 3 })
-        const dx = Math.sin(rad(25))
-        const dy = -Math.cos(rad(25))
-        ink(g, L([180 + dx * 82, 460 + dy * 82], [180 + dx * 126, 460 + dy * 126]), { w: 3, d: 700, t: 300 })
-        ink(g, L([180 - dx * 82, 460 - dy * 82], [180 - dx * 126, 460 - dy * 126]), { w: 3, d: 700, t: 300 })
-        text(g, 180, 630, 'Mars: 25° Neigung, Jahr 687 Tage', { anchor: 'middle', cls: 's', d: 1100 })
+        // Mars mit Polkappen, Krater, Valles Marineris; daneben die beiden Bahnen (365 und 687 Tage)
+        const t = group(g, '', 'transform: rotate(25deg); transform-origin: 150px 470px')
+        blank(t, E(150, 470, 86))
+        hatch(t, E(150, 470, 86), 600)
+        hatch(t, [...E(150, 470, 86, 86, 235, 305), [150, 395]], 900, true)
+        hatch(t, [...E(150, 470, 86, 86, 60, 120), [150, 548]], 900, true)
+        ink(t, E(150, 470, 86), { w: 3, t: 800 })
+        ink(t, B([96, 462], [130, 470], [170, 466], [208, 478]), { w: 2, d: 1000, t: 400 })
+        for (const [x, y, r] of [[120, 500, 8], [190, 440, 10], [170, 510, 6]] as const) ink(t, E(x, y, r), { w: 1.4, d: 1100, t: 200 })
+        ink(t, L([150, 384], [150, 344]), { w: 3, d: 700, t: 300 })
+        ink(t, L([150, 556], [150, 596]), { w: 3, d: 700, t: 300 })
+        sun(g, 300, 600, 6, 1300, 8)
+        ink(g, E(300, 600, 22), { w: 1.4, d: 1400, t: 500 })
+        ink(g, E(300, 600, 34), { w: 1.4, d: 1500, t: 500 })
+        const e1 = spin(g, 300, 600, 3650, 1600)
+        dot(e1, 300, 578, 3, 1600)
+        const e2 = spin(g, 300, 600, 6870, 1600)
+        dot(e2, 300, 566, 4, 1600)
       },
       ende(g) {
-        earth(g, 180, 500, 64)
-        const dx = Math.sin(rad(23.4))
-        const dy = -Math.cos(rad(23.4))
-        ink(g, L([180 + dx * 66, 500 + dy * 66], [180 + dx * 100, 500 + dy * 100]), { w: 3, d: 700, t: 300 })
-        ink(g, L([180 - dx * 66, 500 - dy * 66], [180 - dx * 100, 500 - dy * 100]), { w: 3, d: 700, t: 300 })
+        sun(g, 40, 500, 18, 0, 8)
+        for (const y of [470, 500, 530]) flow(g, L([70, y], [110, y]), { n: 2, ms: 900, d: 600, r: 1.8, kind: 'dash' })
+        const t = group(g, '', 'transform: rotate(23.4deg); transform-origin: 200px 500px')
+        earth(t, 200, 500, 64, 0, { lon: 10, lat: 0 })
+        ink(t, L([200, 436], [200, 400]), { w: 3, d: 700, t: 300 })
+        ink(t, L([200, 564], [200, 600]), { w: 3, d: 700, t: 300 })
+        hatch(g, [...E(200, 500, 64, 64, -90, 90), [200, 564]], 900, true)
       },
     },
     scenes: [
@@ -1508,131 +1877,204 @@ export const AHA_PHYSIK: Bite[] = [
     images: [],
     draw: {
       gross(g) {
-        moon(g, 180, 250, 130)
+        stars(g, 20, 80, 320, 360, 30, 0, (x, y) => Math.hypot(x - 180, y - 250) < 150)
+        moonFace(g, 180, 250, 130)
       },
       flecken(g) {
-        moon(g, 160, 470, 110)
-        question(g, 320, 350, 0.9, 900)
+        moonFace(g, 150, 480, 106)
+        // Luna 3 fliegt hinter den Mond und fotografiert die Rückseite
+        const pr = glide(g, -20, -10, { ms: 6000, d: 900 })
+        const body: P[] = [...E(304, 340, 10, 16)]
+        blank(pr, body)
+        ink(pr, body, { w: 2, d: 600, t: 300 })
+        for (const [a, b] of [[[296, 330], [280, 316]], [[312, 330], [328, 316]], [[300, 354], [290, 372]], [[308, 354], [318, 372]]] as [P, P][]) ink(pr, L(a, b), { w: 1.4, d: 800, t: 150 })
+        hatch(pr, RR(298, 334, 12, 8, 2), 900, true)
+        dashes(g, L([292, 356], [236, 412]), { w: 1.2, d: 1200, dash: 4, gap: 4 })
+        dashes(g, L([300, 360], [256, 440]), { w: 1.2, d: 1200, dash: 4, gap: 4 })
       },
       umlauf(g) {
-        earth(g, 180, 460, 46)
+        earth(g, 180, 460, 46, 0, { lon: 0, lat: 90 })
         dashes(g, E(180, 460, 130), { w: 1.4, d: 400 })
         ;[[180, 330], [310, 460], [180, 590], [50, 460]].forEach(([x, y], i) => {
           const d = 700 + i * 250
-          blank(g, E(x, y, 18))
-          hatch(g, [...E(x, y, 18, 18, 0, 360)], d + 200)
-          ink(g, E(x, y, 18), { w: 2.4, d, t: 300 })
+          blank(g, E(x, y, 16))
+          ink(g, E(x, y, 16), { w: 1.4, d, t: 300 })
           const k = Math.hypot(180 - x, 460 - y)
-          dot(g, x + ((180 - x) / k) * 9, y + ((460 - y) / k) * 9, 4.5, d + 300)
+          hatch(g, [...E(x + ((180 - x) / k) * 6, y + ((460 - y) / k) * 6, 7)], d + 200, true)
         })
+        const o = spin(g, 180, 460, 10000, 1800)
+        moon(o, 180, 330, 18, 1800)
+        hatch(o, E(180, 341, 8, 5), 2000, true)
         arcArrow(g, 180, 460, 164, -64, -22, { d: 1800, t: 400 })
       },
       stuhl(g) {
-        ink(g, RR(158, 438, 44, 44, 6), { w: 2.8, t: 500 })
-        ;[[180, 350], [290, 460], [180, 570], [70, 460]].forEach(([x, y], i) => {
-          const d = 400 + i * 300
-          ball(g, x, y, 12, { d, t: 300 })
-          const k = Math.hypot(180 - x, 460 - y)
-          arrow(g, L([x + ((180 - x) / k) * 16, y + ((460 - y) / k) * 16], [x + ((180 - x) / k) * 40, y + ((460 - y) / k) * 40]), { w: 2.2, d: d + 200, t: 200, head: 7 })
-        })
-        arcArrow(g, 180, 460, 150, 200, 250, { d: 1700, t: 400 })
-        text(g, 180, 640, 'du schaust immer zum Stuhl', { anchor: 'middle', cls: 's', d: 1800 })
+        // Draufsicht: Stuhl mit Lehne, du gehst herum und schaust ihn immer an
+        const ch: P[] = [[160, 440], [200, 440], [200, 480], [160, 480], [160, 440]]
+        blank(g, ch)
+        hatch(g, ch, 400)
+        ink(g, ch, { w: 2.6, t: 500 })
+        ink(g, RR(156, 432, 48, 8, 3), { w: 2.4, d: 200, t: 300 })
+        for (const [x, y] of [[163, 443], [197, 443], [163, 477], [197, 477]] as const) dot(g, x, y, 2.4, 400)
+        dashes(g, E(180, 460, 120), { w: 1.2, d: 500, dash: 5, gap: 7 })
+        const o = spin(g, 180, 460, 9000, 900)
+        // Person von oben: Schultern, Kopf, Nase zum Stuhl
+        blank(o, E(180, 340, 20, 9))
+        ink(o, E(180, 340, 20, 9), { w: 2.2, d: 700, t: 300 })
+        blank(o, E(180, 340, 8))
+        ink(o, E(180, 340, 8), { w: 2.2, d: 800, t: 200 })
+        ink(o, L([180, 348], [180, 356]), { w: 2, d: 900, t: 100 })
+        dashes(o, L([180, 360], [180, 428]), { w: 1, d: 1000, dash: 3, gap: 5 })
+        arcArrow(g, 180, 460, 146, 200, 250, { d: 1700, t: 400 })
       },
       gebunden(g) {
-        earth(g, 90, 460, 46)
-        moon(g, 290, 460, 24, 300)
-        dot(g, 270, 460, 4.5, 800)
-        dashes(g, L([142, 460], [262, 460]), { w: 1.6, d: 900 })
-        text(g, 190, 430, 'immer dieselbe Seite', { anchor: 'middle', cls: 's', d: 1100 })
+        earth(g, 80, 460, 46, 0, { lon: 30, lat: 10 })
+        moonFace(g, 280, 460, 40, 300, { rot: -90 })
+        dashes(g, L([132, 460], [236, 460]), { w: 1.4, d: 900 })
       },
       beule(g) {
-        earth(g, 90, 460, 46)
-        blank(g, E(280, 460, 40, 26))
-        hatch(g, E(280, 460, 40, 26), 500)
-        ink(g, E(280, 460, 40, 26), { w: 2.6, d: 300, t: 600 })
-        arrow(g, L([232, 460], [182, 460]), { w: 2.4, d: 900, t: 300, head: 8 })
-        text(g, 280, 530, 'Gezeitenbeule', { anchor: 'middle', cls: 's', d: 1100 })
+        earth(g, 80, 460, 46, 0, { lon: 30, lat: 10 })
+        blank(g, E(276, 460, 46, 28))
+        hatch(g, E(276, 460, 46, 28), 500)
+        ink(g, E(276, 460, 46, 28), { w: 2.6, d: 300, t: 600 })
+        dashes(g, E(276, 460, 30), { w: 1, d: 600, dash: 4, gap: 4 })
+        for (const s of [-1, 1]) arrow(g, L([276 + s * 50, 460], [276 + s * 70, 460]), { w: 2, d: 900, t: 300, head: 7 })
+        arrow(g, L([226, 440], [140, 448]), { w: 1.6, d: 1100, t: 400, head: 7 })
+        text(g, 276, 516, 'Gezeitenbeule', { anchor: 'middle', cls: 's', d: 1300 })
       },
       bremse(g) {
-        earth(g, 80, 460, 46)
+        earth(g, 80, 460, 46, 0, { lon: 30, lat: 10 })
         const tilt = group(g, '', 'transform: rotate(32deg); transform-origin: 270px 460px')
         const m = st(tilt, 'm1', '--m1: rotate(-32deg); transform-origin: 270px 460px; transition-duration: 2.4s')
-        blank(m, E(270, 460, 40, 26))
-        hatch(m, E(270, 460, 40, 26), 500)
-        ink(m, E(270, 460, 40, 26), { w: 2.6, d: 300, t: 600 })
-        const spin = st(g, 'h1')
-        arcArrow(spin, 270, 460, 62, -150, -40, { d: 800, t: 500 })
-        text(g, 180, 600, 'Erde zieht an der Beule', { anchor: 'middle', cls: 's', d: 1000 })
+        blank(m, E(270, 460, 42, 26))
+        hatch(m, E(270, 460, 42, 26), 500)
+        ink(m, E(270, 460, 42, 26), { w: 2.6, d: 300, t: 600 })
+        dot(m, 232, 460, 3.4, 700)
+        const sp = st(g, 'h1')
+        arcArrow(sp, 270, 460, 62, -150, -40, { d: 800, t: 500 })
+        arrow(sp, L([238, 440], [140, 452]), { w: 1.6, d: 1100, t: 400, head: 7 })
       },
       monde(g) {
-        ball(g, 180, 460, 56, { fill: 'dicht', w: 3 })
-        ;[[180, 330, 12], [300, 420, 16], [250, 580, 10], [60, 520, 14], [80, 360, 9]].forEach(([x, y, r], i) => {
-          const d = 600 + i * 200
-          ball(g, x, y, r, { d, t: 300 })
-          const k = Math.hypot(180 - x, 460 - y)
-          dot(g, x + ((180 - x) / k) * r * 0.5, y + ((460 - y) / k) * r * 0.5, 3, d + 200)
+        // Jupiter mit Wolkenbändern und Großem Roten Fleck; die vier großen Monde zeigen ihm stets dieselbe Seite
+        blank(g, E(180, 470, 62))
+        for (const [y, h, dd] of [[-34, 8, 0], [-14, 10, 1], [8, 8, 0], [28, 7, 1]] as const) {
+          const yy = 470 + y
+          const half = Math.sqrt(62 * 62 - y * y)
+          const band: P[] = [[180 - half, yy - h / 2], ...smooth([[180 - half, yy - h / 2], [180, yy - h / 2 - 2], [180 + half, yy - h / 2]], 6), [180 + half, yy + h / 2], [180 - half, yy + h / 2]]
+          hatch(g, band, 600, !!dd)
+        }
+        ink(g, E(208, 486, 10, 6), { w: 1.6, d: 900, t: 200 })
+        ink(g, E(180, 470, 62), { w: 3, t: 800 })
+        ;[[86, 2600], [110, 5200], [140, 10400], [170, 24000]].forEach(([r, ms], i) => {
+          dashes(g, E(180, 470, r, r * 0.35), { w: 1, d: 300 + i * 100, dash: 4, gap: 6 })
+          const o = mk('g', { opacity: 0 }, g)
+          ball(o, 0, 0, 6 + (i % 2) * 2, { fill: 'hell', t: 0, w: 1.6 })
+          dot(o, -3, 0, 2, 0)
+          const path = E(180, 470, r, r * 0.35)
+          mk('set', { attributeName: 'opacity', to: 1, begin: `${0.8 + i * 0.2}s`, fill: 'freeze' }, o)
+          mk('animateMotion', { path: `M${path.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}`, dur: `${ms / 1000}s`, begin: `${0.8 + i * 0.2}s`, repeatCount: 'indefinite', rotate: 'auto' }, o)
         })
       },
       pluto(g) {
-        const p = group(g)
-        p.style.transformOrigin = '160px 460px'
-        ball(p, 120, 460, 40, { fill: 'hell', w: 3 })
-        ball(p, 270, 460, 22, { d: 300, fill: 'leer' })
-        dashes(p, L([164, 460], [244, 460]), { w: 1.6, d: 700 })
-        p.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], { duration: 12000, iterations: Infinity })
-        text(g, 180, 650, 'Pluto und Charon', { anchor: 'middle', cls: 's', d: 900 })
+        // Pluto (mit dem hellen „Herz“) und Charon drehen sich umeinander und schauen sich dabei immer an
+        dashes(g, E(150, 460, 18), { w: 1, d: 600, dash: 3, gap: 4 })
+        const p = spin(g, 150, 460, 12000, 800)
+        ball(p, 110, 460, 40, { fill: 'hell', w: 3 })
+        const heart: P[] = [...B([132, 470], [118, 458], [124, 444], [136, 452]), ...B([136, 452], [146, 444], [152, 460], [132, 470]).slice(1)]
+        blank(p, heart)
+        ink(p, heart, { w: 1.6, d: 900, t: 300 })
+        ball(p, 260, 460, 21, { d: 300, fill: 'leer' })
+        hatch(p, E(246, 456, 7, 5), 900, true)
+        dashes(p, L([154, 460], [236, 460]), { w: 1.4, d: 700 })
+        stars(g, 20, 320, 320, 80, 14, 0)
       },
       tageslaenge(g) {
         hbars(g, [
-          { label: 'vor 400 Mio. Jahren', v: 22, fmt: (v) => `${Math.round(v)} h` },
+          { label: 'Devon-Zeit', v: 22, fmt: (v) => `${Math.round(v)} h` },
           { label: 'heute', v: 24, fmt: (v) => `${Math.round(v)} h`, dense: true },
         ], { y: 380, gap: 120, max: 24 })
+        const e = spin(g, 300, 600, 3000, 1200)
+        earth(e, 300, 600, 26, 1000, { lon: 0, lat: 90, w: 0.8 })
+        moon(g, 220, 620, 8, 1300)
       },
       koralle(g) {
-        const shape: P[] = [...B([60, 620], [40, 480], [120, 340], [180, 330]), ...B([180, 330], [240, 340], [320, 480], [300, 620]).slice(1), [60, 620]]
+        // fossile Koralle: grobe Jahres- und feine Tagesringe; die Lupe zeigt die feinen Linien
+        const shape: P[] = [...B([60, 630], [40, 500], [120, 350], [180, 340]), ...B([180, 340], [240, 350], [320, 500], [300, 630]).slice(1), [60, 630]]
         blank(g, shape)
         ink(g, shape, { w: 3, t: 800 })
         for (let k = 1; k < 9; k++) {
-          const y = 620 - k * 30
-          const half = 120 * Math.sqrt(1 - Math.pow((620 - y) / 300, 2)) - 10
-          ink(g, B([180 - half, y + 6], [180 - half / 2, y - 6], [180 + half / 2, y - 6], [180 + half, y + 6]), { w: 1.4, d: 500 + k * 80, t: 300 })
+          const y = 630 - k * 30
+          const half = 120 * Math.sqrt(1 - Math.pow((630 - y) / 300, 2)) - 10
+          ink(g, B([180 - half, y + 6], [180 - half / 2, y - 6], [180 + half / 2, y - 6], [180 + half, y + 6]), { w: 1.6, d: 500 + k * 80, t: 300 })
         }
-        text(g, 180, 300, 'rund 400 Tagesringe pro Jahr', { anchor: 'middle', cls: 's', d: 1300 })
+        blank(g, E(250, 520, 52))
+        for (let k = 0; k < 14; k++) ink(g, L([206, 486 + k * 5], [294, 482 + k * 5]), { w: 0.7, d: 1300 + k * 40, t: 100 })
+        blank(g, [...E(250, 520, 60), ...E(250, 520, 52, 52, 360, 0)])
+        ink(g, E(250, 520, 54), { w: 3, d: 1200, t: 400 })
+        ink(g, L([290, 560], [326, 600]), { w: 6, d: 1400, t: 200 })
       },
       naeher(g) {
-        earth(g, 60, 460, 34)
-        moon(g, 140, 460, 28, 300)
-        moon(g, 306, 460, 10, 600)
-        text(g, 140, 530, 'früher', { anchor: 'middle', cls: 's', d: 800 })
-        text(g, 306, 530, 'heute', { anchor: 'middle', cls: 's', d: 900 })
-        arrow(g, L([182, 460], [284, 460]), { w: 2.2, d: 1000, t: 500, head: 9 })
+        // Urzeit: Vulkane, riesiger naher Mond – heute: kleiner Mond über flachem Land
+        const sky1 = RR(20, 330, 154, 250, 10)
+        ink(g, sky1, { w: 2.4, t: 500 })
+        moonFace(g, 97, 420, 56, 300)
+        const v: P[] = [[26, 580], [60, 520], [74, 524], [100, 580]]
+        hatch(g, v, 800, true)
+        ink(g, v, { w: 2, d: 600, t: 300 })
+        const v2: P[] = [[96, 580], [130, 540], [140, 543], [168, 580]]
+        hatch(g, v2, 900, true)
+        ink(g, v2, { w: 2, d: 700, t: 300 })
+        for (const x of [67, 135]) flow(g, L([x, 520], [x + 10, 470]), { n: 2, ms: 1500, d: 1000, r: 3, kind: 'ring' })
+        const sky2 = RR(186, 330, 154, 250, 10)
+        ink(g, sky2, { w: 2.4, d: 200, t: 500 })
+        moonFace(g, 263, 400, 12, 700)
+        ground(g, 190, 336, 560, 900)
+        tree(g, 300, 560, 0.3, 1000)
+        text(g, 97, 606, 'früher', { anchor: 'middle', cls: 's', d: 1100 })
+        text(g, 263, 606, 'heute', { anchor: 'middle', cls: 's', d: 1200 })
       },
       zukunft(g) {
-        sun(g, 180, 470, 30)
+        // die Sonne bläht sich auf und verschluckt die inneren Bahnen
+        dashes(g, E(180, 470, 60), { w: 1, d: 300, dash: 4, gap: 6 })
+        dashes(g, E(180, 470, 100), { w: 1, d: 400, dash: 4, gap: 6 })
+        dashes(g, E(180, 470, 140), { w: 1, d: 500, dash: 4, gap: 6 })
+        const e = spin(g, 180, 470, 8000, 600)
+        earth(e, 180, 330, 9, 600, { w: 0.6 })
+        sun(g, 180, 470, 26)
         const big = st(g, 'x1', '--o: 180px 470px')
-        dashes(big, E(180, 470, 140), { w: 2, t: 0 })
-        text(big, 180, 640, 'Roter Riese', { anchor: 'middle', fade: false })
+        blank(big, E(180, 470, 120))
+        hatch(big, E(180, 470, 120), 0)
+        ink(big, E(180, 470, 120), { w: 3, t: 0 })
+        for (let k = 0; k < 7; k++) ink(big, E(180 + Math.cos(k) * 50, 470 + Math.sin(k * 1.7) * 50, 14 + (k % 3) * 6), { w: 1, t: 0 })
       },
       rueckseite(g) {
-        sun(g, 40, 460, 18, 0, 8)
+        sun(g, 34, 460, 18, 0, 8)
+        for (const y of [430, 460, 490]) flow(g, L([62, y], [140, y]), { n: 2, ms: 1000, d: 500, r: 1.8, kind: 'dash' })
         blank(g, E(180, 460, 30))
         hatch(g, [...E(180, 460, 30, 30, -90, 90)], 600, true)
         ink(g, E(180, 460, 30), { w: 2.8, d: 300, t: 500 })
-        earth(g, 308, 460, 28, 400)
+        earth(g, 308, 460, 28, 400, { lon: 40, lat: 10 })
+        hatch(g, [...E(308, 460, 28, 28, -90, 90)], 900, true)
         text(g, 180, 530, 'Mond', { anchor: 'middle', cls: 's', d: 900 })
         text(g, 308, 520, 'Erde', { anchor: 'middle', cls: 's', d: 1000 })
-        text(st(g, 'f1'), 100, 600, 'Rückseite im Licht', { anchor: 'middle', cls: 's', fade: false })
-        arrow(st(g, 'f1'), L([100, 584], [150, 490]), { w: 2, t: 0, head: 8 })
+        arrow(st(g, 'f1'), L([110, 590], [152, 484]), { w: 2, t: 0, head: 8 })
+        ink(st(g, 'f1'), E(180, 460, 36, 36, 120, 240), { w: 2.4, t: 0 })
       },
       libration(g) {
-        pie(g, 180, 460, 110, 0.59)
-        text(g, 180, 614, '59 %', { anchor: 'middle', size: 30, d: 1000 })
-        text(g, 180, 644, 'sichtbar im Lauf der Zeit', { anchor: 'middle', cls: 's', d: 1200 })
+        // der Mond schwankt: an den Rändern tauchen abwechselnd Stücke der Rückseite auf
+        moonFace(g, 180, 430, 104, 0, { libr: 10 })
+        const pie: [number, number, string, boolean][] = [[0, 0.41, '41 % immer', true], [0.41, 0.59, '18 % manchmal', false], [0.59, 1, '41 % nie', false]]
+        pie.forEach(([a, b, l, dense], i) => {
+          const pts: P[] = [[80, 600], ...E(80, 600, 34, 34, -90 + a * 360, -90 + b * 360), [80, 600]]
+          if (i < 2) hatch(g, pts, 900 + i * 200, dense)
+          ink(g, pts, { w: 1.6, d: 800 + i * 200, t: 300 })
+          text(g, 132, 580 + i * 22, l, { cls: 's', d: 1100 + i * 200 })
+        })
       },
       ende(g) {
-        earth(g, 110, 520, 40)
-        moon(g, 270, 520, 22, 300)
-        dashes(g, L([156, 520], [244, 520]), { w: 1.6, d: 700 })
+        earth(g, 110, 520, 40, 0, { lon: 30, lat: 10 })
+        dashes(g, E(110, 520, 150, 150, -24, 24), { w: 1.2, d: 400, dash: 5, gap: 6 })
+        moonFace(g, 260, 520, 22, 300, { rot: -90 })
+        dashes(g, L([156, 520], [234, 520]), { w: 1.4, d: 700 })
       },
     },
     scenes: [

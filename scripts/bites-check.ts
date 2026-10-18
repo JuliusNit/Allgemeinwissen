@@ -101,9 +101,21 @@ function check(stage: HTMLElement, scene: number): Issue[] {
     const hatchFill = (p.getAttribute('fill') ?? '').startsWith('url(')
     const white = p.getAttribute('fill') === '#fff'
     if (white) continue
-    const pr = rel(p.getBoundingClientRect(), o)
+    let pr = rel(p.getBoundingClientRect(), o)
     const m = p.getScreenCTM()?.inverse()
     if (!m) continue
+    // zugeschnittene Gruppen (clip-path mit Rechteck): nur der sichtbare Ausschnitt zählt
+    const cg = p.closest('[clip-path]')
+    const cr = cg && document.getElementById((cg.getAttribute('clip-path') ?? '').replace(/^url\(#|\)$/g, ''))?.querySelector('rect')
+    if (cr) {
+      const sm = (cg as SVGGraphicsElement).getScreenCTM()!
+      const a = new DOMPoint(+cr.getAttribute('x')!, +cr.getAttribute('y')!).matrixTransform(sm)
+      const b = new DOMPoint(+cr.getAttribute('x')! + +cr.getAttribute('width')!, +cr.getAttribute('y')! + +cr.getAttribute('height')!).matrixTransform(sm)
+      const x0 = Math.max(pr.x, a.x - o.left)
+      const y0 = Math.max(pr.y, a.y - o.top)
+      pr = { x: x0, y: y0, w: Math.min(pr.x + pr.w, b.x - o.left) - x0, h: Math.min(pr.y + pr.h, b.y - o.top) - y0 }
+      if (pr.w <= 0 || pr.h <= 0) continue
+    }
     for (const t of texts) {
       if (hatchFill && t.halo) continue
       for (const s of t.sc) {

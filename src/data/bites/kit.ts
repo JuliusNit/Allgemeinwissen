@@ -3,7 +3,7 @@
 // Layout-Regel der aha-Häppchen: Text oben (y 64, bis ~260) → Grafik zwischen 290 und 650; Text unten (y ≥ 470) →
 // Grafik zwischen 70 und 450. Beschriftungen nie auf Strichen, Linien kreuzen sich nur, wo es gemeint ist
 // (scripts/bites-check.mjs prüft das).
-import { B, E, L, RR, arrow, blank, group, hatch, ink, mk, pop, text, type P } from './draw'
+import { B, E, L, RR, arrow, blank, dashes, group, hatch, ink, mk, pop, text, type P } from './draw'
 
 const rad = (a: number) => (a * Math.PI) / 180
 
@@ -586,4 +586,84 @@ export function rain(g: Element, x: number, y: number, w: number, h: number, o: 
     const py = y + rnd() * h * 0.3
     flow(g, L([px, py], [px - h * sl, py + h * 0.7]), { n: 1, ms: (o.ms ?? 900) * (0.8 + rnd() * 0.4), d: (o.d ?? 0) + rnd() * 600, r: 2.2, kind: 'dash' })
   }
+}
+
+/** Kartenausschnitt (Länge lon0…lon1, Breite lat0…lat1) im Rechteck: Land schraffiert, Küsten als Tusche, Meer weiß */
+export function mapRegion(g: Element, x: number, y: number, w: number, h: number, lon0: number, lon1: number, lat0: number, lat1: number, d = 0): (lon: number, lat: number) => P {
+  const pr = (lon: number, lat: number): P => [x + ((lon - lon0) / (lon1 - lon0)) * w, y + ((lat1 - lat) / (lat1 - lat0)) * h]
+  const id = `mr${++clipN}`
+  const cp = mk('clipPath', { id }, g)
+  mk('rect', { x, y, width: w, height: h }, cp)
+  const c = mk('g', { 'clip-path': `url(#${id})` }, g)
+  COASTS.forEach((poly, i) => {
+    if (!poly.some(([lo, la]) => lo > lon0 - 30 && lo < lon1 + 30 && la > lat0 - 30 && la < lat1 + 30)) return
+    const pts: P[] = []
+    for (let k = 0; k < poly.length - 1; k++) {
+      const [a0, b0] = poly[k]
+      const [a1, b1] = poly[k + 1]
+      const n = Math.max(1, Math.ceil(Math.max(Math.abs(a1 - a0), Math.abs(b1 - b0)) / 0.5))
+      for (let j = k ? 1 : 0; j <= n; j++) pts.push(pr(a0 + ((a1 - a0) * j) / n, b0 + ((b1 - b0) * j) / n))
+    }
+    hatch(c, pts, d + 500 + i * 40)
+    ink(c, pts, { w: 1.8, d: d + 200, t: 900, p: 0.3 })
+  })
+  ink(g, RR(x, y, w, h, 6), { w: 2.6, d, t: 700 })
+  return pr
+}
+
+/** Gestrichelte Kurve im Rechteck (wie plot) */
+export function dplot(g: Element, x0: number, y0: number, w: number, h: number, f: (t: number) => number, d = 0, wd = 1.8): P[] {
+  const pts = Array.from({ length: 81 }, (_, i) => [x0 + (w * i) / 80, y0 - h * f(i / 80)] as P)
+  dashes(g, pts, { w: wd, d, dash: 7, gap: 5, step: 25 })
+  return pts
+}
+
+/** Schneeflocke mit sechs Armen und Seitenästen */
+export function flake(g: Element, cx: number, cy: number, r: number, d = 0): void {
+  for (let k = 0; k < 6; k++) {
+    const a = rad(k * 60 - 90)
+    const tip: P = [cx + Math.cos(a) * r, cy + Math.sin(a) * r]
+    ink(g, L([cx, cy], tip), { w: Math.max(1, r / 6), d: d + k * 40, t: 150 })
+    const m: P = [cx + Math.cos(a) * r * 0.6, cy + Math.sin(a) * r * 0.6]
+    for (const s of [-1, 1]) ink(g, L(m, [m[0] + Math.cos(a + s * 0.8) * r * 0.32, m[1] + Math.sin(a + s * 0.8) * r * 0.32]), { w: Math.max(0.8, r / 9), d: d + 300 + k * 40, t: 100 })
+  }
+}
+
+/** Mond-Vorderseite: Meere (Procellarum, Imbrium, Serenitatis, Tranquillitatis, Crisium, Fecunditatis, Nubium, Frigoris), Tycho mit Strahlen, Copernicus. libr = Schwanken in px (Libration) */
+export function moonFace(g: Element, cx: number, cy: number, r: number, d = 0, o: { libr?: number; rot?: number } = {}): void {
+  const id = `mf${++clipN}`
+  const cp = mk('clipPath', { id }, g)
+  mk('circle', { cx, cy, r }, cp)
+  blank(g, E(cx, cy, r))
+  const c = mk('g', { 'clip-path': `url(#${id})` }, g)
+  const rot = mk('g', o.rot ? { transform: `rotate(${o.rot} ${cx} ${cy})` } : {}, c)
+  const f = o.libr ? wobble(rot, { dx: o.libr, dy: o.libr * 0.3, ms: 5000, d: d + 800 }) : rot
+  const P = (x: number, y: number): P => [cx + x * r, cy + y * r]
+  const blobAt = (x: number, y: number, rx: number, ry: number, seed: number): P[] => {
+    const pts: P[] = []
+    for (let i = 0; i < 9; i++) {
+      const a = (i / 9) * Math.PI * 2
+      const k = 1 + 0.18 * Math.sin(a * 3 + seed) + 0.1 * Math.cos(a * 5 + seed * 2)
+      pts.push(P(x + Math.cos(a) * rx * k, y + Math.sin(a) * ry * k))
+    }
+    return smooth([...pts, pts[0], pts[1]], 5).slice(0, -5)
+  }
+  const maria: [number, number, number, number, number][] = [
+    [-0.62, 0.02, 0.24, 0.42, 1], [-0.3, -0.45, 0.25, 0.22, 2], [0.15, -0.42, 0.16, 0.15, 3], [0.3, -0.1, 0.2, 0.17, 4],
+    [0.66, -0.3, 0.12, 0.1, 5], [0.55, 0.15, 0.12, 0.18, 6], [-0.2, 0.33, 0.18, 0.13, 7], [0, -0.72, 0.4, 0.07, 8], [-0.05, 0.08, 0.12, 0.1, 9],
+  ]
+  maria.forEach(([x, y, rx, ry, s], i) => {
+    const b = blobAt(x, y, rx, ry, s)
+    hatch(f, b, d + 600 + i * 60, i === 1 || i === 3)
+    ink(f, [...b, b[0]], { w: Math.max(0.8, r / 90), d: d + 300 + i * 50, t: 400, p: 0.3 })
+  })
+  for (const [x, y, k] of [[-0.15, 0.72, 0.05], [-0.33, -0.12, 0.045], [-0.6, 0.55, 0.035], [0.4, 0.55, 0.04], [0.55, -0.6, 0.03]] as const) {
+    ink(f, E(cx + x * r, cy + y * r, k * r), { w: Math.max(0.8, r / 100), d: d + 900, t: 200 })
+  }
+  if (r > 60) for (let k = 0; k < 10; k++) {
+    const a = rad(k * 36 + 10)
+    const t: P = P(-0.15, 0.72)
+    ink(f, L([t[0] + Math.cos(a) * r * 0.07, t[1] + Math.sin(a) * r * 0.07], [t[0] + Math.cos(a) * r * (0.25 + (k % 3) * 0.1), t[1] + Math.sin(a) * r * (0.25 + (k % 3) * 0.1)]), { w: 0.7, d: d + 1100 + k * 30, t: 150 })
+  }
+  ink(g, E(cx, cy, r), { w: Math.max(1.6, Math.min(3, r / 30)), d, t: 700 })
 }
