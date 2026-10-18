@@ -667,3 +667,80 @@ export function moonFace(g: Element, cx: number, cy: number, r: number, d = 0, o
   }
   ink(g, E(cx, cy, r), { w: Math.max(1.6, Math.min(3, r / 30)), d, t: 700 })
 }
+
+/** Sonnenscheibe: Granulation, Randverdunklung, Sonnenflecken (Kern + Hof), Protuberanzen am Rand */
+export function sunDisk(g: Element, cx: number, cy: number, r: number, d = 0): void {
+  blank(g, E(cx, cy, r))
+  const rnd = rng(41)
+  const n = Math.round((r * r) / 90)
+  for (let i = 0; i < n; i++) {
+    const a = rnd() * Math.PI * 2
+    const rr = Math.sqrt(rnd()) * r * 0.92
+    const x = cx + Math.cos(a) * rr
+    const y = cy + Math.sin(a) * rr
+    const s = 2 + rnd() * 2.6
+    ink(g, E(x, y, s, s * 0.8, rnd() * 360, rnd() * 360 + 200), { w: 0.7, d: d + 400 + i * 4, t: 80 })
+  }
+  hatch(g, [...E(cx, cy, r), ...E(cx, cy, r * 0.86, r * 0.86, 360, 0)], d + 700)
+  for (const [x, y, k] of [[-0.3, -0.2, 0.09], [-0.18, -0.26, 0.05], [0.35, 0.25, 0.07]] as const) {
+    const px = cx + x * r
+    const py = cy + y * r
+    hatch(g, E(px, py, k * r * 1.8, k * r * 1.5), d + 900)
+    ink(g, E(px, py, k * r * 1.8, k * r * 1.5), { w: 1, d: d + 800, t: 200 })
+    mk('ellipse', { cx: px, cy: py, rx: k * r * 0.8, ry: k * r * 0.7, class: 'k fade', style: `--d:${d + 1000}ms` }, g)
+  }
+  ink(g, E(cx, cy, r), { w: 3, d, t: 800 })
+  for (const a0 of [-40, 150]) {
+    const a = rad(a0)
+    const base: P = [cx + Math.cos(a) * r, cy + Math.sin(a) * r]
+    const out: P = [cx + Math.cos(a) * r * 1.22, cy + Math.sin(a) * r * 1.22]
+    const b2: P = [cx + Math.cos(a + 0.22) * r, cy + Math.sin(a + 0.22) * r]
+    ink(g, B(base, [out[0] - Math.sin(a) * r * 0.1, out[1] + Math.cos(a) * r * 0.1], [out[0] + Math.sin(a) * r * 0.2, out[1] - Math.cos(a) * r * 0.05], b2), { w: 1.8, d: d + 1100, t: 500 })
+  }
+  for (let k = 0; k < 16; k++) {
+    const a = rad(k * 22.5 + 8)
+    const l = r * (0.18 + (k % 3) * 0.1)
+    ink(g, L([cx + Math.cos(a) * (r + 8), cy + Math.sin(a) * (r + 8)], [cx + Math.cos(a) * (r + 8 + l), cy + Math.sin(a) * (r + 8 + l)]), { w: 1.4, d: d + 1200 + k * 30, t: 150 })
+  }
+}
+
+/** Mammut mit Fell, Stoßzähnen und eingerolltem Rüssel, Füße auf y, Blick nach rechts */
+export function mammoth(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const body: P[] = [...B(P(-52, -22), P(-62, -70), P(-20, -92), P(10, -88)), ...B(P(10, -88), P(30, -104), P(56, -86), P(54, -58)).slice(1), ...B(P(54, -58), P(58, -40), P(54, -30), P(48, -24)).slice(1), P(46, 0), P(32, 0), P(32, -24), P(-20, -24), P(-20, 0), P(-34, 0), P(-36, -20), P(-52, -22)]
+  blank(g, body)
+  hatch(g, body, d + 500)
+  ink(g, body, { w: 2.4 * Math.min(1.3, s), d, t: 800 })
+  for (let k = 0; k < 9; k++) {
+    const px = -44 + k * 10
+    ink(g, L(P(px, -26), P(px - 2, -18)), { w: 1, d: d + 600, t: 80 })
+  }
+  ink(g, B(P(52, -50), P(66, -40), P(66, -16), P(58, -10)), { w: 2.4, d: d + 600, t: 300 })
+  ink(g, B(P(58, -10), P(52, -6), P(50, -14), P(56, -16)), { w: 2, d: d + 800, t: 200 })
+  ink(g, B(P(46, -44), P(70, -44), P(82, -60), P(78, -76)), { w: 2.6, d: d + 700, t: 300 })
+  dot(g, x + 40 * s, y - 68 * s, 1.8 * s, d + 900)
+  ink(g, B(P(24, -78), P(18, -66), P(22, -56), P(30, -60)), { w: 1.6, d: d + 800, t: 200 })
+}
+
+/** Überschall-Kampfjet von der Seite, Mitte (x, y), Nase rechts (Länge ≈ 170 × s): spitze Nase, Kanzel, Deltaflügel, Seitenleitwerk, Düse */
+export function fighter(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const w = Math.min(1.3, Math.max(0.6, s))
+  const body: P[] = [...B(P(-80, -6), P(-20, -9), P(40, -9), P(86, 0)), ...B(P(86, 0), P(40, 6), P(-20, 8), P(-80, 7)).slice(1), P(-80, -6)]
+  blank(g, body)
+  ink(g, body, { w: 2.4 * w, d, t: 700 })
+  const canopy: P[] = [...B(P(22, -8), P(30, -17), P(50, -16), P(58, -5))]
+  blank(g, [...canopy, canopy[0]])
+  ink(g, canopy, { w: 1.8 * w, d: d + 300, t: 300 })
+  ink(g, L(P(38, -15), P(40, -7)), { w: 1 * w, d: d + 500, t: 100 })
+  const wing: P[] = [P(30, 4), P(-50, 16), P(-66, 16), P(-58, 4), P(30, 4)]
+  blank(g, wing)
+  hatch(g, wing, d + 600, true)
+  ink(g, wing, { w: 1.8 * w, d: d + 400, t: 300 })
+  const fin: P[] = [P(-46, -8), P(-70, -38), P(-80, -38), P(-78, -6)]
+  blank(g, fin)
+  hatch(g, fin, d + 600, true)
+  ink(g, fin, { w: 1.8 * w, d: d + 400, t: 300 })
+  ink(g, [P(-80, -6), P(-88, -4), P(-88, 5), P(-80, 7)], { w: 1.8 * w, d: d + 500, t: 200 })
+  ink(g, [P(0, 2), P(14, 2), P(14, 8)], { w: 1.2 * w, d: d + 600, t: 150 })
+}
