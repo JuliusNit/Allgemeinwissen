@@ -122,14 +122,6 @@ function neuron(g: Element, x: number, y: number, d = 0, fill = false): void {
   ball(g, x, y, 12, { d, fill: fill ? 'dicht' : 'leer', t: 200 })
 }
 
-/** Lichtleiter (zwei parallele Bahnen) mit Zickzack-Strahl */
-function fiber(g: Element, x0: number, x1: number, y: number, h: number, d = 0, bounces = 6): void {
-  ink(g, L([x0, y - h / 2], [x1, y - h / 2]), { w: 2.6, d, t: 600 })
-  ink(g, L([x0, y + h / 2], [x1, y + h / 2]), { w: 2.6, d, t: 600 })
-  const pts: P[] = []
-  for (let i = 0; i <= bounces; i++) pts.push([x0 + ((x1 - x0) * i) / bounces, i % 2 ? y + h / 2 - 3 : y - h / 2 + 3])
-  arrow(g, pts, { w: 2.2, d: d + 500, t: 1200, head: 9 })
-}
 
 /** Kühlschrank, oben links: Gefrierfach oben, zwei Griffe, Dichtung, Füße */
 function fridge(g: Element, x: number, y: number, w: number, h: number, d = 0): void {
@@ -1969,8 +1961,3 @@ function net(g: Element, d = 0, o: { flow?: boolean; out?: 0 | 1; back?: boolean
 
 const rad = (a: number) => (a * Math.PI) / 180
 
-/** Kleines Haus (Grundlinie y) */
-function house(g: Element, x: number, y: number, w: number, d = 0): void {
-  ink(g, [[x, y], [x, y - w * 0.7], [x + w / 2, y - w * 1.1], [x + w, y - w * 0.7], [x + w, y]], { w: 2.6, d, t: 600 })
-  ink(g, RR(x + w * 0.4, y - w * 0.4, w * 0.2, w * 0.4, 2), { w: 2, d: d + 300, t: 200 })
-}
