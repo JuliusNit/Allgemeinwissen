@@ -71,6 +71,12 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   (Playwright, Vite-Seite `scripts/bites-check.html`): Kontaktbogen je Häppchen als PNG + Prüfung auf Text über Strichen/Schraffur,
   Ränder außerhalb der Bühne und Dauer. Regel (Julius, 17.10.2026): Linien überschneiden sich nur, wo es gemeint ist; Beschriftungen
   nie auf Strichen (in Schraffur mit `cls: 'halo'`). Layout: Text oben (y 64) → Grafik 290–650, Text unten (y ≥ 470) → Grafik 70–450.
+  **Regel Grafiken (Julius, 18.10.2026):** detailliert, realistisch, präzise statt Symbolbild – echte Formen (Kontinente,
+  Flügelprofil, Flugzeug mit Fenstern/Triebwerk, Menschen mit Körper), Umgebung (Boden, Himmel, Wolken), Bewegung, wo etwas
+  strömt oder sich dreht (`flow` = Teilchen entlang einer Linie, `spin`, `wobble`, `glide` in `kit.ts`, SMIL, pausiert mit der Bühne).
+  **Kein doppelter Text:** Beschriftungen in der Grafik wiederholen nie den Erzähltext (keine Bildunterschriften, die den Satz
+  nacherzählen); erlaubt sind nur Namen von Teilen/Achsen/Werten, die der Text nicht nennt. `window.dupBite(id)` auf der
+  Prüfseite findet Doppelungen (auch in `checkBite` als „Doppelt“).
   Läuft von selbst: jede Szene genau so lange, bis alles gezeichnet und der Text gelesen ist, plus Zeit für die Grafik
   (`ScenePlayer.show` misst die laufenden Animationen, READ_MS je Wort, Grundzeit je neuer Grafik/Zustand/Bild +
   Beschriftungswörter) – komplexe Szenen länger, einfache kürzer. Links/rechts wischen oder am Rand (je 25 %) tippen =

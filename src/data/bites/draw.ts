@@ -20,27 +20,41 @@ export const HOOK = (y: number, o: Partial<TextState> = {}): TextState => ({ kin
 /** Gruppe mit Zustandsklasse und Stil, z. B. st(g, 'x1', '--dl:200ms') */
 export const st = (g: Element, cls: string, style = '') => group(g, cls, style)
 
-/** Strichmännchen, Füße bei (x, y) */
+/** Mensch mit Körper (Kopf, Haar, Rumpf, Gliedmaßen mit Knie/Ellbogen, Schuhe), Füße bei (x, y), Höhe ≈ 32 × s */
 export function fig(g: Element, x: number, y: number, s = 1, o: { d?: number; w?: number; t?: number; arms?: 'down' | 'up' | 'push' | 'cross' } = {}): SVGGElement {
   const f = group(g)
-  const w = (o.w ?? 2.4) * Math.min(1.4, Math.max(0.8, s))
+  const w = (o.w ?? 2.4) * Math.min(1.4, Math.max(0.75, s)) * 0.8
   const io = { w, d: o.d ?? 0, t: o.t ?? 0 }
-  ink(f, E(x, y - 27 * s, 5.2 * s), io)
-  ink(f, L([x, y - 21 * s], [x, y - 9 * s]), io)
-  ink(f, L([x, y - 9 * s], [x - 5 * s, y]), io)
-  ink(f, L([x, y - 9 * s], [x + 5 * s, y]), io)
-  const sh: P = [x, y - 18 * s]
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  // Beine mit Knie, Schuhe nach vorn
+  ink(f, [P(-1.8, -13), P(-2.6, -6.5), P(-3, -0.6), P(-0.6, -0.4)], { ...io, w: w * 1.35 })
+  ink(f, [P(1.8, -13), P(2.4, -6.5), P(2.8, -0.6), P(5, -0.4)], { ...io, w: w * 1.35 })
+  // Rumpf: Schultern rund, zur Hüfte schmaler
+  const torso: P[] = [...B(P(-4.6, -12.6), P(-5.4, -18), P(-6.4, -22.6), P(-3.2, -23.4)), ...L(P(-3.2, -23.4), P(3.2, -23.4)).slice(1), ...B(P(3.2, -23.4), P(6.4, -22.6), P(5.4, -18), P(4.6, -12.6)).slice(1), P(-4.6, -12.6)]
+  blank(f, torso)
+  hatch(f, torso, io.d + (io.t ? 300 : 0), true)
+  ink(f, torso, io)
+  // Arme mit Ellbogen
   const arms = o.arms ?? 'down'
-  const hands: [P, P] =
+  const pose: [P, P][] =
     arms === 'up'
-      ? [[x - 7 * s, y - 28 * s], [x + 7 * s, y - 28 * s]]
+      ? [[P(-7.4, -27), P(-8.6, -32)], [P(7.4, -27), P(8.6, -32)]]
       : arms === 'push'
-        ? [[x + 9 * s, y - 19 * s], [x + 10 * s, y - 16 * s]]
+        ? [[P(1, -16.5), P(9.6, -19)], [P(3.4, -18), P(10.6, -16.6)]]
         : arms === 'cross'
-          ? [[x + 4 * s, y - 14 * s], [x - 4 * s, y - 14 * s]]
-          : [[x - 7 * s, y - 12 * s], [x + 7 * s, y - 12 * s]]
-  ink(f, L(sh, hands[0]), io)
-  ink(f, L(sh, hands[1]), io)
+          ? [[P(-4.2, -16), P(4, -18)], [P(4.2, -16), P(-4, -18)]]
+          : [[P(-6.6, -16.8), P(-6.4, -10.6)], [P(6.6, -16.8), P(6.4, -10.6)]]
+  pose.forEach(([el, hand], k) => {
+    const sh = P(k ? 4.4 : -4.4, -22)
+    ink(f, [sh, el, hand], io)
+    mk('circle', { cx: hand[0], cy: hand[1], r: 1.15 * s, class: 'k fade', style: `--d:${io.d}ms` }, f)
+  })
+  // Hals, Kopf, Haar
+  ink(f, L(P(0, -23.4), P(0, -25)), io)
+  blank(f, E(x, y - 28.6 * s, 3.9 * s, 4.3 * s))
+  ink(f, E(x, y - 28.6 * s, 3.9 * s, 4.3 * s), io)
+  const hair: P[] = [...E(x, y - 28.6 * s, 3.9 * s, 4.3 * s, 180, 360), ...B(P(3.9, -28.6), P(2, -29.8), P(-1.4, -29.4), P(-3.9, -28.6)).slice(1)]
+  mk('path', { d: `M${hair.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}Z`, class: 'k fade', style: `--d:${io.d}ms` }, f)
   return f
 }
 

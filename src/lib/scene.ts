@@ -78,6 +78,11 @@ export class ScenePlayer {
 
   pause(on: boolean) {
     this.stage.classList.toggle('paused', on)
+    // SMIL-Bewegungen (Teilchen, Drehen, Pendeln) laufen je Grafik auf eigener Uhr
+    for (const s of this.stage.querySelectorAll<SVGSVGElement>('svg.st-gfx')) {
+      if (on) s.pauseAnimations()
+      else s.unpauseAnimations()
+    }
   }
 
   private later(ms: number, f: () => void) {
@@ -189,6 +194,7 @@ export class ScenePlayer {
       this.stage.appendChild(e)
       this.els.set(id, e)
       ;(this.bite.draw?.[name] as ((g: SVGGElement, ...a: unknown[]) => void) | undefined)?.(root, ...(g.args ?? []))
+      if (this.stage.classList.contains('paused')) e.pauseAnimations()
       this.tf(e, g.from ? { ...g, ...g.from } : g, '')
       void e.getBoundingClientRect()
       this.look += LOOK_GFX + svgWords(e.querySelectorAll('text')) * READ_MS

@@ -133,11 +133,65 @@ function check(stage: HTMLElement, scene: number): Issue[] {
     if (r.x < -2 || r.y < -2 || r.x + r.w > STAGE_W + 2 || r.y + r.h > STAGE_H + 2) add('Rand', `${n} ragt aus der Bühne (${Math.round(r.x)},${Math.round(r.y)} ${Math.round(r.w)}×${Math.round(r.h)})`)
     for (const [z, zn] of zones) if (hit(r, z)) add('Rand', `${n} ${zn}`)
   }
+  for (const x of doubled(stage)) add('Doppelt', x)
   return [...new Map(out.map((x) => [`${x.kind}|${x.what}`, x])).values()]
+}
+
+// Doppelter Text: Beschriftung in der Grafik, die den Erzähltext wiederholt (Wortstämme, ohne Füllwörter).
+// Einzelne Begriffe an Pfeilen/Teilen sind erlaubt, ganze Sätze oder Satzteile nicht.
+const STOP = new Set('aber alle allem auch auf aus bei beim bis das dass dem den der des die dies diese dieser doch dort durch ein eine einem einen einer eines erst etwa für hat hier ihr ihre immer ist jede jeder kann kein keine mal man mehr mit muss nach nicht noch nur oder ohne schon sehr sich sie sind über um und uns unter vom von vor war was weil wenn wer wie wird wo zu zum zur sein seine wir dann denn also ganz viel viele'.split(' '))
+const stem = (w: string) => w.toLowerCase().replace(/[^a-zäöüß0-9]/g, '').slice(0, 6)
+const content = (s: string) =>
+  s
+    .split(/[\s·–—/]+/)
+    .map((w) => w.replace(/[„“”"?!.,:;()…*_]/g, ''))
+    .filter((w) => w.length >= 3 && !STOP.has(w.toLowerCase()))
+    .map(stem)
+
+function doubled(stage: HTMLElement): string[] {
+  const main = [...stage.querySelectorAll<HTMLElement>('.st-txt:not(.cap)')]
+    .filter((t) => visible(t, stage))
+    .map((t) => t.textContent ?? '')
+    .join(' ')
+  const have = new Set(content(main))
+  const out: string[] = []
+  const labels = [
+    ...[...stage.querySelectorAll<SVGTextElement>('.st-gfx text')].filter((t) => visible(t, stage)).map((t) => t.textContent ?? ''),
+    ...[...stage.querySelectorAll<HTMLElement>('.st-txt.cap')].filter((t) => visible(t, stage)).map((t) => t.textContent ?? ''),
+  ]
+  for (const l of labels) {
+    const c = content(l)
+    const n = c.filter((w) => have.has(w)).length
+    if (n >= 2 && (n / c.length >= 0.5 || c.length >= 3)) out.push(`„${label(l)}“`)
+  }
+  return out
+}
+
+/** Nur doppelten Text suchen (schnell, ohne Kontaktbogen) */
+async function dups(b: Bite): Promise<Issue[]> {
+  const out: Issue[] = []
+  const host = document.createElement('div')
+  host.style.cssText = `position:absolute;left:0;top:0;width:${STAGE_W}px;height:${STAGE_H}px`
+  document.body.appendChild(host)
+  const p = new ScenePlayer(host, b)
+  for (let i = 0; i < b.scenes.length; i++) {
+    p.show(i)
+    finish(host)
+    await Promise.resolve()
+    finish(host)
+    const stage = host.querySelector('.stage') as HTMLElement
+    // ausblendende Reste der vorigen Szene nicht mitzählen
+    stage.querySelectorAll('.st-txt.out').forEach((e) => e.remove())
+    for (const x of doubled(stage)) out.push({ scene: i + 1, kind: 'Doppelt', what: x })
+  }
+  p.destroy()
+  host.remove()
+  return out
 }
 
 async function run(b: Bite): Promise<Issue[]> {
   const sheet = document.getElementById('sheet')!
+  sheet.innerHTML = ''
   sheet.style.cssText = 'display:flex;flex-wrap:wrap;gap:14px;padding:10px;width:' + (6 * (STAGE_W + 14) + 10) + 'px;font:600 13px system-ui'
   const players: [ScenePlayer, HTMLElement][] = []
   for (let i = 0; i < b.scenes.length; i++) {
@@ -186,8 +240,19 @@ declare global {
     biteIds: (neu?: boolean) => Promise<string[]>
     checkBite: (id: string) => Promise<Issue[]>
     biteDurations: (id: string) => Promise<number[]>
+    dupBite: (id: string) => Promise<Issue[]>
   }
 }
+
+/** Ansicht für kleine Fenster: Szenen i … i+n−1 vorn in einer Reihe (nach checkBite) */
+;(window as unknown as { cell: (i: number, n?: number, z?: number) => void }).cell = (i, n = 3, z = 0.75) => {
+  const s = document.getElementById('sheet')!
+  Object.assign(s.style, { zoom: String(z), width: 'max-content', flexWrap: 'nowrap' })
+  ;[...s.children].forEach((c, k) => ((c as HTMLElement).style.order = k >= i - 1 && k < i - 1 + n ? String(k - 100) : '0'))
+  window.scrollTo(0, 0)
+}
+
+window.dupBite = async (id) => dups((await loadBites()).find((x) => x.id === id)!)
 
 window.biteDurations = async (id) => durations((await loadBites()).find((x) => x.id === id)!)
 

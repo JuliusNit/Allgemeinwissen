@@ -1,67 +1,8 @@
 import type { Bite } from '../feed'
 import { B, E, HOOK, L, RR, T, arrow, bigText, blank, bolt, check, clock, countUp, cross, dashes, eye, fig, group, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, vbars, type P } from './draw'
-import { arcArrow, axes, ball, bullets, cloud, dot, drop, earth, house, pie, rad, sun, thermo, waveP } from './kit'
+import { arcArrow, axes, ball, bird, bow, cloud, dot, drop, earth, eyeFront, flow, foilAt, glide, ground, house, jet, pie, plot, rad, rain, ripple, sea, smooth, spin, stars, sun, thermo, travelWave, tree, waveP, wing, wobble } from './kit'
 
 // Physik & Kosmos: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
-
-/** Prisma-Fächer: weißer Strahl links, Farben rechts */
-function prism(g: Element, d = 0): void {
-  const tri: P[] = [[180, 330], [240, 450], [120, 450], [180, 330]]
-  blank(g, tri)
-  hatch(g, tri, d + 400)
-  ink(g, tri, { w: 3, d, t: 600 })
-  ink(g, L([24, 420], [150, 392]), { w: 3.4, d: d + 300, t: 400 })
-  text(g, 30, 404, 'weiß', { cls: 's', d: d + 300 })
-  const names = ['Rot', 'Orange', 'Gelb', 'Grün', 'Blau', 'Violett']
-  names.forEach((n, i) => {
-    const y = 360 + i * 28
-    ink(g, L([212, 398 + i * 5], [282, y]), { w: 2.2, d: d + 700 + i * 80, t: 300 })
-    text(g, 290, y + 5, n, { cls: 's', d: d + 900 + i * 80 })
-  })
-}
-
-/** Flügelprofil (Sehne c, Mitte cx/cy, Anstellwinkel deg, Nase links) als geschlossene Punktliste */
-function foil(cx: number, cy: number, c: number, deg = 0): P[] {
-  const n = 40
-  const up: P[] = []
-  const lo: P[] = []
-  for (let i = 0; i <= n; i++) {
-    const x = (1 - Math.cos((i / n) * Math.PI)) / 2
-    const yt = 0.6 * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1036 * x ** 4)
-    const yc = x < 0.4 ? (0.05 / 0.16) * (0.8 * x - x * x) : (0.05 / 0.36) * (0.2 + 0.8 * x - x * x)
-    up.push([x, yc + yt])
-    lo.push([x, yc - yt])
-  }
-  const a = rad(deg)
-  const tr = ([x, y]: P): P => {
-    const px = (x - 0.5) * c
-    const py = -y * c
-    return [cx + px * Math.cos(a) - py * Math.sin(a), cy + px * Math.sin(a) + py * Math.cos(a)]
-  }
-  return [...up.map(tr), ...lo.reverse().map(tr)]
-}
-
-function wing(g: Element, cx: number, cy: number, c: number, deg = 0, d = 0): void {
-  const p = foil(cx, cy, c, deg)
-  blank(g, p)
-  hatch(g, p, d + 400)
-  ink(g, [...p, p[0]], { w: 3, d, t: 700 })
-}
-
-/** Verkehrsflugzeug von der Seite, Mitte (x, y), Nase rechts */
-function jet(g: Element, x: number, y: number, s = 1, d = 0): void {
-  const P = (a: number, b: number): P => [x + a * s, y + b * s]
-  const body: P[] = [...L(P(-80, -10), P(70, -10)), ...B(P(70, -10), P(86, -10), P(92, -2), P(92, 0)).slice(1), ...B(P(92, 0), P(92, 6), P(84, 10), P(70, 10)).slice(1), ...L(P(70, 10), P(-70, 10)).slice(1), ...L(P(-70, 10), P(-90, -6)).slice(1), ...L(P(-90, -6), P(-80, -10)).slice(1)]
-  blank(g, body)
-  ink(g, body, { w: 2.6 * Math.min(1.3, s), d, t: 700 })
-  const fin: P[] = [P(-74, -10), P(-92, -40), P(-80, -40), P(-56, -10)]
-  hatch(g, fin, d + 500, true)
-  ink(g, fin, { w: 2.4, d: d + 400, t: 300 })
-  const wg: P[] = [P(-8, 10), P(-36, 28), P(-24, 28), P(14, 10)]
-  hatch(g, wg, d + 600, true)
-  ink(g, wg, { w: 2.4, d: d + 500, t: 300 })
-  for (let k = 0; k < 6; k++) dot(g, x + (-50 + k * 18) * s, y - 3 * s, 1.6 * s, d + 700 + k * 40)
-}
 
 /** Mond mit Kratern */
 function moon(g: Element, cx: number, cy: number, r: number, d = 0): void {
@@ -104,172 +45,341 @@ export const AHA_PHYSIK: Bite[] = [
     images: [],
     draw: {
       himmel(g) {
-        sun(g, 270, 150, 34)
-        ink(g, L([20, 420], [340, 420]), { w: 3, d: 200, t: 600 })
-        fig(g, 110, 418, 1.6, { d: 500, arms: 'down' })
+        sun(g, 276, 140, 28)
+        const hill: P[] = smooth([[20, 400], [90, 372], [170, 392], [250, 366], [340, 386]])
+        ink(g, hill, { w: 2.8, d: 200, t: 700 })
+        ground(g, 20, 340, 440, 300)
+        tree(g, 300, 440, 0.5, 400)
+        fig(g, 130, 440, 1.9, { d: 500 })
+        bird(g, 90, 160, 0.9, 900)
+        bird(g, 116, 178, 0.6, 1000)
+        // Luftmoleküle am ganzen Himmel blitzen auf, wenn sie Licht streuen
         let seed = 3
         const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
-        for (let i = 0; i < 26; i++) {
+        for (let i = 0; i < 34; i++) {
           const x = 30 + rnd() * 300
-          const y = 80 + rnd() * 270
-          if (Math.hypot(x - 270, y - 150) < 70 || (x < 150 && y > 300)) continue
-          dot(g, x, y, 2.6, 800 + i * 40)
+          const y = 70 + rnd() * 280
+          if (Math.hypot(x - 276, y - 140) < 62 || (x > 90 && x < 170 && y > 300) || y > 352) continue
+          const p = mk('g', { class: 'blink', style: `--d:${900 + (i % 9) * 140}ms` }, g)
+          dot(p, x, y, 2.4, 800 + i * 30)
         }
+        // ein Lichtweg: Sonne → Molekül → Auge
+        dashes(g, L([250, 160], [190, 236]), { w: 1.4, d: 1200, dash: 5, gap: 5 })
+        dot(g, 186, 240, 3.4, 1500)
+        flow(g, [[186, 240], [133, 380]], { n: 2, ms: 1100, d: 1700, r: 2.4 })
       },
       prisma(g) {
-        prism(g)
+        // Spalt, weißer Strahl, Glasprisma (räumlich), Farbfächer auf einem Schirm
+        ink(g, RR(14, 360, 14, 90, 3), { w: 2.4, t: 300 })
+        hatch(g, RR(14, 360, 14, 34, 2), 300, true)
+        hatch(g, RR(14, 412, 14, 38, 2), 300, true)
+        ink(g, L([28, 404], [150, 404]), { w: 4, d: 300, t: 400 })
+        flow(g, L([28, 404], [150, 404]), { n: 3, ms: 900, d: 800, r: 2.6 })
+        const A: P = [176, 318]
+        const Bp: P = [236, 470]
+        const C: P = [116, 470]
+        const off: P = [22, -16]
+        const back = (q: P): P => [q[0] + off[0], q[1] + off[1]]
+        const side: P[] = [A, back(A), back(Bp), Bp, A]
+        blank(g, side)
+        hatch(g, side, 600, true)
+        ink(g, side, { w: 2.4, d: 300, t: 500 })
+        const front: P[] = [A, Bp, C, A]
+        blank(g, front)
+        hatch(g, front, 500)
+        ink(g, front, { w: 3, d: 200, t: 600 })
+        ink(g, L(C, back(C)), { w: 1.4, d: 500, t: 200 })
+        ink(g, L(back(C), back(A)), { w: 1.4, d: 500, t: 200 })
+        ink(g, L([150, 404], [196, 412]), { w: 2.6, d: 700, t: 200 })
+        ink(g, L([292, 330], [292, 520]), { w: 4, d: 600, t: 400 })
+        const names = ['Rot', 'Orange', 'Gelb', 'Grün', 'Blau', 'Violett']
+        names.forEach((n, i) => {
+          const y = 356 + i * 28
+          const p = L([206, 410 + i * 4], [288, y])
+          ink(g, p, { w: 2, d: 900 + i * 80, t: 300 })
+          flow(g, p, { n: 2, ms: 900, d: 1400 + i * 60, r: 2 })
+          text(g, 300, y + 5, n, { cls: 's', d: 1000 + i * 80 })
+        })
       },
       wellen(g) {
-        text(g, 30, 340, 'Rot · etwa 700 nm', { d: 0 })
-        ink(g, waveP(30, 330, 400, 26, 150), { w: 3, d: 200, t: 900 })
-        text(g, 30, 490, 'Blau · etwa 450 nm', { d: 600 })
-        ink(g, waveP(30, 330, 550, 26, 96), { w: 3, d: 800, t: 900 })
+        travelWave(g, 30, 330, 410, 28, 150, { ms: 1500 })
+        arrow(g, L([105, 460], [255, 460]), { w: 1.6, d: 1000, t: 300, head: 7 })
+        arrow(g, L([255, 460], [105, 460]), { w: 1.6, d: 1000, t: 300, head: 7 })
+        text(g, 180, 482, '700 nm', { anchor: 'middle', cls: 's', d: 1200 })
+        text(g, 30, 360, 'Rot', { d: 0 })
+        travelWave(g, 30, 330, 570, 28, 96, { ms: 960, d: 600 })
+        arrow(g, L([132, 620], [228, 620]), { w: 1.6, d: 1600, t: 300, head: 7 })
+        arrow(g, L([228, 620], [132, 620]), { w: 1.6, d: 1600, t: 300, head: 7 })
+        text(g, 180, 642, '450 nm', { anchor: 'middle', cls: 's', d: 1800 })
+        text(g, 30, 520, 'Blau', { d: 600 })
       },
       luft(g) {
-        ink(g, E(180, 460, 150), { w: 3, t: 800 })
-        const pos: P[] = [[110, 380], [210, 360], [260, 440], [150, 470], [100, 540], [220, 530], [290, 510], [180, 590]]
+        // Lupe auf ein Stück Luft: N₂ und O₂ etwa 4 : 1, sie zittern; dahinter eine Lichtwelle als Größenvergleich
+        ink(g, waveP(20, 340, 460, 120, 600, -Math.PI / 2), { w: 1.4, d: 200, t: 900 })
+        blank(g, E(180, 460, 130))
+        ink(g, E(180, 460, 130), { w: 3.2, t: 800 })
+        ink(g, L([272, 552], [322, 612]), { w: 7, d: 600, t: 300 })
+        const pos: P[] = [[110, 400], [200, 370], [260, 430], [150, 470], [100, 520], [220, 510], [270, 500], [180, 570], [140, 420], [230, 450]]
         pos.forEach(([x, y], i) => {
+          const o2 = i % 5 === 3
+          const m = wobble(g, { dx: (i % 2 ? 3 : -3), dy: (i % 3) - 1, ms: 700 + i * 90, d: 1000 })
           const a = rad(i * 47)
           const dx = Math.cos(a) * 7
           const dy = Math.sin(a) * 7
-          ball(g, x - dx, y - dy, 7, { d: 400 + i * 90, fill: i % 3 ? 'hell' : 'dicht', w: 1.8, t: 0 })
-          ball(g, x + dx, y + dy, 7, { d: 450 + i * 90, fill: i % 3 ? 'hell' : 'dicht', w: 1.8, t: 0 })
+          ball(m, x - dx, y - dy, 7, { d: 400 + i * 70, fill: o2 ? 'dicht' : 'hell', w: 1.8, t: 0 })
+          ball(m, x + dx, y + dy, 7, { d: 430 + i * 70, fill: o2 ? 'dicht' : 'hell', w: 1.8, t: 0 })
         })
-        text(g, 180, 646, 'Stickstoff N₂ · Sauerstoff O₂', { anchor: 'middle', d: 1200 })
+        text(g, 60, 340, 'N₂', { anchor: 'middle', d: 1300 })
+        text(g, 304, 340, 'O₂', { anchor: 'middle', d: 1400 })
+        dashes(g, L([70, 346], [96, 388]), { w: 1.2, d: 1300, dash: 4, gap: 4 })
+        dashes(g, L([296, 346], [266, 404]), { w: 1.2, d: 1400, dash: 4, gap: 4 })
       },
       streu(g) {
-        ink(g, waveP(20, 140, 450, 12, 30), { w: 2.6, t: 600 })
-        arrow(g, L([136, 450], [148, 450]), { w: 2.6, d: 500, t: 100, head: 9 })
-        ball(g, 180, 450, 14, { d: 300, fill: 'hell' })
-        const a = st(g, 'x1', '--o: 180px 450px')
+        // ankommende Welle bringt die Elektronenhülle zum Schwingen; das Molekül sendet Kugelwellen aus
+        travelWave(g, 14, 128, 450, 12, 30, { ms: 500, w: 2.4 })
+        const m = wobble(g, { dy: 5, ms: 500, d: 800 })
+        ink(m, E(180, 450, 32, 26), { w: 1.4, d: 300, t: 400 })
+        ball(g, 180, 450, 12, { d: 300, fill: 'dicht' })
+        dot(m, 206, 440, 3, 600)
+        dot(m, 156, 462, 3, 650)
+        const a = st(g, 'f1')
+        ripple(a, 180, 450, 40, 150, { n: 4, ms: 2000, w: 1.8 })
         for (let k = 0; k < 8; k++) {
           const ang = rad(k * 45 + 22.5)
-          arrow(a, L([180 + Math.cos(ang) * 30, 450 + Math.sin(ang) * 30], [180 + Math.cos(ang) * 100, 450 + Math.sin(ang) * 100]), { w: 2.4, t: 0, head: 9 })
+          arrow(a, L([180 + Math.cos(ang) * 46, 450 + Math.sin(ang) * 46], [180 + Math.cos(ang) * 104, 450 + Math.sin(ang) * 104]), { w: 2.2, t: 0, head: 8 })
         }
       },
       rayleigh(g) {
-        vbars(g, [
-          { label: 'Rot', v: 1, fmt: (v) => `${v.toFixed(1).replace('.', ',')}×` },
-          { label: 'Blau', v: 5.8, fmt: (v) => `${v.toFixed(1).replace('.', ',')}×`, dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 250 })
-        text(g, 180, 320, 'Streuung', { anchor: 'middle', d: 200, size: 18 })
+        // Streuung ∝ 1/λ⁴: steil fallende Kurve über dem Spektrum
+        axes(g, 60, 590, 320, 300, { yl: 'Streuung', d: 0 })
+        text(g, 320, 640, 'Wellenlänge', { anchor: 'end', cls: 's', d: 300 })
+        const f = (t: number) => Math.pow(400 / (400 + t * 320), 4)
+        const pts = plot(g, 60, 590, 250, 260, f, { d: 400, t: 1200 })
+        const mark = (nm: number, label: string, dd: number) => {
+          const t = (nm - 400) / 320
+          const x = 60 + 250 * t
+          const y = 590 - 260 * f(t)
+          dashes(g, L([x, 590], [x, y]), { w: 1.4, d: dd, dash: 5, gap: 4 })
+          dot(g, x, y, 5, dd + 200)
+          text(g, x, 612, label, { anchor: 'middle', cls: 's', d: dd + 200 })
+        }
+        mark(450, 'Blau', 1500)
+        mark(700, 'Rot', 1800)
+        const sc = (t: number) => 590 - 260 * f(t)
+        text(g, 60 + 250 * (50 / 320) + 12, sc(50 / 320) - 4, '5,8×', { d: 2200, size: 18 })
+        text(g, 60 + 250 * (300 / 320) - 4, sc(300 / 320) - 14, '1×', { anchor: 'end', d: 2300, size: 18 })
+        void pts
       },
       tag(g) {
-        sun(g, 70, 330, 24)
-        ink(g, L([20, 620], [340, 620]), { w: 3, d: 200, t: 500 })
-        fig(g, 260, 618, 1.5, { d: 300 })
-        const src: P[] = [[120, 440], [170, 360], [240, 340], [320, 380], [150, 520], [330, 470]]
+        sun(g, 70, 320, 22)
+        ground(g, 20, 340, 620, 200)
+        house(g, 40, 620, 44, 300)
+        fig(g, 270, 618, 1.7, { d: 300 })
+        const src: P[] = [[120, 440], [170, 360], [240, 340], [320, 380], [150, 520], [330, 470], [200, 430]]
         src.forEach(([x, y], i) => {
-          const d = 700 + i * 160
-          dot(g, x, y, 4, d)
-          const ex = 260
-          const ey = 574
+          const d = 700 + i * 140
+          dashes(g, L([88, 330], [x, y]), { w: 1, d, dash: 3, gap: 6 })
+          ripple(g, x, y, 4, 16, { n: 2, ms: 1600, d: d + 300, w: 1.2 })
+          dot(g, x, y, 3.4, d + 200)
+          const ex = 270
+          const ey = 566
           const len = Math.hypot(ex - x, ey - y)
-          const k = (len - 40) / len
-          arrow(g, L([x + (ex - x) * 0.14, y + (ey - y) * 0.14], [x + (ex - x) * k, y + (ey - y) * k]), { w: 1.8, d: d + 100, t: 400, head: 8 })
+          const k = (len - 26) / len
+          const p = L([x + (ex - x) * 0.12, y + (ey - y) * 0.12], [x + (ex - x) * k, y + (ey - y) * k])
+          arrow(g, p, { w: 1.6, d: d + 300, t: 400, head: 7 })
+          flow(g, p, { n: 1, ms: 1200, d: d + 900, r: 2.2 })
         })
-        dashes(g, L([94, 340], [118, 438]), { w: 1.8, d: 600 })
       },
       auge(g) {
-        eye(g, 180, 360, 1.6)
-        bullets(g, 40, 480, ['Sonne liefert weniger Violett', 'Auge: Blau wirkt stärker', 'Mischung sieht himmelblau aus'], { d: 600, gap: 44 })
+        eyeFront(g, 180, 380, 1.5)
+        // Sonnenspektrum: im Violett schwächer; darunter die Farbskala
+        const x0 = 50
+        const w = 260
+        axes(g, x0, 600, 330, 460, { d: 600 })
+        const sunI = (t: number) => 0.45 + 0.55 * Math.sin(Math.min(1, t * 1.6) * Math.PI / 2) - 0.12 * t
+        const pts = plot(g, x0, 600, w, 120, sunI, { d: 900, t: 900 })
+        hatch(g, [[x0, 600], ...pts, [x0 + w, 600]], 1500)
+        ;['Violett', 'Blau', 'Grün', 'Gelb', 'Rot'].forEach((n, i) => text(g, x0 + 12 + i * 60, 624, n, { anchor: 'middle', cls: 's', d: 1200 + i * 80, size: 11.5 }))
       },
       abend(g) {
         const cx = 180
-        const cy = 620
+        const cy = 640
+        // Erde, darüber die Lufthülle als Band
+        const band: P[] = [...E(cx, cy, 380, 380, 230, 310), ...E(cx, cy, 300, 300, 310, 230)]
+        hatch(g, band, 500)
         ink(g, E(cx, cy, 300, 300, 222, 318), { w: 3, t: 700 })
-        dashes(g, E(cx, cy, 400, 400, 230, 310), { w: 1.8, d: 400 })
-        text(g, 300, 300, 'Lufthülle', { cls: 's', d: 600 })
-        fig(g, 180, 322, 1.3, { d: 500 })
+        ink(g, E(cx, cy, 380, 380, 230, 310), { w: 1.4, d: 400, t: 700 })
+        text(g, 286, 330, 'Lufthülle', { cls: 's halo', d: 600 })
+        fig(g, 180, 342, 1.3, { d: 500 })
         const noon = group(g, 'h1')
-        sun(noon, 180, 140, 16, 700, 8)
-        arrow(noon, L([180, 176], [180, 280]), { w: 2.6, d: 900, t: 400, head: 9 })
-        text(noon, 196, 210, 'mittags: kurz', { cls: 's', d: 1100 })
+        sun(noon, 180, 150, 16, 700, 8)
+        const np = L([180, 186], [180, 296])
+        arrow(noon, np, { w: 2.6, d: 900, t: 400, head: 9 })
+        flow(noon, np, { n: 2, ms: 900, d: 1400, r: 2.4 })
         const eve = st(g, 'f1', '--dl:200ms')
-        sun(eve, 40, 300, 14, 0, 8)
-        arrow(eve, L([66, 302], [168, 302]), { w: 2.6, t: 0, head: 9 })
-        text(eve, 30, 380, 'abends: lang', { cls: 's', fade: false })
-        const lost = st(g, 'x2', '--o: 100px 300px')
-        for (const x of [80, 110, 140]) arrow(lost, L([x, 298], [x + 10, 262]), { w: 1.8, t: 0, head: 7 })
-        text(lost, 114, 250, 'Blau', { anchor: 'middle', cls: 's', fade: false })
+        sun(eve, 30, 318, 13, 0, 8)
+        const ep = L([52, 322], [164, 322])
+        arrow(eve, ep, { w: 2.6, t: 0, head: 9 })
+        flow(eve, ep, { n: 3, ms: 1800, r: 2.4 })
+        const lost = st(g, 'x2', '--o: 100px 320px')
+        for (const x of [72, 102, 132]) arrow(lost, L([x, 316], [x + 12, 276]), { w: 1.8, t: 0, head: 7 })
+        text(lost, 102, 264, 'Blau', { anchor: 'middle', cls: 's', fade: false })
       },
       rest(g) {
+        // tief stehende Sonne, Licht auf dem langen Weg: Blau und Grün werden nach und nach weggestreut
+        sun(g, 30, 350, 14, 0, 8)
+        ink(g, smooth([[0, 560], [120, 548], [240, 552], [360, 540]]), { w: 2.6, d: 100, t: 600 })
         const names = ['Violett', 'Blau', 'Grün', 'Gelb', 'Orange', 'Rot']
         names.forEach((n, i) => {
-          const y = 380 + i * 30
+          const y = 410 + i * 24
           const d = 300 + i * 120
-          text(g, 20, y + 5, n, { cls: 's', d })
-          if (i < 3) {
-            ink(g, L([80, y], [100 + i * 50, y]), { w: 2.2, d, t: 300 })
-            arrow(g, L([100 + i * 50, y], [124 + i * 50, y - 46 - i * 10]), { w: 1.8, d: d + 300, t: 300, head: 7 })
-          } else if (i < 4) {
-            ink(g, L([80, y], [210, y]), { w: 2.2, d, t: 400 })
-            arrow(g, L([210, y], [234, y - 70]), { w: 1.8, d: d + 300, t: 300, head: 7 })
-          } else arrow(g, L([80, y], [270, y]), { w: 2.6, d, t: 600, head: 9 })
+          text(g, 56, y + 4, n, { anchor: 'end', cls: 's', d, size: 11 })
+          if (i < 4) {
+            const xe = 110 + i * 40
+            ink(g, L([60, y], [xe, y]), { w: 2, d, t: 300 })
+            const up = L([xe, y], [xe + 22, y - 44 - i * 8])
+            arrow(g, up, { w: 1.6, d: d + 300, t: 300, head: 6 })
+            flow(g, [[60, y], [xe, y], up[up.length - 1]], { n: 1, ms: 1400, d: d + 700, r: 1.8 })
+          } else {
+            const p = L([60, y], [272, 486])
+            arrow(g, p, { w: 2.4, d, t: 600, head: 8 })
+            flow(g, p, { n: 2, ms: 1500, d: d + 700, r: 2.2 })
+          }
         })
-        eye(g, 312, 525, 0.6, 1300)
+        eyeFront(g, 312, 486, 0.45, 1300)
+        cloud(g, 250, 360, 0.5, 900, true)
       },
       wolke(g) {
-        cloud(g, 90, 370, 1)
-        ink(g, E(200, 470, 60), { w: 2.8, d: 600, t: 600 })
-        ball(g, 200, 470, 26, { d: 900, fill: 'hell' })
-        text(g, 200, 560, 'Tröpfchen', { anchor: 'middle', cls: 's', d: 1000 })
+        cloud(g, 110, 380, 1.1)
+        dashes(g, L([150, 360], [204, 404]), { w: 1.2, d: 500, dash: 4, gap: 4 })
+        ink(g, E(196, 480, 74), { w: 2.8, d: 600, t: 600 })
+        ball(g, 196, 480, 40, { d: 900, fill: 'hell' })
+        ink(g, waveP(152, 186, 480, 4, 9), { w: 1.6, d: 1000, t: 300 })
         ;['Rot', 'Grün', 'Blau'].forEach((n, i) => {
-          const ang = rad(-90 + i * 60)
-          arrow(g, L([200 + Math.cos(ang) * 64, 470 + Math.sin(ang) * 64], [200 + Math.cos(ang) * 96, 470 + Math.sin(ang) * 96]), { w: 2.2, d: 1200 + i * 150, t: 250, head: 8 })
-          text(g, 200 + Math.cos(ang) * 118, 470 + Math.sin(ang) * 118 + 4, n, { anchor: 'middle', cls: 's', d: 1300 + i * 150 })
+          const ang = rad(-60 + i * 60)
+          const p = L([196 + Math.cos(ang) * 78, 480 + Math.sin(ang) * 78], [196 + Math.cos(ang) * 110, 480 + Math.sin(ang) * 110])
+          arrow(g, p, { w: 2.2, d: 1200 + i * 150, t: 250, head: 8 })
+          text(g, 196 + Math.cos(ang) * 130, 480 + Math.sin(ang) * 130 + 4, n, { anchor: 'middle', cls: 's', d: 1300 + i * 150 })
         })
-        text(g, 180, 630, 'alle Farben gleich → weiß', { anchor: 'middle', d: 1700 })
+        text(g, 196, 588, 'Tröpfchen', { anchor: 'middle', cls: 's', d: 1000 })
       },
       berge(g) {
-        const ridge = (y: number, amp: number, ph: number): P[] => [[20, 600], ...Array.from({ length: 33 }, (_, i) => [20 + i * 10, y - Math.abs(Math.sin(i / 3 + ph)) * amp] as P), [340, 600]]
-        const far = ridge(420, 70, 0.4)
+        // Gebirgskämme: abwechselnd Gipfel und Sattel, leicht unregelmäßig
+        const ridge = (y: number, amp: number, ph: number): P[] => {
+          let seed = Math.round(ph * 100)
+          const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+          const pts: P[] = [[20, y - amp * 0.3]]
+          for (let x = 20, k = 0; x < 340; k++) {
+            x = Math.min(340, x + 18 + rnd() * 26)
+            pts.push([x, y - (k % 2 ? amp * (0.1 + rnd() * 0.25) : amp * (0.55 + rnd() * 0.45))])
+          }
+          return [[20, 640], ...smooth(pts, 2), [340, 640]]
+        }
+        const far = ridge(430, 90, 0.4)
         blank(g, far)
-        ink(g, far.slice(1, -1), { w: 1.6, t: 700 })
-        const mid = ridge(480, 60, 1.6)
+        ink(g, far.slice(1, -1), { w: 1.2, t: 700 })
+        const mid = ridge(500, 70, 1.6)
         blank(g, mid)
         hatch(g, mid, 700)
-        ink(g, mid.slice(1, -1), { w: 2.4, d: 300, t: 700 })
-        const near = ridge(560, 40, 2.4)
+        ink(g, mid.slice(1, -1), { w: 2.2, d: 300, t: 700 })
+        const near = ridge(580, 50, 2.4)
         blank(g, near)
         hatch(g, near, 1000, true)
         ink(g, near.slice(1, -1), { w: 3, d: 600, t: 700 })
-        text(g, 340, 320, 'fern: blass, bläulich', { anchor: 'end', cls: 's', d: 1200 })
-        text(g, 180, 640, 'nah: kräftig, dunkel', { anchor: 'middle', cls: 's', d: 1300 })
+        for (const [x, y] of [[60, 600], [86, 596], [292, 590]] as const) tree(g, x, y, 0.22, 1100)
+        // Streulicht aus der Luft zwischen dir und den fernen Gipfeln
+        let seed = 9
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 18; i++) {
+          const p = mk('g', { class: 'blink', style: `--d:${1300 + (i % 6) * 160}ms` }, g)
+          dot(p, 30 + rnd() * 300, 330 + rnd() * 60, 1.8, 1200 + i * 40)
+        }
       },
       meer(g) {
-        ink(g, waveP(20, 340, 320, 6, 70), { w: 2.8, t: 800 })
+        // Tiefenskala: Rot ist nach wenigen Metern verschluckt, Blau dringt am tiefsten
+        sea(g, 20, 300, 320, 0, 1)
         ;(['Rot', 'Gelb', 'Grün', 'Blau'] as const).forEach((n, i) => {
-          const x = 70 + i * 74
+          const x = 50 + i * 64
           const y1 = 380 + i * 80
-          arrow(g, L([x, 340], [x, y1]), { w: 2.6, d: 600 + i * 300, t: 400, head: 9 })
-          text(g, x + 10, y1 + 6, n, { cls: 's', d: 900 + i * 300 })
+          const p = L([x, 340], [x, y1])
+          arrow(g, p, { w: 2.6, d: 600 + i * 300, t: 400, head: 9 })
+          flow(g, p, { n: 2, ms: 1400 + i * 400, d: 1000 + i * 300, r: 2.2 })
+          text(g, x + 8, y1 + 20, n, { cls: 's', d: 900 + i * 300 })
         })
-        text(g, 30, 650, 'tiefer → nur noch Blau', { cls: 's', d: 2000 })
+        ink(g, L([310, 330], [310, 650]), { w: 2, d: 200, t: 600 })
+        ;[['10 m', 380], ['30 m', 460], ['60 m', 540], ['100 m', 620]].forEach(([l, y], i) => {
+          ink(g, L([304, y as number], [316, y as number]), { w: 1.6, d: 400 + i * 100, t: 100 })
+          text(g, 300, (y as number) + 4, l as string, { anchor: 'end', cls: 's', d: 500 + i * 100, size: 11 })
+        })
+        const fish = (x: number, y: number, s: number, dd: number) => {
+          const f = wobble(g, { dx: -6, ms: 2600, d: dd })
+          const b: P[] = [...B([x, y], [x + 8 * s, y - 7 * s], [x + 20 * s, y - 6 * s], [x + 26 * s, y]), ...B([x + 26 * s, y], [x + 20 * s, y + 6 * s], [x + 8 * s, y + 7 * s], [x, y]).slice(1)]
+          ink(f, b, { w: 1.8, d: dd, t: 300 })
+          ink(f, [[x, y], [x - 8 * s, y - 6 * s], [x - 8 * s, y + 6 * s], [x, y]], { w: 1.6, d: dd + 200, t: 200 })
+          dot(f, x + 20 * s, y - 1.5 * s, 1.4 * s, dd + 300)
+        }
+        fish(250, 420, 1, 1500)
+        fish(170, 580, 0.8, 1700)
       },
       mond(g) {
-        const sky = RR(30, 300, 300, 240, 12)
+        // schwarzer Himmel, Sonne ohne Himmelsleuchten, die Erde hängt im Dunkeln
+        const sky = RR(24, 290, 312, 250, 12)
         hatch(g, sky, 300, true)
         ink(g, sky, { w: 3, t: 700 })
-        blank(g, E(250, 370, 30))
-        ink(g, E(250, 370, 30), { w: 2.6, d: 500, t: 500 })
-        const ground: P[] = [...B([30, 540], [120, 520], [220, 528], [330, 520])]
-        ink(g, ground, { w: 3, d: 400, t: 600 })
-        ink(g, E(100, 584, 34, 8), { w: 2, d: 700, t: 400 })
-        ink(g, E(250, 600, 22, 6), { w: 2, d: 800, t: 400 })
-        text(g, 180, 646, 'keine Luft → nichts streut', { anchor: 'middle', d: 1000 })
+        blank(g, E(270, 350, 22))
+        ink(g, E(270, 350, 22), { w: 2.4, d: 500, t: 500 })
+        blank(g, E(90, 360, 30))
+        earth(g, 90, 360, 30, 600, { lon: -20, lat: 10, w: 1 })
+        const grd: P[] = [[24, 540], ...smooth([[24, 500], [100, 488], [200, 496], [336, 486]]), [336, 540]]
+        blank(g, grd)
+        ink(g, grd.slice(1, -1), { w: 2.8, d: 400, t: 600 })
+        for (const [x, y, rx] of [[80, 520, 26], [230, 514, 18], [300, 530, 10]] as const) ink(g, E(x, y, rx, rx * 0.25), { w: 1.6, d: 800, t: 300 })
+        // Mondfähre und Astronaut
+        const lm: P[] = [[150, 470], [150, 446], [160, 436], [184, 436], [194, 446], [194, 470], [150, 470]]
+        blank(g, lm)
+        hatch(g, lm, 1100, true)
+        ink(g, lm, { w: 2.2, d: 900, t: 400 })
+        for (const [a, b] of [[150, 136], [194, 208]] as const) ink(g, L([a, 466], [b, 492]), { w: 1.8, d: 1000, t: 200 })
+        ink(g, L([172, 470], [172, 492]), { w: 1.8, d: 1000, t: 200 })
+        fig(g, 252, 498, 1.3, { d: 1200, arms: 'up' })
+        ink(g, L([284, 498], [284, 446]), { w: 1.6, d: 1400, t: 200 })
+        ink(g, RR(284, 446, 24, 14, 1), { w: 1.4, d: 1500, t: 200 })
       },
       mars(g) {
-        const ground: P[] = B([30, 560], [120, 548], [240, 556], [330, 546])
-        ink(g, ground, { w: 3, t: 600 })
-        blank(g, E(180, 520, 26))
-        ink(g, E(180, 520, 26, 26, 180, 360), { w: 2.6, d: 300, t: 400 })
-        for (const r of [46, 70]) ink(g, E(180, 552, r, r * 0.8, 200, 340), { w: 2, d: 600 + r * 4, t: 500 })
-        text(g, 180, 410, 'Mars: Abendhimmel bläulich', { anchor: 'middle', d: 900 })
-        text(g, 180, 620, 'feiner Staub streut Blau nach vorn', { anchor: 'middle', cls: 's', d: 1100 })
+        // Rover auf steinigem Grund; die tiefe Sonne hat einen bläulichen Hof
+        const grd: P[] = smooth([[20, 560], [100, 548], [220, 556], [340, 544]])
+        ink(g, grd, { w: 3, t: 600 })
+        blank(g, E(250, 520, 16))
+        ink(g, E(250, 520, 16, 16, 180, 360), { w: 2.4, d: 300, t: 400 })
+        for (const r of [34, 52, 72]) dashes(g, E(250, 548, r, r * 0.85, 200, 340), { w: 1.6, d: 600 + r * 6, dash: 6, gap: 5 })
+        for (const [x, y, s] of [[60, 590, 1], [140, 610, 0.6], [300, 596, 0.8], [210, 630, 0.5]] as const) {
+          const rock: P[] = [[x - 14 * s, y], [x - 10 * s, y - 10 * s], [x + 4 * s, y - 13 * s], [x + 14 * s, y - 4 * s], [x + 12 * s, y], [x - 14 * s, y]]
+          hatch(g, rock, 900, true)
+          ink(g, rock, { w: 1.8, d: 700, t: 300 })
+        }
+        // Rover
+        const rv: P[] = [[60, 520], [130, 520], [130, 536], [60, 536], [60, 520]]
+        blank(g, rv)
+        hatch(g, rv, 1100)
+        ink(g, rv, { w: 2.2, d: 900, t: 400 })
+        for (const x of [68, 95, 122]) {
+          blank(g, E(x, 546, 8))
+          ink(g, E(x, 546, 8), { w: 2, d: 1000, t: 300 })
+        }
+        ink(g, L([112, 520], [112, 486]), { w: 2, d: 1100, t: 200 })
+        ink(g, RR(104, 476, 18, 10, 2), { w: 1.8, d: 1200, t: 200 })
+        ink(g, L([70, 520], [60, 500]), { w: 1.6, d: 1200, t: 200 })
+        ink(g, E(56, 496, 7, 3), { w: 1.4, d: 1300, t: 200 })
+        let seed = 21
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 20; i++) {
+          const p = wobble(g, { dx: 14, dy: -3, ms: 3000 + i * 100, d: 1000 })
+          dot(p, 20 + rnd() * 320, 320 + rnd() * 180, 1.4, 1200 + i * 30)
+        }
       },
       ende(g) {
-        sun(g, 180, 480, 40)
+        sun(g, 180, 500, 40)
+        ripple(g, 180, 500, 70, 160, { n: 3, ms: 3000, d: 800, w: 1.6 })
       },
     },
     scenes: [
@@ -306,147 +416,242 @@ export const AHA_PHYSIK: Bite[] = [
     images: [],
     draw: {
       bogen(g) {
-        ink(g, L([20, 420], [340, 420]), { w: 3, t: 500 })
-        hatch(g, [...E(180, 420, 150, 150, 180, 360), ...E(180, 420, 114, 114, 360, 180)], 1300)
-        ;[150, 132, 114].forEach((r, k) => ink(g, E(180, 420, r, r, 180, 360), { w: 2.6, d: 300 + k * 250, t: 900 }))
-        for (let i = 0; i < 9; i++) {
-          const x = 250 + (i % 3) * 30 + (i > 2 ? 10 : 0)
-          const y = 90 + Math.floor(i / 3) * 44
-          ink(g, L([x, y], [x - 6, y + 20]), { w: 1.8, d: 1400 + i * 60, t: 150 })
-        }
+        // Landschaft nach dem Schauer: Regenwolke rechts, Bogen über Hügeln
+        cloud(g, 270, 150, 1.1, 0, true)
+        rain(g, 210, 150, 130, 240, { n: 14, d: 600 })
+        bow(g, 180, 420, 150, 34, { d: 400 })
+        const hill: P[] = [[20, 440], ...smooth([[20, 404], [100, 380], [180, 398], [260, 376], [340, 396]]), [340, 440]]
+        blank(g, hill)
+        ink(g, hill.slice(1, -1), { w: 2.6, d: 300, t: 700 })
+        ground(g, 20, 340, 440, 500)
+        tree(g, 70, 440, 0.42, 700)
+        house(g, 230, 440, 40, 800)
+        bird(g, 60, 150, 0.8, 1300)
       },
       aufbau(g) {
-        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
-        fig(g, 150, 618, 1.5, { d: 200 })
-        sun(g, 60, 340, 22, 300, 10)
-        text(g, 60, 404, 'Sonne im Rücken', { anchor: 'middle', cls: 's', d: 700 })
-        for (let i = 0; i < 12; i++) {
-          const x = 246 + (i % 4) * 26
-          const y = 400 + Math.floor(i / 4) * 52 + (i % 2) * 14
-          ink(g, L([x, y], [x - 6, y + 22]), { w: 1.8, d: 500 + i * 50, t: 150 })
-        }
-        text(g, 284, 600, 'Regen', { anchor: 'middle', cls: 's', d: 900 })
-        arrow(g, L([96, 352], [222, 410]), { w: 2.4, d: 1000, t: 500, head: 9 })
-        arrow(g, L([234, 478], [172, 560]), { w: 2.4, d: 1500, t: 500, head: 9 })
+        ground(g, 20, 340, 620, 0)
+        sun(g, 50, 330, 20, 300, 10)
+        cloud(g, 286, 360, 0.8, 200, true)
+        rain(g, 236, 360, 104, 250, { n: 12, d: 500 })
+        fig(g, 140, 618, 1.7, { d: 200 })
+        // Lichtweg: über deinen Kopf hinweg in den Regen – und zurück in dein Auge
+        const p1 = L([80, 344], [252, 446])
+        arrow(g, p1, { w: 2.4, d: 1000, t: 500, head: 9 })
+        flow(g, p1, { n: 2, ms: 1200, d: 1500, r: 2.4 })
+        const p2 = L([252, 452], [150, 568])
+        arrow(g, p2, { w: 2.4, d: 1500, t: 500, head: 9 })
+        flow(g, p2, { n: 2, ms: 1000, d: 2000, r: 2.4 })
+        dot(g, 254, 448, 4, 1400)
       },
       tropfen(g) {
-        ink(g, E(180, 460, 120), { w: 3, t: 800 })
-        hatch(g, E(180, 460, 120), 600)
-        text(g, 20, 388, 'Licht', { cls: 's', d: 300 })
-        arrow(g, L([20, 400], [72, 400]), { w: 3, d: 300, t: 300, head: 9 })
-        ink(g, L([76, 400], [293, 501]), { w: 2.6, d: 700, t: 500 })
-        ink(g, L([293, 501], [111, 558]), { w: 2.6, d: 1200, t: 500 })
-        text(g, 352, 552, 'gespiegelt', { anchor: 'end', cls: 's', d: 1300 })
+        // genauer Lichtweg im Tropfen (Brechzahl 1,33, Einfall auf 86 % der Höhe)
+        const cx = 200
+        const cy = 450
+        const R = 112
+        const at = (deg: number): P => [cx + R * Math.cos(rad(deg)), cy + R * Math.sin(rad(deg))]
+        blank(g, E(cx, cy, R))
+        hatch(g, E(cx, cy, R), 600)
+        ink(g, E(cx, cy, R), { w: 3, t: 800 })
+        const path = (n: number) => {
+          const i = Math.asin(0.86) * (180 / Math.PI)
+          const r = Math.asin(0.86 / n) * (180 / Math.PI)
+          const p1 = at(180 + i)
+          const p2 = at(180 + i + 180 - 2 * r)
+          const p3 = at(180 + i + 2 * (180 - 2 * r))
+          const D = 180 + 2 * i - 4 * r
+          return { p1, p2, p3, out: [p3[0] + Math.cos(rad(D)) * 130, p3[1] + Math.sin(rad(D)) * 130] as P }
+        }
+        const w = path(1.337)
+        const inc = L([16, w.p1[1]], w.p1)
+        ink(g, inc, { w: 3, d: 300, t: 400 })
+        flow(g, [[16, w.p1[1]], w.p1, w.p2, w.p3, w.out], { n: 3, ms: 2600, d: 2300, r: 2.6 })
+        dashes(g, L([cx, cy], [w.p1[0] - (cx - w.p1[0]) * 0.3, w.p1[1] - (cy - w.p1[1]) * 0.3]), { w: 1.2, d: 600, dash: 4, gap: 4 })
+        dashes(g, L([cx, cy], w.p2), { w: 1.2, d: 1100, dash: 4, gap: 4 })
+        ink(g, L(w.p1, w.p2), { w: 2.4, d: 700, t: 500 })
+        ink(g, L(w.p2, w.p3), { w: 2.4, d: 1200, t: 500 })
         const one = st(g, 'h1')
-        arrow(one, L([111, 558], [56, 622]), { w: 2.6, d: 1700, t: 300, head: 9 })
-        const two = st(g, 'x1', '--o: 111px 558px')
-        arrow(two, L([111, 558], [50, 612]), { w: 2.2, t: 0, head: 8 })
-        arrow(two, L([111, 558], [80, 640]), { w: 2.2, t: 0, head: 8 })
-        text(two, 44, 604, 'Rot', { anchor: 'end', cls: 's', fade: false })
-        text(two, 90, 656, 'Violett', { cls: 's', fade: false })
+        arrow(one, L(w.p3, w.out), { w: 2.6, d: 1700, t: 400, head: 9 })
+        // Farben: jede mit eigener Brechzahl, Fächer beim Austritt
+        const two = st(g, 'f1')
+        ;[1.331, 1.333, 1.335, 1.337, 1.34, 1.343].forEach((n, k) => {
+          const c = path(n)
+          ink(two, L(c.p1, c.p2), { w: 1, t: 0 })
+          ink(two, L(c.p2, c.p3), { w: 1, t: 0 })
+          arrow(two, L(c.p3, [c.p3[0] + (c.out[0] - c.p3[0]) * (0.75 + k * 0.05), c.p3[1] + (c.out[1] - c.p3[1]) * (0.75 + k * 0.05)]), { w: 1.8, t: 0, head: 7 })
+        })
+        const r0 = path(1.331).out
+        const v0 = path(1.343).out
+        text(two, r0[0] - 30, r0[1] - 2, 'Rot', { anchor: 'end', cls: 's', fade: false })
+        text(two, v0[0] + 10, v0[1] + 2, 'Violett', { cls: 's', fade: false })
       },
       winkel(g) {
-        text(g, 30, 288, 'Sonnenlicht', { cls: 's' })
-        arrow(g, L([30, 300], [298, 300]), { w: 2.8, t: 600, head: 9 })
-        ball(g, 320, 300, 16, { d: 300, fill: 'hell' })
-        arrow(g, L([305, 313], [101, 497]), { w: 2.6, d: 800, t: 600, head: 9 })
-        ink(g, L([20, 562], [340, 562]), { w: 3, d: 200, t: 500 })
-        fig(g, 92, 560, 1.4, { d: 300 })
-        ink(g, E(320, 300, 70, 70, 138, 180), { w: 2.2, d: 1400, t: 400 })
-        text(g, 234, 338, '42°', { anchor: 'middle', size: 18, d: 1600 })
+        // parallele Sonnenstrahlen, ein Tropfen hoch oben, zurück zum Auge; Winkel zur verlängerten Sonnenrichtung
+        ground(g, 20, 340, 600, 0)
+        for (const y of [300, 330]) {
+          const p = L([16, y], [300, y])
+          arrow(g, p, { w: 2, d: 100, t: 600, head: 8 })
+          flow(g, p, { n: 2, ms: 1500, d: 700, r: 2.2 })
+        }
+        ball(g, 322, 330, 13, { d: 300, fill: 'hell' })
+        fig(g, 96, 598, 1.6, { d: 300 })
+        const eyeP: P = [100, 552]
+        const back = L([310, 338], [eyeP[0] + 6, eyeP[1] - 6])
+        arrow(g, back, { w: 2.6, d: 800, t: 600, head: 9 })
+        flow(g, back, { n: 2, ms: 1500, d: 1400, r: 2.4 })
+        // Sonnenrichtung durch das Auge verlängert (Sonne steht im Rücken, hier tief)
+        dashes(g, L(eyeP, [340, eyeP[1]]), { w: 1.4, d: 1200, dash: 6, gap: 5 })
+        ink(g, E(eyeP[0], eyeP[1], 96, 96, 318, 360), { w: 2, d: 1500, t: 400 })
+        text(g, 214, 530, '42°', { anchor: 'middle', size: 18, d: 1700 })
       },
       kegel(g) {
-        eye(g, 50, 460, 0.5)
-        ink(g, E(270, 460, 36, 150), { w: 3, d: 300, t: 800 })
-        ink(g, E(270, 460, 28, 128), { w: 2, d: 500, t: 800 })
-        hatch(g, [...E(270, 460, 36, 150), ...E(270, 460, 28, 128, 360, 0)], 1100)
-        ink(g, L([74, 452], [264, 312]), { w: 2, d: 900, t: 500 })
-        ink(g, L([74, 468], [264, 608]), { w: 2, d: 900, t: 500 })
-        dashes(g, L([78, 460], [230, 460]), { w: 1.6, d: 1200 })
-        text(g, 110, 450, '42°', { cls: 's', d: 1400 })
+        // Blickkegel mit 42° um die Gegenrichtung der Sonne; alle Tropfen auf seinem Rand leuchten
+        eye(g, 54, 470, 0.5)
+        hatch(g, [...E(272, 470, 36, 150), ...E(272, 470, 28, 128, 360, 0)], 1100)
+        ink(g, E(272, 470, 36, 150), { w: 3, d: 300, t: 800 })
+        ink(g, E(272, 470, 28, 128), { w: 2, d: 500, t: 800 })
+        ink(g, L([76, 462], [266, 322]), { w: 2, d: 900, t: 500 })
+        ink(g, L([76, 478], [266, 618]), { w: 2, d: 900, t: 500 })
+        dashes(g, L([80, 470], [272, 470]), { w: 1.6, d: 1200 })
+        ink(g, E(76, 470, 60, 60, 322, 360), { w: 1.6, d: 1300, t: 300 })
+        text(g, 150, 458, '42°', { cls: 's', d: 1400 })
+        for (let k = 0; k < 12; k++) {
+          const a = rad(k * 30)
+          const p = mk('g', { class: 'blink', style: `--d:${1400 + k * 90}ms` }, g)
+          dot(p, 272 + Math.cos(a) * 32, 470 + Math.sin(a) * 139, 3, 1500 + k * 60)
+        }
         const c = st(g, 'f1')
-        dot(c, 270, 460, 5)
-        text(c, 270, 640, 'Gegenpunkt der Sonne', { anchor: 'middle', cls: 's', fade: false })
+        dot(c, 272, 470, 6)
+        ink(c, L([10, 470], [36, 470]), { w: 1.6, t: 0 })
+        sun(c, 22, 400, 12, 0, 8)
+        dashes(c, L([28, 410], [272, 470]), { w: 1.2, t: 0, dash: 4, gap: 6 })
       },
       kreisbogen(g) {
         const c = st(g, 'm2', '--m2: translateY(96px)')
-        ink(c, E(180, 520, 140, 140, 180, 360), { w: 3, t: 800 })
-        ink(c, E(180, 520, 122, 122, 180, 360), { w: 2.2, d: 200, t: 800 })
-        hatch(c, [...E(180, 520, 140, 140, 180, 360), ...E(180, 520, 122, 122, 360, 180)], 900)
-        dashes(c, E(180, 520, 140, 140, 0, 180), { w: 1.8, d: 900 })
-        const ground = st(g, 'x1', '--o: 180px 520px')
-        blank(ground, RR(14, 522, 332, 150, 4))
-        hatch(ground, RR(14, 522, 332, 150, 4), 0, true)
-        ink(ground, L([16, 522], [344, 522]), { w: 3, t: 0 })
-        text(st(g, 'f2', '--dl:600ms'), 180, 320, 'Sonne höher → Bogen tiefer', { anchor: 'middle', fade: false })
+        bow(c, 180, 500, 140, 26, { a0: 180, a1: 360 })
+        dashes(c, E(180, 500, 140, 140, 0, 180), { w: 1.8, d: 900 })
+        dashes(c, E(180, 500, 114, 114, 0, 180), { w: 1.4, d: 1000 })
+        dot(c, 180, 500, 4, 600)
+        const ground0 = st(g, 'x1', '--o: 180px 520px')
+        blank(ground0, RR(14, 522, 332, 150, 4))
+        hatch(ground0, RR(14, 522, 332, 150, 4), 0, true)
+        ink(ground0, L([16, 522], [344, 522]), { w: 3, t: 0 })
+        // Sonnenhöhe: Sonne links oben steigt
+        const s = st(g, 'f2', '--dl:300ms')
+        ink(s, L([20, 340], [110, 340]), { w: 1.6, t: 0 })
+        const sm = st(s, 'm2', '--m2: translateY(-42px); --dl: 400ms')
+        sun(sm, 96, 330, 9, 0, 8)
+        ink(s, E(20, 340, 50, 50, 300, 360), { w: 1.4, t: 0 })
       },
       descartes(g) {
-        ink(g, L([180, 560], [180, 620]), { w: 3, d: 500, t: 300 })
-        ink(g, L([130, 622], [230, 622]), { w: 3, d: 600, t: 300 })
-        ball(g, 180, 460, 96, { fill: 'hell', w: 3, t: 800 })
-        ink(g, E(150, 420, 30, 30, 200, 260), { w: 3, d: 800, t: 300 })
-        text(g, 180, 330, 'Glaskugel voll Wasser, 1637', { anchor: 'middle', d: 1000 })
+        // Descartes' Rechnung: viele parallele Strahlen durch eine Wasserkugel – die Austrittsstrahlen drängen sich bei 42°
+        const cx = 210
+        const cy = 440
+        const R = 96
+        const at = (deg: number): P => [cx + R * Math.cos(rad(deg)), cy + R * Math.sin(rad(deg))]
+        blank(g, E(cx, cy, R))
+        ink(g, E(cx, cy, R), { w: 3, t: 800 })
+        ink(g, L([cx, cy + R], [cx, 620]), { w: 3, d: 500, t: 300 })
+        ink(g, L([cx - 50, 622], [cx + 50, 622]), { w: 3, d: 600, t: 300 })
+        ;[0.25, 0.45, 0.62, 0.75, 0.86, 0.93, 0.98].forEach((b, k) => {
+          const i = Math.asin(b) * (180 / Math.PI)
+          const r = Math.asin(b / 1.333) * (180 / Math.PI)
+          const p1 = at(180 + i)
+          const p2 = at(180 + i + 180 - 2 * r)
+          const p3 = at(180 + i + 2 * (180 - 2 * r))
+          const D = rad(180 + 2 * i - 4 * r)
+          const out: P = [p3[0] + Math.cos(D) * 150, p3[1] + Math.sin(D) * 150]
+          const main = Math.abs(b - 0.86) < 0.01
+          const dd = 700 + k * 260
+          ink(g, L([20, p1[1]], p1), { w: main ? 2.4 : 1.2, d: dd, t: 250 })
+          ink(g, [p1, p2, p3], { w: main ? 2 : 1, d: dd + 250, t: 300 })
+          arrow(g, L(p3, out), { w: main ? 2.6 : 1.2, d: dd + 550, t: 250, head: main ? 9 : 6 })
+        })
       },
       mondbogen(g) {
-        moon(g, 60, 340, 26)
-        const arc = [...E(200, 600, 130, 130, 180, 360)]
-        ink(g, arc, { w: 2.4, d: 400, t: 900 })
-        ink(g, E(200, 600, 116, 116, 180, 360), { w: 1.6, d: 500, t: 900 })
+        // Nacht am Wasserfall: Mond im Rücken, Gischt, ein blasser Bogen
+        stars(g, 20, 290, 320, 120, 26, 0, (x, y) => Math.hypot(x - 60, y - 340) < 40)
+        moon(g, 60, 340, 24)
+        const cliff: P[] = [[232, 420], [252, 414], [276, 424], [302, 412], [340, 418], [340, 600], [276, 600], [268, 560], [252, 520], [240, 470], [232, 420]]
+        blank(g, cliff)
+        hatch(g, cliff, 600, true)
+        ink(g, cliff.slice(0, 6), { w: 2.6, d: 300, t: 400 })
+        ink(g, cliff.slice(6), { w: 2.2, d: 400, t: 400 })
+        for (const x of [218, 226, 234]) flow(g, L([x, 420], [x - 6, 600]), { n: 3, ms: 900, d: 700, r: 2.4, kind: 'dash' })
         ink(g, L([20, 600], [340, 600]), { w: 3, d: 200, t: 500 })
-        text(g, 200, 640, 'Mondregenbogen: meist weiß', { anchor: 'middle', cls: 's', d: 1200 })
+        dashes(g, E(200, 600, 130, 130, 180, 360), { w: 2.2, d: 400, dash: 10, gap: 5 })
+        dashes(g, E(200, 600, 114, 114, 180, 360), { w: 1.4, d: 500, dash: 10, gap: 5 })
+        sea(g, 20, 230, 616, 800, 1)
       },
       nebel(g) {
-        for (let i = 0; i < 6; i++) dashes(g, L([30, 330 + i * 22], [330, 330 + i * 22]), { w: 1.4, d: i * 100, dash: 14, gap: 12 })
-        ink(g, E(180, 620, 140, 140, 180, 360), { w: 3.6, d: 600, t: 900 })
-        ink(g, E(180, 620, 116, 116, 180, 360), { w: 3.6, d: 700, t: 900 })
-        ink(g, L([20, 620], [340, 620]), { w: 3, d: 300, t: 500 })
-        text(g, 180, 600, 'Nebelbogen', { anchor: 'middle', d: 1300 })
+        // Nebelbogen: breites, fast weißes Band ohne Farbstreifen
+        for (let i = 0; i < 7; i++) {
+          const y = 320 + i * 26
+          const m = wobble(g, { dx: i % 2 ? 10 : -10, ms: 5000 + i * 400, d: 600 })
+          dashes(m, smooth([[20, y], [120, y - 4], [240, y + 4], [340, y]]), { w: 1.2, d: i * 100, dash: 18, gap: 14 })
+        }
+        blank(g, [...E(180, 620, 150, 150, 180, 360), ...E(180, 620, 112, 112, 360, 180)])
+        ink(g, E(180, 620, 150, 150, 180, 360), { w: 2.4, d: 600, t: 900 })
+        ink(g, E(180, 620, 112, 112, 180, 360), { w: 2.4, d: 700, t: 900 })
+        ground(g, 20, 340, 620, 300)
+        fig(g, 180, 618, 1.3, { d: 900 })
+        ink(g, L([168, 600], [154, 570]), { w: 1.4, d: 1100, t: 200 })
       },
       kreis(g) {
-        hatch(g, [...E(180, 260, 150), ...E(180, 260, 118, 118, 360, 0)], 1300)
-        ;[150, 134, 118].forEach((r, k) => ink(g, E(180, 260, r), { w: 2.6, d: k * 250, t: 1000 }))
-        jet(g, 180, 260, 0.45, 1200)
+        // Blick aus dem Flugzeug: ganzer Kreis auf der Wolkendecke, in der Mitte der Schatten des Flugzeugs
+        for (let i = 0; i < 6; i++) ink(g, smooth([[20, 120 + i * 60], [120, 112 + i * 60], [240, 126 + i * 60], [340, 116 + i * 60]]), { w: 1, d: i * 80, t: 600 })
+        blank(g, E(180, 260, 152))
+        for (let k = 0; k < 6; k++) {
+          const ro = 150 - k * 6
+          if (k % 2 === 0) hatch(g, [...E(180, 260, ro), ...E(180, 260, ro - 6, ro - 6, 360, 0)], 1300 + k * 100, k === 0)
+        }
+        ink(g, E(180, 260, 150), { w: 2.6, t: 1000 })
+        ink(g, E(180, 260, 114), { w: 2, d: 250, t: 1000 })
+        const P = (a: number, b: number): P => [180 + a, 260 + b]
+        const sh: P[] = [P(0, -24), P(4, -16), P(4, -3), P(34, 6), P(34, 10), P(4, 7), P(3, 18), P(12, 23), P(12, 26), P(0, 24), P(-12, 26), P(-12, 23), P(-3, 18), P(-4, 7), P(-34, 10), P(-34, 6), P(-4, -3), P(-4, -16), P(0, -24)]
+        hatch(g, sh, 1500, true)
+        ink(g, sh, { w: 1.8, d: 1200, t: 400 })
+        ripple(g, 180, 260, 30, 60, { n: 2, ms: 2400, d: 1800, w: 1.2 })
       },
       zwei(g) {
-        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
-        fig(g, 110, 618, 1.4, { d: 200 })
-        fig(g, 250, 618, 1.4, { d: 300 })
-        text(g, 110, 648, 'du', { anchor: 'middle', cls: 's', d: 400 })
-        text(g, 250, 648, 'Nachbar', { anchor: 'middle', cls: 's', d: 500 })
-        for (const [fx, tx, ty, d] of [[110, 44, 352, 600], [110, 150, 322, 800], [250, 210, 322, 1000], [250, 316, 352, 1200]] as const) {
-          dot(g, tx, ty, 6, d)
-          dashes(g, L([fx + (tx - fx) * 0.06, 570 + (ty - 570) * 0.06], [tx + (fx - tx) * 0.05, ty + (570 - ty) * 0.05]), { w: 1.6, d: d + 100 })
+        ground(g, 20, 340, 620, 0)
+        fig(g, 110, 618, 1.6, { d: 200 })
+        fig(g, 250, 618, 1.6, { d: 300 })
+        text(g, 110, 650, 'du', { anchor: 'middle', cls: 's', d: 400 })
+        text(g, 250, 650, 'Nachbar', { anchor: 'middle', cls: 's', d: 500 })
+        bow(g, 110, 620, 220, 16, { a0: 200, a1: 300, d: 500, w: 1.8 })
+        dashes(g, E(250, 620, 220, 220, 240, 340), { w: 1.6, d: 800, dash: 8, gap: 6 })
+        for (const [fx, tx, ty, d] of [[110, 40, 418, 900], [110, 150, 404, 1100], [250, 210, 404, 1300], [250, 330, 450, 1500]] as const) {
+          const p = mk('g', { class: 'blink', style: `--d:${d}ms` }, g)
+          dot(p, tx, ty, 5, d)
+          dashes(g, L([fx + (tx - fx) * 0.08, 580 + (ty - 580) * 0.08], [tx + (fx - tx) * 0.06, ty + (580 - ty) * 0.06]), { w: 1.3, d: d + 100 })
         }
       },
       doppelt(g) {
-        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
-        hatch(g, [...E(180, 620, 118, 118, 180, 360), ...E(180, 620, 100, 100, 360, 180)], 900)
-        hatch(g, [...E(180, 620, 160, 160, 180, 360), ...E(180, 620, 146, 146, 360, 180)], 1500)
-        ink(g, E(180, 620, 118, 118, 180, 360), { w: 2.6, d: 200, t: 800 })
-        ink(g, E(180, 620, 100, 100, 180, 360), { w: 2.2, d: 300, t: 800 })
-        ink(g, E(180, 620, 160, 160, 180, 360), { w: 2, d: 900, t: 800 })
-        ink(g, E(180, 620, 146, 146, 180, 360), { w: 1.6, d: 1000, t: 800 })
+        ground(g, 20, 340, 620, 0)
+        bow(g, 180, 620, 118, 18, { d: 200 })
+        bow(g, 180, 620, 160, 16, { d: 900, rev: true, w: 1.8 })
         text(g, 180, 596, 'Hauptbogen', { anchor: 'middle', cls: 's', d: 600 })
-        text(g, 180, 444, 'Nebenbogen', { anchor: 'middle', cls: 's', d: 1300 })
-        text(g, 180, 650, 'Haupt: Rot außen · Neben: Rot innen', { anchor: 'middle', cls: 's', d: 1600 })
+        text(g, 180, 446, 'Nebenbogen', { anchor: 'middle', cls: 's', d: 1300 })
+        for (const [r, l, dd] of [[127, 'R', 1500], [104, 'V', 1550], [167, 'V', 1600], [149, 'R', 1650]] as const) text(g, 180 - r, 640, l, { anchor: 'middle', cls: 's', d: dd })
         const band = st(g, 'f1')
-        hatch(band, [...E(180, 620, 146, 146, 180, 360), ...E(180, 620, 118, 118, 360, 180)], 0, true)
-        text(band, 180, 494, 'Alexanderband', { anchor: 'middle', cls: 's halo', fade: false })
+        hatch(band, [...E(180, 620, 144, 144, 180, 360), ...E(180, 620, 118, 118, 360, 180)], 0, true)
       },
       laufen(g) {
-        ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
+        ground(g, 20, 340, 600, 0)
+        cloud(g, 250, 330, 0.8, 200, true)
+        rain(g, 190, 330, 140, 260, { n: 10, d: 400 })
         const w = st(g, 'm1', '--m1: translateX(110px); transition-duration: 2.2s')
-        fig(w, 40, 598, 1.4, { d: 200 })
-        hatch(w, [...E(160, 598, 90, 90, 180, 360), ...E(160, 598, 74, 74, 360, 180)], 900)
-        ink(w, E(160, 598, 90, 90, 180, 360), { w: 2.6, d: 300, t: 800 })
-        ink(w, E(160, 598, 74, 74, 180, 360), { w: 2, d: 400, t: 800 })
-        arrow(st(g, 'f1'), L([40, 630], [160, 630]), { w: 2.4, t: 0, head: 9 })
+        fig(w, 40, 598, 1.6, { d: 200 })
+        bow(w, 160, 598, 92, 18, { d: 300 })
+        const f = st(g, 'f1')
+        arrow(f, L([40, 630], [150, 630]), { w: 2.2, t: 0, head: 9 })
+        arrow(f, L([160, 650], [270, 650]), { w: 2.2, t: 0, head: 9 })
       },
       ende(g) {
-        hatch(g, [...E(180, 560, 90, 90, 180, 360), ...E(180, 560, 70, 70, 360, 180)], 800)
-        ink(g, E(180, 560, 90, 90, 180, 360), { w: 2.8, t: 800 })
-        ink(g, E(180, 560, 70, 70, 180, 360), { w: 2.2, d: 200, t: 800 })
-        ink(g, L([60, 560], [300, 560]), { w: 2.6, d: 400, t: 500 })
+        ground(g, 20, 340, 640, 0)
+        fig(g, 180, 638, 2.2, { d: 200 })
+        bow(g, 180, 560, 120, 22, { a0: 160, a1: 380, d: 400 })
+        dashes(g, L([180, 568], [180, 610]), { w: 1.2, d: 900, dash: 4, gap: 4 })
       },
     },
     scenes: [
@@ -483,130 +688,313 @@ export const AHA_PHYSIK: Bite[] = [
     images: [],
     draw: {
       flieger(g) {
-        jet(g, 200, 260, 1.5)
-        for (const [y, d] of [[236, 700], [262, 800], [288, 900]] as const) ink(g, L([12, y], [46, y]), { w: 2, d, t: 200 })
+        const c = glide(g, -40, 0, { ms: 9000, d: 300 })
+        cloud(c, 80, 170, 0.7, 0)
+        cloud(c, 300, 400, 0.55, 200)
+        cloud(c, 60, 430, 0.4, 300)
+        bird(g, 300, 120, 0.8, 900)
+        bird(g, 326, 136, 0.6, 1000)
+        const j = wobble(g, { dy: 6, ms: 3200, d: 800 })
+        jet(j, 200, 280, 1.45, 100)
+        for (const y of [262, 286, 312]) flow(j, L([40, y], [-30, y]), { kind: 'dash', n: 2, ms: 700, d: 900, r: 3 })
+        dashes(g, L([20, 300], [52, 300]), { w: 1.6, d: 1200, dash: 6, gap: 6 })
       },
       profil(g) {
-        wing(g, 180, 460, 220, 0)
-        ink(g, B([20, 420], [120, 388], [240, 396], [340, 430]), { w: 2, d: 600, t: 900 })
-        ink(g, L([20, 500], [340, 500]), { w: 2, d: 700, t: 900 })
-        text(g, 20, 404, 'oben', { cls: 's', d: 900 })
-        text(g, 20, 526, 'unten', { cls: 's', d: 1000 })
-        const a = st(g, 'm1', '--m1: translateX(270px); transition-duration: 2s')
-        dot(a, 50, 412, 6, 1100)
-        const b = st(g, 'm2', '--m2: translateX(170px); transition-duration: 2s')
-        dot(b, 50, 500, 6, 1100)
-        text(st(g, 'h2'), 180, 600, '„müssen gleichzeitig ankommen“?', { anchor: 'middle', d: 1300 })
-        text(st(g, 'f2', '--dl:1600ms'), 180, 600, 'Oben ist die Luft früher hinten.', { anchor: 'middle', fade: false })
+        // Wölbung oben, gerade Linie unten: die beiden „Wege“ der Schulbuch-Erklärung
+        wing(g, 180, 470, 250, 0)
+        const up: P[] = [...L([16, 452], [50, 452]), ...B([50, 452], [84, 404], [180, 398], [312, 466]).slice(1), ...L([312, 466], [344, 470]).slice(1)]
+        const lo: P[] = L([16, 492], [344, 492])
+        dashes(g, up, { w: 1.6, d: 600, dash: 7, gap: 6 })
+        dashes(g, lo, { w: 1.6, d: 700, dash: 7, gap: 6 })
+        // Behauptung: zwei Luftteilchen starten zusammen und treffen sich hinten wieder
+        const h = st(g, 'h1')
+        flow(h, up, { n: 1, ms: 3600, d: 1100, r: 6 })
+        flow(h, lo, { n: 1, ms: 3600, d: 1100, r: 6 })
+        const f = st(g, 'f1')
+        // senkrechte Rauchlinie zu drei Zeitpunkten; der Flügel teilt sie, oben eilt sie voraus
+        const pulses: P[][] = [
+          [[30, 330], [30, 480], [30, 630]],
+          [[120, 330], [126, 390], [146, 438]],
+          [[104, 478], [100, 540], [104, 630]],
+          [[226, 330], [252, 400], [330, 462]],
+          [[262, 482], [228, 556], [220, 630]],
+        ]
+        pulses.forEach((p, i) => ink(f, smooth(p), { w: 2, d: 200 + Math.ceil(i / 2) * 600, t: 500 }))
+        flow(f, up, { n: 1, ms: 2300, r: 6 })
+        flow(f, lo, { n: 1, ms: 3600, r: 6 })
       },
       ruecken(g) {
-        const r = group(g, '', 'transform: rotate(180deg); transform-origin: 180px 440px')
-        jet(r, 180, 440, 1.4)
-        text(g, 180, 560, 'Rückenflug: klappt', { anchor: 'middle', d: 900 })
+        ground(g, 20, 340, 620, 0)
+        tree(g, 56, 620, 0.55, 200)
+        tree(g, 300, 620, 0.7, 300)
+        house(g, 200, 620, 46, 300)
+        // Looping-Bahn mit Rauchringen
+        const loop: P[] = [...B([20, 560], [130, 560], [260, 520], [280, 430]), ...B([280, 430], [300, 320], [150, 280], [104, 352]).slice(1)]
+        dashes(g, loop, { w: 1.6, d: 400, dash: 4, gap: 7, step: 20 })
+        flow(g, loop, { n: 6, ms: 3000, d: 900, r: 3, kind: 'ring' })
+        // Kunstflugzeug auf dem Rücken: Rumpf, Haube unten, Flügel, Leitwerk, Propeller
+        const r = group(g, '', 'transform: rotate(180deg) scale(1.35); transform-origin: 190px 380px')
+        const body: P[] = [...B([130, 376], [150, 368], [220, 368], [244, 374]), ...L([244, 374], [244, 388]).slice(1), ...B([244, 388], [220, 392], [150, 390], [130, 382]).slice(1), [130, 376]]
+        blank(r, body)
+        ink(r, body, { w: 2.4, t: 600 })
+        const canopy: P[] = [...B([194, 369], [198, 352], [222, 352], [230, 370])]
+        blank(r, [...canopy, canopy[0]])
+        ink(r, canopy, { w: 2, d: 300, t: 300 })
+        ink(r, L([212, 356], [212, 369]), { w: 1.2, d: 500, t: 100 })
+        const wg: P[] = [[172, 382], [218, 382], [214, 390], [176, 390], [172, 382]]
+        hatch(r, wg, 500, true)
+        ink(r, wg, { w: 1.8, d: 300, t: 300 })
+        const fin: P[] = [[132, 376], [122, 354], [136, 354], [148, 372]]
+        hatch(r, fin, 500, true)
+        ink(r, fin, { w: 1.8, d: 300, t: 300 })
+        ink(r, L([128, 384], [150, 384]), { w: 2, d: 400, t: 200 })
+        ink(r, [[200, 390], [196, 402], [206, 402]], { w: 1.6, d: 500, t: 200 })
+        ball(r, 201, 404, 3.4, { d: 500, t: 0 })
+        const prop = spin(r, 248, 381, 260, 600)
+        ink(prop, L([248, 363], [248, 399]), { w: 2.4, d: 600, t: 150 })
+        ball(r, 248, 381, 3, { d: 600, fill: 'dicht', t: 0 })
       },
       umlenk(g) {
-        wing(g, 180, 430, 200, 10)
-        ink(g, B([20, 380], [120, 370], [220, 380], [340, 440]), { w: 2, d: 600, t: 900 })
-        ink(g, B([20, 470], [120, 470], [220, 480], [340, 540]), { w: 2, d: 700, t: 900 })
-        const a = st(g, 'x1', '--o: 180px 360px')
-        arrow(a, L([180, 360], [180, 296]), { w: 4.4, t: 0, head: 13 })
-        text(a, 196, 318, 'Auftrieb', { fade: false })
-        const b = st(g, 'x1', '--o: 300px 560px; --dl: 400ms')
-        arrow(b, L([300, 548], [300, 616]), { w: 4.4, t: 0, head: 13 })
-        text(b, 286, 600, 'Luft', { anchor: 'end', fade: false })
+        const lines: P[][] = [
+          B([10, 330], [120, 318], [240, 322], [350, 372]),
+          B([10, 384], [110, 364], [230, 372], [350, 440]),
+          B([10, 476], [100, 472], [200, 488], [350, 528]),
+          B([10, 532], [120, 528], [220, 540], [350, 574]),
+        ]
+        lines.forEach((p, i) => {
+          ink(g, p, { w: 1.8, d: 500 + i * 120, t: 900 })
+          flow(g, p, { n: 3, ms: i < 2 ? 2100 : 2700, d: 1300 + i * 100, r: 2.6 })
+        })
+        wing(g, 180, 448, 200, 10)
+        const a = st(g, 'x1', '--o: 180px 372px')
+        arrow(a, L([186, 400], [186, 300]), { w: 4.4, t: 0, head: 13 })
+        text(a, 202, 324, 'Auftrieb', { fade: false })
+        const b = st(g, 'x1', '--o: 310px 560px; --dl: 400ms')
+        for (const x of [290, 316]) arrow(b, L([x, 548], [x + 8, 626]), { w: 3.4, t: 0, head: 11 })
+        text(b, 280, 610, 'Luft', { anchor: 'end', fade: false })
       },
       kraefte(g) {
-        jet(g, 180, 470, 1.2)
-        arrow(g, L([170, 438], [170, 340]), { w: 3.6, d: 600, t: 400, head: 11 })
-        text(g, 186, 356, 'Auftrieb', { d: 800 })
-        arrow(g, L([170, 504], [170, 600]), { w: 3.6, d: 900, t: 400, head: 11 })
-        text(g, 186, 590, 'Gewicht', { d: 1100 })
-        const h = st(g, 'x1', '--o: 180px 470px')
-        arrow(h, L([298, 470], [344, 470]), { w: 3, t: 0, head: 10 })
-        text(h, 344, 502, 'Schub', { anchor: 'end', fade: false })
-        arrow(h, L([62, 470], [16, 470]), { w: 3, t: 0, head: 10 })
-        text(h, 16, 502, 'Widerstand', { fade: false })
-      },
-      segler(g) {
-        const p: P[] = [[60, 360], [300, 440]]
-        ink(g, L([110, 368], [250, 368]), { w: 3, d: 200, t: 500 })
-        ink(g, RR(150, 362, 70, 12, 6), { w: 2.6, t: 500 })
-        ink(g, L([156, 368], [140, 356]), { w: 2.4, d: 300, t: 200 })
-        void p
-        for (const x of [110, 180, 250]) arrow(g, waveP(620, 440, 0, 1, 1).map(([y]) => [x + Math.sin(y / 18) * 8, y] as P), { w: 2, d: 700, t: 900, head: 9 })
-        text(g, 180, 650, 'aufsteigende Warmluft', { anchor: 'middle', cls: 's', d: 1500 })
+        cloud(g, 300, 330, 0.45, 300)
+        cloud(g, 60, 630, 0.4, 400)
+        const j = wobble(g, { dy: 4, ms: 3400, d: 900 })
+        jet(j, 180, 470, 1.15, 0)
+        // Auftrieb greift an der Tragfläche an, Gewicht im Schwerpunkt
+        arrow(j, L([172, 476], [172, 350]), { w: 3.8, d: 600, t: 400, head: 12 })
+        text(j, 186, 366, 'Auftrieb', { d: 800 })
+        dot(j, 168, 470, 3.2, 500)
+        arrow(j, L([168, 474], [168, 606]), { w: 3.8, d: 900, t: 400, head: 12 })
+        text(j, 182, 596, 'Gewicht', { d: 1100 })
+        const h = st(j, 'x1', '--o: 180px 490px')
+        arrow(h, L([212, 491], [262, 491]), { w: 3, t: 0, head: 10 })
+        text(h, 270, 520, 'Schub', { anchor: 'middle', fade: false })
+        for (const y of [485, 497]) flow(h, L([150, y], [104, y + (y - 491) * 1.5]), { kind: 'dash', n: 3, ms: 600, r: 2.6 })
+        arrow(h, L([64, 470], [18, 470]), { w: 3, t: 0, head: 10 })
+        text(h, 16, 500, 'Widerstand', { fade: false })
       },
       druck(g) {
-        wing(g, 180, 450, 220, 6)
-        ;[[110, 396], [160, 388], [210, 392], [260, 406]].forEach(([x, y], i) => text(g, x, y, '−', { anchor: 'middle', size: 30, d: 700 + i * 120 }))
-        ;[[120, 512], [180, 516], [240, 512]].forEach(([x, y], i) => text(g, x, y, '+', { anchor: 'middle', size: 26, d: 1200 + i * 120 }))
-        text(g, 180, 346, 'Unterdruck', { anchor: 'middle', d: 900 })
-        text(g, 180, 566, 'Überdruck', { anchor: 'middle', d: 1500 })
-        text(st(g, 'f1'), 180, 626, 'eine Strömung, zwei Blickwinkel', { anchor: 'middle', fade: false })
+        wing(g, 180, 466, 220, 6)
+        const at = foilAt(180, 466, 220, 6)
+        // Druckverteilung: Sog oben (größter Pfeil nahe der Nase), Druck unten
+        const upper: [number, number][] = [[0.06, 54], [0.14, 62], [0.25, 54], [0.38, 42], [0.52, 32], [0.66, 22], [0.8, 14]]
+        upper.forEach(([x, len], i) => {
+          const t = 0.6 * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1036 * x ** 4)
+          const yc = x < 0.4 ? (0.05 / 0.16) * (0.8 * x - x * x) : (0.05 / 0.36) * (0.2 + 0.8 * x - x * x)
+          const s = at([x, yc + t + 0.012])
+          arrow(g, L(s, [s[0] - 6, s[1] - len]), { w: 2, d: 700 + i * 90, t: 250, head: 7 })
+        })
+        ;[0.2, 0.4, 0.6, 0.8].forEach((x, i) => {
+          const t = 0.6 * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1036 * x ** 4)
+          const yc = x < 0.4 ? (0.05 / 0.16) * (0.8 * x - x * x) : (0.05 / 0.36) * (0.2 + 0.8 * x - x * x)
+          const s = at([x, yc - t - 0.012])
+          arrow(g, L([s[0] + 3, s[1] + 30 - i * 4], s), { w: 2, d: 1400 + i * 90, t: 250, head: 7 })
+        })
+        text(g, 180, 340, 'Unterdruck', { anchor: 'middle', d: 1000 })
+        text(g, 180, 572, 'Überdruck', { anchor: 'middle', d: 1700 })
+        // zweiter Blick: dieselbe Strömung als Linien, oben dichter und schneller
+        const f = st(g, 'f1')
+        const s1 = B([10, 404], [110, 384], [230, 392], [350, 452])
+        const s2 = B([10, 520], [110, 518], [230, 522], [350, 552])
+        ink(f, s1, { w: 1.6, t: 0 })
+        ink(f, s2, { w: 1.6, t: 0 })
+        flow(f, s1, { n: 4, ms: 1800, r: 2.6 })
+        flow(f, s2, { n: 4, ms: 2800, r: 2.6 })
       },
       wirbel(g) {
-        hatch(g, RR(40, 344, 280, 18, 8), 500, true)
-        ink(g, RR(40, 344, 280, 18, 8), { w: 2.6, t: 600 })
-        ink(g, RR(130, 408, 100, 12, 5), { w: 2.4, d: 200, t: 400 })
-        blank(g, RR(170, 300, 20, 124, 10))
-        ink(g, RR(170, 300, 20, 124, 10), { w: 2.8, d: 100, t: 600 })
-        for (const x of [44, 316]) ink(g, waveP(380, 640, 0, 1, 1).map(([y]) => [x + Math.sin((y - 380) / 9) * 12 * Math.min(1, (y - 370) / 60), y] as P), { w: 2, d: 900, t: 1200 })
-        text(g, 180, 540, 'Wirbelschleppen', { anchor: 'middle', d: 1500 })
+        // Draufsicht: Flugzeug, an den Flügelspitzen beginnen zwei rotierende Wirbel
+        const P = (a: number, b: number): P => [180 + a, 330 + b]
+        const plane: P[] = [P(0, -34), P(6, -24), P(7, -4), P(110, 22), P(110, 30), P(7, 18), P(6, 44), P(26, 56), P(26, 62), P(0, 58), P(-26, 62), P(-26, 56), P(-6, 44), P(-7, 18), P(-110, 30), P(-110, 22), P(-7, -4), P(-6, -24), P(0, -34)]
+        blank(g, plane)
+        hatch(g, plane, 500, true)
+        ink(g, plane, { w: 2.4, t: 700 })
+        for (const k of [-1, 1]) {
+          ink(g, E(180 + k * 50, 342, 5, 9), { w: 1.6, d: 400, t: 200 })
+          const x0 = 180 + k * 108
+          const helix: P[] = Array.from({ length: 120 }, (_, i) => {
+            const t = i / 119
+            const r = 6 + t * 14
+            return [x0 - k * t * 18 + Math.cos(t * Math.PI * 9) * r, 366 + t * 270 + Math.sin(t * Math.PI * 9) * r * 0.35] as P
+          })
+          ink(g, helix, { w: 1.6, d: 900, t: 1600 })
+          flow(g, helix, { n: 5, ms: 3200, d: 1600, r: 2.4 })
+        }
+        // nachfolgendes Flugzeug wartet
+        const q: P[] = [[180, 600], [182, 606], [210, 614], [182, 614], [181, 626], [188, 630], [172, 630], [179, 626], [178, 614], [150, 614], [178, 606], [180, 600]]
+        ink(g, q, { w: 2, d: 1500, t: 400 })
+        text(g, 180, 655, 'Wirbelschleppen', { anchor: 'middle', d: 1900 })
       },
       klappen(g) {
-        wing(g, 170, 450, 200, 4)
-        wing(g, 302, 488, 60, 30, 600)
-        text(g, 302, 548, 'Klappe', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 180, 350, 'Tempo · Fläche · Winkel', { anchor: 'middle', d: 1100 })
+        // Landestellung: Vorflügel vorn, Spaltklappe hinten, Luft strömt durch die Spalte
+        wing(g, 180, 450, 190, 4)
+        const slat: P[] = [...E(82, 450, 22, 20, 115, 262), ...E(82, 450, 11, 10.5, 262, 115)]
+        blank(g, slat)
+        hatch(g, slat, 500, true)
+        ink(g, [...slat, slat[0]], { w: 2.2, d: 300, t: 400 })
+        wing(g, 313, 487, 74, 28, 400)
+        const s1 = B([10, 482], [50, 482], [70, 462], [100, 438])
+        const s2 = B([200, 470], [240, 470], [262, 466], [284, 462])
+        const s3 = B([284, 462], [306, 470], [330, 488], [350, 506])
+        for (const p of [s1, s2, s3]) {
+          ink(g, p, { w: 1.4, d: 900, t: 600 })
+          flow(g, p, { n: 2, ms: 1500, d: 1400, r: 2.2 })
+        }
+        text(g, 64, 408, 'Vorflügel', { anchor: 'middle', cls: 's', d: 900 })
+        text(g, 318, 548, 'Klappe', { anchor: 'middle', cls: 's', d: 1100 })
       },
       abriss(g) {
-        wing(g, 180, 460, 200, 16)
-        ink(g, L([20, 404], [94, 406]), { w: 2, d: 600, t: 400 })
-        ;[[176, 396, 12], [226, 402, 14], [282, 420, 16]].forEach(([x, y, r], i) => arcArrow(g, x, y, r, 200, 520, { d: 900 + i * 200, t: 400, w: 1.8, head: 6 }))
-        ink(g, B([20, 524], [140, 524], [240, 526], [340, 544]), { w: 2, d: 700, t: 900 })
-        text(g, 180, 610, 'Strömungsabriss', { anchor: 'middle', d: 1500 })
+        wing(g, 180, 400, 190, 18)
+        ink(g, L([20, 360], [80, 366]), { w: 1.8, d: 500, t: 400 })
+        flow(g, L([20, 360], [80, 366]), { n: 2, ms: 1400, d: 900, r: 2.2 })
+        // abgelöste Strömung: rotierende Wirbel über dem Flügel
+        ;[[150, 330, 13], [208, 332, 16], [270, 348, 18]].forEach(([x, y, r], i) => {
+          const s = spin(g, x, y, 1600 + i * 300, 800)
+          arcArrow(s, x, y, r, 200, 500, { d: 900 + i * 200, t: 400, w: 1.8, head: 6 })
+        })
+        ink(g, B([20, 452], [140, 452], [240, 460], [340, 474]), { w: 1.8, d: 700, t: 900 })
+        // kleines Diagramm: Auftrieb steigt mit dem Winkel – und bricht ab etwa 15° ein
+        axes(g, 90, 630, 300, 500, { xl: 'Winkel', yl: 'Auftrieb', d: 1100 })
+        const curve = plot(g, 90, 626, 190, 110, (t) => (t < 0.62 ? t / 0.62 : 1 - (t - 0.62) * 1.6), { d: 1500, t: 1000, w: 2.6 })
+        dashes(g, L([90 + 190 * 0.62, 630], [90 + 190 * 0.62, 518]), { w: 1.2, d: 2400, dash: 4, gap: 4 })
+        text(g, 90 + 190 * 0.62, 652, '15°', { anchor: 'middle', cls: 's', d: 2500 })
+        void curve
+      },
+      segler(g) {
+        // Sonne heizt ein dunkles Feld, warme Luft steigt auf, oben bildet sich eine Quellwolke
+        sun(g, 306, 300, 16, 0, 10)
+        ground(g, 20, 340, 630, 100)
+        hatch(g, RR(120, 622, 120, 8, 3), 600, true)
+        cloud(g, 180, 350, 1, 300, false)
+        const lw = smooth([[122, 620], [110, 560], [128, 480], [116, 410], [130, 356]])
+        const rw = smooth([[238, 620], [250, 560], [232, 480], [244, 410], [230, 356]])
+        dashes(g, lw, { w: 1.4, d: 500, dash: 6, gap: 8 })
+        dashes(g, rw, { w: 1.4, d: 500, dash: 6, gap: 8 })
+        for (const x of [150, 180, 210]) flow(g, L([x, 610], [x + (x - 180) * 0.2, 370]), { n: 3, ms: 3200, d: 900, r: 3, kind: 'dash' })
+        const helix: P[] = Array.from({ length: 160 }, (_, i) => {
+          const t = i / 159
+          return [180 + Math.cos(t * Math.PI * 6) * 62, 580 - t * 190 + Math.sin(t * Math.PI * 6) * 14] as P
+        })
+        ink(g, helix, { w: 1, d: 1000, t: 1500 })
+        // Segelflugzeug von oben (lange, schmale Flügel) folgt der Spirale
+        const gl = mk('g', { opacity: 0 }, g)
+        const wings: P[] = [[-2, -32], [4, -32], [4, 32], [-2, 32], [-2, -32]]
+        blank(gl, wings)
+        ink(gl, wings, { w: 1.8, t: 0 })
+        const fus: P[] = [...B([14, 0], [12, -3], [4, -3], [-20, -1.5]), ...L([-20, -1.5], [-20, 1.5]).slice(1), ...B([-20, 1.5], [4, 3], [12, 3], [14, 0]).slice(1)]
+        blank(gl, fus)
+        ink(gl, fus, { w: 1.8, t: 0 })
+        ink(gl, L([-20, -8], [-20, 8]), { w: 1.8, t: 0 })
+        mk('set', { attributeName: 'opacity', to: 1, begin: '1.2s', fill: 'freeze' }, gl)
+        mk('animateMotion', { path: `M${helix.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}`, dur: '10s', begin: '1.2s', repeatCount: 'indefinite', rotate: 'auto' }, gl)
       },
       rotor(g) {
-        ink(g, L([176, 480], [168, 640]), { w: 2.8, t: 500 })
-        ink(g, L([184, 480], [192, 640]), { w: 2.8, t: 500 })
-        const r = group(g)
-        r.style.transformOrigin = '180px 470px'
+        // Windrad: jedes Rotorblatt hat im Schnitt ein Flügelprofil
+        ink(g, L([176, 430], [168, 640]), { w: 2.8, t: 500 })
+        ink(g, L([184, 430], [192, 640]), { w: 2.8, t: 500 })
+        ink(g, RR(166, 410, 40, 20, 8), { w: 2.4, d: 200, t: 300 })
+        ground(g, 60, 300, 640, 200)
+        const r = spin(g, 172, 420, 5000, 1400)
         for (let k = 0; k < 3; k++) {
           const a = rad(k * 120 - 90)
           const n = rad(k * 120)
-          const bl: P[] = [[180 + Math.cos(a) * 14 + Math.cos(n) * 8, 470 + Math.sin(a) * 14 + Math.sin(n) * 8], [180 + Math.cos(a) * 140 + Math.cos(n) * 3, 470 + Math.sin(a) * 140 + Math.sin(n) * 3], [180 + Math.cos(a) * 140 - Math.cos(n) * 3, 470 + Math.sin(a) * 140 - Math.sin(n) * 3], [180 + Math.cos(a) * 14 - Math.cos(n) * 8, 470 + Math.sin(a) * 14 - Math.sin(n) * 8]]
+          const bl: P[] = [[172 + Math.cos(a) * 14 + Math.cos(n) * 8, 420 + Math.sin(a) * 14 + Math.sin(n) * 8], [172 + Math.cos(a) * 130 + Math.cos(n) * 3, 420 + Math.sin(a) * 130 + Math.sin(n) * 3], [172 + Math.cos(a) * 130 - Math.cos(n) * 3, 420 + Math.sin(a) * 130 - Math.sin(n) * 3], [172 + Math.cos(a) * 14 - Math.cos(n) * 4, 420 + Math.sin(a) * 14 - Math.sin(n) * 4]]
           blank(r, [...bl, bl[0]])
           hatch(r, bl, 400 + k * 100)
           ink(r, [...bl, bl[0]], { w: 2.4, d: 200 + k * 150, t: 400 })
         }
-        ball(r, 180, 470, 12, { d: 100, fill: 'dicht', t: 300 })
-        r.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], { duration: 5000, iterations: Infinity })
+        ball(r, 172, 420, 11, { d: 100, fill: 'dicht', t: 300 })
+        // Schnitt durch ein Blatt
+        ink(g, E(286, 580, 54, 36), { w: 1.8, d: 1200, t: 500 })
+        wing(g, 286, 584, 80, 8, 1400)
+        dashes(g, L([236, 556], [196, 500]), { w: 1.4, d: 1300, dash: 5, gap: 5 })
+        bird(g, 60, 330, 1, 1600)
+        bird(g, 90, 348, 0.7, 1700)
       },
       hand(g) {
-        wing(g, 190, 460, 170, 12)
-        for (const [y, d] of [[420, 400], [460, 500], [500, 600]] as const) arrow(g, L([20, y], [80, y]), { w: 2, d, t: 300, head: 8 })
-        arrow(g, L([200, 420], [200, 340]), { w: 3.6, d: 1000, t: 400, head: 11 })
-        text(g, 216, 372, 'nach oben', { d: 1200 })
-        text(g, 180, 570, 'Hand im Fahrtwind, leicht gekippt', { anchor: 'middle', cls: 's', d: 1300 })
+        // Autofenster rechts, Arm hinaus, Hand von oben mit den Fingern in den Fahrtwind
+        ink(g, B([300, 300], [316, 310], [330, 330], [334, 360]), { w: 3, t: 400 })
+        ink(g, L([334, 360], [334, 600]), { w: 3, d: 200, t: 400 })
+        hatch(g, [[304, 304], [334, 360], [334, 600], [304, 600]], 600)
+        ink(g, L([304, 304], [304, 600]), { w: 2.4, d: 200, t: 400 })
+        const a = rad(-8)
+        const H = (x: number, y: number): P => [230 + x * Math.cos(a) - y * Math.sin(a), 440 + x * Math.sin(a) + y * Math.cos(a)]
+        const arm: P[] = [H(0, -14), H(86, -18), H(86, 18), H(0, 14)]
+        blank(g, arm)
+        ink(g, L(arm[0], arm[1]), { w: 2.4, d: 300, t: 300 })
+        ink(g, L(arm[3], arm[2]), { w: 2.4, d: 300, t: 300 })
+        const thumb: P[] = [H(-14, 14), H(-30, 26), H(-44, 30), H(-48, 25), H(-36, 16), H(-26, 6)]
+        blank(g, thumb)
+        ink(g, [...thumb, thumb[0]], { w: 2.2, d: 500, t: 300 })
+        const palm: P[] = [H(4, -16), H(-44, -18), H(-48, 16), H(2, 14), H(4, -16)]
+        blank(g, palm)
+        ink(g, palm, { w: 2.4, d: 400, t: 400 })
+        ;[[-14, 30], [-5, 36], [4.5, 34], [13, 26]].forEach(([y, len], i) => {
+          const fg: P[] = [H(-44, y - 4.2), H(-44 - len, y - 3.6), ...B(H(-44 - len, y - 3.6), H(-49 - len, y - 3.6), H(-49 - len, y + 3.6), H(-44 - len, y + 3.6)).slice(1), H(-44, y + 4.2)]
+          blank(g, fg)
+          ink(g, fg, { w: 2, d: 600 + i * 80, t: 250 })
+          ink(g, L(H(-60 - len * 0.35, y - 3), H(-60 - len * 0.35, y + 3)), { w: 0.9, d: 900, t: 80 })
+        })
+        ink(g, B(H(-6, -10), H(-18, -4), H(-26, 2), H(-30, 10)), { w: 1, d: 950, t: 200 })
+        // Luft strömt über die Hand, wird abgelenkt – Kraft nach oben
+        for (const [y, dd] of [[380, 400], [470, 500], [540, 600]] as const) {
+          const p = B([14, y], [80, y - 4], [180, y - 14], [292, y + 20])
+          ink(g, p, { w: 1.3, d: dd, t: 700 })
+          flow(g, p, { n: 2, ms: 1300, d: dd + 600, r: 2.2 })
+        }
+        arrow(g, L([196, 430], [204, 330]), { w: 3.6, d: 1200, t: 400, head: 11 })
+        // seitlich gesehen: leicht angekippt wie ein Flügel
+        ink(g, E(84, 600, 64, 40), { w: 1.8, d: 1300, t: 500 })
+        wing(g, 84, 604, 84, 14, 1500)
+        arrow(g, L([20, 604], [42, 604]), { w: 1.6, d: 1700, t: 200, head: 6 })
       },
       a380(g) {
-        jet(g, 180, 400, 1.6)
-        text(g, 180, 560, '575 t', { anchor: 'middle', size: 60, d: 900 })
-        text(g, 180, 600, 'Startgewicht Airbus A380', { anchor: 'middle', cls: 's', d: 1100 })
+        // A380: zwei Fensterreihen übereinander, darunter ein ganzer Vorhang abwärts geworfener Luft
+        const j = wobble(g, { dy: 4, ms: 3600, d: 900 })
+        jet(j, 180, 390, 1.55, 0, 2)
+        for (let i = 0; i < 9; i++) {
+          const x = 70 + i * 26
+          const p = L([x, 444], [x + 6, 646])
+          ink(g, p, { w: 1.2, d: 1100 + i * 60, t: 500 })
+          flow(g, p, { n: 2, ms: 1600, d: 1500 + i * 70, r: 2.4, kind: 'dash' })
+        }
       },
       ende(g) {
-        arrow(g, L([180, 600], [180, 400]), { w: 5, t: 600, head: 14 })
-        arrow(g, L([90, 400], [90, 580]), { w: 3.4, d: 400, t: 500, head: 11 })
-        arrow(g, L([270, 400], [270, 580]), { w: 3.4, d: 500, t: 500, head: 11 })
-        text(g, 180, 380, 'Auftrieb', { anchor: 'middle', d: 800 })
-        text(g, 90, 616, 'Luft', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 270, 616, 'Luft', { anchor: 'middle', cls: 's', d: 900 })
+        const lines: P[][] = [
+          B([10, 400], [120, 388], [240, 392], [350, 444]),
+          B([10, 454], [110, 436], [230, 446], [350, 512]),
+          B([10, 548], [100, 544], [200, 560], [350, 600]),
+          B([10, 604], [120, 600], [220, 612], [350, 646]),
+        ]
+        lines.forEach((p, i) => {
+          ink(g, p, { w: 1.6, d: 400 + i * 120, t: 900 })
+          flow(g, p, { n: 3, ms: i < 2 ? 2100 : 2700, d: 1200 + i * 100, r: 2.4 })
+        })
+        wing(g, 180, 518, 200, 10, 0)
+        arrow(g, L([186, 476], [186, 372]), { w: 5, d: 600, t: 600, head: 14 })
       },
     },
     scenes: [
       { t: HOOK(476), gfx: { flieger: {} } },
       { t: T('Die Schulbuch-Erklärung: Oben ist der Flügel gewölbt. Die Luft hat dort einen längeren Weg – und muss **gleichzeitig** hinten ankommen.', 64), gfx: { profil: {} } },
-      { t: T('Das klingt logisch, ist aber falsch. Nichts zwingt die Luft, sich hinten wiederzutreffen. Oben ist sie sogar **deutlich schneller**.', 64), gfx: { profil: { cls: 'a1 a2' } } },
+      { t: T('Das klingt logisch, ist aber falsch. Nichts zwingt die Luft, sich hinten wiederzutreffen. Oben ist sie sogar **deutlich schneller**.', 64), gfx: { profil: { cls: 'a1' } } },
       { t: T('Und gälte die Erklärung, könnte kein Flugzeug **auf dem Rücken** fliegen. Kunstflieger tun das aber ständig.', 64), gfx: { ruecken: {} } },
       { t: T('Der eigentliche Trick: Der Flügel ist leicht **schräg angestellt**. So lenkt er riesige Mengen Luft nach unten.', 64), gfx: { umlenk: {} } },
       { t: T('Newtons drittes Gesetz: Drückt der Flügel Luft nach unten, drückt die Luft den Flügel **nach oben**. Das ist der Auftrieb.', 64), gfx: { umlenk: { cls: 'a1' } } },
