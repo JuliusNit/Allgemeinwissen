@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, check, clock, countUp, cross, crowd, dashes, eye, fig, hatch, hbars, ink, letter, lie, question, rays, st, text, timeline, vbars, type P } from './draw'
 import { axes, ball, box, bullets, carrow, dot, drop, earth, flame, heart, lens, pie, plot, rad, sun, thermo, tree, waveP } from './kit'
 
@@ -139,7 +140,7 @@ export const AHA_KOERPER: Bite[] = [
     hook: 'Woraus besteht eigentlich ein Baum?',
     mood: 'ruhig',
     ambience: 'wind',
-    images: [],
+    images: [img('eiche'), img('van-helmont')],
     draw: {
       baum(g) {
         ink(g, L([20, 440], [340, 440]), { w: 3, t: 500 })
@@ -278,10 +279,10 @@ export const AHA_KOERPER: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { baum: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein großer Baum kann **viele Tonnen** wiegen. Doch woher kommt all diese Masse eigentlich?', 64), gfx: { gewicht: {} } },
       { t: T('Die naheliegende Antwort: aus dem **Boden**. Die Wurzeln saugen die Erde gewissermaßen in den Stamm.', 64), gfx: { boden: {} } },
-      { t: T('Das prüfte der Arzt Jan Baptist van Helmont um 1640. Er pflanzte einen Weidenzweig in einen Topf mit gut **90 Kilo** Erde.', 64), gfx: { topf: {} } },
+      { t: T('Das prüfte der Arzt Jan Baptist van Helmont um 1640. Er pflanzte einen Weidenzweig in einen Topf mit gut **90 Kilo** Erde.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 30, 1.05], cam2: [50, 30, 1.2], cap: 'Jan Baptist van Helmont' } } },
       { t: T('Fünf Jahre lang gab er nur Wasser dazu. Aus dem Zweig wurde eine Weide von über **76 Kilo**.', 64), gfx: { topf: { cls: 'a1' } } },
       { t: T('Und die Erde im Topf? Sie war nur um **57 Gramm** leichter geworden.', 64), gfx: { topf: { cls: 'a1 a2' } } },
       { t: T('Van Helmont schloss: Der Baum besteht aus **Wasser**. Halb richtig – das Wichtigste übersah er.', 64), gfx: { wasser: {} } },
@@ -498,7 +499,7 @@ export const AHA_KOERPER: Bite[] = [
     hook: 'Warum hast du Schluckauf – und wozu soll das gut sein?',
     mood: 'verspielt',
     ambience: 'atem',
-    images: [],
+    images: [img('baby')],
     draw: {
       hicks(g) {
         bubble(g, 70, 150, 220, 100, 'l', 200)
@@ -651,7 +652,7 @@ export const AHA_KOERPER: Bite[] = [
       { t: T('Wozu soll das gut sein? Eine Idee: Schluckauf ist ein **Erbe** aus der Zeit, als unsere Vorfahren im Wasser lebten.', 64), gfx: { vorfahren: {} } },
       { t: T('Kaulquappen atmen mit **Lunge und Kiemen**. Pumpen sie Wasser über die Kiemen, schließen sie die Stimmritze – damit nichts in die Lunge läuft.', 64), gfx: { kaulquappe: {} } },
       { t: T('Dieses Muster – einatmen, Stimmritze zu – gleicht dem Schluckauf **verblüffend**.', 64), gfx: { muster: {} } },
-      { t: T('Eine zweite Idee: Babys hicksen schon im Mutterleib, und zwar oft. Vielleicht **trainiert** der Reflex die Atemmuskeln.', 64), gfx: { baby: {} } },
+      { t: T('Eine zweite Idee: Babys hicksen schon im Mutterleib, und zwar oft. Vielleicht **trainiert** der Reflex die Atemmuskeln.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Eine dritte: Er hilft Säuglingen, beim Trinken geschluckte **Luft aus dem Magen** zu befördern.', 64), gfx: { flasche: {} } },
       { t: T('Auch Hunde, Katzen und Pferde bekommen Schluckauf – er ist ein **Säugetier-Reflex**.', 64), gfx: { tiere: {} } },
       { t: T('Bewiesen ist keine dieser Ideen. Schluckauf ist bis heute ein **kleines Rätsel** der Medizin.', 64), gfx: { raetsel: {} } },
@@ -671,7 +672,7 @@ export const AHA_KOERPER: Bite[] = [
     hook: 'Warum macht dein Körper Fieber – mit Absicht?',
     mood: 'raetsel',
     ambience: 'herz',
-    images: [],
+    images: [img('leguan')],
     draw: {
       thermo(g) {
         thermo(g, 180, 90, 280, 0.82)
@@ -805,7 +806,7 @@ export const AHA_KOERPER: Bite[] = [
       { t: T('Du zitterst – Muskelarbeit erzeugt **Wärme**. Die Hautgefäße ziehen sich zusammen, Hände und Füße werden kalt.', 64), gfx: { zittern: {} } },
       { t: T('Warum der Aufwand? Viele Erreger vermehren sich bei höherer Temperatur **schlechter**.', 64), gfx: { erreger: {} } },
       { t: T('Gleichzeitig arbeiten viele **Abwehrzellen** schneller: Sie wandern zügiger dorthin, wo die Infektion sitzt.', 64), gfx: { immun: {} } },
-      { t: T('Das ist uralt. Sogar **Eidechsen** „machen Fieber“: Bei einer Infektion legen sie sich länger in die Sonne.', 64), gfx: { echse: {} } },
+      { t: T('Das ist uralt. Sogar **Eidechsen** „machen Fieber“: Bei einer Infektion legen sie sich länger in die Sonne.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('In einem Versuch von 1975 überlebten infizierte Wüstenleguane, die sich aufwärmen konnten, **deutlich häufiger**.', 64), gfx: { ueberleben: {} } },
       { t: T('Mit dem Fieber steigt auch der **Puls**: um etwa zehn Schläge pro Minute je Grad.', 64), gfx: { puls: {} } },
       { t: T('Fieber kostet aber viel Energie: Pro Grad steigt der Grundumsatz um etwa **10 bis 13 Prozent**.', 64), gfx: { energie: {} } },
@@ -826,7 +827,7 @@ export const AHA_KOERPER: Bite[] = [
     hook: 'Ist das Blut in deinen Adern blau?',
     mood: 'raetsel',
     ambience: 'herz',
-    images: [],
+    images: [img('krake')],
     draw: {
       arm(g) {
         const arm: P[] = [...B([20, 180], [120, 160], [240, 150], [340, 140]), ...L([340, 140], [340, 300]).slice(1), ...B([340, 300], [240, 310], [120, 320], [20, 340]).slice(1)]
@@ -973,7 +974,7 @@ export const AHA_KOERPER: Bite[] = [
       { t: T('Und in Schulbüchern? Dort sind Venen **blau** gemalt und Arterien rot – eine Farbregel für Zeichnungen, keine Fotografie.', 64), gfx: { lehrbuch: {} } },
       { t: T('Blaue Lippen bei Kälte? Dort fließt das Blut langsamer und gibt **mehr Sauerstoff** ab – es wird dunkler und schimmert bläulich.', 64), gfx: { lippen: {} } },
       { t: T('Und blaue Flecken? Dort ist Blut ins Gewebe gesickert. Beim Abbau wird sein Farbstoff erst **grün, dann gelb**.', 64), gfx: { fleck: {} } },
-      { t: T('Wirklich blaues Blut gibt es trotzdem: **Kraken** und Hummer nutzen Hämocyanin – mit Kupfer statt Eisen.', 64), gfx: { krake: {} } },
+      { t: T('Wirklich blaues Blut gibt es trotzdem: **Kraken** und Hummer nutzen Hämocyanin – mit Kupfer statt Eisen.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('„Blaublütig“ für Adlige kommt aus Spanien: Bei heller Haut, die nie auf dem Feld in der Sonne war, schimmerten die **Venen** deutlich durch.', 64), gfx: { adel: {} } },
       { t: T('Dein Blut ist **immer rot** – das Blau ist ein Trick des Lichts.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],
@@ -987,7 +988,7 @@ export const AHA_KOERPER: Bite[] = [
     hook: 'In jeder deiner Zellen stecken zwei Meter Faden. Wie passt das hinein?',
     mood: 'raetsel',
     ambience: 'blasen',
-    images: [],
+    images: [img('dna-modell'), img('karyogramm')],
     draw: {
       zelle(g) {
         cell(g, 180, 250, 150, 120, 0, false)
@@ -1138,7 +1139,7 @@ export const AHA_KOERPER: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { zelle: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Deine Erbinformation steckt in der **DNA** – einem langen, extrem dünnen Molekül aus zwei Strängen.', 64), gfx: { leiter: {} } },
       { t: T('Die Information steckt in nur vier Buchstaben: **A, T, G und C**. Sie paaren sich immer gleich – A mit T, G mit C.', 64), gfx: { buchstaben: {} } },
       { t: T('Würdest du die DNA aus einer einzigen Zelle ausrollen, wäre sie rund **zwei Meter** lang.', 64), gfx: { laenge: {} } },
@@ -1149,7 +1150,7 @@ export const AHA_KOERPER: Bite[] = [
       { t: T('Das sieht aus wie eine Perlenkette. Jede Spule trägt knapp **zwei Windungen** DNA.', 64), gfx: { perlen: {} } },
       { t: T('Die Perlenkette faltet sich weiter zu Schleifen – **Schleife auf Schleife**, immer dichter.', 64), gfx: { schleifen: {} } },
       { t: T('Vor einer Zellteilung wird sie maximal verdichtet. Dann entstehen die **Chromosomen**, die man im Mikroskop sieht.', 64), gfx: { chromosom: {} } },
-      { t: T('Der Mensch hat **46** davon: 23 von der Mutter, 23 vom Vater.', 64), gfx: { karyogramm: {} } },
+      { t: T('Der Mensch hat **46** davon: 23 von der Mutter, 23 vom Vater.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ist eins zu viel – wie bei der **Trisomie 21** –, verändert das die ganze Entwicklung.', 64), gfx: { trisomie: {} } },
       { t: T('Nur rund **zwei Prozent** davon sind Baupläne für Eiweiße. Der Rest regelt, schaltet – oder ist noch ein Rätsel.', 64), gfx: { gene: {} } },
       { t: T('Das Packen ist kein Chaos: Gene, die gebraucht werden, liegen **locker**, damit die Zelle sie lesen kann. Der Rest wird eng weggepackt.', 64), gfx: { locker: {} } },
@@ -1168,7 +1169,7 @@ export const AHA_KOERPER: Bite[] = [
     hook: 'Blaue Augen haben gar kein blaues Pigment. Wie geht das?',
     mood: 'hell',
     ambience: 'blasen',
-    images: [],
+    images: [img('blaues-auge')],
     draw: {
       auge(g) {
         eye(g, 180, 260, 3)
@@ -1299,7 +1300,7 @@ export const AHA_KOERPER: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { auge: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die Augenfarbe sitzt in der **Iris**, dem farbigen Ring um die Pupille.', 64), gfx: { iris: {} } },
       { t: T('Ihr einziges Farbpigment ist **Melanin** – braun bis schwarz, dasselbe wie in Haut und Haaren. Ein blaues Pigment gibt es dort nicht.', 64), gfx: { iris: {} } },
       { t: T('Braune Augen haben viel Melanin in der vorderen Schicht der Iris. Es **schluckt** den größten Teil des Lichts.', 64), gfx: { braun: {} } },
