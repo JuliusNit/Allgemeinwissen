@@ -1,23 +1,35 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, bolt, check, cross, dashes, fig, hatch, hbars, ink, letter, question, rays, st, text, timeline, type P } from './draw'
-import { arcArrow, ball, box, bullets, carrow, dot, drop, thermo, water, waveP } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, bulb, check, clock, cross, dashes, eye, fig, group, hatch, hbars, ink, letter, mk, mountain, pop, question, rays, st, text, timeline, type P } from './draw'
+import { arcArrow, ball, box, bullets, carrow, clipBox, dot, drop, earth, flow, geo, glide, mapRegion, ripple, sea, smooth, spin, sun, thermo, water, waveP, wobble } from './kit'
 
 // Technik: Alltagsgeräte und wie sie wirklich funktionieren, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
-/** Smartphone, oben links (x, y) */
-function phone(g: Element, x: number, y: number, w: number, h: number, d = 0): void {
+/** Smartphone, oben links (x, y): Rahmen, Glas, Kamera-Insel, Tasten an der Seite, optional App-Raster */
+function phone(g: Element, x: number, y: number, w: number, h: number, d = 0, apps = false): void {
   blank(g, RR(x, y, w, h, w * 0.14))
   ink(g, RR(x, y, w, h, w * 0.14), { w: 3, d, t: 700 })
-  ink(g, RR(x + w * 0.38, y + 8, w * 0.24, 6, 3), { w: 1.6, d: d + 300, t: 200 })
+  ink(g, RR(x + 6, y + 6, w - 12, h - 12, w * 0.11), { w: 1.2, d: d + 200, t: 600 })
+  ink(g, RR(x + w * 0.36, y + 12, w * 0.28, 9, 4.5), { w: 1.6, d: d + 300, t: 200 })
+  mk('circle', { cx: x + w * 0.58, cy: y + 16.5, r: 2.2, class: 'k fade', style: `--d:${d + 400}ms` }, g)
+  for (const [yy, hh] of [[0.2, 0.08], [0.32, 0.12]] as const) ink(g, L([x + w + 2, y + h * yy], [x + w + 2, y + h * (yy + hh)]), { w: 2.6, d: d + 400, t: 150 })
+  ink(g, L([x - 2, y + h * 0.24], [x - 2, y + h * 0.3]), { w: 2.6, d: d + 400, t: 150 })
+  if (apps) {
+    const s = (w - 40) / 4
+    for (let r = 0; r < 5; r++)
+      for (let c = 0; c < 4; c++) ink(g, RR(x + 20 + c * s + s * 0.15, y + 40 + r * s * 1.15, s * 0.7, s * 0.7, s * 0.18), { w: 1.3, d: d + 500 + (r * 4 + c) * 25, t: 120 })
+    ink(g, RR(x + w * 0.35, y + h - 18, w * 0.3, 4, 2), { w: 1.2, d: d + 900, t: 150 })
+  }
 }
 
-/** Zeigefinger von unten, Spitze bei (x, y) */
+/** Zeigefinger von unten, Spitze bei (x, y): Nagel, Gelenkfalten */
 function finger(g: Element, x: number, y: number, s = 1, d = 0): void {
   const P = (a: number, b: number): P => [x + a * s, y + b * s]
-  const p: P[] = [P(-16, 130), ...B(P(-16, 130), P(-16, 60), P(-16, 20), P(-14, 10)).slice(1), ...B(P(-14, 10), P(-10, -4), P(10, -4), P(14, 10)).slice(1), ...B(P(14, 10), P(16, 20), P(16, 60), P(16, 130)).slice(1)]
+  const p: P[] = [P(-17, 140), ...B(P(-17, 140), P(-17, 60), P(-16, 20), P(-14, 10)).slice(1), ...B(P(-14, 10), P(-10, -4), P(10, -4), P(14, 10)).slice(1), ...B(P(14, 10), P(16, 20), P(17, 60), P(17, 140)).slice(1)]
   blank(g, p)
   ink(g, p, { w: 2.6, d, t: 600 })
-  ink(g, B(P(-8, 14), P(-6, 4), P(6, 4), P(8, 14)), { w: 1.4, d: d + 400, t: 200 })
+  const nail: P[] = [...B(P(-9, 22), P(-9, 4), P(9, 4), P(9, 22)), P(-9, 22)]
+  ink(g, nail, { w: 1.4, d: d + 400, t: 200 })
+  for (const yy of [48, 54, 92, 98]) ink(g, B(P(-10, yy), P(-4, yy + 2), P(4, yy + 2), P(10, yy)), { w: 1, d: d + 500, t: 150 })
 }
 
 /** Gitter aus Zeilen und Spalten (leitende Bahnen) */
@@ -26,34 +38,82 @@ function wires(g: Element, x: number, y: number, w: number, h: number, n: number
   for (let i = 1; i < n; i++) dashes(g, L([x + 4, y + (h * i) / n], [x + w - 4, y + (h * i) / n]), { w: 1.2, d: d + 200 + i * 40 })
 }
 
-/** Netz-Knoten (Router) */
-function node(g: Element, x: number, y: number, d = 0, label = ''): void {
-  ball(g, x, y, 14, { d, fill: 'hell', t: 300 })
-  if (label) text(g, x, y + 34, label, { anchor: 'middle', cls: 's', d: d + 200 })
+/** Farbe als Muster (schwarz-weiß lesbar): Gelb = Punkte, Rot = Schrägschraffur, Blau = waagerechte Linien */
+type Paint = 'gelb' | 'rot' | 'blau'
+function paint(g: Element, x: number, y: number, w: number, h: number, colors: Paint[], d = 0): void {
+  const c = clipBox(g, x, y, w, h)
+  if (colors.includes('rot')) hatch(c, RR(x, y, w, h, 0), d)
+  if (colors.includes('blau')) for (let yy = y + 4; yy < y + h; yy += 7) ink(c, L([x, yy], [x + w, yy]), { w: 1, d: d + (yy - y) * 4, t: 80 })
+  if (colors.includes('gelb')) for (let yy = y + 5; yy < y + h; yy += 8) for (let xx = x + 4 + ((yy - y) % 16 ? 4 : 0); xx < x + w; xx += 8) mk('circle', { cx: xx, cy: yy, r: 1.3, class: 'k fade', style: `--d:${d + 100}ms` }, c)
 }
 
-/** Farbtopf mit Beschriftung, Boden bei y */
-function pot(g: Element, cx: number, y: number, label: string, d = 0, dense = false): void {
+/** Farbtopf mit Farbe(n), Boden bei y; label optional */
+function pot(g: Element, cx: number, y: number, colors: Paint[], d = 0, label = ''): void {
   const p: P[] = [[cx - 30, y - 56], [cx - 26, y], [cx + 26, y], [cx + 30, y - 56]]
   blank(g, [...p, [cx - 30, y - 56]])
-  hatch(g, [[cx - 28, y - 40], [cx - 26, y], [cx + 26, y], [cx + 28, y - 40], [cx - 28, y - 40]], d + 300, dense)
+  paint(g, cx - 28, y - 42, 56, 42, colors, d + 300)
+  blank(g, [[cx - 40, y - 60], [cx - 28, y - 42], [cx - 26, y + 4], [cx - 40, y + 4]])
+  blank(g, [[cx + 40, y - 60], [cx + 28, y - 42], [cx + 26, y + 4], [cx + 40, y + 4]])
   ink(g, p, { w: 2.6, d, t: 400 })
   ink(g, E(cx, y - 56, 30, 7), { w: 2.2, d: d + 200, t: 300 })
-  text(g, cx, y + 24, label, { anchor: 'middle', cls: 's', d: d + 400 })
+  ink(g, E(cx, y - 42, 28, 5, 0, 180), { w: 1.2, d: d + 300, t: 200 })
+  ink(g, B([cx - 30, y - 56], [cx - 20, y - 84], [cx + 20, y - 84], [cx + 30, y - 56]), { w: 1.6, d: d + 350, t: 300 })
+  if (label) text(g, cx, y + 24, label, { anchor: 'middle', cls: 's', d: d + 400 })
 }
 
-/** Hand mit fünf Fingern; up[i] = Finger gestreckt (Daumen zuerst) */
+/** Legende der Farbmuster */
+function legend(g: Element, x: number, y: number, colors: Paint[], d = 0): void {
+  const names: Record<Paint, string> = { gelb: 'Gelb', rot: 'Rot', blau: 'Blau' }
+  colors.forEach((c, i) => {
+    const xx = x + i * 92
+    paint(g, xx, y - 14, 24, 18, [c], d + i * 100)
+    ink(g, RR(xx, y - 14, 24, 18, 3), { w: 1.4, d: d + i * 100, t: 200 })
+    text(g, xx + 30, y, names[c], { cls: 's', d: d + 100 + i * 100 })
+  })
+}
+
+/** Rechte Hand von hinten (Handrücken), Handfläche oben links bei (x, y), 120 × 70; up[i] = Finger gestreckt (Daumen zuerst) */
 function hand(g: Element, x: number, y: number, up: boolean[], d = 0, labels: string[] = []): void {
-  ink(g, RR(x, y, 120, 70, 18), { w: 2.6, d, t: 500 })
+  // Handrücken mit Handgelenk
+  const palm: P[] = [...B([x + 4, y + 4], [x + 2, y + 40], [x + 10, y + 70], [x + 26, y + 92]), [x + 26, y + 124], [x + 100, y + 124], [x + 100, y + 92], ...B([x + 100, y + 92], [x + 116, y + 72], [x + 122, y + 40], [x + 118, y + 4]).slice(1), [x + 4, y + 4]]
+  blank(g, palm)
+  ink(g, palm.slice(0, -1), { w: 2.6, d, t: 600 })
+  for (const k of [0, 1]) ink(g, B([x + 30, y + 104 + k * 8], [x + 50, y + 108 + k * 8], [x + 76, y + 108 + k * 8], [x + 96, y + 104 + k * 8]), { w: 0.9, d: d + 500, t: 200 })
+  for (let i = 1; i < 5; i++) ink(g, B([x + 16 + (i - 1) * 29, y + 10], [x + 18 + (i - 1) * 29, y + 30], [x + 30 + (i - 1) * 14, y + 56], [x + 44 + (i - 1) * 9, y + 80]), { w: 0.8, d: d + 600, t: 200 })
   up.forEach((u, i) => {
-    const fx = i === 0 ? x - 30 : x + 4 + (i - 1) * 29
-    const fy = i === 0 ? y + 10 : y
-    const h = u ? (i === 0 ? 50 : 70) : 18
-    const p = i === 0 ? RR(fx, fy, 26, 40, 12) : RR(fx, fy - h, 24, h + 6, 11)
-    blank(g, p)
-    if (u) hatch(g, p, d + 300 + i * 80)
-    ink(g, p, { w: 2.4, d: d + 100 + i * 80, t: 300 })
-    if (labels[i]) text(g, i === 0 ? fx + 13 : fx + 12, i === 0 ? fy + 64 : y + 96, labels[i], { anchor: 'middle', cls: 's', d: d + 500 + i * 80 })
+    const dd = d + 100 + i * 80
+    if (i === 0) {
+      // Daumen: schräg nach links außen
+      const th = group(g, '', `transform: rotate(${u ? -28 : -8}deg); transform-origin: ${x + 6}px ${y + 50}px`)
+      const p = RR(x - 20, y + (u ? -4 : 22), 26, u ? 60 : 34, 12)
+      blank(th, p)
+      if (u) hatch(th, p, dd + 200)
+      ink(th, p, { w: 2.4, d: dd, t: 300 })
+      if (u) ink(th, B([x - 13, y + 2], [x - 13, y - 6], [x - 1, y - 6], [x - 1, y + 2]), { w: 1.2, d: dd + 300, t: 150 })
+    } else {
+      const fx = x + 4 + (i - 1) * 29
+      const len = (u ? [0, 72, 80, 74, 58] : [0, 18, 18, 18, 16])[i]
+      const p = RR(fx, y - len, 24, len + 8, 11)
+      blank(g, p)
+      if (u) hatch(g, p, dd + 200)
+      ink(g, p, { w: 2.4, d: dd, t: 300 })
+      if (u) {
+        ink(g, B([fx + 5, y - len + 16], [fx + 5, y - len + 5], [fx + 19, y - len + 5], [fx + 19, y - len + 16]), { w: 1.2, d: dd + 300, t: 150 })
+        for (const k of [0.38, 0.68]) ink(g, B([fx + 5, y - len * (1 - k)], [fx + 9, y - len * (1 - k) + 2], [fx + 15, y - len * (1 - k) + 2], [fx + 19, y - len * (1 - k)]), { w: 0.9, d: dd + 350, t: 100 })
+      } else ink(g, B([fx + 3, y - 6], [fx + 8, y - 14], [fx + 16, y - 14], [fx + 21, y - 6]), { w: 1, d: dd + 300, t: 100 })
+    }
+    if (labels[i]) text(g, i === 0 ? x - 14 : x + 16 + (i - 1) * 29, i === 0 ? y + 82 : y + 146, labels[i], { anchor: 'middle', cls: 's', d: d + 500 + i * 80 })
+  })
+}
+
+/** Bits unter den Fingern der Hand bei x = 130 (Daumen zuerst); b in Schreibweise (höchster Wert links) */
+function bits(g: Element, b: number[], d = 0): void {
+  const xs = [116, 146, 175, 204, 233]
+  xs.forEach((x, i) => {
+    const v = b[b.length - 1 - i]
+    ink(g, RR(x - 11, 628, 22, 26, 4), { w: 1.6, d: d + i * 80, t: 150 })
+    if (v) hatch(g, RR(x - 11, 628, 22, 26, 4), d + 200 + i * 80)
+    text(g, x, 647, String(v), { anchor: 'middle', size: 16, cls: v ? 'halo' : '', d: d + 100 + i * 80 })
   })
 }
 
@@ -89,84 +149,191 @@ export const AHA_TECHNIK: Bite[] = [
     images: [],
     draw: {
       handy(g) {
-        phone(g, 110, 80, 140, 280)
-        finger(g, 210, 230, 1, 600)
+        phone(g, 100, 80, 160, 320, 0, true)
+        ripple(g, 186, 228, 6, 30, { n: 2, ms: 1400, d: 1300, w: 1.4 })
+        finger(g, 186, 232, 1, 600)
       },
       gitter(g) {
-        phone(g, 90, 300, 180, 340)
-        wires(g, 104, 330, 152, 290, 7, 400)
-        text(g, 180, 670, 'unsichtbare Bahnen im Glas', { anchor: 'middle', cls: 's', d: 1000 })
+        // Schichten auseinandergezogen: Deckglas, Sensorgitter (Zeilen und Spalten), darunter die Pixel
+        const layer = (y: number): P[] => [[60, y], [260, y], [310, y + 60], [110, y + 60], [60, y]]
+        const sk = (p: P, y: number): P => [60 + p[0] * 200 + p[1] * 50, y + p[1] * 60]
+        const pix = layer(540)
+        blank(g, pix)
+        ink(g, pix, { w: 2.2, t: 500 })
+        for (let r = 0; r < 6; r++) for (let c = 0; c < 16; c++) {
+          const a = sk([c / 16 + 0.01, r / 6 + 0.02], 540)
+          ink(g, [a, [a[0] + 9, a[1]], [a[0] + 12, a[1] + 7], [a[0] + 3, a[1] + 7], a], { w: 0.6, d: 300 + r * 40, t: 60 })
+        }
+        const sen = layer(440)
+        blank(g, sen)
+        ink(g, sen, { w: 2.2, d: 400, t: 500 })
+        for (let i = 1; i < 8; i++) ink(g, L(sk([i / 8, 0.04], 440), sk([i / 8, 0.96], 440)), { w: 1.2, d: 600 + i * 40, t: 200 })
+        for (let i = 1; i < 5; i++) dashes(g, L(sk([0.02, i / 5], 440), sk([0.98, i / 5], 440)), { w: 1.2, d: 800 + i * 40, dash: 5, gap: 4 })
+        for (let i = 1; i < 8; i++) for (let k = 1; k < 5; k++) {
+          const q = sk([i / 8, k / 5], 440)
+          dot(g, q[0], q[1], 1.6, 1000 + (i + k) * 20)
+        }
+        const gl = layer(340)
+        blank(g, gl)
+        hatch(g, gl, 900)
+        ink(g, gl, { w: 2.6, d: 700, t: 500 })
+        for (const [x, y0, y1] of [[60, 340, 440], [260, 340, 440], [310, 400, 500], [60, 440, 540], [310, 500, 600]] as const) dashes(g, L([x, y0], [x, y1]), { w: 0.9, d: 1100, dash: 3, gap: 5 })
+        text(g, 316, 386, 'Glas', { cls: 's', d: 1200 })
+        text(g, 316, 486, 'Sensor', { cls: 's', d: 1300 })
+        text(g, 316, 586, 'Pixel', { cls: 's', d: 1400 })
       },
       feld(g) {
-        ink(g, L([30, 560], [330, 560]), { w: 2.6, t: 500 })
-        for (const x of [100, 260]) ink(g, RR(x - 30, 560, 60, 12, 3), { w: 2.2, d: 200, t: 300 })
-        for (const r of [40, 80]) ink(g, E(180, 566, r + 40, r * 0.8, 180, 360), { w: 1.4, d: 600 + r * 5, t: 500 })
-        text(g, 180, 620, 'schwaches elektrisches Feld', { anchor: 'middle', cls: 's', d: 1000 })
+        // Schnitt: unter dem Glas zwei Elektroden; ihr Streufeld wölbt sich über die Oberfläche
+        const glass = RR(30, 520, 300, 30, 3)
+        blank(g, glass)
+        hatch(g, glass, 400)
+        ink(g, glass, { w: 2.4, t: 500 })
+        for (const x of [100, 260]) {
+          hatch(g, RR(x - 30, 552, 60, 12, 3), 500, true)
+          ink(g, RR(x - 30, 552, 60, 12, 3), { w: 2.2, d: 200, t: 300 })
+        }
+        text(g, 100, 590, '+', { anchor: 'middle', size: 20, d: 700 })
+        text(g, 260, 590, '−', { anchor: 'middle', size: 20, d: 700 })
+        for (const [r, dd] of [[40, 600], [70, 750], [100, 900]] as const) {
+          const p = E(180, 556, r + 40, r * 1.1, 180, 360)
+          ink(g, p, { w: 1.4, d: dd, t: 500 })
+          flow(g, p, { n: 2, ms: 1600, d: dd + 500, r: 1.8 })
+        }
       },
       beruehren(g) {
-        ink(g, L([30, 560], [330, 560]), { w: 2.6, t: 500 })
-        for (const x of [100, 260]) ink(g, RR(x - 30, 560, 60, 12, 3), { w: 2.2, d: 200, t: 300 })
-        finger(g, 180, 430, 1, 500)
-        for (const k of [-1, 1]) carrow(g, [180 + k * 70, 552], [180 + k * 24, 470], k * -16, { d: 1000, head: 8 })
-        text(g, 180, 620, 'der Finger zieht Ladung ab', { anchor: 'middle', cls: 's', d: 1200 })
+        const glass = RR(30, 520, 300, 30, 3)
+        blank(g, glass)
+        hatch(g, glass, 400)
+        ink(g, glass, { w: 2.4, t: 500 })
+        for (const x of [100, 260]) {
+          hatch(g, RR(x - 30, 552, 60, 12, 3), 500, true)
+          ink(g, RR(x - 30, 552, 60, 12, 3), { w: 2.2, d: 200, t: 300 })
+        }
+        finger(g, 180, 382, 0.9, 500)
+        // Feldlinien biegen sich zum Finger, Ladung fließt ab
+        for (const k of [-1, 1]) {
+          const p = B([180 + k * 80, 552], [180 + k * 80, 470], [180 + k * 40, 420], [180 + k * 14, 400])
+          ink(g, p, { w: 1.4, d: 900, t: 500 })
+          flow(g, p, { n: 3, ms: 1200, d: 1300, r: 2 })
+        }
+        ink(g, E(180, 556, 120, 60, 180, 360), { w: 1, d: 1000, t: 500 })
       },
       punkt(g) {
         phone(g, 90, 300, 180, 340)
         wires(g, 104, 330, 152, 290, 7, 200)
-        for (const r of [10, 22, 34]) ink(g, E(191, 454, r), { w: 1.8, d: 800 + r * 10, t: 300 })
-        dot(g, 191, 454, 5, 1300)
+        // Messwerte je Kreuzung: je näher an der Fingerkuppe, desto stärker die Änderung
+        for (let i = 1; i < 7; i++) for (let k = 1; k < 7; k++) {
+          const x = 104 + (152 * i) / 7
+          const y = 330 + (290 * k) / 7
+          const dd = Math.hypot(x - 191, y - 454)
+          if (dd < 70) {
+            const r = Math.max(2, 9 - dd / 9)
+            if (dd < 40) hatch(g, E(x, y, r), 700, true)
+            ink(g, E(x, y, r), { w: 1.2, d: 600 + dd * 4, t: 150 })
+          }
+        }
+        ink(g, L([170, 454], [212, 454]), { w: 1.6, d: 1300, t: 200 })
+        ink(g, L([191, 433], [191, 475]), { w: 1.6, d: 1300, t: 200 })
+        ink(g, E(191, 454, 13), { w: 2, d: 1400, t: 300 })
       },
       tempo(g) {
-        text(g, 180, 450, '120-mal', { anchor: 'middle', size: 52, d: 200 })
-        text(g, 180, 495, 'pro Sekunde und öfter wird das Gitter abgefragt', { anchor: 'middle', cls: 's', d: 600 })
+        // ein Messdurchgang nach dem anderen: Zeile für Zeile, immer wieder
+        phone(g, 90, 300, 180, 340)
+        wires(g, 104, 330, 152, 290, 7, 200)
+        const sc = glide(g, 0, 290, { ms: 900, d: 900, loop: true })
+        hatch(sc, RR(104, 326, 152, 10, 3), 900, true)
+        clock(g, 310, 360, 22, 0, 0, 600)
+        const h = spin(g, 310, 360, 1000, 900)
+        ink(h, L([310, 360], [310, 344]), { w: 1.8, d: 900, t: 100 })
       },
       multi(g) {
+        // zwei Finger spreizen sich: das Bild darunter wird größer
         phone(g, 90, 300, 180, 340)
-        for (const [x, y] of [[150, 420], [230, 520]] as const) {
-          ink(g, E(x, y, 22), { w: 2, d: 600, t: 300 })
-          dot(g, x, y, 5, 900)
+        const pic = mk('g', {}, g)
+        mk('animateTransform', { attributeName: 'transform', type: 'scale', values: '0.8;1.15;0.8', dur: '3s', begin: '1s', repeatCount: 'indefinite' }, pic)
+        const wr = mk('g', { transform: 'translate(180 470)' }, g)
+        wr.appendChild(pic)
+        mountain(pic, -60, 60, 40, [0, -40], 300, false)
+        mountain(pic, 10, 80, 40, [44, -10], 400, true)
+        sun(pic, -40, -50, 10, 500, 8)
+        for (const [x, y, dx, dy] of [[150, 420, -1, -1], [230, 520, 1, 1]] as const) {
+          const f = wobble(g, { dx: dx * 14, dy: dy * 14, ms: 3000, d: 1000 })
+          ink(f, E(x, y, 20), { w: 2, d: 600, t: 300 })
+          dot(f, x, y, 4, 900)
         }
-        carrow(g, [130, 400], [110, 370], 0, { d: 1100, head: 8 })
-        carrow(g, [250, 540], [262, 580], 0, { d: 1100, head: 8 })
       },
       handschuh(g) {
-        const p: P[] = [...B([100, 640], [90, 560], [90, 480], [110, 440]), ...B([110, 440], [140, 400], [220, 400], [250, 440]).slice(1), ...B([250, 440], [270, 480], [270, 560], [260, 640]).slice(1)]
+        // Strickhandschuh: Maschenreihen, dicker Bund – die Wolle isoliert
+        const p: P[] = smooth([[110, 650], [102, 560], [96, 470], [104, 400], [130, 392], [138, 440], [146, 360], [170, 356], [176, 430], [186, 350], [210, 352], [212, 432], [224, 370], [248, 376], [244, 470], [262, 430], [282, 446], [256, 560], [250, 650]], 4)
         blank(g, p)
-        hatch(g, p, 400, true)
-        ink(g, p, { w: 3, t: 700 })
-        cross(g, 180, 360, 0.8, 900)
-        text(g, 180, 670, 'Wolle isoliert', { anchor: 'middle', cls: 's', d: 1100 })
+        hatch(g, p, 400)
+        ink(g, p, { w: 3, t: 800 })
+        for (let r = 0; r < 9; r++) for (let c = 0; c < 6; c++) {
+          const x = 120 + c * 22 + (r % 2) * 8
+          const y = 470 + r * 18
+          if (x > 240) continue
+          ink(g, [[x - 5, y - 4], [x, y + 3], [x + 5, y - 4]], { w: 1, d: 700 + (r * 6 + c) * 10, t: 60 })
+        }
+        hatch(g, RR(104, 610, 148, 40, 6), 900, true)
+        ink(g, RR(104, 610, 148, 40, 6), { w: 2.2, d: 800, t: 300 })
+        cross(g, 300, 330, 0.9, 1200)
       },
       wurst(g) {
-        ink(g, [...B([90, 470], [90, 430], [270, 430], [270, 470]), ...B([270, 470], [270, 510], [90, 510], [90, 470]).slice(1)], { w: 3, t: 700 })
-        check(g, 180, 400, 0.8, 800)
-        text(g, 180, 570, 'leitet – funktioniert', { anchor: 'middle', cls: 's', d: 1000 })
+        // Wurst mit abgebundenen Enden auf dem Display – die Berührung zählt
+        phone(g, 100, 300, 160, 330)
+        const w = [...B([70, 470], [70, 430], [290, 410], [300, 450]), ...B([300, 450], [306, 490], [90, 510], [70, 470]).slice(1)]
+        blank(g, w)
+        hatch(g, w, 600)
+        ink(g, w, { w: 3, d: 300, t: 700 })
+        for (const [x, y] of [[66, 470], [304, 450]] as const) ink(g, E(x, y, 5, 8), { w: 1.8, d: 800, t: 200 })
+        for (let k = 0; k < 6; k++) ink(g, E(110 + k * 30, 462 - k * 3, 4, 2), { w: 0.9, d: 900 + k * 40, t: 80 })
+        ripple(g, 180, 480, 6, 30, { n: 2, ms: 1400, d: 1100, w: 1.4 })
+        check(g, 300, 360, 0.8, 1300)
       },
       resistiv(g) {
-        ink(g, L([40, 470], [320, 470]), { w: 2.6, t: 500 })
-        ink(g, B([40, 520], [140, 520], [170, 474], [180, 474]), { w: 2.6, d: 300, t: 400 })
-        ink(g, B([180, 474], [190, 474], [220, 520], [320, 520]), { w: 2.6, d: 400, t: 400 })
-        arrow(g, L([180, 390], [180, 452]), { w: 2.6, d: 700, t: 300, head: 10 })
-        text(g, 180, 380, 'Druck', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 180, 580, 'früher: zwei Folien berühren sich', { anchor: 'middle', cls: 's', d: 1100 })
+        // zwei leitende Folien mit Abstandshaltern; der Druck biegt die obere durch, bis sie die untere berührt
+        ink(g, L([40, 520], [320, 520]), { w: 2.6, t: 500 })
+        hatch(g, RR(40, 522, 280, 16, 2), 400, true)
+        for (let k = 0; k < 8; k++) if (k !== 4 && k !== 3) ball(g, 60 + k * 34, 512, 4, { d: 500 + k * 40, t: 0, fill: 'dicht', w: 1 })
+        ink(g, B([40, 500], [140, 500], [170, 518], [180, 518]), { w: 2.6, d: 300, t: 400 })
+        ink(g, B([180, 518], [190, 518], [220, 500], [320, 500]), { w: 2.6, d: 400, t: 400 })
+        const pen: P[] = [[172, 380], [188, 380], [188, 470], [180, 494], [172, 470], [172, 380]]
+        blank(g, pen)
+        ink(g, pen, { w: 2.2, d: 600, t: 400 })
+        hatch(g, [[172, 380], [188, 380], [188, 400], [172, 400]], 900, true)
+        arrow(g, L([210, 400], [210, 470]), { w: 2.2, d: 900, t: 300, head: 8 })
+        text(g, 220, 430, 'Druck', { cls: 's', d: 1100 })
+        ripple(g, 180, 519, 4, 24, { n: 2, ms: 1200, d: 1300, w: 1, ry: 0.4 })
       },
       geschichte(g) {
         timeline(g, 30, 330, 470, [
           { at: 0.15, label: '1965', sub: 'E. A. Johnson', up: true },
           { at: 0.8, label: '2007', sub: 'Multitouch für alle', big: true },
         ])
+        // Radarschirm der Flugsicherung und das erste Multitouch-Handy
+        ink(g, E(78, 580, 34), { w: 2.4, d: 1200, t: 400 })
+        ink(g, E(78, 580, 20), { w: 1, d: 1300, t: 300 })
+        const sw = spin(g, 78, 580, 3000, 1500)
+        ink(sw, L([78, 580], [78, 548]), { w: 1.6, d: 1500, t: 100 })
+        dot(g, 90, 566, 2.4, 1600)
+        dot(g, 64, 594, 2.4, 1700)
+        phone(g, 236, 540, 52, 96, 1600, false)
       },
       wasser(g) {
-        phone(g, 90, 300, 180, 340)
-        for (const [x, y] of [[150, 400], [210, 470], [160, 540]] as const) {
-          blank(g, E(x, y, 14, 10))
-          ink(g, E(x, y, 14, 10), { w: 2, d: 600, t: 200 })
+        phone(g, 90, 300, 180, 340, 0, true)
+        for (const [x, y, r] of [[150, 400, 14], [210, 470, 18], [160, 540, 11], [230, 380, 8]] as const) {
+          const dp: P[] = E(x, y, r, r * 0.75)
+          blank(g, dp)
+          ink(g, dp, { w: 2, d: 600, t: 200 })
+          ink(g, E(x - r * 0.3, y - r * 0.25, r * 0.25, r * 0.15, 180, 330), { w: 1, d: 800, t: 100 })
+          const f = mk('g', { class: 'blink', style: `--d:${1000 + x * 2}ms` }, g)
+          cross(f, x + r + 10, y - r, 0.35, 1000)
         }
-        question(g, 300, 400, 0.6, 1000)
       },
       ende(g) {
-        phone(g, 120, 380, 120, 240)
-        dot(g, 180, 500, 6, 700)
+        phone(g, 120, 360, 120, 240, 0, true)
+        ripple(g, 180, 480, 6, 30, { n: 2, ms: 1400, d: 900, w: 1.4 })
+        dot(g, 180, 480, 5, 700)
       },
     },
     scenes: [
@@ -205,45 +372,92 @@ export const AHA_TECHNIK: Bite[] = [
     images: [],
     draw: {
       netz(g) {
-        const n: P[] = [[50, 260], [130, 140], [180, 300], [250, 180], [310, 300]]
-        for (const [a, b] of [[0, 1], [0, 2], [1, 3], [2, 3], [2, 4], [3, 4]] as const) ink(g, L(n[a], n[b]), { w: 2, d: 200, t: 400 })
-        n.forEach(([x, y], i) => node(g, x, y, 500 + i * 80))
+        // Erde mit Knoten in großen Städten; Datenpakete laufen über die Verbindungen
+        earth(g, 180, 270, 130, 0, { lon: -20, lat: 35 })
+        const pr = geo(180, 270, 130, -20, 35)
+        const city = (lon: number, lat: number) => pr(lon, lat).p
+        const n = [city(8.7, 50.1), city(-74, 40.7), city(-0.1, 51.5), city(-46.6, -23.5), city(28, -26), city(-122, 37.8)]
+        const links: [number, number][] = [[0, 1], [2, 1], [0, 2], [1, 3], [0, 4], [1, 5], [3, 4]]
+        links.forEach(([a, b], i) => {
+          const m: P = [(n[a][0] + n[b][0]) / 2, (n[a][1] + n[b][1]) / 2 - 40]
+          const p = B(n[a], m, m, n[b])
+          ink(g, p, { w: 1.4, d: 800 + i * 80, t: 500 })
+          flow(g, i % 2 ? p.slice().reverse() : p, { n: 2, ms: 1800 + i * 200, d: 1400, r: 2.6, kind: 'dash' })
+        })
+        n.forEach(([x, y], i) => ball(g, x, y, 5, { d: 700 + i * 60, fill: 'dicht', t: 0, w: 1.4 }))
       },
       zerlegen(g) {
-        ink(g, RR(40, 380, 120, 120, 6), { w: 2.8, t: 500 })
-        ink(g, [[60, 480], [90, 430], [110, 460], [125, 440], [145, 480]], { w: 2, d: 300, t: 400 })
-        arrow(g, L([172, 440], [206, 440]), { w: 2.4, d: 700, t: 300, head: 9 })
-        for (let i = 0; i < 9; i++) ink(g, RR(220 + (i % 3) * 38, 384 + Math.floor(i / 3) * 38, 30, 30, 4), { w: 2, d: 900 + i * 70, t: 200 })
-        text(g, 180, 580, 'Tausende kleine Pakete', { anchor: 'middle', cls: 's', d: 1400 })
+        // ein Foto (Berg und Sonne) – zerschnitten in Kacheln, die auseinanderfliegen
+        const photo = (gr: Element, x: number, y: number, d: number) => {
+          mountain(gr, x + 6, x + 100, y + 104, [x + 46, y + 40], d, false)
+          mountain(gr, x + 50, x + 114, y + 104, [x + 84, y + 62], d + 100, true)
+          sun(gr, x + 86, y + 26, 9, d + 200, 8)
+        }
+        ink(g, RR(30, 380, 120, 120, 4), { w: 2.8, t: 500 })
+        photo(clipBox(g, 30, 380, 120, 120), 30, 380, 200)
+        arrow(g, L([160, 440], [196, 440]), { w: 2.4, d: 700, t: 300, head: 9 })
+        for (let i = 0; i < 9; i++) {
+          const cx = i % 3
+          const cy = Math.floor(i / 3)
+          const fly = glide(g, (cx - 1) * 10, (cy - 1) * 10, { ms: 1200, d: 1200 + i * 60 })
+          const inner = clipBox(fly, 216 + cx * 40, 380 + cy * 40, 40, 40)
+          photo(inner, 216, 380, 900)
+          ink(fly, RR(216 + cx * 40, 380 + cy * 40, 40, 40, 3), { w: 1.8, d: 900 + i * 70, t: 200 })
+        }
       },
       paket(g) {
-        box(g, 60, 380, 240, 150, '', { size: 14 })
-        text(g, 80, 414, 'von: 84.12.…', { size: 16, d: 400 })
-        text(g, 80, 444, 'an: 142.250.…', { size: 16, d: 500 })
-        text(g, 80, 474, 'Nr. 731 von 2.000', { size: 16, d: 600 })
-        dashes(g, L([76, 490], [284, 490]), { w: 1.2, d: 700 })
-        text(g, 80, 516, 'ein Stück Foto', { cls: 's', d: 800 })
+        // das Paket als Umschlag: Absender, Empfänger, laufende Nummer – und ein Bildschnipsel im Fenster
+        const env = RR(40, 360, 280, 190, 8)
+        blank(g, env)
+        ink(g, env, { w: 2.8, t: 600 })
+        ink(g, [[42, 362], [180, 450], [318, 362]], { w: 1.4, d: 300, t: 400 })
+        ink(g, RR(262, 374, 44, 50, 3), { w: 1.8, d: 400, t: 300 })
+        hatch(g, RR(268, 380, 32, 38, 2), 600)
+        text(g, 56, 490, 'von: 84.12.…', { size: 15, d: 400 })
+        text(g, 56, 514, 'an: 142.250.…', { size: 15, d: 500 })
+        text(g, 56, 538, 'Nr. 731 von 2.000', { size: 15, d: 600 })
+        const win = RR(214, 474, 92, 60, 4)
+        blank(g, win)
+        ink(g, win, { w: 1.8, d: 700, t: 300 })
+        mountain(g, 218, 302, 532, [258, 490], 900, true)
       },
       wege(g) {
         const n: P[] = [[40, 480], [130, 360], [130, 600], [230, 360], [230, 600], [320, 480]]
-        for (const [a, b] of [[0, 1], [0, 2], [1, 3], [2, 4], [1, 4], [3, 5], [4, 5]] as const) ink(g, L(n[a], n[b]), { w: 2, d: 200, t: 400 })
-        n.forEach(([x, y], i) => node(g, x, y, 400 + i * 60))
-        for (const [x, y, d] of [[85, 420, 900], [180, 600, 1000], [180, 480, 1100]] as const) {
-          blank(g, RR(x - 10, y - 10, 20, 20, 3))
-          hatch(g, RR(x - 10, y - 10, 20, 20, 3), d + 100, true)
-          ink(g, RR(x - 10, y - 10, 20, 20, 3), { w: 2, d, t: 200 })
-        }
-        text(g, 40, 440, 'du', { anchor: 'middle', cls: 's', d: 300 })
-        text(g, 320, 440, 'Ziel', { anchor: 'middle', cls: 's', d: 300 })
+        const edges: [number, number][] = [[0, 1], [0, 2], [1, 3], [2, 4], [1, 4], [3, 5], [4, 5]]
+        for (const [a, b] of edges) ink(g, L(n[a], n[b]), { w: 2, d: 200, t: 400 })
+        n.slice(1, 5).forEach(([x, y], i) => {
+          blank(g, RR(x - 18, y - 10, 36, 20, 4))
+          ink(g, RR(x - 18, y - 10, 36, 20, 4), { w: 2, d: 400 + i * 60, t: 300 })
+          for (const k of [-8, 0, 8]) mk('circle', { cx: x + k, cy: y + 4, r: 1.6, class: 'k blink', style: `--d:${600 + i * 100 + k * 20}ms` }, g)
+        })
+        // links: Handy, rechts: Server
+        ink(g, RR(28, 456, 24, 44, 5), { w: 2, d: 300, t: 300 })
+        ink(g, RR(306, 450, 30, 60, 3), { w: 2, d: 300, t: 300 })
+        for (const k of [0, 1, 2]) ink(g, L([310, 462 + k * 16], [332, 462 + k * 16]), { w: 1, d: 500, t: 100 })
+        cross(g, 180, 600, 0.6, 900)
+        const paths: P[][] = [[n[0], n[1], n[3], n[5]], [n[0], n[1], n[4], n[5]], [n[0], n[2], n[4], n[5]]]
+        paths.forEach((p, i) => flow(g, p, { n: 2, ms: 2600 + i * 300, d: 1100 + i * 300, r: 3, kind: 'dash' }))
       },
       router(g) {
-        node(g, 180, 470, 0, 'Router')
-        for (const [x, y] of [[60, 380], [300, 380], [300, 560]] as const) {
-          ink(g, L([180 + (x - 180) * 0.15, 470 + (y - 470) * 0.15], [x, y]), { w: 2, d: 300, t: 300 })
-          node(g, x, y, 500)
+        // WLAN-Router: Antennen, Lämpchen; Pakete kommen an und werden je nach Ziel weitergeschickt
+        const box0 = RR(130, 450, 100, 40, 8)
+        blank(g, box0)
+        ink(g, box0, { w: 2.6, t: 500 })
+        for (const x of [146, 214]) ink(g, L([x, 450], [x + (x < 180 ? -10 : 10), 400]), { w: 2.4, d: 300, t: 300 })
+        for (let k = 0; k < 4; k++) mk('circle', { cx: 160 + k * 14, cy: 470, r: 2.2, class: 'k blink', style: `--d:${400 + k * 150}ms` }, g)
+        for (const [x, y] of [[40, 360], [320, 380], [310, 600], [50, 600]] as const) {
+          const p = L([180 + (x - 180) * 0.2, 470 + (y - 470) * 0.2], [x, y])
+          ink(g, p, { w: 1.8, d: 300, t: 300 })
+          ball(g, x, y, 10, { d: 500, fill: 'hell', t: 200 })
         }
-        arrow(g, L([80, 560], [160, 490]), { w: 2.6, d: 900, t: 300, head: 9 })
-        question(g, 180, 380, 0.5, 1100)
+        flow(g, L([50, 600], [160, 490]), { n: 3, ms: 1500, d: 900, r: 3, kind: 'dash' })
+        flow(g, L([200, 450], [320, 380]), { n: 3, ms: 1500, d: 1600, r: 3, kind: 'dash' })
+        // Wegweiser: Ziel 142… → rechts oben
+        ink(g, L([180, 400], [180, 340]), { w: 2, d: 900, t: 200 })
+        const sign: P[] = [[180, 326], [236, 326], [248, 336], [236, 346], [180, 346], [180, 326]]
+        blank(g, sign)
+        ink(g, sign, { w: 1.8, d: 1000, t: 300 })
+        text(g, 186, 341, '142…', { cls: 's', d: 1100 })
       },
       zusammen(g) {
         for (let i = 0; i < 9; i++) {
@@ -251,26 +465,88 @@ export const AHA_TECHNIK: Bite[] = [
           const x = 90 + (i % 3) * 64
           const y = 380 + Math.floor(i / 3) * 64
           if (missing) dashes(g, RR(x, y, 56, 56, 4), { w: 1.6, d: 400 })
-          else ink(g, RR(x, y, 56, 56, 4), { w: 2.4, d: i * 80, t: 200 })
+          else {
+            const t = group(g)
+            ink(t, RR(x, y, 56, 56, 4), { w: 2.4, d: i * 80, t: 200 })
+            text(t, x + 28, y + 35, String(i + 1), { anchor: 'middle', size: 18, d: i * 80 + 100 })
+          }
         }
-        text(g, 282, 452, 'Nr. 6 fehlt!', { cls: 's', d: 900 })
-        text(g, 180, 620, 'wird neu angefordert', { anchor: 'middle', cls: 's', d: 1200 })
+        text(g, 246, 486, '6?', { anchor: 'middle', size: 20, d: 900 })
+        const back = B([270, 470], [310, 470], [330, 420], [330, 330])
+        arrow(g, back, { w: 2, d: 1200, t: 500, head: 8 })
+        flow(g, back, { n: 2, ms: 1200, d: 1700, r: 2.6, kind: 'dash' })
       },
       postkarten(g) {
-        for (let i = 0; i < 4; i++) letter(g, 50 + i * 66, 440 + (i % 2) * 30, 56, i * 150)
-        text(g, 180, 580, 'ein Buch als Postkarten verschicken', { anchor: 'middle', cls: 's', d: 900 })
+        // ein Buch, seine Seiten fliegen als nummerierte Postkarten davon
+        const book: P[] = [[40, 560], [130, 540], [130, 640], [40, 660], [40, 560]]
+        blank(g, book)
+        hatch(g, book, 400, true)
+        ink(g, book, { w: 2.6, t: 500 })
+        for (let i = 0; i < 4; i++) {
+          const f = glide(g, 30 + i * 46, -110 - i * 30 + (i % 2) * 20, { ms: 1400, d: 600 + i * 300 })
+          const card = RR(90, 540, 60, 40, 3)
+          blank(f, card)
+          ink(f, card, { w: 2, d: 500 + i * 300, t: 200 })
+          for (const y of [552, 560, 568]) ink(f, L([96, y], [126, y]), { w: 0.8, d: 700 + i * 300, t: 100 })
+          ink(f, RR(132, 546, 12, 14, 1), { w: 1, d: 700 + i * 300, t: 100 })
+          text(f, 120, 576, String(i + 1), { anchor: 'middle', cls: 's', d: 800 + i * 300 })
+        }
       },
       arpanet(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.35, label: '1969', sub: 'ARPANET', up: true }])
+        timeline(g, 30, 330, 360, [{ at: 0.35, label: '1969', sub: 'ARPANET', up: true }])
+        // die ersten vier Knoten im Westen der USA
+        const pr = mapRegion(g, 30, 420, 300, 210, -125, -105, 30, 44, 300)
+        const nodes: [number, number, string][] = [[-118.4, 34.1, 'UCLA'], [-122.2, 37.4, 'SRI'], [-119.8, 34.4, 'UCSB'], [-111.9, 40.8, 'Utah']]
+        const pts = nodes.map(([lo, la]) => pr(lo, la))
+        for (const [a, b] of [[0, 1], [0, 2], [1, 2], [1, 3]] as const) {
+          ink(g, L(pts[a], pts[b]), { w: 2, d: 1200, t: 400 })
+          flow(g, L(pts[a], pts[b]), { n: 1, ms: 1400, d: 1800, r: 2.4, kind: 'dash' })
+        }
+        nodes.forEach(([, , n], i) => {
+          ball(g, pts[i][0], pts[i][1], 6, { d: 1000 + i * 100, fill: 'dicht', t: 0, w: 1.4 })
+          const [dx, dy, an] = ([[12, 16, 'start'], [-10, -8, 'end'], [-10, -10, 'end'], [10, -8, 'start']] as const)[i]
+          text(g, pts[i][0] + dx, pts[i][1] + dy, n, { cls: 's halo', anchor: an, d: 1100 + i * 100 })
+        })
       },
       lo(g) {
-        text(g, 180, 460, 'LO', { anchor: 'middle', size: 80, d: 200 })
-        text(g, 180, 510, 'die erste Nachricht – dann stürzte der Rechner ab', { anchor: 'middle', cls: 's', d: 700 })
+        // Fernschreiber-Terminal: „LO“, dann Absturz
+        const scr = RR(60, 360, 240, 170, 14)
+        blank(g, scr)
+        ink(g, scr, { w: 3, t: 600 })
+        ink(g, RR(80, 380, 200, 120, 8), { w: 1.6, d: 300, t: 500 })
+        text(g, 100, 440, 'LO', { size: 44, d: 700, cls: 'serif' })
+        const cur = mk('g', { class: 'blink', style: '--d:900ms' }, g)
+        hatch(cur, RR(172, 412, 16, 30, 1), 900, true)
+        ink(g, RR(40, 530, 280, 60, 8), { w: 2.6, d: 400, t: 500 })
+        for (let r = 0; r < 2; r++) for (let c = 0; c < 10; c++) ink(g, RR(54 + c * 26, 542 + r * 22, 20, 16, 3), { w: 1, d: 600 + (r * 10 + c) * 15, t: 80 })
+        bolt(g, [[290, 330], [272, 352], [288, 356], [268, 382]], 1600, 3)
+        rays(g, 300, 330, 10, 22, 7, 1700)
       },
       kabel(g) {
-        for (const [y, d] of [[340, 0], [370, 150]] as const) ink(g, waveP(20, 340, y, 5, 60, y / 30), { w: 2, d, t: 700 })
-        ink(g, B([20, 600], [120, 560], [240, 640], [340, 600]), { w: 4, d: 400, t: 900 })
-        text(g, 180, 660, 'Seekabel am Meeresgrund', { anchor: 'middle', cls: 's', d: 1000 })
+        // Meer im Schnitt: Schiff, Wasser, Fische, Kabel am Grund; daneben der Querschnitt des Kabels
+        const ship: P[] = [[60, 330], [140, 330], [130, 346], [70, 346], [60, 330]]
+        blank(g, ship)
+        hatch(g, ship, 400, true)
+        ink(g, ship, { w: 2.2, t: 400 })
+        ink(g, RR(84, 314, 30, 16, 2), { w: 1.8, d: 200, t: 200 })
+        sea(g, 20, 340, 344, 300, 2)
+        const bed: P[] = smooth([[20, 600], [100, 590], [200, 606], [340, 594]])
+        ink(g, bed, { w: 2.6, d: 400, t: 700 })
+        hatch(g, [[20, 600], ...bed, [340, 640], [20, 640]], 900)
+        ink(g, B([20, 596], [120, 586], [240, 602], [340, 590]), { w: 4, d: 600, t: 900 })
+        flow(g, B([20, 596], [120, 586], [240, 602], [340, 590]), { n: 4, ms: 1600, d: 1500, r: 2.2 })
+        for (const [x, y] of [[90, 420], [250, 480]] as const) {
+          const f = wobble(g, { dx: -10, ms: 3000, d: 900 })
+          ink(f, [...B([x, y], [x + 8, y - 7], [x + 20, y - 6], [x + 26, y]), ...B([x + 26, y], [x + 20, y + 6], [x + 8, y + 7], [x, y]).slice(1)], { w: 1.6, d: 800, t: 300 })
+          ink(f, [[x, y], [x - 8, y - 6], [x - 8, y + 6], [x, y]], { w: 1.4, d: 900, t: 200 })
+        }
+        // Querschnitt: Schutzhülle, Stahldrähte, Kupfer, Glasfasern
+        blank(g, E(270, 400, 44))
+        ink(g, E(270, 400, 44), { w: 2.6, d: 1100, t: 400 })
+        for (let k = 0; k < 14; k++) ink(g, E(270 + Math.cos(k * 0.449) * 34, 400 + Math.sin(k * 0.449) * 34, 4.5), { w: 1, d: 1300 + k * 20, t: 80 })
+        hatch(g, [...E(270, 400, 26), ...E(270, 400, 14, 14, 360, 0)], 1500, true)
+        for (const [dx, dy] of [[-5, -4], [5, -4], [0, 5]] as const) dot(g, 270 + dx, 400 + dy, 2.2, 1600)
+        dashes(g, L([240, 432], [210, 588]), { w: 1, d: 1400, dash: 3, gap: 4 })
       },
       anteil(g) {
         hbars(g, [
@@ -280,13 +556,33 @@ export const AHA_TECHNIK: Bite[] = [
         text(g, 180, 590, 'Daten zwischen Kontinenten', { anchor: 'middle', cls: 's', d: 1200 })
       },
       dns(g) {
-        box(g, 30, 400, 140, 70, 'wikipedia.org', { size: 15 })
-        arrow(g, L([176, 435], [196, 435]), { w: 2.4, d: 500, t: 200, head: 8 })
-        box(g, 202, 400, 130, 70, '185.15.…', { size: 15, fill: true, d: 600 })
-        text(g, 180, 540, 'DNS: das Telefonbuch des Netzes', { anchor: 'middle', cls: 's', d: 1000 })
+        // Handy fragt das „Telefonbuch“ nach der Nummer zum Namen
+        phone(g, 40, 360, 70, 130)
+        text(g, 75, 430, 'wiki…', { anchor: 'middle', cls: 's', d: 500 })
+        const bk: P[] = [[220, 360], [320, 370], [320, 490], [220, 480], [220, 360]]
+        blank(g, bk)
+        hatch(g, [[220, 360], [236, 362], [236, 482], [220, 480]], 600, true)
+        ink(g, bk, { w: 2.6, d: 300, t: 500 })
+        for (let k = 0; k < 6; k++) ink(g, L([246, 386 + k * 14], [306, 388 + k * 14]), { w: 0.9, d: 600 + k * 50, t: 100 })
+        const ask = B([116, 390], [150, 360], [190, 360], [214, 380])
+        arrow(g, ask, { w: 2, d: 900, t: 400, head: 8 })
+        flow(g, ask, { n: 1, ms: 1400, d: 1300, r: 2.6, kind: 'dash' })
+        const ans = B([214, 470], [190, 500], [150, 500], [116, 470])
+        arrow(g, ans, { w: 2, d: 1400, t: 400, head: 8 })
+        text(g, 165, 530, '185.15.…', { anchor: 'middle', size: 16, d: 1600 })
+        box(g, 30, 560, 140, 50, 'wikipedia.org', { size: 14, d: 1800 })
+        arrow(g, L([176, 585], [196, 585]), { w: 2.2, d: 2000, t: 200, head: 8 })
+        box(g, 202, 560, 130, 50, '185.15.…', { size: 14, fill: true, d: 2100 })
       },
       ende(g) {
-        for (let i = 0; i < 6; i++) ink(g, RR(70 + i * 38, 470, 30, 30, 4), { w: 2.2, d: i * 100, t: 200 })
+        for (let i = 0; i < 9; i++) {
+          const cx = i % 3
+          const cy = Math.floor(i / 3)
+          const f = glide(g, -(cx - 1) * 30, -(cy - 1) * 30, { ms: 1200, d: 300 + i * 80 })
+          ink(f, RR(120 + cx * 40 + (cx - 1) * 30, 400 + cy * 40 + (cy - 1) * 30, 40, 40, 3), { w: 2, d: i * 80, t: 200 })
+        }
+        mountain(g, 126, 236, 516, [180, 446], 1500, true)
+        sun(g, 220, 420, 8, 1600, 8)
       },
     },
     scenes: [
@@ -323,64 +619,141 @@ export const AHA_TECHNIK: Bite[] = [
     images: [],
     draw: {
       lauscher(g) {
-        fig(g, 70, 380, 3.4)
-        fig(g, 290, 380, 3.4, { d: 200 })
-        fig(g, 180, 230, 2.6, { d: 400 })
-        dashes(g, L([110, 330], [250, 330]), { w: 1.8, d: 600 })
-        question(g, 180, 120, 0.6, 900)
+        // Anna und Ben an ihren Laptops, dazwischen die Leitung – und jemand zapft sie an
+        const laptop = (x: number, y: number, d: number, flip = false) => {
+          const sc: P[] = flip ? [[x, y], [x - 4, y - 40], [x - 56, y - 40], [x - 52, y]] : [[x, y], [x + 4, y - 40], [x + 56, y - 40], [x + 52, y]]
+          blank(g, [...sc, sc[0]])
+          ink(g, [...sc, sc[0]], { w: 2.2, d, t: 300 })
+          ink(g, L([x - (flip ? 62 : -2), y], [x + (flip ? 2 : 62), y]), { w: 2.6, d: d + 200, t: 200 })
+        }
+        fig(g, 50, 420, 2.6)
+        laptop(70, 404, 200)
+        fig(g, 310, 420, 2.6, { d: 200 })
+        laptop(290, 404, 300, true)
+        const wire = L([130, 404], [230, 404])
+        ink(g, wire, { w: 2, d: 600, t: 400 })
+        flow(g, wire, { n: 2, ms: 1400, d: 1100, r: 3, kind: 'dash' })
+        ink(g, L([180, 404], [180, 300]), { w: 1.4, d: 900, t: 300 })
+        fig(g, 180, 296, 2.2, { d: 400 })
+        ink(g, E(180, 232, 14, 14, 180, 360), { w: 2.4, d: 800, t: 300 })
+        for (const s of [-1, 1]) ink(g, RR(180 + s * 14 - 4, 228, 8, 12, 3), { w: 2, d: 900, t: 200 })
+        question(g, 90, 160, 0.6, 1200)
+        question(g, 270, 160, 0.6, 1300)
       },
       problem(g) {
-        fig(g, 70, 560, 3.4)
-        fig(g, 290, 560, 3.4, { d: 200 })
-        ink(g, L([110, 510], [250, 510]), { w: 2.4, d: 400, t: 500 })
-        text(g, 180, 420, 'jede Nachricht kann mitgelesen werden', { anchor: 'middle', cls: 's', d: 700 })
-        text(g, 70, 610, 'Anna', { anchor: 'middle', cls: 's', d: 800 })
-        text(g, 290, 610, 'Ben', { anchor: 'middle', cls: 's', d: 900 })
+        fig(g, 60, 600, 3.2)
+        fig(g, 300, 600, 3.2, { d: 200 })
+        const wire = L([100, 540], [260, 540])
+        ink(g, wire, { w: 2.4, d: 400, t: 500 })
+        const env = mk('g', { opacity: 0 }, g)
+        letter(env, -16, -10, 32, 0)
+        mk('set', { attributeName: 'opacity', to: 1, begin: '1s', fill: 'freeze' }, env)
+        mk('animateMotion', { path: 'M100 540L260 540', dur: '2.6s', begin: '1s', repeatCount: 'indefinite' }, env)
+        // das Auge des Lauschers über der Leitung
+        eye(g, 180, 420, 0.8, 900)
+        dashes(g, L([180, 446], [180, 520]), { w: 1.2, d: 1100, dash: 4, gap: 4 })
+        text(g, 60, 640, 'Anna', { anchor: 'middle', cls: 's', d: 800 })
+        text(g, 300, 640, 'Ben', { anchor: 'middle', cls: 's', d: 900 })
       },
       gelb(g) {
-        pot(g, 180, 560, 'Gelb – für alle sichtbar')
+        pot(g, 180, 560, ['gelb'])
+        fig(g, 70, 600, 2.6, { d: 300, arms: 'push' })
+        fig(group(g, '', 'transform: scale(-1, 1); transform-origin: 290px 600px'), 290, 600, 2.6, { d: 400, arms: 'push' })
+        legend(g, 100, 640, ['gelb'], 800)
       },
       geheim(g) {
-        pot(g, 90, 560, 'Anna: geheim Rot', 0, true)
-        pot(g, 270, 560, 'Ben: geheim Blau', 300)
+        pot(g, 90, 560, ['rot'], 0)
+        pot(g, 270, 560, ['blau'], 300)
+        legend(g, 90, 640, ['rot', 'blau'], 900)
+        eye(g, 180, 380, 0.5, 700)
+        cross(g, 180, 380, 0.9, 1000)
       },
       mischen(g) {
-        pot(g, 90, 560, 'Gelb + Rot', 0, true)
-        pot(g, 270, 560, 'Gelb + Blau', 300)
+        // jeder kippt seine geheime Farbe ins Gelb
+        pot(g, 90, 600, ['gelb', 'rot'], 600)
+        pot(g, 270, 600, ['gelb', 'blau'], 900)
+        for (const [x, d] of [[90, 0], [270, 300]] as const) {
+          const cup = group(g, '', `transform: rotate(${x < 180 ? 40 : -40}deg); transform-origin: ${x}px 440px`)
+          const c: P[] = [[x - 16, 420], [x - 14, 456], [x + 14, 456], [x + 16, 420]]
+          blank(cup, [...c, c[0]])
+          paint(cup, x - 14, 432, 28, 22, [x < 180 ? 'rot' : 'blau'], d + 200)
+          ink(cup, c, { w: 2.2, d, t: 300 })
+          flow(g, L([x + (x < 180 ? 18 : -18), 446], [x, 520]), { n: 3, ms: 700, d: d + 600, r: 2.6 })
+        }
       },
       tausch(g) {
-        pot(g, 70, 600, 'Gelb + Rot', 0, true)
-        pot(g, 290, 600, 'Gelb + Blau', 200)
-        carrow(g, [110, 520], [250, 520], 40, { d: 600 })
+        // die Mischungen wechseln offen die Seiten – das Auge sieht beide
+        const a = glide(g, 220, 0, { ms: 1800, d: 900 })
+        pot(a, 70, 600, ['gelb', 'rot'], 0)
+        const b = glide(g, -220, 0, { ms: 1800, d: 900 })
+        pot(b, 290, 600, ['gelb', 'blau'], 200)
+        carrow(g, [110, 500], [250, 500], 40, { d: 600 })
         carrow(g, [250, 470], [110, 470], 40, { d: 900 })
-        text(g, 180, 390, 'öffentlich getauscht', { anchor: 'middle', cls: 's', d: 1100 })
+        eye(g, 180, 380, 0.7, 400)
       },
       gleich(g) {
-        pot(g, 90, 560, 'Gelb + Blau + Rot', 0, true)
-        pot(g, 270, 560, 'Gelb + Rot + Blau', 300, true)
+        pot(g, 90, 560, ['gelb', 'blau', 'rot'], 0)
+        pot(g, 270, 560, ['gelb', 'rot', 'blau'], 300)
         text(g, 180, 540, '=', { anchor: 'middle', size: 40, d: 900 })
+        legend(g, 40, 640, ['gelb', 'rot', 'blau'], 1100)
       },
       entmischen(g) {
-        pot(g, 120, 560, 'Gelb + Rot', 0, true)
-        arrow(g, L([170, 520], [220, 520]), { w: 2.4, d: 500, t: 300, head: 9 })
-        question(g, 270, 510, 0.7, 800)
-        text(g, 180, 640, 'Mischen: leicht · Entmischen: fast unmöglich', { anchor: 'middle', cls: 's', d: 1100 })
+        // Mischen geht in einem Schritt – zurück führt kein Weg
+        pot(g, 70, 520, ['gelb'], 0)
+        pot(g, 70, 640, ['rot'], 100)
+        pot(g, 270, 580, ['gelb', 'rot'], 400)
+        arrow(g, B([110, 500], [170, 500], [200, 540], [230, 560]), { w: 2.4, d: 700, t: 400, head: 9 })
+        arrow(g, B([110, 620], [170, 620], [200, 600], [230, 590]), { w: 2.4, d: 800, t: 400, head: 9 })
+        check(g, 170, 470, 0.7, 1100)
+        dashes(g, B([270, 480], [260, 420], [160, 400], [100, 440]), { w: 1.6, d: 1300, dash: 6, gap: 6 })
+        cross(g, 190, 404, 0.8, 1600)
       },
       zahlen(g) {
-        text(g, 180, 430, '3 hoch 7', { anchor: 'middle', size: 30, d: 200 })
-        text(g, 180, 470, 'Rest beim Teilen durch 17', { anchor: 'middle', cls: 's', d: 500 })
-        text(g, 180, 540, 'vorwärts: Sekunden', { anchor: 'middle', d: 900 })
-        text(g, 180, 576, 'rückwärts: Jahrtausende', { anchor: 'middle', d: 1100 })
+        // Uhr mit 17 Stellen: die Potenzen von 3 springen scheinbar wild im Kreis
+        const cx = 180
+        const cy = 470
+        ink(g, E(cx, cy, 110), { w: 2.6, t: 700 })
+        const at = (k: number): P => [cx + Math.cos(rad(-90 + (k * 360) / 17)) * 110, cy + Math.sin(rad(-90 + (k * 360) / 17)) * 110]
+        for (let k = 0; k < 17; k++) {
+          const p = at(k)
+          dot(g, p[0], p[1], 2.4, 300 + k * 30)
+          text(g, cx + Math.cos(rad(-90 + (k * 360) / 17)) * 128, cy + Math.sin(rad(-90 + (k * 360) / 17)) * 128 + 4, String(k), { anchor: 'middle', cls: 's', d: 300 + k * 30, size: 11 })
+        }
+        let v = 1
+        const seq: P[] = []
+        for (let k = 1; k <= 7; k++) {
+          v = (v * 3) % 17
+          seq.push(at(v))
+        }
+        for (let k = 0; k < seq.length - 1; k++) arrow(g, L(seq[k], seq[k + 1]), { w: 1.4, d: 1000 + k * 300, t: 250, head: 6 })
+        ball(g, seq[6][0], seq[6][1], 7, { d: 3000, fill: 'dicht', t: 0, w: 1.4 })
+        text(g, cx, 640, '3⁷ ≡ 11 (mod 17)', { anchor: 'middle', size: 22, cls: 'serif', d: 3200 })
       },
       diffie(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.4, label: '1976', sub: 'Diffie & Hellman', up: true }])
+        timeline(g, 30, 330, 470, [{ at: 0.4, label: '1976', sub: 'Stanford', up: true }])
+        fig(g, 120, 600, 2.4, { d: 900 })
+        fig(g, 170, 600, 2.4, { d: 1000 })
+        ink(g, RR(210, 540, 90, 60, 4), { w: 2, d: 1200, t: 300 })
+        for (const y of [556, 568, 580]) ink(g, L([218, y], [290, y]), { w: 0.9, d: 1300, t: 100 })
       },
       schloss(g) {
-        ink(g, RR(110, 470, 140, 110, 12), { w: 3, t: 600 })
-        ink(g, [...L([140, 470], [140, 420]), ...B([140, 420], [140, 370], [220, 370], [220, 420]).slice(1), ...L([220, 420], [220, 470]).slice(1)], { w: 3, d: 300, t: 600 })
-        ink(g, E(180, 515, 10), { w: 2.4, d: 700, t: 200 })
-        ink(g, L([180, 525], [180, 550]), { w: 2.4, d: 800, t: 200 })
-        text(g, 180, 630, 'https://', { anchor: 'middle', size: 22, d: 1000 })
+        // Browserfenster mit Adresszeile und Schloss
+        const win = RR(30, 380, 300, 230, 10)
+        blank(g, win)
+        ink(g, win, { w: 3, t: 600 })
+        ink(g, L([30, 410], [330, 410]), { w: 2, d: 200, t: 400 })
+        for (const x of [46, 60, 74]) ink(g, E(x, 395, 4), { w: 1.4, d: 300, t: 100 })
+        ink(g, RR(92, 386, 220, 18, 9), { w: 1.6, d: 400, t: 300 })
+        ink(g, RR(100, 393, 9, 7, 1), { w: 1.4, d: 600, t: 100 })
+        ink(g, E(104.5, 393, 3, 3, 180, 360), { w: 1.2, d: 600, t: 100 })
+        text(g, 116, 400, 'https://', { size: 12, d: 700 })
+        const lock = (x: number, y: number, s: number, d: number) => {
+          ink(g, RR(x - 40 * s, y, 80 * s, 64 * s, 8), { w: 3, d, t: 600 })
+          ink(g, [...L([x - 24 * s, y], [x - 24 * s, y - 24 * s]), ...B([x - 24 * s, y - 24 * s], [x - 24 * s, y - 56 * s], [x + 24 * s, y - 56 * s], [x + 24 * s, y - 24 * s]).slice(1), ...L([x + 24 * s, y - 24 * s], [x + 24 * s, y]).slice(1)], { w: 3, d: d + 300, t: 600 })
+          ink(g, E(x, y + 26 * s, 7 * s), { w: 2.4, d: d + 700, t: 200 })
+          ink(g, L([x, y + 33 * s], [x, y + 48 * s]), { w: 2.4, d: d + 800, t: 200 })
+        }
+        lock(180, 500, 1, 900)
       },
       gchq(g) {
         timeline(g, 30, 330, 470, [
@@ -388,15 +761,38 @@ export const AHA_TECHNIK: Bite[] = [
           { at: 0.6, label: '1976', sub: 'öffentlich', big: true },
           { at: 0.85, label: '1997', sub: 'enthüllt' },
         ])
+        // Aktenmappe „Geheim“
+        const f: P[] = [[60, 560], [150, 560], [150, 630], [60, 630], [60, 560]]
+        blank(g, f)
+        hatch(g, f, 1500)
+        ink(g, f, { w: 2.2, d: 1300, t: 300 })
+        ink(g, RR(74, 584, 62, 20, 2), { w: 1.6, d: 1600, t: 200 })
+        cross(g, 105, 594, 0.5, 1800)
       },
       quanten(g) {
-        box(g, 40, 400, 280, 80, ['Quantencomputer', 'könnten das knacken'], { size: 17 })
-        arrow(g, L([180, 490], [180, 530]), { w: 2.4, d: 600, t: 300, head: 9 })
-        box(g, 40, 540, 280, 70, 'neue Verfahren seit 2024', { size: 17, fill: true, d: 800 })
+        // Quantencomputer („Kronleuchter“ aus Kühlstufen) und ein neues, stärkeres Schloss
+        for (let k = 0; k < 4; k++) {
+          const w = 140 - k * 24
+          const y = 360 + k * 56
+          ink(g, RR(120 - w / 2, y, w, 10, 3), { w: 2.2, d: 200 + k * 200, t: 300 })
+          for (let j = 0; j < 5; j++) {
+            const x = 120 - w / 2 + 10 + (j * (w - 20)) / 4
+            ink(g, smooth([[x, y + 10], [x + 4, y + 30], [x - 4, y + 46], [120 + (x - 120) * 0.8, y + 56]], 3), { w: 1, d: 400 + k * 200 + j * 30, t: 200 })
+          }
+        }
+        ink(g, RR(108, 584, 24, 30, 4), { w: 2.2, d: 1100, t: 300 })
+        arrow(g, L([170, 500], [210, 500]), { w: 2.2, d: 1300, t: 300, head: 8 })
+        const sh: P[] = [[270, 430], [320, 446], [314, 540], [270, 580], [226, 540], [220, 446], [270, 430]]
+        blank(g, sh)
+        hatch(g, sh, 1600)
+        ink(g, sh, { w: 2.6, d: 1400, t: 500 })
+        ink(g, RR(254, 500, 32, 26, 3), { w: 2.2, d: 1700, t: 300 })
+        ink(g, B([258, 500], [258, 480], [282, 480], [282, 500]), { w: 2.2, d: 1800, t: 200 })
       },
       ende(g) {
-        pot(g, 120, 560, '', 0, true)
-        pot(g, 240, 560, '', 200, true)
+        pot(g, 120, 560, ['gelb', 'rot', 'blau'], 0)
+        pot(g, 240, 560, ['gelb', 'blau', 'rot'], 200)
+        text(g, 180, 540, '=', { anchor: 'middle', size: 34, d: 700 })
       },
     },
     scenes: [
@@ -434,77 +830,166 @@ export const AHA_TECHNIK: Bite[] = [
     images: [],
     draw: {
       haende(g) {
-        hand(g, 50, 330, [true, true, true, true, true])
-        hand(g, 220, 330, [true, true, true, true, true], 300)
+        hand(g, 50, 300, [true, true, true, true, true])
+        hand(g, 220, 300, [true, true, true, true, true], 300)
       },
       zehn(g) {
-        text(g, 180, 460, '10?', { anchor: 'middle', size: 80, d: 200 })
+        // so zählt man meistens: ein Finger nach dem anderen, 1 bis 10
+        hand(g, 50, 440, [true, true, true, true, true])
+        hand(g, 220, 440, [true, true, true, true, true], 200)
+        const tips: P[] = [[24, 412], [66, 352], [95, 344], [124, 350], [153, 366], [194, 412], [236, 352], [265, 344], [294, 350], [323, 366]]
+        tips.forEach(([x, y], i) => {
+          const p = pop(g, 700 + i * 160, '50% 50%')
+          ink(p, E(x, y - 20, 11), { w: 1.6, t: 0 })
+          text(p, x, y - 15, String(i + 1), { anchor: 'middle', cls: 's', fade: false })
+        })
       },
       wert(g) {
-        hand(g, 130, 520, [true, true, true, true, true], 0, ['1', '2', '4', '8', '16'])
-        text(g, 180, 380, 'jeder Finger hat einen Wert', { anchor: 'middle', cls: 's', d: 1000 })
+        hand(g, 130, 470, [true, true, true, true, true], 0, ['1', '2', '4', '8', '16'])
       },
       drei(g) {
-        hand(g, 130, 520, [true, true, false, false, false], 0, ['1', '2', '4', '8', '16'])
-        text(g, 180, 380, '1 + 2 = 3', { anchor: 'middle', size: 26, d: 1000 })
+        hand(g, 130, 470, [true, true, false, false, false], 0, ['1', '2', '4', '8', '16'])
+        bits(g, [0, 0, 0, 1, 1], 900)
       },
       fuenf(g) {
-        hand(g, 130, 520, [true, false, true, false, false], 0, ['1', '2', '4', '8', '16'])
-        text(g, 180, 380, '1 + 4 = 5', { anchor: 'middle', size: 26, d: 1000 })
+        hand(g, 130, 470, [true, false, true, false, false], 0, ['1', '2', '4', '8', '16'])
+        bits(g, [0, 0, 1, 0, 1], 900)
       },
       einunddreissig(g) {
-        hand(g, 130, 520, [true, true, true, true, true], 0, ['1', '2', '4', '8', '16'])
-        text(g, 180, 380, '1 + 2 + 4 + 8 + 16 = 31', { anchor: 'middle', size: 24, d: 1000 })
+        hand(g, 130, 470, [true, true, true, true, true], 0, ['1', '2', '4', '8', '16'])
+        bits(g, [1, 1, 1, 1, 1], 900)
       },
       tausend(g) {
-        text(g, 180, 450, '1.023', { anchor: 'middle', size: 70, d: 200 })
-        text(g, 180, 500, 'mit zehn Fingern', { anchor: 'middle', cls: 's', d: 600 })
+        hand(g, 50, 400, [true, true, true, true, true], 0, ['1', '2', '4', '8', '16'])
+        hand(g, 220, 400, [true, true, true, true, true], 300, ['32', '64', '128', '256', '512'])
+        for (let i = 0; i < 10; i++) {
+          const x = 36 + i * 30
+          ink(g, RR(x - 12, 600, 24, 30, 4), { w: 1.8, d: 1200 + i * 60, t: 150 })
+          text(g, x, 622, '1', { anchor: 'middle', size: 17, d: 1300 + i * 60 })
+        }
       },
       verdoppeln(g) {
         const vals = ['1', '2', '4', '8', '16', '32', '64', '128', '256', '512']
         vals.forEach((v, i) => {
           const x = 36 + (i % 5) * 72
-          const y = 400 + Math.floor(i / 5) * 110
-          box(g, x - 28, y, 56, 56, v, { size: 17, d: i * 100 })
+          const y = 380 + Math.floor(i / 5) * 140
+          const s = 30 + i * 3
+          box(g, x - s / 2, y + 30 - s / 2, s, s, v, { size: 15, d: i * 120, fill: false })
+          if (i % 5 < 4) {
+            arrow(g, B([x + s / 2 + 2, y + 10], [x + 26, y - 6], [x + 46, y - 6], [x + 72 - (s + 3) / 2 - 2, y + 10]), { w: 1.4, d: i * 120 + 200, t: 200, head: 6 })
+            text(g, x + 36, y - 10, '×2', { anchor: 'middle', cls: 's', d: i * 120 + 300, size: 11 })
+          }
         })
-        text(g, 180, 660, 'jeder Finger doppelt so viel wie der vorige', { anchor: 'middle', cls: 's', d: 1200 })
+        arrow(g, B([324, 430], [350, 470], [20, 470], [36, 500]), { w: 1.4, d: 700, t: 400, head: 6 })
       },
       binaer(g) {
-        text(g, 180, 450, '1 0 1', { anchor: 'middle', size: 60, d: 200 })
-        text(g, 180, 500, '= 4 + 0 + 1 = 5', { anchor: 'middle', size: 22, d: 700 })
+        // drei Lampen als Ziffern: an – aus – an, darunter ihre Werte
+        ;[[90, true, '4'], [180, false, '2'], [270, true, '1']].forEach(([x, on, v], i) => {
+          const cx = x as number
+          bulb(g, cx, 470, 1, i * 200)
+          if (on) {
+            hatch(g, E(cx, 456, 22, 24), i * 200 + 600, false)
+            rays(g, cx, 456, 40, 54, 10, i * 200 + 700)
+          }
+          text(g, cx, 380, on ? '1' : '0', { anchor: 'middle', size: 40, cls: 'serif', d: i * 200 + 400 })
+          text(g, cx, 560, v as string, { anchor: 'middle', size: 18, d: i * 200 + 800 })
+          ink(g, RR(cx - 20, 540, 40, 30, 6), { w: 1.6, d: i * 200 + 800, t: 200 })
+        })
       },
       leibniz(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.3, label: '1703', sub: 'Gottfried Wilhelm Leibniz', up: true }])
+        timeline(g, 30, 330, 400, [{ at: 0.3, label: '1703', sub: 'Paris, Akademie', up: true }])
+        // Blatt mit der Tabelle aus Leibniz' Aufsatz: 0, 1, 10, 11, 100 …
+        const sheet: P[] = [[90, 450], [270, 440], [276, 650], [96, 660], [90, 450]]
+        blank(g, sheet)
+        ink(g, sheet, { w: 2.4, d: 600, t: 500 })
+        ;['0', '1', '10', '11', '100', '101', '110', '111'].forEach((b, i) => {
+          text(g, 190, 476 + i * 22, b, { anchor: 'end', cls: 'serif', size: 17, d: 900 + i * 120 })
+          text(g, 230, 476 + i * 22, String(i), { anchor: 'end', cls: 'it', size: 16, d: 950 + i * 120 })
+        })
+        ink(g, L([204, 460], [204, 640]), { w: 1, d: 900, t: 400 })
       },
       schalter(g) {
-        for (const [x, on] of [[110, true], [250, false]] as const) {
-          ink(g, RR(x - 40, 420, 80, 140, 12), { w: 2.8, t: 500, d: x === 110 ? 0 : 200 })
-          const k: P[] = on ? RR(x - 24, 436, 48, 54, 8) : RR(x - 24, 490, 48, 54, 8)
+        for (const [x, on] of [[100, true], [260, false]] as const) {
+          ink(g, RR(x - 40, 440, 80, 140, 12), { w: 2.8, t: 500, d: x === 100 ? 0 : 200 })
+          const k: P[] = on ? RR(x - 24, 456, 48, 54, 8) : RR(x - 24, 510, 48, 54, 8)
           hatch(g, k, 500, true)
           ink(g, k, { w: 2.4, d: 400, t: 300 })
-          text(g, x, 600, on ? '1 = an' : '0 = aus', { anchor: 'middle', cls: 's', d: 700 })
+          text(g, x, 620, on ? '1 = an' : '0 = aus', { anchor: 'middle', cls: 's', d: 700 })
+          bulb(g, x, 360, 0.8, 600)
+          ink(g, B([x, 400], [x + 20, 420], [x - 20, 420], [x, 440]), { w: 1.2, d: 600, t: 300 })
+          if (on) {
+            hatch(g, E(x, 348, 18, 20), 900)
+            rays(g, x, 348, 34, 46, 10, 900)
+          }
         }
       },
       chip(g) {
-        ink(g, RR(110, 400, 140, 140, 8), { w: 3, t: 600 })
-        for (let i = 0; i < 5; i++) for (const side of [-1, 1]) {
-          const y = 420 + i * 24
-          ink(g, L([side < 0 ? 110 : 250, y], [side < 0 ? 86 : 274, y]), { w: 2, d: 400 + i * 60, t: 100 })
+        // Chip mit Beinchen, die Lupe zeigt das Raster winziger Transistoren, die an- und ausgehen
+        ink(g, RR(50, 400, 140, 140, 8), { w: 3, t: 600 })
+        ink(g, RR(70, 420, 100, 100, 4), { w: 1.4, d: 300, t: 400 })
+        for (let i = 0; i < 6; i++) for (const side of [0, 1, 2, 3]) {
+          const t = 412 + i * 22
+          const [a, b] = side === 0 ? [[50, t], [32, t]] : side === 1 ? [[190, t], [208, t]] : side === 2 ? [[t - 350 + 50, 400], [t - 350 + 50, 382]] : [[t - 350 + 50, 540], [t - 350 + 50, 558]]
+          ink(g, L(a as P, b as P), { w: 1.8, d: 400 + i * 40, t: 80 })
         }
-        text(g, 180, 600, 'Milliarden Schalter im Handy', { anchor: 'middle', cls: 's', d: 1000 })
+        ink(g, L([150, 460], [218, 420]), { w: 1.2, d: 800, t: 200 })
+        blank(g, E(270, 420, 74))
+        for (let r = 0; r < 7; r++) for (let c = 0; c < 7; c++) {
+          const x = 232 + c * 12
+          const y = 384 + r * 12
+          if (Math.hypot(x - 270, y - 420) > 64) continue
+          const cell = mk('g', { class: (r * 7 + c) % 3 ? 'blink' : '', style: `--d:${900 + ((r * 13 + c * 7) % 11) * 90}ms` }, g)
+          hatch(cell, RR(x - 4, y - 4, 8, 8, 1), 900, true)
+          ink(cell, RR(x - 4, y - 4, 8, 8, 1), { w: 0.8, d: 900, t: 50 })
+        }
+        ink(g, E(270, 420, 74), { w: 3, d: 800, t: 400 })
+        ink(g, L([322, 472], [346, 500]), { w: 6, d: 1000, t: 200 })
       },
       byte(g) {
-        text(g, 180, 440, '8 Bit = 1 Byte', { anchor: 'middle', size: 30, d: 200 })
-        text(g, 180, 490, '256 Möglichkeiten', { anchor: 'middle', d: 700 })
-        text(g, 180, 520, 'zum Beispiel ein Buchstabe', { anchor: 'middle', cls: 's', d: 900 })
+        // acht Schalter = ein Byte; dieses Muster steht für den Buchstaben A
+        const bitsA = [0, 1, 0, 0, 0, 0, 0, 1]
+        bitsA.forEach((b, i) => {
+          const x = 40 + i * 36
+          ink(g, RR(x - 14, 400, 28, 60, 6), { w: 2, d: i * 80, t: 200 })
+          const k = b ? RR(x - 9, 406, 18, 22, 4) : RR(x - 9, 432, 18, 22, 4)
+          hatch(g, k, 300 + i * 80, true)
+          ink(g, k, { w: 1.6, d: 200 + i * 80, t: 150 })
+          text(g, x, 486, String(b), { anchor: 'middle', size: 18, d: 400 + i * 80 })
+        })
+        arrow(g, L([180, 506], [180, 546]), { w: 2.4, d: 1200, t: 300, head: 9 })
+        text(g, 180, 630, 'A', { anchor: 'middle', size: 80, cls: 'serif', d: 1400 })
       },
       kilo(g) {
-        text(g, 180, 450, '2¹⁰ = 1.024', { anchor: 'middle', size: 40, d: 200 })
-        text(g, 180, 500, 'darum: 1 Kibibyte = 1.024 Byte', { anchor: 'middle', cls: 's', d: 700 })
+        // 2¹⁰: ein Raster aus 32 × 32 Feldern – genau 1.024 Stück
+        for (let r = 0; r < 32; r++) for (let c = 0; c < 32; c++) {
+          const x = 84 + c * 6
+          const y = 380 + r * 6
+          mk('rect', { x, y, width: 4.4, height: 4.4, class: 'k fade', style: `--d:${200 + (r * 32 + c) * 1.2}ms` }, g)
+        }
+        ink(g, RR(80, 376, 196, 196, 3), { w: 2.4, d: 100, t: 500 })
+        text(g, 180, 620, '2¹⁰', { anchor: 'middle', size: 30, cls: 'serif', d: 1600 })
       },
       ende(g) {
-        hand(g, 50, 500, [true, false, true, true, false])
-        hand(g, 220, 500, [false, true, false, true, true], 300)
+        hand(g, 50, 460, [true, false, true, true, false])
+        hand(g, 220, 460, [false, true, false, true, true], 300)
+      },
+      pixel(g) {
+        // ein Bildpunkt aus drei Leuchtstreifen, jeder mit 8 Bit Helligkeit
+        ink(g, RR(60, 380, 150, 190, 8), { w: 2.8, t: 600 })
+        ;[['R', 0.9], ['G', 0.5], ['B', 0.2]].forEach(([l, v], i) => {
+          const x = 72 + i * 46
+          const h = 150 * (v as number)
+          ink(g, RR(x, 396, 34, 150, 5), { w: 1.8, d: 300 + i * 100, t: 300 })
+          hatch(g, RR(x, 396 + 150 - h, 34, h, 5), 700 + i * 100, i === 0)
+          text(g, x + 17, 590, l as string, { anchor: 'middle', size: 18, d: 800 + i * 100 })
+        })
+        const b = [1, 1, 1, 0, 0, 1, 1, 0]
+        b.forEach((v, k) => {
+          const y = 392 + k * 22
+          ink(g, RR(250, y, 30, 18, 3), { w: 1.4, d: 1000 + k * 60, t: 100 })
+          text(g, 265, y + 14, String(v), { anchor: 'middle', size: 14, d: 1100 + k * 60 })
+        })
+        ink(g, B([210, 420], [226, 420], [234, 410], [246, 402]), { w: 1.2, d: 1000, t: 200 })
       },
     },
     scenes: [
@@ -523,7 +1008,7 @@ export const AHA_TECHNIK: Bite[] = [
       { t: T('Computer rechnen genau so. Ihre Finger sind winzige Schalter, **Transistoren**: Strom an ist 1, Strom aus ist 0.', 64), gfx: { schalter: {} } },
       { t: T('Ein moderner Handychip enthält **Milliarden** davon. Jeder kippt viele Millionen Mal pro Sekunde.', 64), gfx: { chip: {} } },
       { t: T('Eine Ziffer heißt **Bit**. Acht Bits ergeben ein Byte – genug für 256 Möglichkeiten, etwa einen Buchstaben.', 64), gfx: { byte: {} } },
-      { t: T('Auch Farben sind Bits: Jedes Pixel deines Bildschirms speichert Rot, Grün und Blau mit je **8 Bit** – zusammen über 16 Millionen Farben.', 64), gfx: { byte: {} } },
+      { t: T('Auch Farben sind Bits: Jedes Pixel deines Bildschirms speichert Rot, Grün und Blau mit je **8 Bit** – zusammen über 16 Millionen Farben.', 64), gfx: { pixel: {} } },
       { t: T('Weil 2 hoch 10 genau 1.024 ist, galt ein „Kilobyte“ lange als 1.024 Bytes. Heute heißt das korrekt **Kibibyte**.', 64), gfx: { kilo: {} } },
       { t: T('Jedes zusätzliche Bit **verdoppelt** den Zahlenraum. Elf Finger, und du könntest bis 2.047 zählen.', 64), gfx: { verdoppeln: {} } },
       { t: T('Zehn Finger, **1.024 Zahlen**.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },

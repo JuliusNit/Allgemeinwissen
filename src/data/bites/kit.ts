@@ -744,3 +744,11 @@ export function fighter(g: Element, x: number, y: number, s = 1, d = 0): void {
   ink(g, [P(-80, -6), P(-88, -4), P(-88, 5), P(-80, 7)], { w: 1.8 * w, d: d + 500, t: 200 })
   ink(g, [P(0, 2), P(14, 2), P(14, 8)], { w: 1.2 * w, d: d + 600, t: 150 })
 }
+
+/** Gruppe, deren Inhalt auf ein Rechteck (oder mit r auf einen Kreis um x, y) zugeschnitten ist */
+export function clipBox(g: Element, x: number, y: number, w: number, h: number): SVGGElement {
+  const id = `cb${++clipN}`
+  const cp = mk('clipPath', { id }, g)
+  mk('rect', { x, y, width: w, height: h }, cp)
+  return mk('g', { 'clip-path': `url(#${id})` }, g)
+}
