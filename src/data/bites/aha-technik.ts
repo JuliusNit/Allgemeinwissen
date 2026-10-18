@@ -87,7 +87,7 @@ export const AHA_TECHNIK: Bite[] = [
     hook: 'Woher weiß dein Handy, wo dein Finger ist?',
     mood: 'verspielt',
     ambience: 'stadt',
-    images: [],
+    images: [img('touchscreen')],
     draw: {
       handy(g) {
         phone(g, 110, 80, 140, 280)
@@ -171,7 +171,7 @@ export const AHA_TECHNIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { handy: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die meisten Handys haben einen **kapazitiven** Touchscreen. Dein Finger drückt dabei gar nichts – er stört ein elektrisches Feld.', 64), gfx: { feld: {} } },
       { t: T('Unter dem Glas liegt ein feines Gitter aus **durchsichtigen** Leiterbahnen – meist aus Indiumzinnoxid.', 64), gfx: { gitter: {} } },
       { t: T('Die Bahnen laufen in **Zeilen und Spalten**. An jeder Kreuzung entsteht ein winziger Kondensator, der etwas Ladung speichert.', 64), gfx: { gitter: {} } },
@@ -203,7 +203,7 @@ export const AHA_TECHNIK: Bite[] = [
     hook: 'Wie findet ein Foto seinen Weg durchs Internet?',
     mood: 'verspielt',
     ambience: 'stadt',
-    images: [img('rechenzentrum')],
+    images: [img('rechenzentrum'), img('seekabel')],
     draw: {
       netz(g) {
         const n: P[] = [[50, 260], [130, 140], [180, 300], [250, 180], [310, 300]]
@@ -306,7 +306,7 @@ export const AHA_TECHNIK: Bite[] = [
       { t: T('Die allererste Nachricht sollte „LOGIN“ lauten. Nach **zwei Buchstaben** stürzte der Rechner ab – so lautete sie „LO“.', 64), gfx: { lo: {} } },
       { t: T('Und wie findet dein Handy die Adresse? Namen wie wikipedia.org übersetzt das **DNS** in Zahlen – wie ein Telefonbuch.', 64), gfx: { dns: {} } },
       { t: T('Ein einzelnes Video besteht so aus **Millionen** Paketen – jede Sekunde kommen Tausende bei dir an.', 64), gfx: { zerlegen: {} } },
-      { t: T('Zwischen den Kontinenten reisen die Pakete fast nie per Satellit, sondern durch **Seekabel** am Meeresgrund.', 64), gfx: { kabel: {} } },
+      { t: T('Zwischen den Kontinenten reisen die Pakete fast nie per Satellit, sondern durch **Seekabel** am Meeresgrund.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Seekabel, frühes 20. Jahrhundert' } } },
       { t: T('Über 95 Prozent des interkontinentalen Datenverkehrs laufen durch solche Kabel – als **Lichtpulse** in Glasfasern.', 64), gfx: { anteil: {} } },
       { t: T('Ein Paket von Frankfurt nach New York und zurück braucht dabei weniger als **eine Zehntelsekunde**.', 64), gfx: { kabel: {} } },
       { t: T('Dein Foto reist in **Einzelteilen** – und kommt doch ganz an.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
@@ -321,7 +321,7 @@ export const AHA_TECHNIK: Bite[] = [
     hook: 'Wie vereinbaren zwei Fremde ein Geheimnis, wenn alle mithören?',
     mood: 'raetsel',
     ambience: 'nacht',
-    images: [],
+    images: [img('diffie')],
     draw: {
       lauscher(g) {
         fig(g, 70, 380, 3.4)
@@ -415,7 +415,7 @@ export const AHA_TECHNIK: Bite[] = [
       { t: T('Das Geniale: Das Geheimnis selbst wird **nie verschickt**. Es entsteht auf beiden Seiten gleichzeitig.', 64), gfx: { gleich: {} } },
       { t: T('In echt sind die Farben **riesige Zahlen**. Mischen heißt hier: potenzieren und den Rest beim Teilen nehmen.', 64), gfx: { zahlen: {} } },
       { t: T('Das geht vorwärts in Sekundenbruchteilen. Rückwärts bräuchten selbst Supercomputer bei großen Zahlen **Jahrtausende**.', 64), gfx: { zahlen: {} } },
-      { t: T('Veröffentlicht haben das Whitfield Diffie und Martin Hellman 1976 – eine **Revolution** der Verschlüsselung.', 64), gfx: { diffie: {} } },
+      { t: T('Veröffentlicht haben das Whitfield Diffie und Martin Hellman 1976 – eine **Revolution** der Verschlüsselung.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Whitfield Diffie' } } },
       { t: T('Kurios: Britische Geheimdienstler hatten ähnliche Ideen schon Jahre vorher – aber sie mussten **schweigen**. Erst 1997 wurde es bekannt.', 64), gfx: { gchq: {} } },
       { t: T('Heute steckt eine Weiterentwicklung im **Schloss-Symbol** deines Browsers. Jeder Besuch einer sicheren Seite beginnt mit so einem Tausch.', 64), gfx: { schloss: {} } },
       { t: T('Ein Haken bleibt: Woher weiß Anna, dass sie wirklich mit Ben redet? Dafür braucht es zusätzlich **Zertifikate** – digitale Ausweise.', 64), gfx: { problem: {} } },
@@ -432,7 +432,7 @@ export const AHA_TECHNIK: Bite[] = [
     hook: 'Bis wie viel kannst du mit zehn Fingern zählen?',
     mood: 'verspielt',
     ambience: 'uhr',
-    images: [],
+    images: [img('leibniz')],
     draw: {
       haende(g) {
         hand(g, 50, 330, [true, true, true, true, true])
@@ -520,7 +520,7 @@ export const AHA_TECHNIK: Bite[] = [
       { t: T('Alle zehn Finger oben ergeben **1.023**. Mit null Fingern dazu sind das 1.024 verschiedene Zahlen.', 64), gfx: { tausend: {} } },
       { t: T('Das ist das **Binärsystem**: Es kennt nur zwei Ziffern, 0 und 1 – Finger unten, Finger oben.', 64), gfx: { binaer: {} } },
       { t: T('Geschrieben sieht das so aus: 101 heißt einmal 4, keinmal 2, einmal 1 – also **fünf**.', 64), gfx: { binaer: {} } },
-      { t: T('Der Philosoph Gottfried Wilhelm **Leibniz** beschrieb das Zweiersystem 1703 – lange vor jedem Computer.', 64), gfx: { leibniz: {} } },
+      { t: T('Der Philosoph Gottfried Wilhelm **Leibniz** beschrieb das Zweiersystem 1703 – lange vor jedem Computer.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 30, 1.05], cam2: [50, 30, 1.2], cap: 'Gottfried Wilhelm Leibniz' } } },
       { t: T('Computer rechnen genau so. Ihre Finger sind winzige Schalter, **Transistoren**: Strom an ist 1, Strom aus ist 0.', 64), gfx: { schalter: {} } },
       { t: T('Ein moderner Handychip enthält **Milliarden** davon. Jeder kippt viele Millionen Mal pro Sekunde.', 64), gfx: { chip: {} } },
       { t: T('Eine Ziffer heißt **Bit**. Acht Bits ergeben ein Byte – genug für 256 Möglichkeiten, etwa einen Buchstaben.', 64), gfx: { byte: {} } },
@@ -539,7 +539,7 @@ export const AHA_TECHNIK: Bite[] = [
     hook: 'Wie lernt eine KI, eine Katze zu erkennen?',
     mood: 'raetsel',
     ambience: 'uhr',
-    images: [],
+    images: [img('katze')],
     draw: {
       katze(g) {
         cat(g, 180, 300, 1.4)
@@ -617,7 +617,7 @@ export const AHA_TECHNIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { katze: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Man könnte Regeln programmieren: spitze Ohren, Schnurrhaare, Fell. Aber was ist mit einer Katze **von hinten**? Im Dunkeln? Halb verdeckt?', 64), gfx: { regeln: {} } },
       { t: T('Die Regeln werden endlos. Moderne KI geht darum anders vor: Sie lernt **aus Beispielen**.', 64), gfx: { beispiele: {} } },
       { t: T('Man zeigt ihr Millionen Bilder, jedes **beschriftet**: Katze oder keine Katze.', 64), gfx: { beispiele: {} } },
@@ -647,7 +647,7 @@ export const AHA_TECHNIK: Bite[] = [
     hook: 'Wie kann Licht um die Kurve laufen?',
     mood: 'kosmisch',
     ambience: 'wellen',
-    images: [],
+    images: [img('kao')],
     draw: {
       kurve(g) {
         const outer = B([30, 160], [200, 160], [300, 200], [320, 400])
@@ -743,7 +743,7 @@ export const AHA_TECHNIK: Bite[] = [
       { t: T('Der Kern ist oft nur 9 Tausendstel Millimeter dick, die ganze Faser **dünner** als ein dickes Haar.', 64), gfx: { haar: {} } },
       { t: T('Entdeckt wurde der Effekt schon 1842: Daniel Colladon leitete Licht durch einen **Wasserstrahl** – der Strahl leuchtete im Bogen.', 64), gfx: { colladon: {} } },
       { t: T('Für lange Strecken musste das Glas aber unglaublich **rein** werden. Normales Fensterglas schluckt Licht nach wenigen Metern.', 64), gfx: { daempfung: {} } },
-      { t: T('Charles Kao zeigte 1966, dass es an Verunreinigungen liegt. Dafür bekam er 2009 den **Nobelpreis**.', 64), gfx: { kao: {} } },
+      { t: T('Charles Kao zeigte 1966, dass es an Verunreinigungen liegt. Dafür bekam er 2009 den **Nobelpreis**.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 35, 1.2], cap: 'Charles Kao' } } },
       { t: T('Heute ist Glasfaser so klar, dass Licht viele Dutzend Kilometer weit kommt, bevor es **verstärkt** werden muss.', 64), gfx: { daempfung: {} } },
       { t: T('Die Daten reisen als **Lichtpulse**: an heißt 1, aus heißt 0 – Milliarden Mal pro Sekunde.', 64), gfx: { pulse: {} } },
       { t: T('Und es geht noch mehr: Viele **Farben** laufen gleichzeitig durch eine Faser, jede mit eigenen Daten.', 64), gfx: { farben: {} } },
@@ -762,7 +762,7 @@ export const AHA_TECHNIK: Bite[] = [
     hook: 'Warum wird das Essen in der Mikrowelle heiß, der Teller aber kaum?',
     mood: 'verspielt',
     ambience: 'blasen',
-    images: [],
+    images: [img('mikrowelle'), img('radarange')],
     draw: {
       geraet(g) {
         ink(g, RR(40, 120, 280, 200, 12), { w: 3, t: 700 })
@@ -859,7 +859,7 @@ export const AHA_TECHNIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { geraet: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Eine Mikrowelle schickt unsichtbare Funkwellen ins Garraum – **Mikrowellen**, verwandt mit Licht und WLAN.', 64), gfx: { welle: {} } },
       { t: T('Ihr elektrisches Feld schwingt rund **2,45 Milliarden** Mal pro Sekunde hin und her.', 64), gfx: { welle: {} } },
       { t: T('Wassermoleküle sind auf einer Seite leicht negativ, auf der anderen leicht positiv. Sie verhalten sich wie **winzige Kompassnadeln**.', 64), gfx: { molekuel: {} } },
@@ -873,7 +873,7 @@ export const AHA_TECHNIK: Bite[] = [
       { t: T('Rechnet man das zurück, kommt man ungefähr auf die **Lichtgeschwindigkeit**.', 64), gfx: { schoko: {} } },
       { t: T('Darum stellt man Essen am besten an den **Rand** des Drehtellers und deckt es ab: So verteilt sich die Hitze besser.', 64), gfx: { teller: {} } },
       { t: T('Erfunden wurde das Gerät aus Zufall: 1945 arbeitete Percy Spencer an Radargeräten – und ein **Schokoriegel** in seiner Tasche schmolz.', 64), gfx: { riegel: {} } },
-      { t: T('Die ersten Geräte hießen „Radarange“, waren fast **zwei Meter** hoch und wogen über 300 Kilo.', 64), gfx: { spencer: {} } },
+      { t: T('Die ersten Geräte hießen „Radarange“, waren fast **zwei Meter** hoch und wogen über 300 Kilo.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Radarange auf dem Schiff NS Savannah' } } },
       { t: T('Das Gitter in der Tür hält die Wellen drinnen: Seine Löcher sind viel kleiner als die **12 Zentimeter** lange Welle.', 64), gfx: { tuer: {} } },
       { t: T('Metall mit Spitzen, etwa eine **Gabel**, sammelt die Ladung an den Kanten – dort springen Funken.', 64), gfx: { gabel: {} } },
       { t: T('Und Eis taut so schlecht, weil gefrorene Wassermoleküle im Kristall **festsitzen** und sich kaum drehen können.', 64), gfx: { eis: {} } },
@@ -890,7 +890,7 @@ export const AHA_TECHNIK: Bite[] = [
     hook: 'Wie macht ein Kühlschrank Kälte?',
     mood: 'ruhig',
     ambience: 'atem',
-    images: [],
+    images: [img('kuehlschrank'), img('linde')],
     draw: {
       fridge(g) {
         fridge(g, 120, 80, 120, 340)
@@ -982,7 +982,7 @@ export const AHA_TECHNIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { fridge: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die überraschende Antwort: **gar nicht**. Ein Kühlschrank erzeugt keine Kälte.', 64), gfx: { fridge: { tf: [1, 0, 260] } } },
       { t: T('Kälte ist nur fehlende Wärme. Der Kühlschrank **pumpt Wärme** aus seinem Inneren hinaus – in deine Küche.', 64), gfx: { pumpe: {} } },
       { t: T('Fass mal an die **Rückseite**: Das Gitter dort ist warm. Da kommt die Wärme aus dem Inneren heraus.', 64), gfx: { hinten: {} } },
@@ -996,7 +996,7 @@ export const AHA_TECHNIK: Bite[] = [
       { t: T('Darum kühlt eine offene Kühlschranktür die Küche **nicht**: Die Wärme kommt hinten wieder heraus – plus die Wärme des Motors.', 64), gfx: { tuer: {} } },
       { t: T('Im Gefrierfach läuft derselbe Kreislauf, nur **kälter**: Dort verdampft das Mittel bei rund minus 25 Grad.', 64), gfx: { kreis: {} } },
       { t: T('Vor der Erfindung lagerte man Lebensmittel mit **Eisblöcken**, im Winter aus Seen gesägt.', 64), gfx: { eis: {} } },
-      { t: T('Ab 1876 baute **Carl von Linde** brauchbare Kältemaschinen – zuerst für Brauereien.', 64), gfx: { linde: {} } },
+      { t: T('Ab 1876 baute **Carl von Linde** brauchbare Kältemaschinen – zuerst für Brauereien.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 35, 1.2], cap: 'Carl von Linde, 1868' } } },
       { t: T('Lange nutzte man **FCKW** als Kältemittel. Sie zerstörten die Ozonschicht und wurden ab 1987 weltweit verboten.', 64), gfx: { gase: {} } },
       { t: T('Eine **Wärmepumpe** ist ein umgedrehter Kühlschrank: Sie holt Wärme aus der kalten Außenluft und pumpt sie ins Haus.', 64), gfx: { waermepumpe: {} } },
       { t: T('Auch Klimaanlagen arbeiten so – sie **schieben** Wärme nur in die andere Richtung.', 64), gfx: { pumpe: {} } },

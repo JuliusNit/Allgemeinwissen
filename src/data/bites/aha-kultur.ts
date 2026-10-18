@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, cross, crowd, dashes, eye, fig, hatch, hbars, ink, mountain, question, rays, st, text, timeline, type P } from './draw'
 import { ball, box, bullets, carrow, dot, waveP } from './kit'
 
@@ -109,7 +110,7 @@ export const AHA_KULTUR: Bite[] = [
     hook: 'Warum ist das A eigentlich ein Ochse?',
     mood: 'raetsel',
     ambience: 'wind',
-    images: [],
+    images: [img('phoenizisch')],
     draw: {
       ochse(g) {
         oxA(g, 180, 260, 1.4)
@@ -190,7 +191,7 @@ export const AHA_KULTUR: Bite[] = [
       { t: T('Um 1850 vor Christus hatten Arbeiter in Bergwerken auf dem Sinai eine geniale Idee – vermutlich **Menschen aus Kanaan**.', 64), gfx: { bergleute: {} } },
       { t: T('Sie nahmen ein Bild und nutzten nur den **ersten Laut** seines Namens. Das Bild eines Ochsen, ʾalep, stand für den Anfangslaut.', 64), gfx: { prinzip: {} } },
       { t: T('So brauchte man nicht mehr Hunderte Zeichen, sondern nur noch **zwei Dutzend**. Jeder konnte schreiben lernen.', 64), gfx: { prinzip: {} } },
-      { t: T('Die **Phönizier**, Händler am Mittelmeer, machten daraus ein Alphabet mit 22 Zeichen und trugen es übers Meer.', 64), gfx: { aegypten: {} } },
+      { t: T('Die **Phönizier**, Händler am Mittelmeer, machten daraus ein Alphabet mit 22 Zeichen und trugen es übers Meer.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Phönizische Schrift, Idalion (Zypern)' } } },
       { t: T('Viele Namen verraten noch das Bild: **bēt** hieß Haus. Daraus wurde das B.', 64), gfx: { haus: {} } },
       { t: T('**Mēm** hieß Wasser – die Wellen siehst du bis heute im M.', 64), gfx: { wasser: {} } },
       { t: T('Und **ʿayin** hieß Auge. Daraus wurde das O.', 64), gfx: { auge: {} } },
@@ -214,7 +215,7 @@ export const AHA_KULTUR: Bite[] = [
     hook: 'Was hat der Dollar mit einem Tal in Böhmen zu tun?',
     mood: 'hell',
     ambience: 'glocke',
-    images: [],
+    images: [img('joachimsthaler'), img('jachymov')],
     draw: {
       muenze(g) {
         bigCoin(g, 180, 250, 100, '$')
@@ -277,8 +278,8 @@ export const AHA_KULTUR: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { muenze: {} } },
-      { t: T('Im Erzgebirge, im heutigen Tschechien, liegt ein Tal: **Joachimsthal**, heute Jáchymov.', 64), gfx: { tal: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
+      { t: T('Im Erzgebirge, im heutigen Tschechien, liegt ein Tal: **Joachimsthal**, heute Jáchymov.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Jáchymov (Joachimsthal), Museum' } } },
       { t: T('1516 fand man dort riesige **Silbervorkommen**. Eine Bergbaustadt wuchs in kurzer Zeit auf Tausende Einwohner.', 64), gfx: { silber: {} } },
       { t: T('Ab 1520 prägte man aus dem Silber große Münzen: die **Joachimsthaler** Guldengroschen.', 64), gfx: { name: {} } },
       { t: T('Das war ein Zungenbrecher. Bald sagte man nur noch: **Taler**.', 64), gfx: { name: {} } },
@@ -308,7 +309,7 @@ export const AHA_KULTUR: Bite[] = [
     hook: 'Was war wirklich in der Büchse der Pandora?',
     mood: 'dunkel',
     ambience: 'wind',
-    images: [],
+    images: [img('pandora')],
     draw: {
       krug(g) {
         jar(g, 180, 400, 1.6)
@@ -385,7 +386,7 @@ export const AHA_KULTUR: Bite[] = [
       { t: T('Erste Überraschung: Es war gar **keine Büchse**. Doch dazu später.', 64), gfx: { krug: { tf: [1, 0, 260] } } },
       { t: T('Die Geschichte erzählt der griechische Dichter **Hesiod** um 700 vor Christus.', 64), gfx: { hesiod: {} } },
       { t: T('Der Titan Prometheus hatte den Göttern das **Feuer** gestohlen und den Menschen gebracht. Göttervater Zeus sann auf Rache.', 64), gfx: { prometheus: {} } },
-      { t: T('Er ließ die erste Frau erschaffen: **Pandora**, „die Allbeschenkte“. Jeder Gott gab ihr eine Gabe – Schönheit, Anmut, aber auch List.', 64), gfx: { pandora: {} } },
+      { t: T('Er ließ die erste Frau erschaffen: **Pandora**, „die Allbeschenkte“. Jeder Gott gab ihr eine Gabe – Schönheit, Anmut, aber auch List.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 40, 1.05], cam2: [50, 40, 1.2], cap: 'Waterhouse 1896 – mit Kiste statt Krug' } } },
       { t: T('Zeus schickte sie zu Epimetheus, dem Bruder des Prometheus. Der hatte ihn gewarnt: **Nimm kein Geschenk** von Zeus!', 64), gfx: { warnung: {} } },
       { t: T('Epimetheus – sein Name heißt „der hinterher Denkende“ – nahm sie **trotzdem** auf.', 64), gfx: { warnung: {} } },
       { t: T('Pandora hob den Deckel von einem großen Krug. Heraus flogen alle Übel: **Krankheit**, Mühsal, Leid – bis dahin unbekannt.', 64), gfx: { offen: {} } },
@@ -411,7 +412,7 @@ export const AHA_KULTUR: Bite[] = [
     hook: 'Gab es das Trojanische Pferd wirklich?',
     mood: 'episch',
     ambience: 'wind',
-    images: [],
+    images: [img('trojanisches-pferd'), img('schliemann')],
     draw: {
       pferd(g) {
         horse(g, 170, 420, 1.2)
@@ -470,7 +471,7 @@ export const AHA_KULTUR: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { pferd: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die Geschichte kennt jeder: Zehn Jahre belagern die Griechen **Troja**. Dann bauen sie ein riesiges Holzpferd – und tun so, als zögen sie ab.', 64), gfx: { list: {} } },
       { t: T('Die Trojaner ziehen das Geschenk in ihre Stadt. Nachts klettern Krieger aus dem Bauch und **öffnen die Tore**.', 64), gfx: { list: {} } },
       { t: T('Erste Überraschung: In Homers **Ilias** kommt das Pferd gar nicht vor. Das Epos endet vor dem Fall Trojas.', 64), gfx: { ilias: {} } },
@@ -478,7 +479,7 @@ export const AHA_KULTUR: Bite[] = [
       { t: T('Die berühmte Fassung schrieb erst der Römer **Vergil**, rund 700 Jahre später, in seiner Aeneis.', 64), gfx: { vergil: {} } },
       { t: T('Dort warnt der Priester Laokoon: „Ich fürchte die Griechen, auch wenn sie **Geschenke** bringen.“ Niemand hört auf ihn.', 64), gfx: { laokoon: {} } },
       { t: T('Aber gab es Troja überhaupt? Lange hielt man es für **erfunden**.', 64), gfx: { pferd: { tf: [1, 0, 220] } } },
-      { t: T('In den 1870ern grub der Kaufmann **Heinrich Schliemann** am Hügel Hisarlık in der heutigen Türkei – und fand eine Stadt.', 64), gfx: { schliemann: {} } },
+      { t: T('In den 1870ern grub der Kaufmann **Heinrich Schliemann** am Hügel Hisarlık in der heutigen Türkei – und fand eine Stadt.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 35, 1.2], cap: 'Heinrich Schliemann' } } },
       { t: T('Genauer: **neun Städte** übereinander. Jede war auf den Trümmern der vorigen gebaut.', 64), gfx: { schichten: {} } },
       { t: T('Schliemann grub hastig in die Tiefe – und **zerstörte** dabei gerade die Schichten, die zur Zeit eines Trojanischen Krieges passen könnten.', 64), gfx: { schichten: {} } },
       { t: T('Sein berühmter **„Schatz des Priamos“** war über tausend Jahre älter als jeder König Priamos.', 64), gfx: { schatz: {} } },

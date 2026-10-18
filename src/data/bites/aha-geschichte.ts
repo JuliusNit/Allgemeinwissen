@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, clock, cross, crowd, dashes, fig, hatch, hbars, ink, question, rays, st, star, text, timeline, type P } from './draw'
 import { ball, box, bullets, sun, waveP } from './kit'
 
@@ -73,7 +74,7 @@ export const AHA_GESCHICHTE: Bite[] = [
     hook: 'Lebte Kleopatra näher an den Pyramiden oder an der Mondlandung?',
     mood: 'episch',
     ambience: 'wind',
-    images: [],
+    images: [img('mondlandung'), img('kleopatra-bueste')],
     draw: {
       beide(g) {
         pyramid(g, 100, 380, 1)
@@ -149,11 +150,11 @@ export const AHA_GESCHICHTE: Bite[] = [
       { t: T('Für viele liegen Kleopatra und die Pyramiden im selben Topf: **altes Ägypten**, irgendwann ganz früh.', 64), gfx: { gefuehl: {} } },
       { t: T('Die Cheops-Pyramide entstand um **2560 vor Christus**.', 64), gfx: { pyr: {} } },
       { t: T('Kleopatra starb im Jahr **30 vor Christus** – fast zweieinhalb Jahrtausende später.', 64), gfx: { kleo: {} } },
-      { t: T('Und die Mondlandung? 1969. Von Kleopatra aus gerechnet rund **2.000 Jahre**.', 64), gfx: { strahl: {} } },
+      { t: T('Und die Mondlandung? 1969. Von Kleopatra aus gerechnet rund **2.000 Jahre**.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Buzz Aldrin auf dem Mond, 1969' } } },
       { t: T('Kleopatra lebte also **näher an der Mondlandung** als am Bau der Großen Pyramide.', 64), gfx: { strahl: {} } },
       { t: T('Für sie waren die Pyramiden schon **uralte Ruinen** – älter, als das Römische Reich für uns heute ist.', 64), gfx: { antike: {} } },
       { t: T('Schon um 450 vor Christus besuchte der Grieche Herodot die Pyramiden wie ein **Tourist** – und schrieb Legenden darüber auf.', 64), gfx: { herodot: {} } },
-      { t: T('Noch eine Überraschung: Kleopatra war keine ägyptische Prinzessin im engeren Sinn. Ihre Familie, die **Ptolemäer**, stammte aus Makedonien.', 64), gfx: { griechin: {} } },
+      { t: T('Noch eine Überraschung: Kleopatra war keine ägyptische Prinzessin im engeren Sinn. Ihre Familie, die **Ptolemäer**, stammte aus Makedonien.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 40, 1.05], cam2: [50, 40, 1.2], cap: 'Kleopatra VII., Altes Museum Berlin' } } },
       { t: T('Sie soll die erste ihrer Familie gewesen sein, die überhaupt **Ägyptisch** sprach – nach fast 300 Jahren Herrschaft.', 64), gfx: { griechin: {} } },
       { t: T('Als die Pyramiden gebaut wurden, lebten auf einer Insel im Nordpolarmeer übrigens noch **Mammuts**.', 64), gfx: { mammut: {} } },
       { t: T('Die Universität **Oxford** unterrichtete schon, bevor die Azteken ihre Hauptstadt Tenochtitlan gründeten.', 64), gfx: { oxford: {} } },
@@ -175,7 +176,7 @@ export const AHA_GESCHICHTE: Bite[] = [
     hook: 'Wofür wurde die Schrift erfunden – für Gedichte?',
     mood: 'raetsel',
     ambience: 'wind',
-    images: [],
+    images: [img('keilschrift'), img('ea-nasir')],
     draw: {
       tafel(g) {
         tablet(g, 90, 130, 180, 230)
@@ -255,7 +256,7 @@ export const AHA_GESCHICHTE: Bite[] = [
     scenes: [
       { t: HOOK(476), gfx: { tafel: {} } },
       { t: T('Die älteste bekannte Schrift entstand vor über 5.000 Jahren in **Mesopotamien** – im heutigen Irak, in Städten wie Uruk.', 64), gfx: { uruk: {} } },
-      { t: T('Und die ersten Texte sind keine Gedichte, keine Gebete, keine Geschichten. Sie sind **Buchhaltung**.', 64), gfx: { tafel: { tf: [1, 0, 260] } } },
+      { t: T('Und die ersten Texte sind keine Gedichte, keine Gebete, keine Geschichten. Sie sind **Buchhaltung**.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Frühe Verwaltungstafel aus Uruk' } } },
       { t: T('Listen über Getreide, Bier, Schafe, **Arbeitsstunden**: Wer hat was geliefert, wer schuldet wem?', 64), gfx: { gueter: {} } },
       { t: T('In wachsenden Städten verwalteten Tempel riesige Vorräte. Kein Gedächtnis kann sich das alles **merken**.', 64), gfx: { gueter: {} } },
       { t: T('Vorher nutzte man kleine **Zählsteine** aus Ton – je Schaf ein Stein, verschlossen in einer Tonkugel.', 64), gfx: { marken: {} } },
@@ -264,7 +265,7 @@ export const AHA_GESCHICHTE: Bite[] = [
       { t: T('Daher der Name: **Keilschrift**. Aus Zahlen und Bildzeichen für Dinge wurde nach und nach eine Schrift für ganze Sätze.', 64), gfx: { zeichen: {} } },
       { t: T('Einer der ersten Menschen, dessen Namen wir kennen, war vermutlich ein **Buchhalter**: Auf vielen Tafeln steht „Kuschim“.', 64), gfx: { kushim: {} } },
       { t: T('Viele Tafeln verzeichnen **Rationen**: Arbeiter bekamen ihren Lohn in Brot und Bier.', 64), gfx: { bier: {} } },
-      { t: T('Erhalten ist sogar eine der ältesten **Beschwerden**: Ein Kunde namens Nanni schimpft um 1750 vor Christus über minderwertiges Kupfer.', 64), gfx: { beschwerde: {} } },
+      { t: T('Erhalten ist sogar eine der ältesten **Beschwerden**: Ein Kunde namens Nanni schimpft um 1750 vor Christus über minderwertiges Kupfer.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Beschwerde an Ea-nasir, British Museum' } } },
       { t: T('Gelernt wurde in Schreiberschulen – jahrelang, mit **Hunderten** von Zeichen. Lesen und Schreiben blieb Sache weniger Fachleute.', 64), gfx: { zeichen: {} } },
       { t: T('Literatur kam erst viel später. Das **Gilgamesch-Epos**, eines der ältesten Werke, wurde rund tausend Jahre danach aufgeschrieben.', 64), gfx: { gilgamesch: {} } },
       { t: T('Ton ist erstaunlich haltbar. Brannten Städte ab, wurden die Tafeln **hart gebrannt** – und blieben Jahrtausende erhalten.', 64), gfx: { feuer: {} } },
@@ -283,7 +284,7 @@ export const AHA_GESCHICHTE: Bite[] = [
     hook: 'Warum hat die Woche sieben Tage?',
     mood: 'kosmisch',
     ambience: 'nacht',
-    images: [],
+    images: [img('astro-tafel'), img('revolutionskalender')],
     draw: {
       sieben(g) {
         for (let i = 0; i < 7; i++) calPage(g, 26 + (i % 4) * 80, 100 + Math.floor(i / 4) * 130, 68, ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'][i], String(i + 1), i * 100, i > 4)
@@ -357,7 +358,7 @@ export const AHA_GESCHICHTE: Bite[] = [
       { t: T('Ein möglicher Ursprung: Der Mond wechselt seine Gestalt in vier Schritten – jeder dauert etwa **sieben Tage**.', 64), gfx: { phasen: {} } },
       { t: T('Ganz glatt geht das nicht auf: Ein Mondmonat hat 29,5 Tage. Viermal sieben ergibt nur **28**.', 64), gfx: { phasen: {} } },
       { t: T('Wichtiger war wohl der Himmel bei Nacht. Mit bloßem Auge sah man **sieben** Himmelskörper, die vor den Sternen wandern.', 64), gfx: { planeten: {} } },
-      { t: T('Sonne, Mond, Mars, Merkur, Jupiter, Venus und Saturn. Für die Babylonier war die Sieben darum eine **heilige Zahl**.', 64), gfx: { planeten: {} } },
+      { t: T('Sonne, Mond, Mars, Merkur, Jupiter, Venus und Saturn. Für die Babylonier war die Sieben darum eine **heilige Zahl**.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Babylonische Sternenliste MUL.APIN' } } },
       { t: T('Das Judentum prägte die Woche mit dem **Sabbat**: sechs Tage Arbeit, am siebten Ruhe – wie in der Schöpfungsgeschichte.', 64), gfx: { babylon: {} } },
       { t: T('Die Römer verbanden beides: Jeder Wochentag bekam einen **Planeten** als Schutzherrn.', 64), gfx: { babylon: {} } },
       { t: T('Das steckt bis heute in den Namen: **Sonntag** und Montag nach Sonne und Mond. Im Französischen heißt Dienstag mardi – nach Mars.', 64), gfx: { namen: {} } },
@@ -365,7 +366,7 @@ export const AHA_GESCHICHTE: Bite[] = [
       { t: T('Und im Englischen steckt im Saturday noch der **Saturn**.', 64), gfx: { namen: {} } },
       { t: T('In vielen Sprachen heißt der Samstag noch nach dem **Sabbat**: sábado, sabato, Samstag.', 64), gfx: { namen: {} } },
       { t: T('321 erklärte Kaiser Konstantin den Sonntag im Römischen Reich zum **Ruhetag**.', 64), gfx: { konstantin: {} } },
-      { t: T('Seitdem versuchten Revolutionäre, die Woche abzuschaffen. Das revolutionäre Frankreich führte 1793 eine Woche mit **zehn Tagen** ein.', 64), gfx: { revolution: {} } },
+      { t: T('Seitdem versuchten Revolutionäre, die Woche abzuschaffen. Das revolutionäre Frankreich führte 1793 eine Woche mit **zehn Tagen** ein.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Republikanischer Kalender, Frankreich' } } },
       { t: T('Nur jeder zehnte Tag war frei. Die Leute murrten – Napoleon schaffte den Kalender **wieder ab**.', 64), gfx: { revolution: {} } },
       { t: T('Die Sowjetunion probierte ab 1929 eine **Fünf-Tage-Woche**, in der jeder an einem anderen Tag frei hatte.', 64), gfx: { sowjet: {} } },
       { t: T('Die Maschinen liefen ohne Pause – aber Familien und Freunde hatten **nie gemeinsam** frei. 1940 kehrte man zur Sieben-Tage-Woche zurück.', 64), gfx: { familie: {} } },
@@ -382,7 +383,7 @@ export const AHA_GESCHICHTE: Bite[] = [
     hook: 'Warum fand die Oktoberrevolution im November statt?',
     mood: 'raetsel',
     ambience: 'uhr',
-    images: [],
+    images: [img('winterpalast'), img('gregor')],
     draw: {
       blaetter(g) {
         calPage(g, 40, 120, 120, 'Oktober', '25')
@@ -456,13 +457,13 @@ export const AHA_GESCHICHTE: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), gfx: { blaetter: {} } },
-      { t: T('Die Bolschewiki stürmten den Winterpalast in Petrograd am **25. Oktober 1917**. Daher der Name.', 64), gfx: { zwei: {} } },
+      { t: T('Die Bolschewiki stürmten den Winterpalast in Petrograd am **25. Oktober 1917**. Daher der Name.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Winterpalast, Sankt Petersburg' } } },
       { t: T('In Berlin, Paris oder London war an diesem Tag aber schon der **7. November**.', 64), gfx: { zwei: {} } },
       { t: T('Russland rechnete noch mit einem älteren Kalender – dem **julianischen**, eingeführt von Julius Caesar.', 64), gfx: { caesar: {} } },
       { t: T('Caesars Jahr dauert genau 365 Tage und 6 Stunden. Das echte Sonnenjahr ist etwa **11 Minuten** kürzer.', 64), gfx: { jahr: {} } },
       { t: T('11 Minuten klingen nach nichts. Doch über Jahrhunderte summierten sie sich: Bis 1582 war der Kalender **zehn Tage** voraus.', 64), gfx: { drift: {} } },
       { t: T('Das störte vor allem die Kirche: Der **Ostertermin** hängt am Frühlingsbeginn – und der verschob sich im Kalender.', 64), gfx: { drift: {} } },
-      { t: T('Papst Gregor XIII. griff 1582 durch: Auf Donnerstag, den 4. Oktober, folgte direkt **Freitag, der 15. Oktober**.', 64), gfx: { gregor: {} } },
+      { t: T('Papst Gregor XIII. griff 1582 durch: Auf Donnerstag, den 4. Oktober, folgte direkt **Freitag, der 15. Oktober**.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 35, 1.2], cap: 'Lavinia Fontana: Papst Gregor XIII.' } } },
       { t: T('Und eine neue Schaltjahr-Regel: Volle Jahrhunderte sind **keine** Schaltjahre – außer sie sind durch 400 teilbar. Darum war 2000 eins.', 64), gfx: { regel: {} } },
       { t: T('Katholische Länder machten sofort mit. Viele protestantische Länder wollten keinen Kalender **vom Papst**.', 64), gfx: { laender: {} } },
       { t: T('Die evangelischen Gebiete Deutschlands wechselten erst 1700, Großbritannien 1752. Dort folgte auf den 2. September der **14.**', 64), gfx: { england: {} } },
@@ -484,7 +485,7 @@ export const AHA_GESCHICHTE: Bite[] = [
     hook: 'Wie konnte eine falsche Abzweigung einen Weltkrieg auslösen?',
     mood: 'dunkel',
     ambience: 'stadt',
-    images: [],
+    images: [img('franz-ferdinand'), img('princip')],
     draw: {
       karte(g) {
         ink(g, waveP(20, 340, 310, 4, 60), { w: 2.2, t: 700 })
@@ -567,12 +568,12 @@ export const AHA_GESCHICHTE: Bite[] = [
     scenes: [
       { t: HOOK(476), gfx: { karte: {} } },
       { t: T('Sarajevo, 28. Juni 1914. Der österreichische Thronfolger **Franz Ferdinand** besucht mit seiner Frau Sophie die Stadt.', 64), gfx: { sarajevo: {} } },
-      { t: T('Sie fahren im **offenen Wagen** durch die Straßen. Entlang der Route warten mehrere junge Verschwörer.', 64), gfx: { auto: {} } },
+      { t: T('Sie fahren im **offenen Wagen** durch die Straßen. Entlang der Route warten mehrere junge Verschwörer.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Franz Ferdinand und Sophie, 28. Juni 1914' } } },
       { t: T('Einer wirft eine **Bombe**. Sie prallt ab und explodiert unter dem folgenden Wagen. Das Paar bleibt unverletzt.', 64), gfx: { bombe: {} } },
       { t: T('Nach einem Empfang im Rathaus will Franz Ferdinand die **Verletzten** im Krankenhaus besuchen.', 64), gfx: { auto: {} } },
       { t: T('Doch niemand sagt dem Fahrer, dass sich die Route geändert hat. An einer Kreuzung biegt er **falsch** ab.', 64), gfx: { route: {} } },
       { t: T('Jemand ruft. Der Fahrer **bremst** und will zurücksetzen. Der Wagen steht still.', 64), gfx: { route: {} } },
-      { t: T('Genau dort steht einer der Verschwörer: der 19-jährige **Gavrilo Princip**. Er hatte den Plan eigentlich schon aufgegeben.', 64), gfx: { princip: {} } },
+      { t: T('Genau dort steht einer der Verschwörer: der 19-jährige **Gavrilo Princip**. Er hatte den Plan eigentlich schon aufgegeben.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 35, 1.2], cap: 'Gavrilo Princip' } } },
       { t: T('Er schießt zweimal. Franz Ferdinand und Sophie **sterben** wenige Minuten später.', 64), gfx: { princip: {} } },
       { t: T('Was folgt, ist eine **Kettenreaktion**: Österreich-Ungarn stellt Serbien ein Ultimatum, das kaum zu erfüllen ist.', 64), gfx: { kette: {} } },
       { t: T('Russland steht zu Serbien, Deutschland zu Österreich-Ungarn, Frankreich zu Russland. Bündnis zieht **Bündnis** nach sich.', 64), gfx: { kette: {} } },
@@ -596,7 +597,7 @@ export const AHA_GESCHICHTE: Bite[] = [
     hook: 'Fiel die Berliner Mauer wegen eines Versprechers?',
     mood: 'episch',
     ambience: 'stadt',
-    images: [],
+    images: [img('berliner-mauer'), img('schabowski'), img('mauerfall')],
     draw: {
       mauer(g) {
         wall(g, 30, 330, 380, 120)
@@ -676,19 +677,19 @@ export const AHA_GESCHICHTE: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), gfx: { mauer: {} } },
-      { t: T('Seit 1961 teilte die Mauer Berlin. Mindestens **140 Menschen** starben bei Fluchtversuchen an ihr.', 64), gfx: { bau: {} } },
+      { t: T('Seit 1961 teilte die Mauer Berlin. Mindestens **140 Menschen** starben bei Fluchtversuchen an ihr.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Im Sommer 1989 bröckelte die DDR: Ungarn öffnete seine Grenze, Zehntausende flohen über Ungarn und Österreich **in den Westen**.', 64), gfx: { ungarn: {} } },
       { t: T('Gleichzeitig demonstrierten jeden Montag mehr Menschen. Am 9. Oktober zogen in Leipzig rund **70.000** friedlich durch die Stadt.', 64), gfx: { leipzig: {} } },
       { t: T('Die Führung der DDR wollte Druck ablassen und plante eine **neue Reiseregelung**. Sie sollte am nächsten Morgen gelten – mit Antrag.', 64), gfx: { zettel: {} } },
       { t: T('Am 9. November gab Politbüro-Mitglied **Günter Schabowski** eine live übertragene Pressekonferenz.', 64), gfx: { presse: {} } },
-      { t: T('Kurz vorher hatte er einen **Zettel** mit der Regelung bekommen – ohne Erklärung, ohne Sperrfrist.', 64), gfx: { zettel: {} } },
+      { t: T('Kurz vorher hatte er einen **Zettel** mit der Regelung bekommen – ohne Erklärung, ohne Sperrfrist.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Schabowskis Notizzettel, Haus der Geschichte' } } },
       { t: T('Er las ihn stockend vor. Ein Journalist fragte: **Ab wann** gilt das?', 64), gfx: { presse: {} } },
       { t: T('Schabowski blätterte, zögerte – und sagte: „Das tritt nach meiner Kenntnis … ist das **sofort, unverzüglich**.“', 64), gfx: { sofort: {} } },
       { t: T('Westdeutsche Nachrichten meldeten am Abend: Die DDR öffnet ihre Grenzen. Viele DDR-Bürger sahen **Westfernsehen**.', 64), gfx: { tv: {} } },
       { t: T('Tausende strömten zu den Grenzübergängen. An der **Bornholmer Straße** wurde die Menge immer größer.', 64), gfx: { menge: {} } },
       { t: T('Die Grenzer hatten keine Befehle. Gegen 23:30 Uhr ließ Oberstleutnant **Harald Jäger** den Schlagbaum öffnen – auf eigene Verantwortung.', 64), gfx: { jaeger: { cls: 'a1' } } },
       { t: T('Jäger sagte später, er habe verhindern wollen, dass in der Menge **Menschen sterben**. Er handelte gegen seine Befehle.', 64), gfx: { jaeger: { cls: 'a1' } } },
-      { t: T('Andere Übergänge folgten. In der Nacht feierten Menschen aus Ost und West auf der Mauer. Es fiel **kein Schuss**.', 64), gfx: { offen: {} } },
+      { t: T('Andere Übergänge folgten. In der Nacht feierten Menschen aus Ost und West auf der Mauer. Es fiel **kein Schuss**.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'An der Mauer, Dezember 1989' } } },
       { t: T('War es also ein Versprecher? Der Zettel war der **Auslöser**. Aber die Mauer war längst morsch.', 64), gfx: { offen: {} } },
       { t: T('Ohne Massenflucht, ohne mutige Demonstranten – und ohne Michail Gorbatschow, der keine **Panzer** schickte – wäre es anders gekommen.', 64), gfx: { leipzig: {} } },
       { t: T('Schabowski sagte später, er habe die Tragweite in dem Moment **nicht begriffen**. Der Zettel ist heute im Museum.', 64), gfx: { zettel: {} } },
@@ -705,7 +706,7 @@ export const AHA_GESCHICHTE: Bite[] = [
     hook: 'Warum ist der Dezember der zwölfte Monat – obwohl „decem“ zehn heißt?',
     mood: 'raetsel',
     ambience: 'glocke',
-    images: [],
+    images: [img('caesar')],
     draw: {
       blatt(g) {
         calPage(g, 110, 110, 140, 'December', '10?')
@@ -775,7 +776,7 @@ export const AHA_GESCHICHTE: Bite[] = [
       { t: T('Ab 153 vor Christus traten die höchsten Beamten, die Konsuln, ihr Amt am **1. Januar** an. So rückte der Jahresbeginn nach vorn.', 64), gfx: { konsuln: {} } },
       { t: T('Die alten Monatsnamen blieben – und stimmen seitdem **nicht mehr**.', 64), gfx: { zahlen: {} } },
       { t: T('Der fünfte und sechste Monat hießen ursprünglich Quintilis und Sextilis. Sie wurden umbenannt: in **Juli** für Julius Caesar und August für Kaiser Augustus.', 64), gfx: { julius: {} } },
-      { t: T('Caesar reformierte 46 vor Christus auch den ganzen Kalender. Um alles geradezurücken, dauerte jenes Jahr **445 Tage**.', 64), gfx: { verwirrung: {} } },
+      { t: T('Caesar reformierte 46 vor Christus auch den ganzen Kalender. Um alles geradezurücken, dauerte jenes Jahr **445 Tage**.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 30, 1.05], cam2: [50, 30, 1.2], cap: 'Gaius Julius Caesar' } } },
       { t: T('Und warum ist der Februar so kurz – und bekommt den **Schalttag**?', 64), gfx: { februar: {} } },
       { t: T('Er war lange der **letzte** Monat des Jahres. Was am Ende übrig blieb, ging an ihn – auch der zusätzliche Tag.', 64), gfx: { februar: {} } },
       { t: T('Oft hört man, Augustus habe dem Februar einen Tag **gestohlen**, damit sein August so lang ist wie Caesars Juli.', 64), gfx: { mythos: {} } },
@@ -794,7 +795,7 @@ export const AHA_GESCHICHTE: Bite[] = [
     hook: 'Warum haben wir Zeitzonen – und was hat die Eisenbahn damit zu tun?',
     mood: 'verspielt',
     ambience: 'uhr',
-    images: [],
+    images: [img('bahnhofsuhr'), img('greenwich')],
     draw: {
       uhren(g) {
         clock(g, 80, 260, 50, 330, 0)
@@ -862,11 +863,11 @@ export const AHA_GESCHICHTE: Bite[] = [
       { t: T('Weil sich die Erde dreht, kommt Mittag weiter im Westen später – etwa **vier Minuten** pro Längengrad.', 64), gfx: { vier: {} } },
       { t: T('Wenn es in Berlin zwölf schlug, war es in Köln erst etwa **11:35 Uhr**.', 64), gfx: { staedte: {} } },
       { t: T('Solange man mit der Kutsche reiste, störte das niemanden. Dann kam die **Eisenbahn**.', 64), gfx: { uhren: { tf: [1, 0, 200] } } },
-      { t: T('Fahrpläne wurden zum Chaos: Welche Zeit gilt bei Abfahrt, welche bei Ankunft? Manche Bahnhöfe hatten **mehrere Uhren**.', 64), gfx: { bahnhof: {} } },
+      { t: T('Fahrpläne wurden zum Chaos: Welche Zeit gilt bei Abfahrt, welche bei Ankunft? Manche Bahnhöfe hatten **mehrere Uhren**.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die Bahngesellschaften griffen zur Selbsthilfe. Britische Bahnen fuhren ab 1847 einheitlich nach der Zeit von **Greenwich**.', 64), gfx: { bahnhof: {} } },
       { t: T('In den USA gab es Dutzende Ortszeiten. Am 18. November 1883 stellten die Bahnen auf **vier Zonen** um.', 64), gfx: { usa: {} } },
       { t: T('Viele Orte erlebten an diesem Tag **zwei Mittage**: Die Uhren wurden zurückgedreht, und es schlug noch einmal zwölf.', 64), gfx: { usa: {} } },
-      { t: T('1884 einigten sich Staaten auf einen Nullmeridian: die Sternwarte in **Greenwich** bei London.', 64), gfx: { greenwich: {} } },
+      { t: T('1884 einigten sich Staaten auf einen Nullmeridian: die Sternwarte in **Greenwich** bei London.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Sternwarte Greenwich' } } },
       { t: T('Die Idee: 24 Zonen, je 15 Längengrade breit – also je **eine Stunde**.', 64), gfx: { zonen: {} } },
       { t: T('Das Deutsche Reich führte am 1. April 1893 die **Mitteleuropäische Zeit** ein. Vorher hatte etwa Baden eigene Zeit.', 64), gfx: { mez: {} } },
       { t: T('Zeitzonen folgen heute aber oft der **Politik**, nicht der Sonne.', 64), gfx: { zonen: {} } },
@@ -886,7 +887,7 @@ export const AHA_GESCHICHTE: Bite[] = [
     hook: 'Warum ist ein Marathon genau 42,195 Kilometer lang?',
     mood: 'episch',
     ambience: 'atem',
-    images: [],
+    images: [img('marathon'), img('pietri')],
     draw: {
       laeufer(g) {
         runner(g, 180, 380, 3)
@@ -952,7 +953,7 @@ export const AHA_GESCHICHTE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { laeufer: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die Legende kennt fast jeder: 490 vor Christus besiegten die Athener die Perser bei **Marathon**.', 64), gfx: { legende: {} } },
       { t: T('Ein Bote lief rund 40 Kilometer nach Athen, rief „Wir haben gesiegt!“ – und brach **tot** zusammen.', 64), gfx: { bote: {} } },
       { t: T('Nur: Der Geschichtsschreiber Herodot, der knapp 50 Jahre später schrieb, erzählt etwas **anderes**.', 64), gfx: { herodot: {} } },
@@ -964,7 +965,7 @@ export const AHA_GESCHICHTE: Bite[] = [
       { t: T('Dann kam **London 1908**. Der Start wurde an Schloss Windsor gelegt, damit die königliche Familie zusehen konnte.', 64), gfx: { windsor: {} } },
       { t: T('Das Ziel lag im Stadion – genau vor der **königlichen Loge**.', 64), gfx: { loge: {} } },
       { t: T('Heraus kamen 26 Meilen und 385 Yards: **42,195 Kilometer**.', 64), gfx: { loge: {} } },
-      { t: T('Das Rennen selbst wurde legendär: Der Italiener **Dorando Pietri** kam als Erster ins Stadion – völlig erschöpft.', 64), gfx: { pietri: {} } },
+      { t: T('Das Rennen selbst wurde legendär: Der Italiener **Dorando Pietri** kam als Erster ins Stadion – völlig erschöpft.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Dorando Pietri im Ziel, London 1908' } } },
       { t: T('Er brach mehrmals zusammen, Helfer stützten ihn über die Ziellinie. Er wurde **disqualifiziert** – und von der Königin mit einem Pokal geehrt.', 64), gfx: { pietri: {} } },
       { t: T('Die Londoner Länge setzte sich durch. 1921 legte der Leichtathletik-Verband sie **verbindlich** fest.', 64), gfx: { norm: {} } },
       { t: T('Die besten Läufer schaffen sie heute in gut **zwei Stunden** – fast 21 km/h, über die ganze Strecke.', 64), gfx: { zwei: {} } },
