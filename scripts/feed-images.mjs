@@ -86,19 +86,89 @@ export const IMAGES = {
   "grace-hopper": "File:Commodore Grace M. Hopper, USN (covered).jpg",
   "einstein": "File:Einstein 1921 by F Schmutzer - restoration.jpg",
   "van-gogh-sonnenblumen": "File:Vincent van Gogh - Sunflowers (1888, National Gallery London).jpg",
+  "himmel-blau": "File:Colorful sky with orange clouds reflecting in the water of a paddy field, at sunset, Vang Vieng, Laos.jpg",
+  "rayleigh": "File:John William Strutt, Lord Rayleigh. Photograph by Elliott & F Wellcome V0027060.jpg",
+  "regenbogen": "File:Double rainbow Hertfordshire England.jpg",
+  "descartes": "File:Frans Hals - Portret van René Descartes.jpg",
+  "nebelbogen": "File:Fogbow in Florida.jpg",
+  "flugzeug": "File:EI-RJU Cityjet British Aerospace Avro RJ85, takeoff from Schiphol (EHAM-AMS) runway 36L pic2.JPG",
+  "wirbelschleppe": "File:Airplane vortex edit.jpg",
+  "a380": "File:Qantas a380 vh-oqa takeoff heathrow arp.jpg",
+  "iss-astronauten": "File:Astronaut Nichole Ayers poses for a portrait inside the Kibo laboratory module (iss072e978952).jpg",
+  "ebbe": "File:Langstone Harbour at Southsea during low tide.JPG",
+  "fundy": "File:Hopewell Rocks New Brunswick (25194250697).jpg",
+  "winter": "File:Russia, Ust-Orda, Kutulik - Голуметь WMID6786307.jpg",
+  "mitternachtssonne": "File:Midnight sun in Tromsø.jpg",
+  "mond-vorderseite": "File:Moon nearside LRO color mosaic.png",
+  "mond-rueckseite": "File:527006main farside.1600.jpg",
+  "sonne-sdo": "File:Full disk of the Sun (eso1703e-comparisona).jpg",
+  "superkamiokande": "File:Neutrino detector - National Museum of Nature and Science, Tokyo - DSC07824.JPG",
+  "milchstrasse": "File:035 Vertical panorama of the Milky Way during Perseids seen from Oeschinensee Photo by Giles Laurent.jpg",
+  "olbers": "File:Heinrich Wilhelm Matthias Olbers. Lithograph. Wellcome V0004359.jpg",
+  "poe": "File:Edgar Allan Poe, circa 1849, restored, squared off.jpg",
+  "hornantenne": "File:Horn Antenna-in Holmdel, New Jersey - restoration1.jpg",
+  "ernst-mach": "File:Mach, Ernst (1905).jpg",
+  "concorde": "File:Tupolev Tu-144 (4322159916).jpg",
+  "schneeflocke": "File:Snowflake macro photography 1.jpg",
+  "eisberg": "File:Iceberg-Antarctica IMG 4445c.jpg",
+  "zwiebel": "File:Chopped onions on a cutting board with knife.jpg",
+  "kerze": "File:Burning In Wind (19536039).jpeg",
+  "faraday": "File:Michael Faraday sitting crop.jpg",
+  "seifenblasen": "File:Reflection in a soap bubble edit.jpg",
+  "streusalz": "File:CBJ Plow truck 3149.jpg",
+  "meereis": "File:North Pole, Arctic Ocean, sea ice 03.jpg",
+  "popcorn": "File:Day 356 - Photo365 - Popcorn (23894551246).jpg",
+  "rost": "File:Mouette tridactyle (Rissa tridactyla) (Ifremer 00555-66706 - 18914).jpg",
+  "freiheitsstatue": "File:LibertyStatue.JPG",
+  "mars-oberflaeche": "File:PIA26554A-Mars-CuriosityRover-UbajaraSite-20230430.jpg",
+  "steak": "File:Crowd Cow seared steak in a cast iron pan.jpg",
+  "brezel": "File:Pretzel, Auntie Annes, Kingston MA.jpg",
+  "eiche": "File:Solitary oak tree at Hangthwaite - geograph.org.uk - 7153805.jpg",
+  "van-helmont": "File:John Baptist van Helmont, PA07845.jpg",
+  "baby": "File:Newborn baby sleeps in a basket.jpg",
+  "leguan": "File:Male Agama Lizard (2405318648).jpg",
+  "krake": "File:Pulpo común (Octopus vulgaris), Parque natural de la Arrábida, Portugal, 2020-07-21, DD 33.jpg",
+  "dna-modell": "File:20251019 Replica DNA double helix model Berlin 03.jpg",
+  "karyogramm": "File:Human karyotype (248 27) Human karyotype.jpg",
+  "blaues-auge": "File:A blue eye.jpg",
 }
 async function thumb(title) {
+  try {
+    return await fromApi(title)
+  } catch (e) {
+    if (!/429|JSON|fetch/i.test(String(e.message))) throw e
+    return await fromPage(title)
+  }
+}
+
+async function fromApi(title) {
   const u = 'https://commons.wikimedia.org/w/api.php?' + new URLSearchParams({
     action: 'query', format: 'json', titles: title, prop: 'imageinfo', iiprop: 'url|extmetadata', iiurlwidth: '1400',
     iiextmetadatafilter: 'LicenseShortName',
   })
-  const j = await (await fetch(u, { headers: { 'User-Agent': UA } })).json()
+  const r = await fetch(u, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(60000) })
+  if (r.status === 429) throw new Error('429')
+  const j = await r.json()
   const ii = Object.values(j.query.pages)[0].imageinfo?.[0]
   if (!ii) throw new Error(`nicht gefunden: ${title}`)
   const lic = ii.extmetadata?.LicenseShortName?.value ?? ''
-  if (!/public domain|cc0|no restrictions|^cc by(-sa)? [\d.]+$/i.test(lic)) throw new Error(`keine freie Lizenz (${lic}): ${title}`)
+  if (!FREE.test(lic)) throw new Error(`keine freie Lizenz (${lic}): ${title}`)
   return ii.thumburl ?? ii.url
 }
+
+// Ausweg, wenn die API gedrosselt ist: Lizenz und Originaldatei von der Dateiseite lesen
+async function fromPage(title) {
+  const r = await fetch(`https://commons.wikimedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(60000) })
+  if (!r.ok) throw new Error(`HTTP ${r.status}: ${title}`)
+  const html = (await r.text()).replace(/&#95;/g, '_')
+  const lics = [...html.matchAll(/licensetpl_short"[^>]*>([^<]*)</g)].map((m) => m[1].trim())
+  if (!lics.some((l) => FREE.test(l))) throw new Error(`keine freie Lizenz (${lics.join(', ')}): ${title}`)
+  const m = html.match(/https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/[0-9a-f]\/[0-9a-f]{2}\/[^"?]+/)
+  if (!m) throw new Error(`keine Datei: ${title}`)
+  return m[0]
+}
+
+const FREE = /public domain|^pd|cc0|no restrictions|^cc by(-sa)? [\d.]+/i
 
 const only = process.argv.slice(2)
 fs.mkdirSync(OUT, { recursive: true })
@@ -106,11 +176,13 @@ for (const [name, title] of Object.entries(IMAGES)) {
   const file = path.join(OUT, `${name}.webp`)
   if (only.length ? !only.includes(name) : fs.existsSync(file)) continue
   try {
-    const url = await thumb(title)
+    let url = await thumb(title)
     let res
-    for (let i = 0; i < 4; i++) {
-      res = await fetch(url, { headers: { 'User-Agent': UA } })
+    for (let i = 0; i < 6; i++) {
+      res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(60000) })
       if (res.status !== 429) break
+      // Vorschaugrößen werden bei Last gedrosselt – dann die Originaldatei nehmen
+      if (i === 1 && url.includes('/thumb/')) url = await fromPage(title)
       await new Promise((r) => setTimeout(r, 4000 * (i + 1)))
     }
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
