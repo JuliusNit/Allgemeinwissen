@@ -153,6 +153,13 @@ export function water(g: Element, cx: number, cy: number, s = 1, rot = 0, d = 0)
   ball(g, cx, cy, 13 * s, { d, fill: 'hell', w: 2.2, t: 0 })
 }
 
+// Binnenmeere, die über das Land gezeichnet werden (Ostsee, Schwarzes Meer, Kaspisches Meer)
+const SEAS: [number, number][][] = [
+  [[10, 54], [14, 54], [20, 54.5], [21, 57], [24, 57], [22, 59], [28, 60], [23, 60], [21, 61], [21, 63], [25, 65], [22, 65.8], [17, 62.5], [18, 60], [16, 57], [13, 55.5], [10, 54]],
+  [[28, 41], [32, 41.2], [37, 41], [41, 41.5], [41.5, 42.5], [37, 44.5], [39, 47], [35, 46], [33, 44.5], [30, 46], [28, 44], [28, 41]],
+  [[47, 45], [53, 46], [54, 42], [53, 37], [50, 37], [49, 40], [47, 43], [47, 45]],
+]
+
 // Küstenlinien (Länge, Breite in Grad), grob vereinfacht – reicht für Kugeln bis ~250 px
 const COASTS: [number, number][][] = [
   // Afrika
@@ -219,6 +226,12 @@ export function earth(g: Element, cx: number, cy: number, r: number, d = 0, o: {
     hatch(g, pts, d + 500 + ci * 30)
     ink(g, pts, { w: o.w ?? (r > 90 ? 1.7 : 1.3), d: d + 250 + ci * 60, t: 600, p: 0.3 })
   })
+  for (const sea of SEAS) {
+    const pts = sea.map(([lo, la]) => pr(lo, la))
+    if (!pts.every((q) => q.front)) continue
+    blank(g, pts.map((q) => q.p))
+    ink(g, pts.map((q) => q.p), { w: (o.w ?? 1.3) * 0.8, d: d + 900, t: 400, p: 0.3 })
+  }
   if (o.grid) {
     for (let lat = -60; lat <= 60; lat += 30) {
       const pts: P[] = []
@@ -607,6 +620,12 @@ export function mapRegion(g: Element, x: number, y: number, w: number, h: number
     hatch(c, pts, d + 500 + i * 40)
     ink(c, pts, { w: 1.8, d: d + 200, t: 900, p: 0.3 })
   })
+  for (const sea of SEAS) {
+    const pts: P[] = []
+    for (let k = 0; k < sea.length - 1; k++) for (let j = k ? 1 : 0; j <= 4; j++) pts.push(pr(sea[k][0] + ((sea[k + 1][0] - sea[k][0]) * j) / 4, sea[k][1] + ((sea[k + 1][1] - sea[k][1]) * j) / 4))
+    blank(c, pts)
+    ink(c, pts, { w: 1.6, d: d + 700, t: 600, p: 0.3 })
+  }
   ink(g, RR(x, y, w, h, 6), { w: 2.6, d, t: 700 })
   return pr
 }

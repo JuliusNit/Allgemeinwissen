@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, check, clock, cross, crowd, dashes, eye, fig, group, hatch, hbars, ink, letter, lie, mk, question, rays, st, text, timeline, vbars, type P } from './draw'
-import { axes, ball, bird, box, bullets, carrow, cloud, dot, drop, earth, eyeFront, flake, flame, flow, glide, ground, heart, lens, pie, plot, rad, ripple, smooth, spin, sun, thermo, tree, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, check, clock, cross, crowd, dashes, fig, group, hatch, hbars, ink, letter, lie, mk, question, rays, st, text, timeline, vbars, type P } from './draw'
+import { axes, ball, bird, box, bullets, carrow, cloud, dot, drop, earth, eyeFront, flake, flame, flow, glide, ground, heart, lens, mapRegion, pie, plot, rad, ripple, smooth, spin, sun, thermo, tree, waveP, wobble } from './kit'
 
 // Leben & Körper: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -1763,13 +1763,19 @@ export const AHA_KOERPER: Bite[] = [
     images: [],
     draw: {
       auge(g) {
-        eye(g, 180, 260, 3)
-        hatch(g, [...E(180, 260, 36), ...E(180, 260, 20, 20, 360, 0)], 900)
+        eyeFront(g, 180, 260, 2.6)
+        ink(g, B([30, 150], [100, 110], [260, 110], [330, 150]), { w: 2.4, d: 600, t: 500 })
+        for (let k = 0; k < 9; k++) ink(g, L([60 + k * 30, 140 - Math.sin((k / 8) * Math.PI) * 22], [66 + k * 30, 124 - Math.sin((k / 8) * Math.PI) * 22]), { w: 1.4, d: 800 + k * 40, t: 80 })
       },
       iris(g) {
-        eye(g, 180, 470, 3.4)
-        hatch(g, [...E(180, 470, 40), ...E(180, 470, 22, 22, 360, 0)], 900)
-        text(g, 180, 600, 'Iris', { anchor: 'middle', d: 1000 })
+        // Iris im Querschnitt neben dem Auge: vordere Schicht, Bindegewebe, hintere Pigmentschicht
+        eyeFront(g, 180, 400, 2.2)
+        ink(g, RR(40, 520, 280, 110, 8), { w: 2, d: 800, t: 400 })
+        ink(g, L([40, 550], [320, 550]), { w: 1.2, d: 900, t: 300 })
+        hatch(g, RR(42, 604, 276, 24, 4), 1100, true)
+        ink(g, L([40, 604], [320, 604]), { w: 1.2, d: 1000, t: 300 })
+        for (let k = 0; k < 12; k++) ink(g, B([50 + k * 23, 556], [56 + k * 23, 570], [48 + k * 23, 586], [56 + k * 23, 600]), { w: 0.8, d: 1100 + k * 30, t: 100 })
+        dashes(g, L([226, 430], [300, 520]), { w: 1, d: 800, dash: 3, gap: 4 })
       },
       braun(g) {
         hatch(g, RR(40, 450, 280, 40, 6), 300, true)
@@ -1777,80 +1783,109 @@ export const AHA_KOERPER: Bite[] = [
         ink(g, RR(40, 380, 280, 60, 6), { w: 2.4, d: 100, t: 500 })
         let seed = 3
         const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
-        for (let i = 0; i < 60; i++) dot(g, 50 + rnd() * 260, 388 + rnd() * 44, 3, 500 + i * 15)
-        arrow(g, L([180, 300], [180, 398]), { w: 2.6, d: 900, t: 400, head: 9 })
-        text(g, 196, 320, 'Licht', { cls: 's', d: 900 })
-        text(g, 180, 540, 'viel Melanin: Licht wird geschluckt', { anchor: 'middle', cls: 's', d: 1300 })
+        for (let i = 0; i < 70; i++) dot(g, 50 + rnd() * 260, 388 + rnd() * 44, 3, 500 + i * 15)
+        for (const x of [150, 180, 210]) {
+          const p = L([x, 300], [x + 4, 384])
+          arrow(g, p, { w: 2, d: 900, t: 400, head: 8 })
+          flow(g, p, { n: 2, ms: 1000, d: 1300, r: 2 })
+        }
+        sun(g, 70, 320, 14, 700, 8)
       },
       blau(g) {
         hatch(g, RR(40, 450, 280, 40, 6), 300, true)
         ink(g, RR(40, 450, 280, 40, 6), { w: 2.4, t: 500 })
         ink(g, RR(40, 380, 280, 60, 6), { w: 2.4, d: 100, t: 500 })
+        for (let k = 0; k < 12; k++) ink(g, B([50 + k * 23, 384], [58 + k * 23, 400], [46 + k * 23, 418], [54 + k * 23, 436]), { w: 0.9, d: 400 + k * 30, t: 100 })
         for (const [x, y] of [[80, 400], [250, 420], [300, 396]] as const) dot(g, x, y, 3, 500)
-        arrow(g, L([150, 300], [160, 404]), { w: 2.6, d: 700, t: 400, head: 9 })
+        sun(g, 70, 320, 14, 600, 8)
+        const p = L([150, 300], [160, 404])
+        arrow(g, p, { w: 2.4, d: 700, t: 400, head: 9 })
+        flow(g, p, { n: 2, ms: 1000, d: 1100, r: 2.2 })
         const sc = st(g, 'x1', '--o: 170px 410px')
         arrow(sc, L([170, 404], [214, 320]), { w: 2.2, t: 0, head: 8 })
         arrow(sc, L([170, 404], [116, 330]), { w: 2.2, t: 0, head: 8 })
+        flow(sc, L([170, 404], [214, 320]), { n: 2, ms: 1000, r: 2 })
         text(sc, 240, 320, 'Blau', { cls: 's', fade: false })
-        text(g, 180, 540, 'kaum Melanin: Fasern streuen', { anchor: 'middle', cls: 's', d: 1100 })
       },
       feder(g) {
+        // Eisvogel-Feder: Kiel mit Ästen; zerrieben bleibt graues Pulver
         ink(g, B([90, 620], [140, 520], [200, 420], [270, 320]), { w: 3, t: 700 })
-        for (let i = 1; i < 12; i++) {
-          const t = i / 12
+        for (let i = 1; i < 14; i++) {
+          const t = i / 14
           const x = 90 + (270 - 90) * t
           const y = 620 - 300 * t
-          ink(g, L([x, y], [x - 36 + t * 10, y - 22]), { w: 1.6, d: 500 + i * 60, t: 150 })
-          ink(g, L([x, y], [x + 30 - t * 10, y + 14]), { w: 1.6, d: 550 + i * 60, t: 150 })
+          ink(g, B([x, y], [x - 14, y - 4], [x - 28 + t * 10, y - 14], [x - 40 + t * 10, y - 22]), { w: 1.4, d: 500 + i * 60, t: 150 })
+          ink(g, B([x, y], [x + 12, y + 2], [x + 22 - t * 6, y + 8], [x + 32 - t * 10, y + 14]), { w: 1.4, d: 550 + i * 60, t: 150 })
         }
-        text(g, 280, 600, 'Strukturfarbe', { anchor: 'middle', cls: 's', d: 1400 })
+        hatch(g, [[150, 540], [170, 470], [230, 400], [250, 420], [200, 500], [170, 560]], 1200)
+        arrow(g, L([270, 520], [300, 560]), { w: 2, d: 1400, t: 300, head: 8 })
+        ink(g, B([280, 600], [296, 588], [320, 588], [334, 600]), { w: 2, d: 1600, t: 300 })
+        for (let k = 0; k < 10; k++) dot(g, 288 + (k % 5) * 9, 596 - Math.floor(k / 5) * 5, 1.6, 1700 + k * 30)
       },
       licht(g) {
         sun(g, 70, 360, 22)
-        eye(g, 230, 480, 1.8, 400)
-        hatch(g, [...E(230, 480, 22), ...E(230, 480, 12, 12, 360, 0)], 900)
-        text(g, 230, 600, 'je nach Licht blau oder grau', { anchor: 'middle', cls: 's', d: 1100 })
+        cloud(g, 120, 420, 0.5, 300, true)
+        eyeFront(g, 230, 500, 1.2, 400)
+        for (const y of [380, 410]) flow(g, L([100, y], [200, 480]), { n: 2, ms: 1200, d: 900, r: 1.8, kind: 'dash' })
       },
       grau(g) {
         hatch(g, RR(40, 450, 280, 40, 6), 300, true)
         ink(g, RR(40, 450, 280, 40, 6), { w: 2.4, t: 500 })
-        hatch(g, RR(40, 380, 280, 60, 6), 600)
         ink(g, RR(40, 380, 280, 60, 6), { w: 2.4, d: 100, t: 500 })
+        for (let k = 0; k < 24; k++) ink(g, B([46 + k * 11.5, 384], [52 + k * 11.5, 400], [42 + k * 11.5, 418], [50 + k * 11.5, 436]), { w: 0.9, d: 400 + k * 20, t: 100 })
         arrow(g, L([150, 300], [160, 376]), { w: 2.6, d: 700, t: 400, head: 9 })
-        for (const [a, b] of [[[170, 376], [206, 310]], [[166, 376], [124, 314]], [[176, 374], [180, 300]]] as const) arrow(g, L(a as P, b as P), { w: 2, d: 1100, t: 300, head: 8 })
-        text(g, 180, 540, 'mehr Fasern: alle Farben gestreut → grau', { anchor: 'middle', cls: 's', d: 1300 })
+        for (const [a, b] of [[[170, 376], [206, 310]], [[166, 376], [124, 314]], [[176, 374], [180, 300]]] as const) {
+          arrow(g, L(a as P, b as P), { w: 2, d: 1100, t: 300, head: 8 })
+          flow(g, L(a as P, b as P), { n: 1, ms: 1000, d: 1500, r: 1.8 })
+        }
       },
       gruen(g) {
-        box(g, 30, 380, 130, 70, ['gelbbraunes', 'Melanin'], { size: 15 })
-        text(g, 180, 422, '+', { anchor: 'middle', size: 26, d: 400 })
-        box(g, 200, 380, 130, 70, ['blaue', 'Streuung'], { size: 15, d: 400 })
-        arrow(g, L([180, 470], [180, 520]), { w: 2.6, d: 900, t: 300, head: 9 })
-        box(g, 110, 530, 140, 60, 'grün', { size: 20, fill: true, d: 1100 })
+        // grüne Iris: gelbbraune Pigment-Tupfen in der vorderen Schicht + blaues Streulicht
+        eyeFront(g, 180, 420, 1.6)
+        ink(g, RR(40, 520, 280, 80, 8), { w: 2.2, d: 600, t: 400 })
+        let seed = 9
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 26; i++) {
+          const x = 50 + rnd() * 260
+          const y = 530 + rnd() * 26
+          ink(g, E(x, y, 3), { w: 0.9, d: 800 + i * 20, t: 60 })
+        }
+        for (let k = 0; k < 12; k++) ink(g, B([50 + k * 23, 560], [56 + k * 23, 574], [48 + k * 23, 586], [54 + k * 23, 598]), { w: 0.8, d: 1000 + k * 30, t: 100 })
+        arrow(g, L([150, 600], [130, 640]), { w: 1.6, d: 1300, t: 200, head: 6 })
       },
       baby(g) {
-        ball(g, 180, 470, 110, { w: 3.2 })
+        // Babygesicht mit Mützchen
+        ball(g, 180, 480, 110, { w: 3.2 })
+        ink(g, B([70, 470], [80, 360], [280, 360], [290, 470]), { w: 3, d: 300, t: 600 })
+        hatch(g, [...B([70, 470], [80, 360], [280, 360], [290, 470]), ...B([290, 470], [220, 430], [140, 430], [70, 470]).slice(1)], 700)
         for (const x of [140, 220]) {
-          ink(g, E(x, 450, 18, 12), { w: 2.4, d: 600, t: 300 })
-          dot(g, x, 450, 6, 900)
+          ink(g, E(x, 490, 18, 12), { w: 2.4, d: 600, t: 300 })
+          ink(g, E(x, 490, 8), { w: 1.4, d: 800, t: 200 })
+          dot(g, x, 490, 3.4, 900)
         }
-        ink(g, B([150, 520], [170, 536], [190, 536], [210, 520]), { w: 2.4, d: 1000, t: 300 })
-        text(g, 180, 640, 'Melanin kommt später', { anchor: 'middle', cls: 's', d: 1200 })
+        ink(g, B([150, 540], [170, 556], [190, 556], [210, 540]), { w: 2.4, d: 1000, t: 300 })
+        ink(g, E(180, 516, 5, 3), { w: 1.4, d: 1000, t: 100 })
       },
       braunfrueher(g) {
-        crowd(g, 50, 560, 8, 37, 2, 0, 120)
-        text(g, 180, 620, 'ursprünglich: alle braunäugig', { anchor: 'middle', d: 1200 })
+        crowd(g, 50, 600, 8, 37, 2, 0, 120)
+        for (let i = 0; i < 8; i++) dot(g, 50 + i * 37, 543, 1.6, 1100 + i * 60)
+        ground(g, 20, 340, 602, 200)
       },
       mutation(g) {
+        // Erbgut-Schalter: ein Abschnitt vor dem Gen OCA2 ist verändert und drosselt es
         ladder(g, 30, 330, 470, 44)
-        hatch(g, RR(166, 446, 28, 48, 4), 1000, true)
-        ink(g, RR(166, 446, 28, 48, 4), { w: 2.6, d: 900, t: 300 })
-        text(g, 180, 420, 'HERC2, vor OCA2', { anchor: 'middle', d: 1200 })
-        text(g, 180, 560, 'vor 6.000 bis 10.000 Jahren', { anchor: 'middle', cls: 's', d: 1400 })
+        hatch(g, RR(126, 446, 28, 48, 4), 1000, true)
+        ink(g, RR(126, 446, 28, 48, 4), { w: 2.6, d: 900, t: 300 })
+        ink(g, RR(200, 440, 110, 60, 6), { w: 2, d: 1100, t: 300 })
+        text(g, 140, 420, 'HERC2', { anchor: 'middle', cls: 's', d: 1200 })
+        text(g, 255, 530, 'OCA2', { anchor: 'middle', cls: 's', d: 1300 })
+        arrow(g, B([154, 440], [170, 400], [220, 400], [240, 438]), { w: 1.6, d: 1400, t: 300, head: 7 })
+        cross(g, 200, 394, 0.4, 1700)
       },
       stammbaum(g) {
         const lv: P[][] = [[[180, 330]], [[110, 430], [250, 430]], [[60, 540], [140, 540], [220, 540], [300, 540]]]
         lv.forEach((row, i) => row.forEach(([x, y], j) => {
-          ball(g, x, y, 10, { d: i * 500 + j * 80, fill: 'dicht', t: 200 })
+          eyeFront(g, x, y, 0.16, i * 500 + j * 80)
           if (i) {
             const [px, py] = lv[i - 1][Math.floor(j / 2)]
             ink(g, L([px, py + 12], [x, y - 12]), { w: 2, d: i * 500 - 200, t: 300 })
@@ -1858,36 +1893,44 @@ export const AHA_KOERPER: Bite[] = [
         }))
         for (let k = 0; k < 8; k++) {
           const x = 40 + k * 40
-          ball(g, x, 620, 7, { d: 1500 + k * 60, fill: 'hell', w: 1.6, t: 0 })
-          ink(g, L([lv[2][Math.floor(k / 2)][0], 552], [x, 611]), { w: 1.4, d: 1300, t: 300 })
+          eyeFront(g, x, 620, 0.12, 1500 + k * 60)
+          ink(g, L([lv[2][Math.floor(k / 2)][0], 552], [x, 610]), { w: 1.4, d: 1300, t: 300 })
         }
       },
       anteil(g) {
-        pie(g, 180, 460, 110, 0.09)
-        text(g, 180, 620, 'weltweit 8 bis 10 % blaue Augen', { anchor: 'middle', cls: 's', d: 1100 })
+        // Europa-Karte: rund um die Ostsee sind helle Augen am häufigsten
+        const pr = mapRegion(g, 30, 340, 300, 230, -10, 40, 40, 70, 0)
+        const c = pr(20, 58)
+        for (const r of [30, 54, 80]) dashes(g, E(c[0], c[1], r, r * 0.7), { w: 1.4, d: 900 + r * 5, dash: 5, gap: 5 })
+        pie(g, 70, 620, 26, 0.09, 1300)
       },
       hetero(g) {
-        eye(g, 100, 470, 1.4)
-        hatch(g, [...E(100, 470, 17), ...E(100, 470, 9, 9, 360, 0)], 900, true)
-        eye(g, 260, 470, 1.4, 300)
-        text(g, 180, 580, 'Heterochromie: selten', { anchor: 'middle', d: 1100 })
+        // zwei verschiedene Augen
+        eyeFront(g, 100, 470, 0.9)
+        hatch(g, [...E(100, 470, 20), ...E(100, 470, 9, 9, 360, 0)], 900, true)
+        eyeFront(g, 260, 470, 0.9, 300)
+        ink(g, B([50, 420], [80, 404], [120, 404], [150, 420]), { w: 2.2, d: 600, t: 300 })
+        ink(g, B([210, 420], [240, 404], [280, 404], [310, 420]), { w: 2.2, d: 700, t: 300 })
+        ink(g, B([170, 480], [176, 520], [184, 520], [190, 500]), { w: 2, d: 900, t: 300 })
       },
       albino(g) {
-        eye(g, 180, 460, 2.6)
-        for (let k = 0; k < 6; k++) {
-          const a = rad(k * 60 + 20)
-          ink(g, B([180 + Math.cos(a) * 40, 460 + Math.sin(a) * 40], [180 + Math.cos(a) * 36, 460 + Math.sin(a) * 36], [180 + Math.cos(a + 0.2) * 30, 460 + Math.sin(a + 0.2) * 30], [180 + Math.cos(a + 0.3) * 34, 460 + Math.sin(a + 0.3) * 34]), { w: 1.2, d: 900 + k * 80, t: 200 })
+        eyeFront(g, 180, 460, 2.2)
+        for (let k = 0; k < 8; k++) {
+          const a = rad(k * 45 + 20)
+          ink(g, B([180 + Math.cos(a) * 46, 460 + Math.sin(a) * 46], [180 + Math.cos(a) * 40, 460 + Math.sin(a) * 40], [180 + Math.cos(a + 0.2) * 32, 460 + Math.sin(a + 0.2) * 32], [180 + Math.cos(a + 0.3) * 36, 460 + Math.sin(a + 0.3) * 36]), { w: 1.2, d: 900 + k * 80, t: 200 })
         }
-        text(g, 180, 600, 'ohne Melanin: Gefäße scheinen durch', { anchor: 'middle', cls: 's', d: 1300 })
       },
       blendung(g) {
         sun(g, 80, 360, 26)
-        eye(g, 230, 500, 1.6, 400)
-        for (const [a, b] of [[[120, 390], [180, 450]], [[110, 410], [170, 480]]] as const) arrow(g, L(a as P, b as P), { w: 2, d: 800, t: 300, head: 8 })
-        text(g, 230, 600, 'blendempfindlicher', { anchor: 'middle', cls: 's', d: 1200 })
+        eyeFront(g, 230, 500, 1.1, 400)
+        for (const [a, b] of [[[120, 390], [180, 450]], [[110, 410], [170, 480]]] as const) {
+          arrow(g, L(a as P, b as P), { w: 2, d: 800, t: 300, head: 8 })
+          flow(g, L(a as P, b as P), { n: 2, ms: 900, d: 1200, r: 2 })
+        }
+        ink(g, B([164, 460], [200, 420], [262, 420], [296, 460]), { w: 3, d: 1300, t: 300 })
       },
       ende(g) {
-        eye(g, 180, 480, 2.4)
+        eyeFront(g, 180, 480, 2)
       },
     },
     scenes: [
