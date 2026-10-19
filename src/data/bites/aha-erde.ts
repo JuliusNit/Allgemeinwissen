@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, type P } from './draw'
-import { LAND, arcArrow, ball, bird, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, flow, glide, house, mol, moonFace, rad, rain, ripple, smooth, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mk, mountain, pop, question, st, star, text, timeline, type P } from './draw'
+import { LAND, arcArrow, ball, bird, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, flow, glide, house, jet, mapRegion, mol, moonFace, rad, rain, ripple, smooth, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
 
 // Erde & Wetter: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -56,14 +56,6 @@ function moon(g: Element, cx: number, cy: number, r: number, d = 0): void {
   blank(g, pts)
   hatch(g, pts, d + 300)
   ink(g, pts, { w: 2.6, d, t: 600 })
-}
-
-/** Schiff mit Rumpf auf y */
-function ship(g: Element, x: number, y: number, s = 1, d = 0): void {
-  const P = (a: number, b: number): P => [x + a * s, y + b * s]
-  ink(g, [P(-40, -14), P(40, -14), P(28, 0), P(-28, 0), P(-40, -14)], { w: 2.4, d, t: 400 })
-  ink(g, L(P(0, -14), P(0, -60)), { w: 2, d: d + 200, t: 200 })
-  ink(g, [P(4, -58), P(30, -22), P(4, -22)], { w: 2, d: d + 300, t: 300 })
 }
 
 /** Fossil: Ammonit (Spirale) */
@@ -178,6 +170,33 @@ function crystal(g: Element, x: number, y: number, s = 20, d = 0): void {
 function ion(g: Element, x: number, y: number, na: boolean, s = 1, d = 0): void {
   ball(g, x, y, (na ? 8 : 12) * s, { d, fill: na ? 'dicht' : 'hell', w: 1.6, t: 100 })
   if (s >= 0.8) text(g, x, y + 5 * s, na ? '+' : '−', { anchor: 'middle', size: 14 * s, cls: 'halo', d: d + 100 })
+}
+
+/** Frachter von der Seite, Bug rechts: Rumpf, Container, Brückenhaus mit Fenstern, Schornstein; Wasserlinie bei y */
+function freighter(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const hull: P[] = [P(-90, -26), P(80, -26), ...B(P(80, -26), P(96, -26), P(100, -14), P(90, 0)).slice(1), P(-84, 0), P(-90, -26)]
+  blank(g, hull)
+  hatch(g, [P(-88, -10), P(94, -10), P(90, 0), P(-84, 0)], d + 500, true)
+  ink(g, hull, { w: 2.4 * Math.min(1.2, s), d, t: 500 })
+  ink(g, L(P(-88, -10), P(94, -10)), { w: 1, d: d + 200, t: 300 })
+  for (let c = 0; c < 6; c++) for (let r = 0; r < 2; r++) {
+    const cb: P[] = RR(x + (-40 + c * 18) * s, y + (-44 - r * 14) * s, 16 * s, 12 * s, 1)
+    if ((c + r) % 3 === 0) hatch(g, cb, d + 600 + c * 40)
+    ink(g, cb, { w: 1, d: d + 300 + (c * 2 + r) * 30, t: 80 })
+  }
+  ink(g, RR(x - 82 * s, y - 64 * s, 30 * s, 38 * s, 2), { w: 1.8, d: d + 200, t: 300 })
+  for (let k = 0; k < 3; k++) ink(g, RR(x + (-78 + k * 9) * s, y - 58 * s, 6 * s, 5 * s, 1), { w: 0.8, d: d + 400, t: 50 })
+  ink(g, RR(x - 74 * s, y - 80 * s, 12 * s, 16 * s, 2), { w: 1.6, d: d + 300, t: 200 })
+  hatch(g, RR(x - 74 * s, y - 80 * s, 12 * s, 5 * s, 1), d + 500, true)
+}
+
+/** Meeresboden-Profil von der Tiefsee (links) zur Küste (rechts) mit Erdreich */
+function shelf(g: Element, d = 0): P[] {
+  const bed = smooth([[20, 630], [140, 628], [210, 610], [260, 570], [300, 520], [340, 480]], 3)
+  ink(g, bed, { w: 2.6, d, t: 700 })
+  hatch(g, [...bed, [340, 650], [20, 650]], d + 300, true)
+  return bed
 }
 
 export const AHA_ERDE: Bite[] = [
@@ -895,92 +914,194 @@ export const AHA_ERDE: Bite[] = [
     images: [],
     draw: {
       schiff(g) {
-        ink(g, waveP(20, 340, 300, 4, 60), { w: 2.4, t: 700 })
-        ship(g, 180, 302, 1.2, 300)
+        // offenes Meer: lange, flache Tsunami-Dünung unter kurzem Wellengekräusel, der Frachter hebt sich kaum
+        const swell = wobble(g, { dy: -8, ms: 6000, d: 600 })
+        travelWave(swell, 20, 340, 320, 4, 40, { ms: 1400, w: 2.2 })
+        ink(swell, waveP(20, 340, 340, 2, 30, 1), { w: 1, d: 300, t: 600 })
+        freighter(swell, 180, 318, 1.1, 300)
+        for (const [x, y] of [[60, 140], [300, 120]] as const) bird(g, x, y, 0.6, 900)
+        cloud(g, 260, 180, 0.7, 500)
       },
       beben(g) {
-        ink(g, L([20, 380], [340, 380]), { w: 2.4, t: 500 })
-        ink(g, [[20, 600], [180, 600]], { w: 3, d: 300, t: 400 })
-        const up = st(g, 'm1', '--m1: translateY(-30px); transition-duration: 1.2s; --dl: 600ms')
-        ink(up, [[180, 600], [340, 600]], { w: 3, d: 300, t: 400 })
-        hatch(up, [[180, 600], [340, 600], [340, 640], [180, 640], [180, 600]], 500)
-        hatch(g, [[20, 600], [180, 600], [180, 640], [20, 640], [20, 600]], 500, true)
-        text(g, 180, 670, 'der Meeresboden ruckt', { anchor: 'middle', cls: 's', d: 900 })
+        // Subduktionszone: die ozeanische Platte taucht ab, die verhakte Kante schnellt hoch (a1)
+        travelWave(g, 20, 340, 360, 2, 50, { ms: 3000, w: 2 })
+        const left: P[] = [[20, 560], [200, 560], [300, 640], [20, 640]]
+        hatch(g, left, 400)
+        ink(g, [[20, 560], [200, 560], [300, 640]], { w: 3, d: 200, t: 600 })
+        for (let k = 0; k < 3; k++) arrow(g, L([60 + k * 40, 600], [100 + k * 40, 600]), { w: 1.6, d: 900 + k * 80, t: 200, head: 6 })
+        const up = st(g, 'm1', '--m1: translateY(-26px); transition-duration: 0.5s; --dl: 600ms')
+        const cont: P[] = [[200, 556], [340, 520], [340, 650], [300, 650], [204, 560]]
+        hatch(up, cont, 500, true)
+        ink(up, [[200, 556], [340, 520]], { w: 3, d: 300, t: 400 })
+        const bump = st(g, 'x1', '--o: 260px 360px')
+        ink(bump, B([170, 360], [220, 360], [240, 330], [270, 330]), { w: 2.6, t: 0 })
+        ink(bump, B([270, 330], [300, 330], [320, 360], [340, 360]), { w: 2.6, t: 0 })
+        ripple(bump, 210, 560, 10, 80, { n: 3, ms: 1200, w: 1.2, ry: 0.5 })
       },
       saeule(g) {
-        ink(g, B([20, 380], [120, 380], [140, 360], [180, 360]), { w: 2.6, t: 400 })
-        ink(g, B([180, 360], [220, 360], [240, 380], [340, 380]), { w: 2.6, d: 300, t: 400 })
+        // die ganze Wassersäule bewegt sich: an jeder Tiefe gleich lange Pfeile, Wasserteilchen auf flachen Ellipsen
+        ink(g, B([20, 360], [120, 360], [140, 340], [180, 340]), { w: 2.6, t: 400 })
+        ink(g, B([180, 340], [220, 340], [240, 360], [340, 360]), { w: 2.6, d: 300, t: 400 })
         ink(g, L([20, 620], [340, 620]), { w: 3, d: 200, t: 500 })
-        for (const y of [420, 480, 540]) arrow(g, L([60, y], [300, y]), { w: 2, d: 600 + (y - 420) * 3, t: 500, head: 9 })
-        text(g, 180, 660, 'das ganze Wasser bis zum Boden bewegt sich', { anchor: 'middle', cls: 's', d: 1200 })
+        hatch(g, [[20, 622], [340, 622], [340, 650], [20, 650]], 300, true)
+        for (const y of [410, 480, 550]) {
+          arrow(g, L([80, y], [280, y]), { w: 2, d: 600 + (y - 410) * 3, t: 500, head: 9 })
+          for (const x of [60, 300]) {
+            ink(g, E(x, y, 14, 4), { w: 1, d: 900, t: 300 })
+            const p = mk('g', {}, g)
+            mk('animateTransform', { attributeName: 'transform', type: 'rotate', from: `0 ${x} ${y}`, to: `360 ${x} ${y}`, dur: '3s', begin: '1s', repeatCount: 'indefinite' }, p)
+            dot(p, x + 14, y, 2.6, 1000)
+          }
+        }
       },
       flach(g) {
-        ink(g, waveP(20, 340, 450, 6, 320), { w: 2.8, t: 900 })
-        dashes(g, L([20, 450], [340, 450]), { w: 1.2, d: 600 })
-        text(g, 180, 400, 'oft unter 1 m hoch', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 180, 520, 'über 100 km lang', { anchor: 'middle', cls: 's', d: 1100 })
+        // Maßstab: Höhe winzig, Länge riesig; das Schiff zum Vergleich
+        ink(g, waveP(20, 340, 460, 4, 320), { w: 2.8, t: 900 })
+        dashes(g, L([20, 460], [340, 460]), { w: 1.2, d: 600, dash: 4, gap: 4 })
+        freighter(g, 100, 458, 0.3, 800)
+        for (const [a, b] of [[[100, 520], [260, 520]], [[260, 520], [100, 520]]] as const) arrow(g, L(a as P, b as P), { w: 1.6, d: 1100, t: 300, head: 7 })
+        for (const x of [100, 260]) ink(g, L([x, 510], [x, 530]), { w: 1.4, d: 1100, t: 80 })
+        for (const [a, b] of [[[340, 470], [340, 450]], [[340, 450], [340, 470]]] as const) arrow(g, L(a as P, b as P), { w: 1.4, d: 1300, t: 150, head: 5 })
       },
       tempo(g) {
-        text(g, 180, 450, '700 km/h', { anchor: 'middle', size: 52, d: 200 })
-        text(g, 180, 495, 'so schnell wie ein Verkehrsflugzeug', { anchor: 'middle', cls: 's', d: 600 })
+        // Verkehrsflugzeug fliegt genau über der Wellenfront mit – beide gleich schnell
+        const m = glide(g, 140, 0, { ms: 3000, d: 900, loop: true })
+        jet(m, 80, 360, 0.5, 300)
+        ink(m, B([20, 520], [60, 520], [80, 500], [110, 500]), { w: 2.6, d: 400, t: 400 })
+        ink(m, B([110, 500], [140, 500], [160, 520], [200, 520]), { w: 2.6, d: 500, t: 400 })
+        dashes(m, L([110, 390], [110, 494]), { w: 1, d: 700, dash: 3, gap: 4 })
+        ink(g, L([20, 522], [340, 522]), { w: 1.2, d: 200, t: 400 })
+        hatch(g, [[20, 524], [340, 524], [340, 650], [20, 650]], 400)
       },
       formel(g) {
-        text(g, 180, 450, 'v = √(g · Tiefe)', { anchor: 'middle', size: 30, d: 200 })
-        text(g, 180, 510, 'tiefes Meer: schnell · flaches Meer: langsam', { anchor: 'middle', cls: 's', d: 700 })
+        // Tiefsee links, flache Küste rechts: die Wellenkämme liegen dort weit, hier dicht beieinander
+        shelf(g, 0)
+        ink(g, L([20, 380], [340, 380]), { w: 1.4, d: 300, t: 500 })
+        for (const [x, w] of [[40, 70], [130, 60], [210, 34], [262, 22], [300, 16]] as const) {
+          ink(g, B([x, 380], [x + w * 0.3, 380], [x + w * 0.4, 380], [x + w * 0.5, 372]), { w: 2.4, d: 500 + x * 3, t: 200 })
+          ink(g, B([x + w * 0.5, 372], [x + w * 0.6, 372], [x + w * 0.7, 380], [x + w, 380]), { w: 2.4, d: 550 + x * 3, t: 200 })
+        }
+        for (const [x, l] of [[60, 70], [210, 34], [290, 16]] as const) arrow(g, L([x, 420], [x + l, 420]), { w: 2, d: 1200 + x * 2, t: 300, head: 7 })
       },
       kueste(g) {
-        ink(g, [[20, 560], [200, 560], [340, 420]], { w: 3, t: 700 })
-        hatch(g, [[200, 560], [340, 420], [340, 640], [200, 640], [200, 560]], 400, true)
-        ink(g, L([200, 560], [200, 640]), { w: 1, d: 300, t: 200 })
-        const w = st(g, 'm1', '--m1: translateX(30px) scaleY(2.8); transform-origin: 140px 470px; transition-duration: 2s; --dl: 400ms')
-        ink(w, [...B([20, 470], [80, 470], [110, 450], [140, 440]), ...B([140, 440], [170, 450], [200, 470], [240, 470]).slice(1)], { w: 2.8, t: 600 })
+        // Küstenort mit Häusern und Palmen; die Wasserwand wächst heran (a1)
+        ink(g, [[20, 600], [200, 600], [340, 520]], { w: 3, t: 700 })
+        hatch(g, [[200, 600], [340, 520], [340, 650], [200, 650]], 400, true)
+        for (const [x, y] of [[250, 570], [300, 542]] as const) house(g, x, y, 30, 500)
+        for (const x of [225, 330]) {
+          const p = wobble(g, { deg: 4, ox: x, oy: 590 - (x - 200) * 0.57, ms: 1800, d: 900 })
+          const by = 590 - (x - 200) * 0.57
+          ink(p, B([x, by], [x - 2, by - 30], [x + 4, by - 50], [x + 2, by - 70]), { w: 2.2, d: 600, t: 200 })
+          for (let k = 0; k < 5; k++) ink(p, B([x + 2, by - 70], [x + 2 + Math.cos(rad(-160 + k * 35)) * 14, by - 76 + Math.sin(rad(-160 + k * 35)) * 10], [x + 2 + Math.cos(rad(-160 + k * 35)) * 22, by - 70 + Math.sin(rad(-160 + k * 35)) * 8], [x + 2 + Math.cos(rad(-160 + k * 35)) * 26, by - 60 + Math.sin(rad(-160 + k * 35)) * 6]), { w: 1.6, d: 700 + k * 40, t: 150 })
+        }
+        const w = st(g, 'm1', '--m1: translateX(40px) scaleY(3.4); transform-origin: 120px 600px; transition-duration: 2.4s; --dl: 400ms')
+        const wall: P[] = [[20, 600], ...B([20, 580], [80, 580], [120, 560], [150, 550]), ...B([150, 550], [170, 556], [190, 580], [200, 600]).slice(1), [20, 600]]
+        blank(w, wall)
+        hatch(w, wall, 300)
+        ink(w, wall.slice(1, -1), { w: 2.8, t: 600 })
+        for (let k = 0; k < 4; k++) dot(w, 120 + k * 12, 552 + (k % 2) * 4, 2, 600)
       },
       stau(g) {
+        // Auflaufen: über dem ansteigenden Grund werden die Wellen kürzer und höher
+        shelf(g, 0)
+        ink(g, L([20, 440], [340, 440]), { w: 1, d: 200, t: 400 })
         for (let i = 0; i < 4; i++) {
-          const x = 60 + i * 70
-          const hgt = 30 + i * 22
-          ink(g, B([x - 30, 560], [x - 10, 560], [x, 560 - hgt], [x + 20, 560]), { w: 2.4, d: i * 200, t: 400 })
+          const x = 50 + i * 70
+          const hgt = 14 + i * 26
+          const w = 60 - i * 10
+          ink(g, B([x - w / 2, 440], [x - w / 6, 440], [x - w / 10, 440 - hgt], [x + w / 6, 440 - hgt]), { w: 2.6, d: 400 + i * 200, t: 300 })
+          ink(g, B([x + w / 6, 440 - hgt], [x + w / 3, 440 - hgt], [x + w / 2, 440], [x + w / 2 + 10, 440]), { w: 2.6, d: 500 + i * 200, t: 300 })
+          arrow(g, L([x - 20, 470], [x - 20 + (60 - i * 12), 470]), { w: 1.8, d: 1100 + i * 100, t: 200, head: 6 })
         }
-        ink(g, L([20, 562], [340, 562]), { w: 1.4, d: 100, t: 400 })
-        arrow(g, L([60, 620], [300, 620]), { w: 2.4, d: 1000, t: 500, head: 10 })
-        text(g, 180, 650, 'vorne bremst es, hinten drückt es nach', { anchor: 'middle', cls: 's', d: 1200 })
       },
       rueckzug(g) {
-        ink(g, [[20, 560], [200, 560], [340, 420]], { w: 3, t: 700 })
-        const sea = st(g, 'm1', '--m1: translateX(-120px); transition-duration: 2s; --dl: 500ms')
-        ink(sea, waveP(40, 230, 540, 4, 40), { w: 2.4, t: 500 })
-        for (let i = 0; i < 3; i++) ammoniteFish(g, 125 + i * 25, 552, 1000 + i * 150)
-        text(g, 180, 640, 'Achtung: Das Meer weicht zurück', { anchor: 'middle', cls: 's', d: 1200 })
-      },
-      zahlen(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.25, label: '2004', sub: 'Indischer Ozean', up: true },
-          { at: 0.7, label: '2011', sub: 'Japan', big: true },
-        ])
+        // das Meer weicht zurück (a1), der Grund liegt frei: Boote liegen schief, Fische zappeln
+        ink(g, [[20, 600], [220, 580], [340, 520]], { w: 3, t: 700 })
+        hatch(g, [[220, 580], [340, 520], [340, 650], [220, 650]], 400, true)
+        for (let k = 0; k < 8; k++) dot(g, 80 + k * 18, 590 + (k % 2) * 6, 1.6, 500)
+        const sea = st(g, 'm1', '--m1: translateX(-130px); transition-duration: 2.4s; --dl: 500ms')
+        travelWave(sea, 20, 240, 560, 4, 40, { ms: 2000, w: 2.4 })
+        hatch(sea, [[20, 566], [240, 566], [222, 582], [20, 602]], 300)
+        const boat: P[] = [[150, 586], [196, 574], [190, 590], [158, 598], [150, 586]]
+        blank(g, boat)
+        ink(g, boat, { w: 2.2, d: 800, t: 300 })
+        ink(g, L([172, 580], [166, 540]), { w: 1.6, d: 900, t: 150 })
+        for (let i = 0; i < 3; i++) {
+          const f = wobble(g, { deg: 20, ox: 110 + i * 22, oy: 594, ms: 300 + i * 50, d: 1400 })
+          ammoniteFish(f, 110 + i * 22, 594, 1200 + i * 150)
+        }
+        fig(g, 270, 548, 1.6, { d: 1500, arms: 'up' })
       },
       mehrere(g) {
-        for (let i = 0; i < 3; i++) ink(g, B([30 + i * 100, 500], [60 + i * 100, 500], [70 + i * 100, 460 - (i === 1 ? 30 : 0)], [100 + i * 100, 500]), { w: 2.6, d: i * 300, t: 500 })
-        ink(g, L([20, 502], [340, 502]), { w: 1.4, d: 100, t: 400 })
-        text(g, 180, 570, 'mehrere Wellen, im Abstand vieler Minuten', { anchor: 'middle', cls: 's', d: 1000 })
+        // Wellenzug an der Küste mit Uhren: Abstand viele Minuten, die zweite ist die höchste
+        ink(g, L([20, 560], [340, 560]), { w: 1.4, d: 100, t: 400 })
+        for (let i = 0; i < 3; i++) {
+          const x = 40 + i * 110
+          const h = i === 1 ? 70 : 40
+          ink(g, B([x, 560], [x + 20, 560], [x + 30, 560 - h], [x + 50, 560 - h]), { w: 2.6, d: i * 300, t: 400 })
+          ink(g, B([x + 50, 560 - h], [x + 66, 560 - h], [x + 76, 560], [x + 96, 560]), { w: 2.6, d: 150 + i * 300, t: 400 })
+          hatch(g, [[x, 560], ...B([x, 560], [x + 30, 560 - h], [x + 66, 560 - h], [x + 96, 560])], 300 + i * 300)
+        }
+        for (const x of [133, 243]) {
+          ink(g, E(x, 620, 16), { w: 2, d: 1000, t: 200 })
+          ink(g, [[x, 608], [x, 620], [x + 8, 624]], { w: 1.6, d: 1100, t: 100 })
+        }
       },
       boje(g) {
-        ink(g, waveP(20, 340, 420, 5, 60), { w: 2.4, t: 600 })
-        ink(g, RR(160, 380, 40, 40, 6), { w: 2.6, d: 300, t: 400 })
-        ink(g, L([180, 380], [180, 340]), { w: 2, d: 500, t: 200 })
-        rays(g, 180, 330, 12, 26, 6, 800)
-        dashes(g, L([180, 424], [180, 600]), { w: 1.2, d: 600 })
-        ink(g, RR(160, 600, 40, 24, 4), { w: 2.4, d: 700, t: 300 })
-        text(g, 280, 616, 'Drucksensor', { anchor: 'middle', cls: 's', d: 1000 })
+        // Frühwarnung: Drucksensor am Grund → Schallsignal zur Boje → Satellit
+        travelWave(g, 20, 340, 420, 4, 60, { ms: 2400, w: 2.4 })
+        const by = wobble(g, { dy: 4, deg: 4, ox: 180, oy: 420, ms: 1800, d: 600 })
+        ink(by, [[156, 420], [164, 396], [196, 396], [204, 420], [156, 420]], { w: 2.6, d: 300, t: 300 })
+        hatch(by, [[158, 416], [202, 416], [200, 424], [160, 424]], 500, true)
+        ink(by, L([180, 396], [180, 350]), { w: 2, d: 400, t: 200 })
+        ink(by, [[170, 380], [190, 370]], { w: 3, d: 500, t: 100 })
+        dashes(g, L([180, 430], [180, 610]), { w: 1, d: 600, dash: 3, gap: 5 })
+        ink(g, L([20, 630], [340, 630]), { w: 2.6, d: 200, t: 400 })
+        hatch(g, [[20, 632], [340, 632], [340, 650], [20, 650]], 300, true)
+        ink(g, RR(156, 604, 48, 24, 6), { w: 2.4, d: 700, t: 300 })
+        ink(g, E(180, 604, 10, 6, 180, 360), { w: 1.6, d: 800, t: 150 })
+        for (let k = 0; k < 3; k++) {
+          const up = glide(g, 0, -150, { ms: 1800, d: 1200 + k * 600, loop: true })
+          ink(up, E(180, 590, 12, 4, 180, 360), { w: 1.2, d: 1100, t: 80 })
+        }
+        const sat = RR(268, 300, 24, 18, 3)
+        ink(g, sat, { w: 2, d: 900, t: 200 })
+        for (const k of [-1, 1]) {
+          ink(g, RR(280 + k * 30 - 12, 302, 24, 14, 1), { w: 1.4, d: 1000, t: 150 })
+          hatch(g, RR(280 + k * 30 - 12, 302, 24, 14, 1), 1100, true)
+        }
+        flow(g, L([184, 350], [276, 320]), { n: 2, ms: 1200, d: 1500, r: 2 })
       },
       hoch(g) {
-        ink(g, [[20, 620], [200, 620], [280, 460], [340, 460]], { w: 3, t: 700 })
-        hatch(g, [[200, 620], [280, 460], [340, 460], [340, 640], [200, 640], [200, 620]], 400)
-        fig(g, 312, 458, 1.6, { d: 600, arms: 'up' })
-        arrow(g, L([150, 600], [230, 520]), { w: 2.6, d: 900, t: 400, head: 10 })
-        text(g, 100, 470, 'sofort nach oben', { anchor: 'middle', cls: 's', d: 1100 })
+        // Menschen laufen den Hang hinauf in Sicherheit, hinten die heranrollende Flut
+        ink(g, [[20, 620], [160, 620], [260, 470], [340, 460]], { w: 3, t: 700 })
+        hatch(g, [[160, 620], [260, 470], [340, 460], [340, 650], [160, 650]], 400)
+        for (const [x, y, d] of [[200, 560, 600], [230, 514, 800], [300, 458, 1000]] as const) {
+          const r = glide(g, 20, -26, { ms: 1400, d: d + 400, loop: true })
+          fig(r, x, y, 1.5, { d, arms: 'push' })
+        }
+        const fl = wobble(g, { dx: 10, ms: 2400, d: 1200 })
+        ink(fl, B([20, 590], [60, 586], [100, 580], [140, 592]), { w: 2.6, d: 1100, t: 400 })
+        hatch(fl, [[20, 592], [140, 594], [150, 620], [20, 620]], 1300)
+        ink(g, RR(296, 380, 40, 40, 4), { w: 2, d: 1300, t: 200 })
+        arrow(g, B([306, 412], [312, 400], [318, 396], [328, 388]), { w: 2, d: 1400, t: 200, head: 6 })
+        ink(g, L([316, 420], [316, 460]), { w: 1.8, d: 1300, t: 100 })
       },
       ende(g) {
-        ink(g, waveP(20, 340, 480, 6, 320), { w: 3, t: 900 })
+        ink(g, waveP(20, 160, 480, 3, 80), { w: 2.4, t: 600 })
+        const wall: P[] = [[160, 600], ...B([160, 480], [220, 470], [260, 380], [320, 360]), [340, 380], [340, 600], [160, 600]]
+        hatch(g, wall, 800)
+        ink(g, wall.slice(1, -2), { w: 3, d: 400, t: 700 })
+        ink(g, L([20, 602], [340, 602]), { w: 2.4, d: 200, t: 400 })
+      },
+      karte(g) {
+        // Indischer Ozean und Japan: Epizentren 2004 (vor Sumatra) und 2011 (vor Tōhoku) mit Wellenringen
+        const pr = mapRegion(g, 20, 320, 320, 300, 70, 160, -15, 50, 0)
+        for (const [lon, lat, d] of [[95.9, 3.3, 900], [142.4, 38.3, 1500]] as const) {
+          const [x, y] = pr(lon, lat)
+          dot(g, x, y, 5, d)
+          ripple(g, x, y, 8, 60, { n: 3, ms: 2000, d: d + 200, w: 1.2 })
+        }
       },
     },
     scenes: [
@@ -988,7 +1109,7 @@ export const AHA_ERDE: Bite[] = [
       { t: T('Ein Tsunami entsteht meist durch ein **Seebeben**: Der Meeresboden ruckt plötzlich um einige Meter.', 64), gfx: { beben: { cls: 'a1' } } },
       { t: T('Dabei wird nicht nur die Oberfläche bewegt, sondern das **ganze Wasser** – vom Grund bis oben, kilometerdick.', 64), gfx: { saeule: {} } },
       { t: T('Auf offenem Meer ist die Welle oft **unter einem Meter** hoch – aber über hundert Kilometer lang.', 64), gfx: { flach: {} } },
-      { t: T('Ein Schiff hebt sich ganz sanft über Minuten. Die Besatzung **merkt nichts**.', 64), gfx: { schiff: {} } },
+      { t: T('Ein Schiff hebt sich ganz sanft über Minuten. Die Besatzung **merkt nichts**.', 64), gfx: { schiff: { tf: [1, 0, 270] } } },
       { t: T('Dabei rast die Welle mit rund **700 km/h** durch den Ozean – so schnell wie ein Flugzeug.', 64), gfx: { tempo: {} } },
       { t: T('Ihr Tempo hängt nur von der **Wassertiefe** ab: je tiefer, desto schneller.', 64), gfx: { formel: {} } },
       { t: T('Nähert sie sich der Küste, wird das Wasser flach. Die Front der Welle wird **gebremst**.', 64), gfx: { stau: {} } },
@@ -998,10 +1119,10 @@ export const AHA_ERDE: Bite[] = [
       { t: T('Das ist das Wellental, das zuerst ankommt. Wer das sieht, muss **sofort** weg – nicht hingehen und staunen.', 64), gfx: { rueckzug: { cls: 'a1' } } },
       { t: T('Ein Tsunami bricht nicht wie eine Surfwelle. Er wirkt eher wie eine **Flut**, die nicht aufhört zu steigen.', 64), gfx: { kueste: { cls: 'a1' } } },
       { t: T('Und selten kommt nur eine Welle. Oft folgen **mehrere** – die erste ist nicht unbedingt die größte.', 64), gfx: { mehrere: {} } },
-      { t: T('2004 starben im Indischen Ozean rund **230.000 Menschen**. 2011 traf ein Tsunami Japan mit Wellen von örtlich fast 40 Metern.', 64), gfx: { zahlen: {} } },
+      { t: T('2004 starben im Indischen Ozean rund **230.000 Menschen**. 2011 traf ein Tsunami Japan mit Wellen von örtlich fast 40 Metern.', 64), gfx: { karte: {} } },
       { t: T('Heute messen **Bojen** mit Drucksensoren am Meeresgrund jede verdächtige Welle und lösen Warnungen aus.', 64), gfx: { boje: {} } },
       { t: T('Die wichtigste Regel an der Küste: Bebt die Erde stark oder weicht das Meer zurück – sofort auf **höheres Gelände**.', 64), gfx: { hoch: {} } },
-      { t: T('Das Wort kommt aus dem Japanischen: **Tsunami** heißt „Hafenwelle“. Fischer bemerkten draußen nichts – und fanden ihren Hafen zerstört.', 64), gfx: { schiff: {} } },
+      { t: T('Das Wort kommt aus dem Japanischen: **Tsunami** heißt „Hafenwelle“. Fischer bemerkten draußen nichts – und fanden ihren Hafen zerstört.', 64), gfx: { schiff: { tf: [1, 0, 270] } } },
       { t: T('Flach im Ozean, **riesig** an der Küste.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],
     summary: ['Seebeben bewegen die ganze Wassersäule: auf hoher See flach (< 1 m), aber extrem lang und ~700 km/h schnell.', 'Im flachen Wasser wird die Front gebremst, das Wasser staut sich zu hohen Wellen.', 'Warnzeichen: starkes Beben oder zurückweichendes Meer – sofort auf höheres Gelände.'],
