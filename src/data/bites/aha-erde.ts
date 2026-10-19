@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mk, mountain, pop, question, st, star, text, timeline, type P } from './draw'
-import { LAND, arcArrow, ball, bird, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, flow, glide, house, jet, mapRegion, mol, moonFace, rad, rain, ripple, smooth, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, type P } from './draw'
+import { LAND, arcArrow, ball, bird, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, flow, geo, glide, house, jet, mapRegion, mol, moonFace, rad, rain, ripple, smooth, spin, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
 
 // Erde & Wetter: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -1138,85 +1138,219 @@ export const AHA_ERDE: Bite[] = [
     images: [],
     draw: {
       seismo(g) {
-        ink(g, L([20, 300], [340, 300]), { w: 1, t: 400 })
-        seismo(g, 20, 340, 300, 110, 200)
+        // Trommel-Seismograf: Sockel, rotierende Papiertrommel, Schreibarm mit Masse
+        ink(g, RR(30, 380, 300, 30, 4), { w: 3, t: 500 })
+        ink(g, RR(40, 410, 280, 14, 3), { w: 2, d: 100, t: 400 })
+        for (const x of [70, 290]) ink(g, L([x, 380], [x, 300]), { w: 2.6, d: 200, t: 300 })
+        const drum: P[] = RR(70, 240, 220, 90, 40)
+        blank(g, drum)
+        ink(g, drum, { w: 2.8, d: 300, t: 600 })
+        for (const x of [70, 290]) ink(g, E(x, 285, 10, 45), { w: 1.6, d: 400, t: 300 })
+        const c = clipBox(g, 80, 244, 200, 82)
+        const tr = mk('g', {}, c)
+        mk('animateTransform', { attributeName: 'transform', type: 'translate', from: '0 0', to: '-200 0', dur: '6s', begin: '0.8s', repeatCount: 'indefinite' }, tr)
+        for (const y of [262, 286, 310]) seismo(tr, 80, 480, y, y === 286 ? 26 : 4, 600)
+        ink(g, [[330, 380], [330, 180], [250, 180]], { w: 2.6, d: 500, t: 400 })
+        const arm = wobble(g, { dy: 6, ms: 200, d: 1200 })
+        ink(arm, [[250, 180], [250, 220], [180, 280]], { w: 2, d: 700, t: 300 })
+        ball(arm, 250, 220, 14, { d: 800, fill: 'dicht', w: 2, t: 200 })
+        ink(arm, L([180, 280], [178, 290]), { w: 2.6, d: 900, t: 80 })
       },
       richter(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.4, label: '1935', sub: 'Charles Richter', up: true }])
+        // Torsionsseismometer: Masse an einem Faden, Spiegel lenkt Lichtstrahl auf die Fotopapiertrommel
+        ink(g, RR(40, 340, 150, 260, 6), { w: 3, t: 600 })
+        ink(g, L([115, 350], [115, 470]), { w: 1, d: 300, t: 300 })
+        const m = wobble(g, { deg: 6, ox: 115, oy: 350, ms: 700, d: 1000 })
+        ink(m, RR(100, 470, 30, 60, 3), { w: 2.2, d: 500, t: 200 })
+        hatch(m, RR(100, 470, 30, 60, 3), 600, true)
+        ink(m, L([108, 490], [122, 500]), { w: 2.4, d: 700, t: 80 })
+        ink(g, L([20, 600], [340, 600]), { w: 2.6, d: 200, t: 500 })
+        ink(g, RR(250, 440, 70, 120, 30), { w: 2.6, d: 400, t: 400 })
+        const sp = spin(g, 285, 500, 4000, 900)
+        for (let k = 0; k < 4; k++) ink(sp, L([285, 500], [285 + Math.cos(rad(k * 90)) * 22, 500 + Math.sin(rad(k * 90)) * 22]), { w: 1, d: 800, t: 80 })
+        const beam = wobble(g, { deg: 4, ox: 122, oy: 496, ms: 700, d: 1000 })
+        dashes(beam, L([122, 496], [250, 500]), { w: 1.6, d: 900, dash: 6, gap: 4 })
+        ink(g, RR(150, 380, 24, 30, 3), { w: 1.8, d: 600, t: 200 })
+        rays(g, 162, 395, 16, 26, 6, 800)
       },
       zehn(g) {
-        const rows: [string, number][] = [['3', 4], ['4', 12], ['5', 40]]
-        rows.forEach(([m, a], i) => {
-          const y = 380 + i * 90
-          text(g, 40, y + 6, m, { size: 24, d: i * 300 })
-          seismo(g, 70, 330, y, a, i * 300)
-        })
-        text(g, 180, 650, 'je Stufe: 10-mal so großer Ausschlag', { anchor: 'middle', cls: 's', d: 1200 })
+        // drei Seismogramme im gleichen Maßstab: jede Stufe zehnmal so weit
+        for (const [i, l, a] of [[0, '3', 1.4], [1, '4', 14], [2, '5', 140]] as const) {
+          const y = i < 2 ? 360 + i * 70 : 560
+          const hh = i < 2 ? 30 : 90
+          text(g, 34, y + 6, l, { anchor: 'middle', size: 22, d: i * 300 })
+          ink(g, RR(52, y - hh, 286, hh * 2, 4), { w: 1, d: i * 300, t: 300 })
+          const c = clipBox(g, 54, y - hh + 2, 282, hh * 2 - 4)
+          seismo(c, 58, 334, y, a, 300 + i * 300)
+        }
       },
       energie(g) {
-        text(g, 180, 450, '× 32', { anchor: 'middle', size: 64, d: 200 })
-        text(g, 180, 500, 'Energie je Stufe', { anchor: 'middle', cls: 's', d: 600 })
+        // ein Energiewürfel → nächste Stufe: 32 gleiche Würfel
+        const cube3 = (x: number, y: number, s: number, d: number) => {
+          const o = s * 0.4
+          blank(g, [[x, y], [x + o, y - o], [x + s + o, y - o], [x + s + o, y + s - o], [x + s, y + s], [x, y + s]])
+          hatch(g, [[x + s, y], [x + s + o, y - o], [x + s + o, y + s - o], [x + s, y + s]], d + 100)
+          ink(g, RR(x, y, s, s, 1), { w: 1.6, d, t: 100 })
+          ink(g, [[x, y], [x + o, y - o], [x + s + o, y - o], [x + s, y]], { w: 1.2, d, t: 100 })
+          ink(g, [[x + s + o, y - o], [x + s + o, y + s - o], [x + s, y + s]], { w: 1.2, d, t: 100 })
+        }
+        cube3(50, 470, 26, 0)
+        arrow(g, L([100, 480], [150, 480]), { w: 2.4, d: 400, t: 300, head: 9 })
+        for (let z = 1; z >= 0; z--) for (let r = 3; r >= 0; r--) for (let c = 0; c < 4; c++) cube3(170 + c * 26 + z * 10, 420 + r * 26 - z * 10, 26, 600 + (z * 16 + r * 4 + c) * 40)
       },
       tausend(g) {
-        text(g, 180, 400, 'Stärke 6 gegenüber Stärke 3', { anchor: 'middle', cls: 's', d: 100 })
-        text(g, 180, 470, '1.000 ×', { anchor: 'middle', size: 40, d: 300 })
-        text(g, 180, 496, 'Ausschlag', { anchor: 'middle', cls: 's', d: 500 })
-        text(g, 180, 570, '≈ 32.000 ×', { anchor: 'middle', size: 40, d: 900 })
-        text(g, 180, 596, 'Energie', { anchor: 'middle', cls: 's', d: 1100 })
+        // zwei Ausschläge im gleichen Maßstab: Stärke 3 kaum sichtbar, Stärke 6 sprengt das Papier; x1: Energiewürfel
+        const h1 = st(g, 'h1', '')
+        for (const [y, l, a] of [[380, '3', 0.6], [520, '6', 600]] as const) {
+          ink(h1, RR(50, y - 50, 290, 100, 4), { w: 1.6, d: y - 380, t: 400 })
+          text(h1, 34, y + 6, l, { anchor: 'middle', size: 22, d: y - 380 })
+          const c = clipBox(h1, 52, y - 48, 286, 96)
+          seismo(c, 56, 336, y, a, 300 + (y - 380) * 2)
+        }
+        const x1 = st(g, 'x1', '--o: 260px 600px')
+        blank(x1, RR(30, 330, 300, 320, 6))
+        ink(x1, RR(30, 330, 300, 320, 6), { w: 1.6, t: 0 })
+        ink(x1, RR(60, 600, 3, 3, 0), { w: 1.6, t: 0 })
+        const s = 150
+        const o = 40
+        const fx = 140
+        const fy = 470
+        blank(x1, [[fx, fy], [fx + o, fy - o], [fx + s + o, fy - o], [fx + s + o, fy + s - o], [fx + s, fy + s], [fx, fy + s]])
+        hatch(x1, [[fx + s, fy], [fx + s + o, fy - o], [fx + s + o, fy + s - o], [fx + s, fy + s]], 0)
+        ink(x1, RR(fx, fy, s, s, 2), { w: 2.6, t: 0 })
+        ink(x1, [[fx, fy], [fx + o, fy - o], [fx + s + o, fy - o], [fx + s, fy]], { w: 1.8, t: 0 })
+        ink(x1, [[fx + s + o, fy - o], [fx + s + o, fy + s - o], [fx + s, fy + s]], { w: 1.8, t: 0 })
       },
       log(g) {
+        // Skala von 3 bis 8: jeder Bogen ein Schritt; darüber Stapel, die je Schritt zehnmal so groß werden würden
+        ink(g, L([30, 560], [330, 560]), { w: 2.6, t: 500 })
         for (let i = 0; i <= 5; i++) {
           const x = 40 + i * 56
-          ink(g, L([x, 500], [x, 520]), { w: 2, d: i * 100, t: 150 })
-          text(g, x, 550, String(i + 3), { anchor: 'middle', d: i * 100 })
+          ink(g, L([x, 550], [x, 570]), { w: 2, d: i * 100, t: 150 })
+          text(g, x, 600, String(i + 3), { anchor: 'middle', d: i * 100 })
+          if (i < 5) carrow(g, [x + 4, 540], [x + 52, 540], -16, { d: 700 + i * 120 })
         }
-        ink(g, L([30, 510], [330, 510]), { w: 2.6, t: 500 })
-        text(g, 180, 460, 'jeder Schritt: × 10', { anchor: 'middle', d: 800 })
+        for (let i = 0; i < 3; i++) {
+          const x = 40 + i * 56
+          const n = Math.pow(10, i)
+          const cols = Math.min(n, 10)
+          for (let k = 0; k < n; k++) {
+            const cx = x - 20 + (k % cols) * 4.4
+            const cy = 470 - Math.floor(k / cols) * 4.4
+            ink(g, RR(cx, cy, 3, 3, 0), { w: 1, d: 1000 + i * 300 + k * 4, t: 20 })
+          }
+        }
+        for (const x of [208, 264, 320]) {
+          ink(g, L([x, 476], [x, 330]), { w: 1.6, d: 1800, t: 300 })
+          arrow(g, L([x, 360], [x, 320]), { w: 1.6, d: 2000, t: 150, head: 6 })
+        }
       },
       chile(g) {
-        text(g, 180, 450, '9,5', { anchor: 'middle', size: 70, d: 200 })
-        text(g, 180, 500, 'Chile 1960 – das stärkste je gemessene Beben', { anchor: 'middle', cls: 's', d: 600 })
+        // Pazifik von oben: Epizentrum vor Chile 1960, die Tsunami-Wellenfronten laufen bis Japan
+        earth(g, 180, 470, 160, 0, { lon: -140, lat: -5, grid: true })
+        const pr = geo(180, 470, 160, -140, -5)
+        const ep = pr(-73.4, -38.2)
+        const jp = pr(141, 38)
+        if (ep.front) {
+          dot(g, ep.p[0], ep.p[1], 6, 900)
+          for (let k = 1; k <= 5; k++) dashes(g, E(ep.p[0], ep.p[1], k * 40, k * 34, 150, 250), { w: 1.4, d: 1000 + k * 250, dash: 5, gap: 4 })
+        }
+        if (jp.front) ripple(g, jp.p[0], jp.p[1], 6, 24, { n: 2, ms: 1600, d: 2400, w: 1.2 })
       },
       haeufig(g) {
-        hbars(g, [
-          { label: 'ab 8', v: 1, fmt: () => '≈ 1' },
-          { label: 'ab 7', v: 15, fmt: () => '≈ 15' },
-          { label: 'ab 6', v: 134, fmt: () => '≈ 130', dense: true },
-        ], { x: 90, y: 380, w: 200, h: 34, gap: 64, max: 134 })
-        text(g, 180, 600, 'Beben pro Jahr weltweit', { anchor: 'middle', cls: 's', d: 1200 })
+        // Weltkarte: unzählige kleine Beben an den Plattengrenzen, nur ein großer Kreis
+        const pr = worldMap(g, 20, 380, 320, 160, 'equi', 0, { grid: false })
+        const ring: [number, number][] = [[-75, -40], [-72, -30], [-71, -20], [-77, -8], [-80, 0], [-85, 10], [-95, 15], [-105, 20], [-118, 33], [-124, 40], [-130, 50], [-150, 58], [-170, 52], [175, 52], [160, 55], [150, 46], [143, 40], [140, 35], [130, 31], [125, 24], [122, 15], [126, 7], [120, 0], [110, -8], [100, -4], [95, 3], [125, -8], [140, -5], [150, -6], [165, -15], [178, -20], [-175, -20], [-178, -30], [176, -40], [30, 38], [45, 35], [60, 30], [70, 36], [85, 30], [95, 28], [12, 42], [22, 38]]
+        ring.forEach(([lon, lat], i) => {
+          for (let k = 0; k < 3; k++) dot(g, pr(lon + k * 1.5, lat + (k - 1) * 1.5)[0], pr(lon + k * 1.5, lat + (k - 1) * 1.5)[1], 1.4, 600 + i * 30 + k * 10)
+        })
+        const [bx, by] = pr(142, 38)
+        ink(g, E(bx, by, 12), { w: 2.4, d: 2000, t: 200 })
+        ripple(g, bx, by, 12, 40, { n: 2, ms: 1800, d: 2200, w: 1.2 })
       },
       haus(g) {
+        // links: erdbebensicher (Stahlkreuze, Gummilager) – schwankt und steht; rechts: einfaches Mauerwerk eingestürzt
         ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
-        ink(g, RR(50, 440, 90, 160, 4), { w: 2.6, d: 200, t: 500 })
-        for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) ink(g, RR(62 + j * 40, 456 + i * 46, 24, 26, 2), { w: 1.6, d: 500 + (i + j) * 60, t: 200 })
-        check(g, 95, 400, 0.8, 900)
-        ink(g, [[220, 600], [220, 500], [250, 470], [280, 520], [320, 500], [320, 600]], { w: 2.6, d: 300, t: 500 })
-        cross(g, 270, 420, 0.8, 1000)
-        text(g, 95, 640, 'erdbebensicher', { anchor: 'middle', cls: 's', d: 1100 })
-        text(g, 270, 640, 'einfach gebaut', { anchor: 'middle', cls: 's', d: 1200 })
+        hatch(g, [[20, 602], [340, 602], [340, 640], [20, 640]], 300, true)
+        for (const x of [60, 110]) {
+          ink(g, RR(x, 584, 30, 14, 5), { w: 2, d: 300, t: 150 })
+          for (let k = 0; k < 3; k++) ink(g, L([x + 4, 588 + k * 4], [x + 26, 588 + k * 4]), { w: 0.8, d: 400, t: 60 })
+        }
+        const b = wobble(g, { deg: 2, ox: 100, oy: 584, ms: 900, d: 1000 })
+        ink(b, RR(50, 350, 100, 234, 3), { w: 2.8, d: 300, t: 600 })
+        for (let i = 0; i < 6; i++) {
+          const y = 350 + i * 39
+          ink(b, L([50, y], [150, y]), { w: 1.4, d: 500 + i * 40, t: 150 })
+          ink(b, L([50, y], [100, y + 39]), { w: 1, d: 600 + i * 40, t: 100 })
+          ink(b, L([150, y], [100, y + 39]), { w: 1, d: 600 + i * 40, t: 100 })
+          for (const x of [58, 126]) ink(b, RR(x, y + 10, 16, 18, 1), { w: 0.9, d: 700 + i * 40, t: 50 })
+        }
+        const rub: P[] = [[200, 600], [210, 560], [236, 540], [250, 520], [270, 530], [290, 510], [310, 550], [330, 560], [336, 600]]
+        hatch(g, [...rub, [200, 600]], 900, true)
+        ink(g, rub, { w: 2.4, d: 700, t: 500 })
+        for (const [x, y, r] of [[226, 560, 20], [262, 548, -14], [300, 560, 30]] as const) ink(g, [[x - 14, y + Math.sin(rad(r)) * 10], [x + 14, y - Math.sin(rad(r)) * 10]], { w: 3, d: 1100, t: 100 })
+        ink(g, [[220, 600], [220, 470], [244, 470]], { w: 2.4, d: 600, t: 300 })
+        ink(g, [[244, 470], [252, 500], [246, 520]], { w: 1.8, d: 900, t: 150 })
+        for (let k = 0; k < 4; k++) {
+          const s = glide(g, -6 + k * 4, 30, { ms: 900, d: 1500 + k * 200, loop: true })
+          dot(s, 250 + k * 20, 500, 2, 1400)
+        }
       },
       haiti(g) {
-        hbars(g, [
-          { label: 'Haiti 7,0', v: 200, fmt: () => 'über 100.000 Tote', dense: true },
-          { label: 'Chile 8,8', v: 6, fmt: () => 'rund 500 Tote' },
-        ], { x: 30, y: 400, w: 300, h: 40, gap: 80, max: 200 })
-        text(g, 180, 590, 'beide 2010', { anchor: 'middle', cls: 's', d: 1200 })
+        // gleiche Zeit, zwei Orte: links schwächerer Ausschlag, aber eingestürzte Häuser; rechts stärker, die Häuser stehen
+        for (const [x, a, broken] of [[20, 20, true], [190, 60, false]] as const) {
+          ink(g, RR(x, 330, 150, 120, 4), { w: 1.4, t: 300 })
+          const c = clipBox(g, x + 2, 332, 146, 116)
+          seismo(c, x + 6, x + 146, 390, a, 300)
+          ink(g, L([x, 600], [x + 150, 600]), { w: 2.6, d: 600, t: 300 })
+          if (broken) {
+            const rub: P[] = [[x + 10, 600], [x + 30, 570], [x + 60, 560], [x + 80, 540], [x + 110, 566], [x + 140, 600]]
+            hatch(g, [...rub, [x + 10, 600]], 1200, true)
+            ink(g, rub, { w: 2.2, d: 1000, t: 400 })
+            cross(g, x + 75, 500, 0.6, 1600)
+          } else {
+            for (let k = 0; k < 3; k++) {
+              ink(g, RR(x + 14 + k * 44, 600 - 60 - k * 20, 34, 60 + k * 20, 2), { w: 2.2, d: 1000 + k * 100, t: 300 })
+              for (let j = 0; j < 3 + k; j++) ink(g, L([x + 18 + k * 44, 600 - 50 - k * 20 + j * 16], [x + 44 + k * 44, 600 - 50 - k * 20 + j * 16]), { w: 0.9, d: 1200 + k * 100, t: 60 })
+            }
+            check(g, x + 75, 490, 0.6, 1600)
+          }
+        }
       },
       tiefe(g) {
-        ink(g, L([20, 360], [340, 360]), { w: 3, t: 500 })
-        for (const [x, y, d] of [[110, 430, 300], [250, 600, 600]] as const) {
+        // Schnitt: Stadt an der Oberfläche; flacher Herd direkt darunter – starke Wellen; tiefer Herd unter dem Meer – schwache
+        ink(g, L([20, 380], [200, 380]), { w: 3, t: 500 })
+        travelWave(g, 200, 340, 384, 2, 30, { ms: 2400, w: 1.8 })
+        for (let k = 0; k < 4; k++) ink(g, RR(40 + k * 34, 380 - 30 - (k % 2) * 24, 26, 30 + (k % 2) * 24, 2), { w: 2, d: 300 + k * 60, t: 200 })
+        hatch(g, [[20, 386], [340, 386], [340, 650], [20, 650]], 300)
+        for (const [x, y, n, d] of [[110, 440, 4, 600], [270, 610, 2, 900]] as const) {
+          blank(g, E(x, y, 14))
           star(g, x, y, 10, { d, fill: true })
-          for (const r of [24, 44]) ink(g, E(x, y, r, r, 200, 340), { w: 1.6, d: d + 300, t: 300 })
+          for (let k = 1; k <= n; k++) {
+            ink(g, E(x, y, 14 + k * 18, 14 + k * 18, 200, 340), { w: n > 2 ? 2.6 - k * 0.3 : 1.2, d: d + 200 + k * 150, t: 200 })
+          }
         }
-        text(g, 110, 480, 'flach: stärker', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 250, 650, 'tief: schwächer', { anchor: 'middle', cls: 's', d: 1000 })
+        const sh = wobble(g, { dx: 4, ms: 160, d: 1400 })
+        ink(sh, L([36, 376], [184, 376]), { w: 1, d: 1300, t: 100 })
       },
       skalen(g) {
-        bullets(g, 40, 380, ['Lautstärke: Dezibel', 'Säure: pH-Wert', 'Sternhelligkeit'], { gap: 56, size: 19 })
-        text(g, 180, 600, 'alles logarithmisch', { anchor: 'middle', d: 1200 })
+        // Lautsprecher mit Schallwellen, Teststreifen im Becherglas, Sterne verschiedener Helligkeit
+        ink(g, [[40, 380], [60, 380], [84, 356], [84, 444], [60, 420], [40, 420], [40, 380]], { w: 2.4, t: 400 })
+        for (let k = 1; k <= 3; k++) ink(g, E(84, 400, k * 20, k * 20, -45, 45), { w: 2 - k * 0.3, d: 300 + k * 150, t: 200 })
+        ink(g, [[160, 360], [166, 450], [214, 450], [220, 360]], { w: 2.4, d: 500, t: 300 })
+        hatch(g, [[163, 400], [217, 400], [214, 446], [166, 446]], 700)
+        ink(g, RR(184, 330, 12, 100, 2), { w: 1.8, d: 800, t: 200 })
+        hatch(g, RR(184, 400, 12, 30, 2), 1000, true)
+        for (const [x, y, r] of [[270, 360, 12], [310, 390, 8], [280, 420, 5], [320, 440, 3]] as const) star(g, x, y, r, { d: 900 + r * 40, fill: r > 6 })
+        ink(g, L([40, 540], [320, 540]), { w: 2.2, d: 1200, t: 500 })
+        for (let i = 0; i < 6; i++) {
+          ink(g, L([50 + i * 52, 530], [50 + i * 52, 550]), { w: 1.8, d: 1300 + i * 60, t: 80 })
+          if (i < 5) carrow(g, [54 + i * 52, 524], [98 + i * 52, 524], -12, { d: 1500 + i * 100 })
+        }
       },
       ende(g) {
-        seismo(g, 20, 340, 480, 100)
+        ink(g, L([20, 480], [340, 480]), { w: 1, t: 400 })
+        seismo(g, 20, 340, 480, 100, 200)
       },
     },
     scenes: [
@@ -1227,7 +1361,7 @@ export const AHA_ERDE: Bite[] = [
       { t: T('Damit die Zahlen handlich bleiben, wählte er eine **logarithmische** Skala: Jede Stufe bedeutet zehnmal so viel Ausschlag.', 64), gfx: { log: {} } },
       { t: T('Stärke 4 schwingt also zehnmal so weit wie 3. Stärke 5 schon **hundertmal** so weit.', 64), gfx: { zehn: {} } },
       { t: T('Noch gewaltiger ist die **Energie**: Jede Stufe setzt etwa 32-mal so viel frei.', 64), gfx: { energie: {} } },
-      { t: T('Von 3 auf 6 sind das 32 mal 32 mal 32 – rund **32.000-mal** so viel Energie.', 64), gfx: { tausend: {} } },
+      { t: T('Von 3 auf 6 sind das 32 mal 32 mal 32 – rund **32.000-mal** so viel Energie.', 64), gfx: { tausend: { cls: 'a1' } } },
       { t: T('Heute nutzen Fachleute meist die **Momenten-Magnitude**. Sie misst, wie groß die gerissene Fläche ist und wie weit sie sich verschoben hat.', 64), gfx: { log: {} } },
       { t: T('Die Zahlen sind ähnlich – aber sie funktioniert auch bei **riesigen** Beben, bei denen Richters Skala nicht mehr weiter steigt.', 64), gfx: { log: {} } },
       { t: T('Das stärkste je gemessene Beben: **9,5** in Chile 1960. Es löste einen Tsunami bis nach Japan aus.', 64), gfx: { chile: {} } },
