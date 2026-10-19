@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, bolt, brain, bulb, check, cross, dashes, eye, fig, group, hatch, hbars, ink, lie, mk, pop, question, rays, st, text, timeline, vbars, type P } from './draw'
-import { arcArrow, axes, ball, box, dot, drop, eyeFront, flame, flow, glide, ground, house, leaf, moonFace, plot, rad, smooth, stars, sun, thermo, tree, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, brain, bulb, check, clock, cross, dashes, eye, fig, group, hatch, hbars, ink, lie, mk, pop, question, rays, st, text, timeline, vbars, type P } from './draw'
+import { arcArrow, axes, ball, dot, drop, eyeFront, flame, flow, glide, ground, heart, house, leaf, moonFace, plot, rad, smooth, spin, stars, sun, thermo, tree, waveP, wobble } from './kit'
 
 // Nervensystem & Sinne: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -380,7 +380,6 @@ export const AHA_NERVEN: Bite[] = [
           ink(g, hx(x, 460), { w: 2.6, d, t: 500 })
           const pent: P[] = Array.from({ length: 6 }, (_, k) => [x + 42 + Math.cos(rad(k * 72 + 180)) * 22, 460 + Math.sin(rad(k * 72 + 180)) * 22])
           ink(g, pent, { w: 2.6, d: d + 300, t: 400 })
-          for (const [nx, ny] of [[x - 22, 448], [x + 12, 484], [x + 52, 440]] as const) text(g, nx, ny + 4, 'N', { anchor: 'middle', cls: 's halo', d: d + 500, size: 11 })
           if (extra) for (const [a, b] of [[[x - 22, 448], [x - 46, 436]], [[x, 486], [x, 512]], [[x + 56, 478], [x + 70, 500]]] as const) {
             ink(g, L(a as P, b as P), { w: 2.2, d: d + 700, t: 200 })
             text(g, (b as P)[0], (b as P)[1] + 12, 'CH₃', { anchor: 'middle', cls: 's', d: d + 800, size: 10 })
@@ -389,7 +388,7 @@ export const AHA_NERVEN: Bite[] = [
         }
         mol(70, 0, false)
         mol(230, 600, true)
-        text(g, 90, 580, 'Adenosin (Teil)', { anchor: 'middle', cls: 's', d: 900 })
+        text(g, 90, 580, 'Adenin', { anchor: 'middle', cls: 's', d: 900 })
         text(g, 250, 600, 'Koffein', { anchor: 'middle', cls: 's', d: 1400 })
       },
       maske(g) {
@@ -554,107 +553,180 @@ export const AHA_NERVEN: Bite[] = [
     images: [],
     draw: {
       knie(g) {
-        ink(g, B([60, 120], [100, 200], [130, 260], [150, 300]), { w: 3.2, t: 600 })
+        // Bein seitlich, angewinkelt; eine Hand reibt über das Knie
+        ink(g, B([40, 140], [90, 200], [130, 260], [150, 300]), { w: 3.2, t: 600 })
         ink(g, B([150, 300], [170, 340], [190, 380], [210, 440]), { w: 3.2, d: 300, t: 600 })
-        ink(g, B([110, 110], [150, 190], [180, 250], [196, 290]), { w: 3.2, t: 600 })
+        ink(g, B([96, 120], [140, 190], [180, 250], [196, 290]), { w: 3.2, t: 600 })
         ink(g, B([196, 290], [210, 330], [236, 380], [254, 440]), { w: 3.2, d: 300, t: 600 })
+        ink(g, [[210, 440], [200, 452], [270, 452], [254, 440]], { w: 2.8, d: 500, t: 300 })
         for (const [x, y] of [[230, 250], [250, 290], [220, 210]] as const) ink(g, L([x, y], [x + 20, y - 8]), { w: 2.2, d: 900, t: 150 })
-        arcArrow(g, 172, 296, 40, 300, 420, { d: 1100, t: 400 })
+        const h = wobble(g, { dx: 10, dy: 14, ms: 500, d: 1200 })
+        const hand: P[] = smooth([[150, 250], [176, 240], [210, 250], [226, 262], [214, 280], [180, 282], [150, 272], [150, 250]], 4)
+        blank(h, hand)
+        ink(h, hand, { w: 2.4, d: 1000, t: 400 })
+        for (const y of [254, 264, 274]) ink(h, L([200, y], [224, y + 2]), { w: 1, d: 1300, t: 100 })
+        ink(h, B([150, 260], [120, 250], [90, 230], [60, 216]), { w: 2.4, d: 1100, t: 300 })
       },
       fasern(g) {
-        dashes(g, L([30, 420], [330, 420]), { w: 1.6, d: 200, dash: 6, gap: 6 })
-        text(g, 30, 400, 'dünn, langsam: Schmerz', { d: 300 })
+        // dünne Faser ohne Hülle (langsam) – dicke Faser mit Myelin-Perlen (schnell)
+        ink(g, L([30, 420], [330, 420]), { w: 1.2, d: 200, t: 600 })
+        flow(g, L([30, 420], [330, 420]), { n: 2, ms: 6000, d: 800, r: 2.2 })
+        text(g, 30, 400, 'Schmerz', { d: 300 })
         const thick = st(g, 'x1', '--o: 30px 520px')
-        ink(thick, L([30, 520], [330, 520]), { w: 5, t: 0 })
-        text(thick, 30, 500, 'dick, schnell: Berührung', { fade: false })
+        ink(thick, L([30, 520], [330, 520]), { w: 2.4, t: 0 })
+        for (let k = 0; k < 9; k++) {
+          blank(thick, RR(36 + k * 33, 510, 26, 20, 10))
+          hatch(thick, RR(36 + k * 33, 510, 26, 20, 10), 0)
+          ink(thick, RR(36 + k * 33, 510, 26, 20, 10), { w: 1.4, t: 0 })
+        }
+        flow(thick, L([30, 520], [330, 520]), { n: 3, ms: 1200, r: 2.8 })
+        text(thick, 30, 496, 'Berührung', { fade: false })
       },
       tor(g) {
-        ink(g, RR(150, 330, 160, 300, 18), { w: 3, t: 800 })
-        text(g, 230, 660, 'Rückenmark', { anchor: 'middle', cls: 's', d: 400 })
+        // Rückenmark im Schnitt (Schmetterling), darin eine Schaltzelle als Tor
+        const cord = E(240, 470, 90, 120)
+        blank(g, cord)
+        ink(g, cord, { w: 3, t: 800 })
+        const bf: P[] = smooth([[240, 420], [212, 380], [196, 420], [214, 460], [196, 520], [214, 560], [240, 520], [266, 560], [284, 520], [266, 460], [284, 420], [268, 380], [240, 420]], 4)
+        hatch(g, bf, 600)
+        ink(g, bf, { w: 1.6, d: 400, t: 600 })
         ink(g, L([170, 470], [250, 470]), { w: 2.4, d: 600, t: 300 })
+        ball(g, 210, 470, 6, { d: 700, fill: 'dicht', t: 0 })
         const gate = st(g, 'm1', '--m1: rotate(-80deg); transform-origin: 250px 470px; transition-duration: 1.2s')
         ink(gate, L([250, 470], [250, 420]), { w: 5, d: 700, t: 300 })
-        arrow(g, L([250, 410], [250, 300]), { w: 2.6, d: 1000, t: 400, head: 9 })
-        text(g, 266, 312, 'zum Gehirn', { cls: 's', d: 1200 })
+        const up = L([250, 410], [250, 300])
+        arrow(g, up, { w: 2.6, d: 1000, t: 400, head: 9 })
+        flow(st(g, 'h1'), up, { n: 3, ms: 900, d: 1400, r: 2.4 })
+        brain(g, 290, 290, 0.25, 1100)
         dashes(g, L([20, 470], [166, 470]), { w: 1.6, d: 400, dash: 6, gap: 6 })
+        flow(g, L([20, 470], [166, 470]), { n: 2, ms: 2400, d: 800, r: 2 })
         text(g, 20, 456, 'Schmerz', { cls: 's', d: 500 })
-        const touch = st(g, 'x1', '--o: 20px 560px')
-        ink(touch, L([20, 560], [204, 560]), { w: 5, t: 0 })
-        ink(touch, L([204, 560], [234, 480]), { w: 2.4, t: 0 })
-        text(touch, 20, 546, 'Reiben', { cls: 's', fade: false })
+        const touch = st(g, 'x1', '--o: 20px 600px')
+        ink(touch, L([20, 600], [204, 600]), { w: 5, t: 0 })
+        ink(touch, L([204, 600], [212, 480]), { w: 2.4, t: 0 })
+        flow(touch, [[20, 600], [204, 600], [212, 480]], { n: 3, ms: 900, r: 2.6 })
+        text(touch, 20, 586, 'Reiben', { cls: 's', fade: false })
       },
       melzack(g) {
-        box(g, 40, 380, 280, 80, ['Gate-Control-Theorie'], { size: 20 })
-        text(g, 180, 520, 'Ronald Melzack & Patrick Wall, 1965', { anchor: 'middle', cls: 's', d: 700 })
+        // Torbild: Schranke, die sich halb schließt
+        ink(g, L([60, 600], [300, 600]), { w: 2.6, t: 500 })
+        ink(g, RR(70, 420, 20, 180, 4), { w: 2.4, d: 300, t: 400 })
+        ink(g, RR(270, 420, 20, 180, 4), { w: 2.4, d: 300, t: 400 })
+        const bar = wobble(g, { deg: 20, ox: 90, oy: 470, ms: 3000, d: 900 })
+        hatch(bar, RR(90, 462, 170, 16, 4), 800, true)
+        ink(bar, RR(90, 462, 170, 16, 4), { w: 2.2, d: 600, t: 400 })
+        for (let i = 0; i < 4; i++) flow(g, L([20, 520 + i * 16], [340, 520 + i * 16]), { n: 1, ms: 1600 + i * 300, d: 1200 + i * 200, r: 2.4 })
+        text(g, 180, 380, 'Melzack & Wall, 1965', { anchor: 'middle', cls: 's', d: 700 })
       },
       filter(g) {
         ink(g, [[60, 360], [300, 360], [200, 480], [200, 560], [160, 560], [160, 480], [60, 360]], { w: 3, t: 900 })
-        for (let i = 0; i < 8; i++) dot(g, 90 + i * 26, 330, 5, 600 + i * 60)
-        dot(g, 180, 600, 5, 1300)
-        dot(g, 180, 630, 5, 1450)
-        text(g, 180, 300, 'Schmerzsignale', { anchor: 'middle', cls: 's', d: 500 })
+        hatch(g, [[64, 362], [296, 362], [250, 418], [110, 418]], 900)
+        for (let i = 0; i < 8; i++) {
+          const f = glide(g, (180 - (90 + i * 26)) * 0.9, 120, { ms: 1600, d: 600 + i * 100 })
+          dot(f, 90 + i * 26, 330, 5, 600 + i * 60)
+        }
+        for (let k = 0; k < 2; k++) flow(g, L([180, 560], [180, 650]), { n: 1, ms: 1200, d: 1800 + k * 600, r: 4 })
       },
       ablenkung(g) {
         brain(g, 180, 380, 0.8)
-        arrow(g, L([180, 450], [180, 540]), { w: 2.6, d: 900, t: 400, head: 9 })
+        const p = L([180, 450], [180, 540])
+        arrow(g, p, { w: 2.6, d: 900, t: 400, head: 9 })
+        flow(g, p, { n: 3, ms: 900, d: 1300, r: 2.4 })
         ink(g, L([140, 580], [220, 580]), { w: 5, d: 1200, t: 300 })
-        text(g, 180, 620, 'Tor zu', { anchor: 'middle', cls: 's', d: 1300 })
+        for (let k = 0; k < 6; k++) {
+          const a = rad(k * 60)
+          dot(g, 180 + Math.cos(a) * 30, 560 + Math.sin(a) * 12, 2.4, 1400 + k * 60)
+        }
       },
       sport(g) {
-        fig(g, 140, 600, 4, { d: 0, arms: 'up' })
-        ball(g, 270, 560, 30, { d: 500, w: 2.6 })
-        ink(g, [[248, 540], [270, 560], [292, 540]], { w: 1.8, d: 800, t: 200 })
-        text(g, 180, 650, 'Stresshormone, Endorphine', { anchor: 'middle', cls: 's', d: 1100 })
+        // Fußballspieler im Lauf, Ball, Rasen
+        ground(g, 20, 340, 620, 0)
+        fig(g, 140, 618, 4, { d: 0, arms: 'push' })
+        const b = glide(g, 60, -40, { ms: 1400, d: 900 })
+        ball(b, 220, 600, 18, { d: 500, w: 2.4 })
+        for (const a of [0, 72, 144, 216, 288]) {
+          const q: P = [220 + Math.cos(rad(a)) * 9, 600 + Math.sin(rad(a)) * 9]
+          ink(b, E(q[0], q[1], 4), { w: 1, d: 700, t: 80 })
+        }
+        ink(g, RR(290, 420, 50, 200, 2), { w: 2, d: 400, t: 400 })
+        for (let k = 0; k < 6; k++) ink(g, L([292, 440 + k * 30], [338, 440 + k * 30]), { w: 0.8, d: 600, t: 100 })
       },
       tens(g) {
         ink(g, RR(110, 360, 140, 90, 12), { w: 3, t: 600 })
         ink(g, RR(130, 376, 100, 34, 6), { w: 2, d: 300, t: 300 })
+        for (const k of [0, 1, 2]) ink(g, E(150 + k * 30, 430, 8), { w: 1.4, d: 500, t: 150 })
+        ink(g, waveP(136, 224, 393, 8, 22), { w: 1.4, d: 600, t: 300 })
         for (const x of [90, 270]) {
-          ink(g, B([x < 180 ? 120 : 240, 450], [x, 480], [x, 520], [x, 560]), { w: 2, d: 600, t: 400 })
+          const c = B([x < 180 ? 120 : 240, 450], [x, 480], [x, 520], [x, 560])
+          ink(g, c, { w: 2, d: 600, t: 400 })
+          flow(g, c, { n: 2, ms: 600, d: 1200, r: 1.8 })
           hatch(g, RR(x - 26, 560, 52, 36, 6), 1000, true)
           ink(g, RR(x - 26, 560, 52, 36, 6), { w: 2.4, d: 900, t: 300 })
         }
-        text(g, 180, 640, 'leichte Stromimpulse', { anchor: 'middle', cls: 's', d: 1200 })
+        ink(g, smooth([[30, 600], [120, 592], [240, 604], [330, 596]]), { w: 2.2, d: 800, t: 500 })
       },
       tempo(g) {
         hbars(g, [
           { label: 'Berührung', v: 70, fmt: (v) => `${Math.round(v)} m/s` },
           { label: 'dumpfer Schmerz', v: 1, fmt: () => '≈ 1 m/s', dense: true },
         ], { y: 380, gap: 130 })
+        flow(g, L([30, 600], [330, 600]), { n: 2, ms: 600, d: 1200, r: 3 })
+        flow(g, L([30, 630], [330, 630]), { n: 1, ms: 9000, d: 1200, r: 3 })
       },
       zeh(g) {
         timeline(g, 30, 330, 470, [
-          { at: 0.05, label: '0 s', sub: 'Stoß!', up: true },
+          { at: 0.05, label: '0 s', up: true },
           { at: 0.2, label: 'stechend' },
-          { at: 0.85, label: '≈ 1 s', sub: 'dumpfer Schmerz', up: true, big: true },
+          { at: 0.85, label: '≈ 1 s', up: true, big: true },
         ])
+        // Fuß stößt gegen Tischbein
+        const foot: P[] = smooth([[40, 620], [44, 590], [80, 586], [120, 596], [128, 612], [120, 622], [40, 622]], 4)
+        blank(g, foot)
+        ink(g, foot, { w: 2.2, d: 900, t: 400 })
+        ink(g, RR(130, 560, 16, 70, 2), { w: 2.4, d: 1000, t: 300 })
+        rays(g, 124, 600, 10, 20, 6, 1300)
       },
       pusten(g) {
+        // Mutter pustet auf das Knie eines Kindes
         fig(g, 110, 620, 4)
         fig(g, 260, 620, 2.6, { d: 300 })
-        for (const [y, d] of [[470, 700], [490, 800], [510, 900]] as const) ink(g, L([150, y], [210, y + 20]), { w: 1.8, d, t: 200 })
-        text(g, 180, 380, 'Berührung + Zuwendung', { anchor: 'middle', cls: 's', d: 1100 })
+        for (const [y, d] of [[470, 700], [490, 800], [510, 900]] as const) flow(g, L([150, y], [226, y + 40]), { n: 2, ms: 900, d, r: 1.8, kind: 'dash' })
+        heart(g, 190, 380, 0.4, 1100)
       },
       kratzen(g) {
         ink(g, B([30, 470], [120, 440], [240, 440], [330, 470]), { w: 3, t: 700 })
-        for (let k = 0; k < 4; k++) ink(g, L([140 + k * 18, 430], [150 + k * 18, 400]), { w: 2.2, d: 700 + k * 100, t: 150 })
-        for (let k = 0; k < 6; k++) dot(g, 120 + k * 24, 470 + (k % 2) * 8, 3, 500)
-        text(g, 180, 560, 'leichter Schmerz übertönt Jucken', { anchor: 'middle', cls: 's', d: 1200 })
+        ink(g, B([30, 520], [120, 500], [240, 500], [330, 520]), { w: 3, d: 200, t: 700 })
+        const f = wobble(g, { dx: 20, ms: 300, d: 900 })
+        for (let k = 0; k < 4; k++) ink(f, L([140 + k * 18, 430], [150 + k * 18, 380]), { w: 3, d: 700 + k * 100, t: 150 })
+        for (let k = 0; k < 6; k++) ball(g, 120 + k * 24, 472 + (k % 2) * 8, 4, { d: 500, fill: 'hell', w: 1.2, t: 0 })
+        for (let k = 0; k < 3; k++) ink(g, B([110 + k * 40, 486], [120 + k * 40, 490], [130 + k * 40, 486], [140 + k * 40, 490]), { w: 1, d: 1300, t: 100 })
       },
       chronisch(g) {
-        ink(g, RR(150, 330, 160, 300, 18), { w: 3, t: 800 })
+        const cord = E(240, 470, 90, 120)
+        ink(g, cord, { w: 3, t: 800 })
         ink(g, L([170, 470], [250, 470]), { w: 2.4, d: 300, t: 300 })
         ink(g, L([250, 470], [290, 440]), { w: 5, d: 500, t: 300 })
-        arrow(g, L([250, 456], [250, 300]), { w: 4, d: 800, t: 400, head: 11 })
+        const up = L([250, 456], [250, 300])
+        arrow(g, up, { w: 4, d: 800, t: 400, head: 11 })
+        flow(g, up, { n: 4, ms: 700, d: 1200, r: 2.8 })
         dashes(g, L([20, 470], [166, 470]), { w: 1.6, d: 300, dash: 6, gap: 6 })
-        text(g, 230, 660, 'Tor bleibt offen', { anchor: 'middle', cls: 's', d: 1100 })
+        flow(g, L([20, 470], [166, 470]), { n: 3, ms: 1200, d: 900, r: 2 })
+        clock(g, 70, 600, 30, 0, 0, 1000)
       },
       erwartung(g) {
         brain(g, 180, 450, 1.1)
-        text(g, 180, 600, 'Erwartung · Stimmung · Aufmerksamkeit', { anchor: 'middle', cls: 's', d: 1300 })
+        // drei Regler oben: Erwartung, Stimmung, Aufmerksamkeit
+        for (let k = 0; k < 3; k++) {
+          const x = 80 + k * 100
+          ink(g, L([x, 600], [x, 650]), { w: 2, d: 900 + k * 100, t: 200 })
+          const knob = wobble(g, { dy: -14 + k * 8, ms: 2400 + k * 500, d: 1200 })
+          ink(knob, RR(x - 12, 620, 24, 10, 3), { w: 2, d: 1000 + k * 100, t: 200 })
+        }
       },
       ende(g) {
         arcArrow(g, 180, 480, 60, -60, 260, { t: 900, w: 3 })
+        const s = spin(g, 180, 480, 2000, 900)
+        dot(s, 180, 420, 4, 900)
       },
     },
     scenes: [
