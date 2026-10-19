@@ -1,119 +1,15 @@
 import type { Bite } from '../feed'
 import { B, E, HOOK, L, RR, T, arrow, blank, bolt, brain, bubble, check, clock, cross, crowd, dashes, fig, group, hatch, hbars, ink, letter, lie, mk, question, rays, st, text, timeline, vbars, type P } from './draw'
-import { arcArrow, axes, ball, bird, cloud, dot, drop, earth, eyeFront, flake, flame, flow, glide, ground, heart, house, lens, mapRegion, pie, plot, rad, ripple, smooth, spin, sun, thermo, tree, waveP, wobble } from './kit'
+import { antibody, arcArrow, axes, bact, ball, bird, cell, cloud, dot, drop, earth, eyeFront, flake, flame, flow, glide, ground, heart, house, ladder, leaf, lens, mapRegion, mito, pie, plot, rad, ripple, smooth, spin, sun, thermo, tree, virus, waveP, wobble } from './kit'
 
 // Leben & Körper: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
-/** Blatt mit Mittelrippe und Seitenadern, Stiel unten links, Spitze nach rechts oben */
-function leaf(g: Element, cx: number, cy: number, s = 1, d = 0): P[] {
-  const P = (a: number, b: number): P => [cx + a * s, cy + b * s]
-  const o = [...B(P(-80, 40), P(-60, -30), P(20, -60), P(80, -40)), ...B(P(80, -40), P(60, 30), P(-20, 60), P(-80, 40)).slice(1)]
-  blank(g, o)
-  hatch(g, o, d + 600)
-  ink(g, o, { w: 3, d, t: 800 })
-  const mid = B(P(-80, 40), P(-30, 10), P(30, -20), P(76, -38))
-  ink(g, mid, { w: 2, d: d + 500, t: 600 })
-  for (let i = 1; i < 6; i++) {
-    const q = mid[Math.round((i / 6) * (mid.length - 1))]
-    for (const k of [-1, 1]) ink(g, B(q, [q[0] + 8 * s, q[1] + k * 8 * s], [q[0] + 14 * s, q[1] + k * 16 * s], [q[0] + 16 * s, q[1] + k * 24 * s]), { w: 1, d: d + 700 + i * 60, t: 150 })
-  }
-  ink(g, L(P(-80, 40), P(-100, 56)), { w: 2.4, d: d + 300, t: 200 })
-  return o
-}
 
-/** Mitochondrium: doppelte Hülle, innere Haut zu Falten (Cristae) gelegt */
-function mito(g: Element, cx: number, cy: number, s = 1, d = 0): void {
-  const w = 64 * s
-  const h = 32 * s
-  blank(g, RR(cx - w / 2, cy - h / 2, w, h, h / 2))
-  hatch(g, RR(cx - w / 2 + 3 * s, cy - h / 2 + 3 * s, w - 6 * s, h - 6 * s, h / 2 - 3 * s), d + 500)
-  ink(g, RR(cx - w / 2, cy - h / 2, w, h, h / 2), { w: 2.4, d, t: 400 })
-  for (let i = 0; i < 6; i++) {
-    const x = cx - w / 2 + 10 * s + i * ((w - 20 * s) / 5)
-    const up = i % 2 === 0
-    const y0 = up ? cy - h / 2 + 3 * s : cy + h / 2 - 3 * s
-    const y1 = up ? cy + h * 0.18 : cy - h * 0.18
-    blank(g, RR(x - 2.4 * s, Math.min(y0, y1), 4.8 * s, Math.abs(y1 - y0), 2.4 * s))
-    ink(g, [[x - 2.4 * s, y0], [x - 2.4 * s, y1], [x + 2.4 * s, y1], [x + 2.4 * s, y0]], { w: 1.2, d: d + 300 + i * 40, t: 150 })
-  }
-}
 
-/** Bakterium (Stäbchen) mit Erbgut-Knäuel, feinen Härchen und Geißel */
-function bact(g: Element, x: number, y: number, s = 1, d = 0, fill = false): void {
-  for (let k = 0; k < 8; k++) {
-    const a = rad(k * 45 + 20)
-    ink(g, L([x + Math.cos(a) * 20 * s, y + Math.sin(a) * 8 * s], [x + Math.cos(a) * 26 * s, y + Math.sin(a) * 13 * s]), { w: 0.8, d: d + 200, t: 60 })
-  }
-  blank(g, RR(x - 20 * s, y - 8 * s, 40 * s, 16 * s, 8 * s))
-  if (fill) hatch(g, RR(x - 20 * s, y - 8 * s, 40 * s, 16 * s, 8 * s), d + 200, true)
-  ink(g, RR(x - 20 * s, y - 8 * s, 40 * s, 16 * s, 8 * s), { w: 2.2, d, t: 300 })
-  if (s >= 0.8 && !fill) ink(g, Array.from({ length: 24 }, (_, i) => [x - 10 * s + i * 0.9 * s, y + Math.sin(i * 1.3) * 3.5 * s] as P), { w: 0.9, d: d + 300, t: 200 })
-  ink(g, B([x + 20 * s, y], [x + 28 * s, y - 6 * s], [x + 32 * s, y + 6 * s], [x + 40 * s, y]), { w: 1.4, d: d + 200, t: 200 })
-  ink(g, B([x + 40 * s, y], [x + 46 * s, y - 5 * s], [x + 50 * s, y + 5 * s], [x + 56 * s, y]), { w: 1.2, d: d + 300, t: 200 })
-}
 
-/** Virus: Hülle mit keulenförmigen Stacheln, innen das Erbgut */
-function virus(g: Element, cx: number, cy: number, r: number, d = 0): void {
-  for (let k = 0; k < 12; k++) {
-    const a = rad(k * 30)
-    ink(g, L([cx + Math.cos(a) * r, cy + Math.sin(a) * r], [cx + Math.cos(a) * (r + 9), cy + Math.sin(a) * (r + 9)]), { w: 1.8, d: d + 300, t: 100 })
-    const c: P = [cx + Math.cos(a) * (r + 12), cy + Math.sin(a) * (r + 12)]
-    blank(g, E(c[0], c[1], 4))
-    ink(g, E(c[0], c[1], 4), { w: 1.4, d: d + 400, t: 100 })
-  }
-  ball(g, cx, cy, r, { d, fill: 'hell', w: 2.4 })
-  if (r > 14) ink(g, Array.from({ length: 40 }, (_, i) => [cx + Math.cos(i * 0.5) * r * 0.5 * (1 - i / 60), cy + Math.sin(i * 0.5) * r * 0.5 * (1 - i / 60)] as P), { w: 1, d: d + 500, t: 300 })
-}
 
-/** Antikörper (Y aus vier Ketten), Fuß bei (x, y), Drehung in Grad */
-function antibody(g: Element, x: number, y: number, s = 1, deg = 0, d = 0): void {
-  const r = ([a, b]: P): P => [x + a * s * Math.cos(rad(deg)) - b * s * Math.sin(rad(deg)), y + a * s * Math.sin(rad(deg)) + b * s * Math.cos(rad(deg))]
-  for (const k of [-1, 1]) {
-    ink(g, [r([k * 2.2, 0]), r([k * 2.2, -18])], { w: 2, d, t: 200 })
-    ink(g, [r([k * 2.2, -18]), r([k * 12, -30])], { w: 2.2, d: d + 150, t: 200 })
-    ink(g, [r([k * 7, -16]), r([k * 17, -26])], { w: 1.6, d: d + 250, t: 200 })
-  }
-  ink(g, [r([-2.2, -12]), r([2.2, -12])], { w: 1, d: d + 300, t: 60 })
-}
 
-/** DNA als Doppelhelix (waagerecht): zwei Stränge umeinander, dazwischen die Basenpaare */
-function ladder(g: Element, x0: number, x1: number, y: number, h = 30, d = 0, t = 800): void {
-  const turn = 62
-  const s1: P[] = []
-  const s2: P[] = []
-  for (let x = x0; x <= x1; x += 2) {
-    s1.push([x, y + Math.sin(((x - x0) / turn) * Math.PI * 2) * h / 2])
-    s2.push([x, y - Math.sin(((x - x0) / turn) * Math.PI * 2) * h / 2])
-  }
-  for (let x = x0 + 5; x < x1 - 2; x += 8) {
-    const a = Math.sin(((x - x0) / turn) * Math.PI * 2) * h / 2
-    if (Math.abs(a) > 3) ink(g, L([x, y + a * 0.86], [x, y - a * 0.86]), { w: 1.2, d: d + ((x - x0) / (x1 - x0)) * t, t: 80 })
-  }
-  ink(g, s1, { w: 2.6, d, t })
-  ink(g, s2, { w: 2.2, d, t })
-}
 
-/** Zelle mit Kern, Kernkörperchen, Mitochondrien und Membranfalten */
-function cell(g: Element, cx: number, cy: number, rx: number, ry: number, d = 0, nucleus = true): void {
-  const o = [...B([cx - rx, cy], [cx - rx, cy - ry * 1.2], [cx + rx * 0.4, cy - ry * 1.1], [cx + rx, cy - ry * 0.3]), ...B([cx + rx, cy - ry * 0.3], [cx + rx * 1.1, cy + ry * 0.8], [cx - rx * 0.3, cy + ry * 1.2], [cx - rx, cy]).slice(1)]
-  blank(g, o)
-  ink(g, o, { w: 3, d, t: 900 })
-  if (nucleus) {
-    hatch(g, E(cx - rx * 0.1, cy, rx * 0.26, ry * 0.3), d + 700, true)
-    ink(g, E(cx - rx * 0.1, cy, rx * 0.26, ry * 0.3), { w: 2.4, d: d + 500, t: 500 })
-    blank(g, E(cx - rx * 0.06, cy - ry * 0.04, rx * 0.07, ry * 0.08))
-    ink(g, E(cx - rx * 0.06, cy - ry * 0.04, rx * 0.07, ry * 0.08), { w: 1.2, d: d + 800, t: 200 })
-    if (rx > 60) {
-      for (const [a, b, k] of [[0.45, -0.35, 1], [0.5, 0.35, -1], [-0.55, 0.4, 1]] as const) {
-        const mx = cx + a * rx
-        const my = cy + b * ry
-        ink(g, RR(mx - rx * 0.12, my - ry * 0.06, rx * 0.24, ry * 0.12, ry * 0.06), { w: 1.4, d: d + 900, t: 200 })
-        ink(g, Array.from({ length: 9 }, (_, i) => [mx - rx * 0.09 + i * rx * 0.0225, my + (i % 2 ? -1 : 1) * ry * 0.03 * k] as P), { w: 0.8, d: d + 1000, t: 150 })
-      }
-      for (let i = 0; i < 3; i++) ink(g, E(cx - rx * 0.1, cy, rx * (0.36 + i * 0.06), ry * (0.42 + i * 0.07), 200 + i * 10, 300 - i * 10), { w: 0.9, d: d + 1100 + i * 60, t: 200 })
-    }
-  }
-}
 
 /** Hautquerschnitt: Oberfläche (mit Beule, wenn up), Haarbalg, Haar, Haaraufrichter-Muskel; Haar tritt bei (x, y) aus */
 function skin(g: Element, x: number, y: number, up: boolean, d = 0, s = 1): void {
