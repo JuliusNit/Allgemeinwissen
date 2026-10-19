@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, brain, check, clock, cross, dashes, eye, fig, group, hatch, ink, st, text, timeline, vbars, type P } from './draw'
-import { arcArrow, ball, box, dot, drop, flake, flame, flow, glide, rad, ripple, smooth, sun, thermo, water, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, brain, check, clock, cross, dashes, fig, hatch, ink, st, strike, text, timeline, vbars, type P } from './draw'
+import { arcArrow, ball, box, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, mol, onion, rad, ripple, smooth, spin, sun, thermo, water, waveP, wobble } from './kit'
 
 // Chemie: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -54,6 +54,62 @@ function lakeBed(g: Element, d = 0): void {
     ink(w, B([x, 400], [x - 2, 400 - h / 2], [x + 3, 400 - h * 0.8], [x + 1, 400 - h]), { w: 1.6, d: d + 500, t: 300 })
     ink(w, E(x + 1, 400 - h + 12, 3, 8), { w: 1.8, d: d + 700, t: 150 })
   }
+}
+
+/** Schneidebrett im Anschnitt: Oberkante bei y, Holzmaserung */
+function board(g: Element, x: number, y: number, w: number, d = 0): void {
+  const p = RR(x, y, w, 24, 6)
+  blank(g, p)
+  ink(g, p, { w: 2.8, d, t: 500 })
+  ink(g, L([x + 4, y + 6], [x + w - 4, y + 6]), { w: 1.2, d: d + 200, t: 300 })
+  for (let k = 0; k < 4; k++) ink(g, B([x + 20 + k * (w / 4), y + 12], [x + 40 + k * (w / 4), y + 10], [x + 60 + k * (w / 4), y + 16], [x + 80 + k * (w / 4), y + 13]), { w: 0.8, d: d + 300 + k * 50, t: 150 })
+}
+
+/** Zwiebelhaut-Zellen (je 104 × 72) an den Ecken oben links, beschnitten auf die Bühne: Wand, Kern,
+ *  Vakuole mit Schwefelstoffen (Punkte), Enzym im Zellplasma am Rand (Haken) */
+function clipCells(g: Element, cells: [number, number][], d = 0): void {
+  const cg = clipBox(g, 20, 300, 320, 340)
+  cells.forEach(([x, y], i) => {
+    const dd = d + i * 60
+    ink(cg, RR(x, y, 104, 72, 6), { w: 2.4, d: dd, t: 300 })
+    ink(cg, RR(x + 4, y + 4, 96, 64, 4), { w: 0.9, d: dd + 100, t: 300 })
+    const vac: P[] = smooth([[x + 30, y + 14], [x + 70, y + 12], [x + 92, y + 24], [x + 90, y + 52], [x + 60, y + 60], [x + 28, y + 56], [x + 22, y + 34], [x + 30, y + 14]], 3)
+    hatch(cg, vac, dd + 300)
+    ink(cg, vac, { w: 1.4, d: dd + 200, t: 300 })
+    for (let k = 0; k < 4; k++) dot(cg, x + 42 + (k % 2) * 22, y + 28 + Math.floor(k / 2) * 16, 2.6, dd + 400)
+    ink(cg, E(x + 14, y + 36, 7, 10), { w: 1.4, d: dd + 250, t: 200 })
+    hatch(cg, E(x + 14, y + 36, 7, 10), dd + 350, true)
+    for (const [ex, ey] of [[x + 50, y + 8], [x + 96, y + 40], [x + 46, y + 64]] as const) ink(cg, [[ex - 3, ey - 2], [ex, ey + 2], [ex + 3, ey - 2]], { w: 1.4, d: dd + 500, t: 80 })
+  })
+}
+
+/** Tränenreizstoff (Propanthial-S-oxid): drei Kohlenstoffe, Schwefel, Sauerstoff */
+function tearGas(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): [number, number] => [x + a * s, y + b * s]
+  mol(g, [[...P(0, 0), 'C'], [...P(26, -16), 'C'], [...P(52, 0), 'C'], [...P(80, -16), 'S', 'dicht'], [...P(106, 0), 'O', 'hell'], [...P(-14, -12), 'H'], [...P(-14, 12), 'H'], [...P(52, 22), 'H']], [[0, 1], [1, 2], [2, 3, true], [3, 4], [0, 5], [0, 6], [2, 7]], s, d)
+}
+
+/** Wühlmaus von der Seite, Kopf nach links */
+function mouse(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const body = [...B(P(-40, 0), P(-30, -24), P(10, -30), P(30, -14)), ...B(P(30, -14), P(40, -4), P(34, 12), P(10, 14)).slice(1), ...B(P(10, 14), P(-20, 16), P(-36, 10), P(-40, 0)).slice(1)]
+  blank(g, body)
+  hatch(g, body, d + 300)
+  ink(g, body, { w: 2.4, d, t: 500 })
+  ink(g, E(x - 22 * s, y - 20 * s, 7 * s, 8 * s), { w: 1.8, d: d + 200, t: 200 })
+  blank(g, E(x - 30 * s, y - 6 * s, 3 * s))
+  dot(g, x - 30 * s, y - 6 * s, 2 * s, d + 300)
+  for (const k of [-1, 1]) ink(g, L(P(-40, 0), P(-52, k * 4 - 2)), { w: 0.9, d: d + 400, t: 80 })
+  ink(g, B(P(36, 4), P(56, 10), P(64, -4), P(80, 0)), { w: 1.6, d: d + 400, t: 200 })
+  for (const a of [-20, 14]) ink(g, L(P(a, 13), P(a - 4, 20)), { w: 1.8, d: d + 300, t: 80 })
+}
+
+/** kleines offenes Auge (Lider, Iris, Pupille) */
+function eyeMini(g: Element, x: number, y: number, d = 0): void {
+  ink(g, B([x - 12, y], [x - 6, y - 8], [x + 6, y - 8], [x + 12, y]), { w: 1.8, d, t: 150 })
+  ink(g, B([x - 12, y], [x - 6, y + 6], [x + 6, y + 6], [x + 12, y]), { w: 1.2, d: d + 50, t: 150 })
+  ink(g, E(x, y - 1, 5), { w: 1.2, d: d + 100, t: 100 })
+  dot(g, x, y - 1, 2.4, d + 150)
 }
 
 /** Seifenmolekül: Kopf (Kreis) + Schwanz (Zickzack) ab (x, y) in Richtung deg */
@@ -357,114 +413,263 @@ export const AHA_CHEMIE: Bite[] = [
     images: [],
     draw: {
       zwiebel(g) {
-        const o: P[] = [...B([180, 100], [200, 160], [300, 200], [280, 300]), ...B([280, 300], [260, 380], [100, 380], [80, 300]).slice(1), ...B([80, 300], [60, 200], [160, 160], [180, 100]).slice(1)]
-        blank(g, o)
-        ink(g, o, { w: 3.2, t: 900 })
-        for (const k of [0.7, 0.4]) ink(g, B([180, 100 + (1 - k) * 60], [180 + 60 * k, 180], [180 + 80 * k, 300], [180, 370 - (1 - k) * 20]), { w: 1.8, d: 500, t: 500 })
-        drop(g, 300, 120, 0.8, 1100)
+        board(g, 20, 400, 320, 0)
+        onion(g, 120, 290, 1, 200)
+        halfOnion(g, 250, 330, 56, 500)
+        const k = wobble(g, { dy: -8, deg: -3, ox: 200, oy: 150, ms: 1400, d: 1200 })
+        knife(k, 150, 130, 0.9, 900)
+        const t = glide(g, 0, 60, { ms: 1800, d: 1600, loop: true })
+        drop(t, 320, 200, 0.7, 1500)
       },
       ganz(g) {
-        const o: P[] = [...B([180, 330], [200, 380], [290, 410], [270, 500]), ...B([270, 500], [250, 580], [110, 580], [90, 500]).slice(1), ...B([90, 500], [70, 410], [160, 380], [180, 330]).slice(1)]
-        ink(g, o, { w: 3, t: 800 })
-        const knife = st(g, 'x1', '--o: 260px 420px')
-        ink(knife, RR(220, 380, 120, 20, 6), { w: 2.6, t: 0 })
-        ink(knife, [[220, 400], [180, 470], [210, 400]], { w: 2.6, t: 0 })
-        text(g, 180, 630, 'ganz: riecht kaum', { anchor: 'middle', cls: 's', d: 900 })
+        board(g, 20, 610, 320, 0)
+        onion(g, 170, 490, 1.25, 300)
+        const k = glide(g, -60, 0, { ms: 1600, d: 1300 })
+        knife(k, 230, 320, 0.8, 1200)
       },
       zelle(g) {
-        ink(g, RR(60, 360, 240, 200, 20), { w: 3, t: 700 })
-        ink(g, E(130, 460, 40), { w: 2.4, d: 400, t: 500 })
-        for (const [x, y] of [[120, 450], [140, 470], [125, 476]] as const) dot(g, x, y, 4, 800)
-        text(g, 130, 530, 'Schwefelstoff', { anchor: 'middle', cls: 's', d: 900 })
-        for (const [x, y] of [[230, 420], [250, 470], [220, 500]] as const) ink(g, [[x - 8, y], [x, y - 10], [x + 8, y]], { w: 2, d: 1000, t: 150 })
-        text(g, 240, 540, 'Enzym', { anchor: 'middle', cls: 's', d: 1100 })
-        const cut = st(g, 'x1', '--o: 180px 460px')
-        ink(cut, L([180, 340], [180, 580]), { w: 4.4, t: 0 })
+        // Zwiebelhaut unterm Mikroskop: lang gestreckte Zellen, je eine große Vakuole mit Schwefelstoffen,
+        // das Enzym im Zellplasma am Rand
+        const cells: [number, number][] = []
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) cells.push([24 + c * 108 + (r % 2) * 54 - 54, 330 + r * 76])
+        clipCells(g, cells, 0)
+        const cut = st(g, 'x1', '--o: 180px 480px')
+        ink(cut, [[150, 310], [170, 380], [160, 450], [188, 520], [176, 600], [196, 650]], { w: 4, t: 0 })
+        for (const [x, y] of [[170, 400], [176, 470], [184, 560]] as const) flow(cut, L([x - 30, y], [x + 30, y + 6]), { n: 2, ms: 900, d: 200, r: 2.2 })
+        ripple(cut, 178, 480, 8, 40, { n: 2, ms: 1400, d: 300, w: 1.2 })
       },
       gas(g) {
-        for (let i = 0; i < 9; i++) {
-          const x = 70 + (i % 5) * 52
-          const y = 420 + Math.floor(i / 5) * 80
-          const p = group(g, 'float', `--d:${i * 150}ms`)
-          ball(p, x, y, 8, { d: i * 120, fill: 'dicht', t: 0, w: 1.6 })
-          ball(p, x + 12, y - 8, 5, { d: i * 120, t: 0, w: 1.4 })
+        board(g, 20, 630, 320, 0)
+        halfOnion(g, 180, 560, 48, 200)
+        for (let i = 0; i < 4; i++) {
+          const up = glide(g, (i % 2 ? 20 : -20), -170, { ms: 3200, d: 900 + i * 700, loop: true })
+          tearGas(up, 70 + i * 60, 500 - (i % 2) * 30, 0.7, 700 + i * 200)
         }
-        for (const x of [90, 180, 270]) arrow(g, L([x, 600], [x, 520]), { w: 2, d: 900, t: 300, head: 8 })
-        text(g, 180, 640, 'flüchtiger Reizstoff steigt auf', { anchor: 'middle', cls: 's', d: 1200 })
+        tearGas(g, 110, 330, 1.1, 400)
       },
       auge(g) {
-        eye(g, 180, 430, 2)
-        for (const [x, y, d] of [[150, 520, 800], [200, 540, 1000]] as const) drop(g, x, y, 0.6, d, false)
-        for (let i = 0; i < 4; i++) ball(g, 60 + i * 20, 360 - i * 10, 5, { d: 300 + i * 100, fill: 'dicht', t: 0, w: 1.4 })
-        text(g, 180, 620, 'nach etwa 30 Sekunden', { anchor: 'middle', cls: 's', d: 1200 })
+        eyeFront(g, 180, 430, 1.9, 0)
+        for (let i = 0; i < 5; i++) flow(g, B([30 + i * 50, 650], [40 + i * 50, 580], [120 + i * 20, 540], [150 + i * 12, 470]), { n: 2, ms: 2200, d: 900 + i * 200, r: 2.2 })
+        for (const [x, dd] of [[140, 1400], [208, 2200]] as const) {
+          const t = glide(g, 0, 120, { ms: 1800, d: dd, loop: true })
+          drop(t, x, 500, 0.45, dd - 200)
+        }
+        // Stoppuhr bei 30 Sekunden
+        ink(g, E(300, 600, 30), { w: 2.4, d: 600, t: 400 })
+        ink(g, RR(294, 560, 12, 8, 2), { w: 2, d: 700, t: 100 })
+        hatch(g, [...E(300, 600, 30, 30, -90, 90), [300, 600]], 900)
+        ink(g, L([300, 600], [300, 628]), { w: 2.4, d: 900, t: 200 })
+        for (let k = 0; k < 12; k++) {
+          const a = rad(k * 30)
+          ink(g, L([300 + Math.cos(a) * 24, 600 + Math.sin(a) * 24], [300 + Math.cos(a) * 28, 600 + Math.sin(a) * 28]), { w: 1, d: 800 + k * 20, t: 60 })
+        }
       },
       reflex(g) {
-        eye(g, 200, 500, 1.8)
-        const gland = E(270, 420, 30, 18)
+        // Reflexbogen: Hornhaut meldet über den Nerv ans Gehirn, das die Drüse über dem äußeren Augenwinkel anschaltet
+        eyeFront(g, 150, 540, 1.3, 0)
+        const gland: P[] = smooth([[196, 470], [220, 456], [252, 462], [268, 478], [256, 494], [228, 494], [204, 488], [196, 470]], 3)
+        blank(g, gland)
         hatch(g, gland, 700)
         ink(g, gland, { w: 2.4, d: 500, t: 400 })
-        text(g, 290, 384, 'Tränendrüse', { anchor: 'middle', cls: 's', d: 900 })
-        ink(g, B([150, 500], [100, 470], [80, 400], [120, 350]), { w: 2, d: 800, t: 500 })
-        brain(g, 150, 320, 0.4, 900)
+        for (const x of [212, 226, 240]) ink(g, L([x, 492], [x - 10, 512]), { w: 1.2, d: 800, t: 150 })
+        brain(g, 110, 360, 0.55, 600)
+        const inp = B([150, 530], [80, 500], [60, 420], [96, 380])
+        dashes(g, inp, { w: 1.6, d: 900, dash: 5, gap: 4 })
+        flow(g, inp, { n: 2, ms: 1200, d: 1200, r: 2.2 })
+        const out = B([140, 370], [220, 360], [260, 420], [236, 462])
+        dashes(g, out, { w: 1.6, d: 1300, dash: 5, gap: 4 })
+        flow(g, out, { n: 2, ms: 1200, d: 1700, r: 2.2 })
+        const t = glide(g, 0, 70, { ms: 1600, d: 2200, loop: true })
+        drop(t, 214, 560, 0.4, 2000)
       },
       nase(g) {
-        eye(g, 130, 440, 1.6)
-        ink(g, B([96, 452], [90, 490], [120, 520], [180, 540]), { w: 2, d: 600, t: 500 })
-        ink(g, [[200, 380], [250, 560], [200, 580]], { w: 3, d: 300, t: 600 })
-        text(g, 180, 630, 'Tränen fließen in die Nase', { anchor: 'middle', cls: 's', d: 1100 })
+        // Tränenwege: Tränenpünktchen am inneren Augenwinkel → Tränensack → Tränen-Nasen-Gang → Nase
+        eyeFront(g, 110, 420, 1.1, 0)
+        const nose = [...B([206, 330], [210, 420], [224, 480], [252, 540]), ...B([252, 540], [262, 560], [240, 576], [220, 568]).slice(1)]
+        ink(g, nose, { w: 3, d: 300, t: 600 })
+        ink(g, B([220, 568], [210, 580], [190, 578], [184, 566]), { w: 2.4, d: 600, t: 200 })
+        ink(g, B([184, 566], [180, 556], [190, 548], [204, 552]), { w: 1.8, d: 700, t: 200 })
+        const duct = [...B([176, 418], [186, 404], [196, 398], [200, 396]), ...B([200, 396], [204, 440], [206, 500], [200, 556]).slice(1)]
+        ink(g, duct, { w: 5, d: 800, t: 500 })
+        blank(g, duct)
+        ink(g, B([176, 426], [186, 430], [196, 420], [200, 410]), { w: 1.6, d: 900, t: 200 })
+        hatch(g, E(200, 400, 7, 14), 1000, true)
+        flow(g, duct, { n: 3, ms: 1600, d: 1200, r: 2.4 })
+        const t = glide(g, 0, 60, { ms: 1400, d: 2000, loop: true })
+        drop(t, 196, 590, 0.4, 1800)
       },
       brille(g) {
-        for (const x of [120, 240]) {
-          ink(g, RR(x - 50, 430, 100, 70, 26), { w: 3, t: 600 })
-          eye(g, x, 466, 0.7, 400)
+        head(g, 180, 440, 1.5, 0, { neck: true })
+        // Schwimmbrille: zwei Gläser mit Dichtrand, Steg, Band
+        for (const k of [-1, 1]) {
+          const gl = RR(180 + k * 42 - 30, 396, 60, 40, 18)
+          blank(g, gl)
+          ink(g, gl, { w: 3.4, d: 900, t: 400 })
+          ink(g, RR(180 + k * 42 - 24, 402, 48, 28, 13), { w: 1.4, d: 1000, t: 300 })
+          eyeMini(g, 180 + k * 42, 418, 1100)
+          ink(g, B([180 + k * 72, 414], [180 + k * 90, 414], [180 + k * 100, 420], [180 + k * 104, 426]), { w: 3, d: 1100, t: 200 })
         }
-        ink(g, B([170, 450], [176, 440], [184, 440], [190, 450]), { w: 2.6, d: 300, t: 200 })
-        text(g, 180, 580, 'Schwimmbrille: Gas kommt nicht ans Auge', { anchor: 'middle', cls: 's', d: 1000 })
+        ink(g, B([168, 412], [174, 404], [186, 404], [192, 412]), { w: 2.6, d: 1000, t: 150 })
+        for (let i = 0; i < 4; i++) {
+          const x = 70 + i * 70
+          flow(g, [...L([x, 650], [x + (i < 2 ? 40 : -40), 470]), ...L([x + (i < 2 ? 40 : -40), 470], [x + (i < 2 ? -10 : 10), 540]).slice(1)], { n: 1, ms: 2000, d: 1400 + i * 200, r: 2.4 })
+        }
       },
       ruehrung(g) {
-        drop(g, 110, 470, 1.6)
-        drop(g, 250, 470, 1.6, 300, false)
-        text(g, 110, 560, 'Reiz-Tränen', { anchor: 'middle', cls: 's', d: 700 })
-        text(g, 250, 560, 'Gefühls-Tränen', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 180, 610, 'andere Zusammensetzung', { anchor: 'middle', cls: 's', d: 1100 })
+        // zwei Tropfen im Ausschnitt: Reiz-Tränen fast nur Wasser und Salz, Gefühls-Tränen mit mehr Eiweißen
+        for (const [x, rich] of [[100, false], [260, true]] as const) {
+          drop(g, x, 500, 3.2, rich ? 300 : 0, false)
+          for (let k = 0; k < 10; k++) {
+            const a = rad(k * 37)
+            const r = 12 + (k % 4) * 9
+            water(g, x + Math.cos(a) * r, 520 + Math.sin(a) * r, 0.22, k * 30, 600 + k * 30)
+          }
+          for (let k = 0; k < 4; k++) dot(g, x - 24 + k * 16, 560 - (k % 2) * 12, 2.2, 900 + k * 50)
+          if (rich) for (let k = 0; k < 5; k++) {
+            const px = x - 28 + k * 14
+            const py = 470 + (k % 2) * 46
+            ink(g, smooth([[px, py], [px + 6, py - 6], [px + 12, py], [px + 6, py + 6], [px + 14, py + 10]], 3), { w: 2, d: 1100 + k * 80, t: 200 })
+          }
+        }
+        halfOnion(g, 100, 330, 26, 1300)
+        heart(g, 260, 336, 0.8, 1400)
       },
       tipps(g) {
-        ink(g, RR(40, 440, 220, 26, 8), { w: 2.8, t: 500 })
-        ink(g, [[40, 466], [30, 470], [260, 470]], { w: 2, d: 300, t: 300 })
-        ink(g, RR(260, 444, 70, 18, 8), { w: 2.6, d: 400, t: 300 })
-        text(g, 150, 520, 'scharfes Messer: weniger zerdrückte Zellen', { anchor: 'middle', cls: 's', d: 800 })
+        // links: scharfe Klinge trennt sauber, rechts: stumpfe quetscht
+        for (const [x0, sharp] of [[20, true], [190, false]] as const) {
+          for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+            const x = x0 + c * 50
+            const y = 460 + r * 54
+            const crushed = !sharp && c === 1
+            const cut = sharp && c === 1
+            const p: P[] = crushed ? [[x + 4, y + 8], [x + 20, y + 2], [x + 30, y + 12], [x + 46, y + 6], [x + 40, y + 46], [x + 20, y + 40], [x + 6, y + 48], [x + 4, y + 8]] : RR(x, y, 48, 52, 8)
+            if (crushed) hatch(g, p, 900)
+            ink(g, p, { w: 1.6, d: 400 + (r * 3 + c) * 40, t: 200 })
+            if (!crushed && !cut) dot(g, x + 34, y + 16, 3, 600 + (r * 3 + c) * 40)
+          }
+          const tip = sharp ? 6 : 26
+          const bl: P[] = [[x0 + 74 - tip / 2 - 14, 330], [x0 + 74 + tip / 2 + 14, 330], [x0 + 74 + tip / 2, 440], [x0 + 74 - tip / 2, 440], [x0 + 74 - tip / 2 - 14, 330]]
+          blank(g, bl)
+          hatch(g, bl, 300, true)
+          ink(g, bl, { w: 2.4, t: 400 })
+          if (sharp) ink(g, L([x0 + 74, 440], [x0 + 74, 622]), { w: 2, d: 1000, t: 400 })
+          else for (let k = 0; k < 3; k++) {
+            const t = glide(g, 0, 40, { ms: 1400, d: 1300 + k * 300, loop: true })
+            drop(t, x0 + 54 + k * 20, 600, 0.3, 1200)
+          }
+          if (sharp) check(g, x0 + 74, 300, 0.7, 1300)
+          else cross(g, x0 + 74, 300, 0.7, 1300)
+        }
       },
       kalt(g) {
-        thermo(g, 120, 340, 220, 0.2)
-        text(g, 220, 470, 'kalt: verdampft langsamer', { anchor: 'middle', cls: 's', d: 900 })
+        // Kühlschrank offen: Zwiebel im Fach, Reizstoff steigt kaum
+        ink(g, RR(60, 300, 200, 340, 12), { w: 3, t: 700 })
+        ink(g, L([60, 420], [260, 420]), { w: 2.2, d: 300, t: 300 })
+        for (const y of [500, 570]) ink(g, L([70, y], [250, y]), { w: 1.4, d: 400, t: 300 })
+        ink(g, [[260, 310], [330, 330], [330, 630], [260, 640]], { w: 2.6, d: 400, t: 500 })
+        for (const y of [380, 460, 540]) ink(g, L([270, y], [322, y + 2]), { w: 1.4, d: 600, t: 200 })
+        ink(g, RR(74, 314, 40, 8, 4), { w: 1.6, d: 500, t: 150 })
+        for (const [x, y] of [[100, 360], [160, 380], [220, 350]] as const) flake(g, x, y, 9, 700)
+        onion(g, 120, 470, 0.32, 800)
+        halfOnion(g, 200, 534, 22, 900)
+        flow(g, L([200, 520], [196, 460]), { n: 1, ms: 4000, d: 1500, r: 1.8 })
+        thermo(g, 298, 440, 70, 0.15, 900)
       },
       abzug(g) {
-        ink(g, [[60, 340], [300, 340], [260, 400], [100, 400], [60, 340]], { w: 3, t: 700 })
-        for (const x of [120, 180, 240]) arrow(g, L([x, 560], [x, 420]), { w: 2, d: 700, t: 400, head: 8 })
-        ink(g, RR(80, 580, 200, 20, 6), { w: 2.6, d: 300, t: 400 })
-        text(g, 180, 640, 'Dunstabzug oder Durchzug', { anchor: 'middle', cls: 's', d: 1100 })
+        // Herd mit Dunstabzug: Reizstoff wird nach oben weggesaugt
+        const hood: P[] = [[40, 400], [320, 400], [250, 340], [230, 340], [230, 290], [130, 290], [130, 340], [110, 340], [40, 400]]
+        blank(g, hood)
+        ink(g, hood, { w: 3, t: 700 })
+        for (let k = 0; k < 6; k++) ink(g, L([70 + k * 44, 392], [86 + k * 44, 392]), { w: 1.4, d: 400 + k * 40, t: 100 })
+        const fan = spin(g, 180, 366, 1400, 900)
+        for (let k = 0; k < 4; k++) ink(fan, B([180, 366], [180 + Math.cos(rad(k * 90)) * 8, 366 + Math.sin(rad(k * 90)) * 8], [180 + Math.cos(rad(k * 90 + 40)) * 14, 366 + Math.sin(rad(k * 90 + 40)) * 14], [180 + Math.cos(rad(k * 90 + 60)) * 18, 366 + Math.sin(rad(k * 90 + 60)) * 18]), { w: 1.8, d: 700, t: 200 })
+        ink(g, L([20, 600], [340, 600]), { w: 3, d: 300, t: 500 })
+        hatch(g, [[20, 602], [340, 602], [340, 650], [20, 650]], 500)
+        board(g, 80, 590, 200, 400)
+        halfOnion(g, 180, 548, 30, 600)
+        for (let i = 0; i < 5; i++) {
+          const p = B([120 + i * 30, 520], [110 + i * 30, 480], [170 + i * 4, 450], [176 + i * 2, 380])
+          flow(g, p, { n: 3, ms: 1800, d: 1000 + i * 150, r: 2 })
+        }
       },
       tranenfrei(g) {
-        text(g, 180, 430, '2015', { anchor: 'middle', size: 40, d: 200 })
-        text(g, 180, 480, 'Japan: Zwiebel ohne Tränen-Enzym', { anchor: 'middle', d: 600 })
-        check(g, 180, 560, 1.4, 1000)
+        ink(g, L([40, 560], [320, 560]), { w: 2.6, t: 600 })
+        for (const [x, y] of [[80, '2002'], [280, '2015']] as const) {
+          ink(g, L([x, 550], [x, 570]), { w: 2.4, d: 400, t: 100 })
+          text(g, x, 600, y, { anchor: 'middle', size: 18, d: 500 })
+        }
+        beaker(g, 50, 520, 60, 110, 0.4, 600)
+        tearGas(g, 80, 360, 0.7, 900)
+        cross(g, 80, 360, 1.2, 1300)
+        onion(g, 280, 440, 0.62, 1400)
+        drop(g, 336, 340, 0.6, 1800, false)
+        strike(g, [320, 320], [352, 368], 2100)
+        arrow(g, L([120, 560], [240, 560]), { w: 2.4, d: 1600, t: 400, head: 9 })
       },
       knoblauch(g) {
-        const c: P[] = [...B([180, 340], [230, 380], [260, 500], [200, 590]), ...B([200, 590], [160, 600], [110, 560], [120, 470]).slice(1), ...B([120, 470], [130, 400], [160, 370], [180, 340]).slice(1)]
-        blank(g, c)
-        ink(g, c, { w: 3, t: 900 })
-        ink(g, B([180, 360], [200, 420], [200, 520], [180, 590]), { w: 1.6, d: 600, t: 500 })
-        text(g, 270, 640, 'Allicin', { anchor: 'middle', d: 1100 })
+        // Knolle mit Zehen, eine Zehe aufgeschnitten
+        const P = (a: number, b: number): P => [140 + a, 470 + b]
+        const bulb = [...B(P(0, -110), P(16, -60), P(100, -40), P(96, 30)), ...B(P(96, 30), P(92, 90), P(40, 104), P(0, 104)).slice(1), ...B(P(0, 104), P(-40, 104), P(-92, 90), P(-96, 30)).slice(1), ...B(P(-96, 30), P(-100, -40), P(-16, -60), P(0, -110)).slice(1)]
+        blank(g, bulb)
+        ink(g, bulb, { w: 3, t: 800 })
+        for (const k of [-0.7, -0.35, 0, 0.35, 0.7]) ink(g, B(P(k * 10, -90), P(k * 120, -40), P(k * 120, 70), P(k * 30, 104)), { w: 1.6, d: 400, t: 500 })
+        hatch(g, [...B(P(0, -110), P(16, -60), P(100, -40), P(96, 30)), ...B(P(96, 30), P(92, 90), P(40, 104), P(0, 104)).slice(1), ...B(P(24, 104), P(84, 70), P(84, -40), P(7, -90))], 700)
+        for (let k = 0; k < 7; k++) ink(g, B(P((k - 3) * 6, 106), P((k - 3) * 8, 116), P((k - 3) * 6 + 2, 122), P((k - 3) * 10, 130)), { w: 1, d: 900 + k * 30, t: 150 })
+        const clove: P[] = [...B([280, 470], [310, 500], [312, 580], [290, 600]), [254, 600], ...B([254, 600], [244, 560], [252, 500], [280, 470]).slice(1)]
+        blank(g, clove)
+        ink(g, clove, { w: 2.6, d: 900, t: 500 })
+        ink(g, L([256, 540], [306, 540]), { w: 2, d: 1100, t: 200 })
+        hatch(g, [[256, 542], [306, 542], [302, 596], [258, 596]], 1200, true)
+        for (let i = 0; i < 3; i++) {
+          const w = wobble(g, { dx: 4, ms: 1200 + i * 200, d: 1300 })
+          ink(w, B([266 + i * 14, 460], [258 + i * 14, 440], [276 + i * 14, 420], [268 + i * 14, 396]), { w: 1.6, d: 1300 + i * 100, t: 300 })
+        }
       },
       pfanne(g) {
-        ink(g, B([40, 500], [60, 560], [300, 560], [320, 500]), { w: 3, t: 700 })
-        ink(g, L([320, 506], [350, 490]), { w: 3, d: 300, t: 200 })
-        for (let i = 0; i < 6; i++) ink(g, E(90 + i * 36, 530, 14, 6), { w: 2, d: 600 + i * 80, t: 200 })
-        for (const x of [120, 180, 240]) ink(g, B([x, 490], [x - 10, 470], [x + 10, 450], [x, 430]), { w: 1.8, d: 1100, t: 300 })
-        text(g, 180, 620, 'gebraten: mild und süß', { anchor: 'middle', cls: 's', d: 1300 })
+        // Pfanne in Schrägsicht auf der Gasflamme, Zwiebelringe, Dampf
+        ink(g, E(170, 520, 130, 40), { w: 3, t: 700 })
+        ink(g, B([40, 520], [46, 560], [294, 560], [300, 520]), { w: 3, d: 200, t: 500 })
+        ink(g, E(170, 524, 118, 34), { w: 1.4, d: 300, t: 500 })
+        const handle: P[] = [[298, 510], [350, 486], [356, 498], [302, 528], [298, 510]]
+        hatch(g, handle, 500, true)
+        ink(g, handle, { w: 2.4, d: 400, t: 200 })
+        for (let i = 0; i < 7; i++) {
+          const x = 90 + (i % 4) * 50 + (i > 3 ? 25 : 0)
+          const y = 510 + (i > 3 ? 18 : 0)
+          ink(g, E(x, y, 18, 6, 180, 520), { w: 2, d: 600 + i * 60, t: 200 })
+          ink(g, E(x, y, 12, 4, 180, 520), { w: 1, d: 700 + i * 60, t: 200 })
+        }
+        hatch(g, E(140, 528, 24, 6), 1000, true)
+        for (let k = 0; k < 8; k++) {
+          const fl = wobble(g, { deg: 6, ox: 100 + k * 20, oy: 600, ms: 500 + k * 60, d: 900 })
+          ink(fl, B([94 + k * 20, 600], [92 + k * 20, 588], [100 + k * 20, 580], [100 + k * 20, 572]), { w: 1.8, d: 800 + k * 40, t: 150 })
+          ink(fl, B([106 + k * 20, 600], [108 + k * 20, 588], [100 + k * 20, 580], [100 + k * 20, 572]), { w: 1.8, d: 800 + k * 40, t: 150 })
+        }
+        ink(g, L([70, 604], [270, 604]), { w: 3, d: 500, t: 300 })
+        for (let i = 0; i < 3; i++) {
+          const s = wobble(g, { dx: 6, ms: 1400 + i * 300, d: 1200 })
+          ink(s, B([110 + i * 60, 480], [100 + i * 60, 440], [124 + i * 60, 420], [112 + i * 60, 370]), { w: 1.6, d: 1200 + i * 150, t: 400 })
+        }
       },
       ende(g) {
-        drop(g, 180, 480, 2)
+        halfOnion(g, 150, 460, 70, 0)
+        const t = glide(g, 0, 90, { ms: 2000, d: 1200, loop: true })
+        drop(t, 270, 400, 1.2, 900)
+      },
+      wehr(g) {
+        // Fraßschutz: Wühlmaus beißt in die Zwiebel im Boden, Reizgas, Maus dreht ab
+        ink(g, L([20, 400], [340, 400]), { w: 3, t: 500 })
+        hatch(g, [[20, 402], [340, 402], [340, 650], [20, 650]], 200)
+        for (const [x, h] of [[170, 100], [182, 120], [194, 90]] as const) {
+          const w = wobble(g, { deg: 4, ox: x, oy: 400, ms: 2400 + x * 9, d: 900 })
+          ink(w, B([x, 400], [x - 4, 400 - h / 2], [x + 6, 400 - h * 0.8], [x + 2 * (x - 182), 400 - h]), { w: 2.4, d: 600, t: 400 })
+        }
+        const hole: P[] = smooth([[100, 420], [260, 416], [280, 520], [240, 600], [120, 604], [90, 520], [100, 420]], 3)
+        blank(g, hole)
+        onion(g, 182, 510, 0.62, 300)
+        const m = glide(g, 60, 0, { ms: 900, d: 2600 })
+        mouse(m, 262, 566, 1, 900)
+        for (let i = 0; i < 5; i++) flow(g, L([234, 540 - i * 6], [272 + i * 6, 500 - i * 14]), { n: 2, ms: 900, d: 1800 + i * 80, r: 2 })
       },
     },
     scenes: [
@@ -477,7 +682,7 @@ export const AHA_CHEMIE: Bite[] = [
       { t: T('Auf der feuchten Augenoberfläche reizt es **Schmerzsensoren**. Das Auge wehrt sich und spült mit Tränen.', 64), gfx: { auge: {} } },
       { t: T('Das Weinen ist ein **Reflex**: Nerven im Auge melden den Reiz, das Gehirn schaltet die Tränendrüse oberhalb des Auges an.', 64), gfx: { reflex: {} } },
       { t: T('Abfließen tut die Flüssigkeit über winzige Kanäle **in die Nase** – darum läuft sie beim Weinen mit.', 64), gfx: { nase: {} } },
-      { t: T('Wozu das Ganze? Es ist die **Verteidigung** der Zwiebel: Wer hineinbeißt, bekommt eine Ladung Reizstoff ab.', 64), gfx: { p1: { draw: 'punkte', args: [['Zelle verletzt', 'Enzyme werden aktiv', 'Reizgas entsteht', 'Fraßfeind lässt ab'], 330] } } },
+      { t: T('Wozu das Ganze? Es ist die **Verteidigung** der Zwiebel: Wer hineinbeißt, bekommt eine Ladung Reizstoff ab.', 64), gfx: { wehr: {} } },
       { t: T('Was hilft? Ein **scharfes Messer**: Es schneidet sauber und zerquetscht weniger Zellen.', 64), gfx: { tipps: {} } },
       { t: T('**Kühlen**: Eine Zwiebel aus dem Kühlschrank gibt den Reizstoff langsamer ab.', 64), gfx: { kalt: {} } },
       { t: T('Und unter dem Dunstabzug oder bei offenem Fenster schneiden – dann **zieht** das Gas einfach ab.', 64), gfx: { abzug: {} } },

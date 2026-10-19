@@ -882,3 +882,114 @@ export function cell(g: Element, cx: number, cy: number, rx: number, ry: number,
     }
   }
 }
+
+/** Kopf von vorn: Haar, Ohren, Brauen, Augen mit Iris, Nase, Lippen, Hals; Höhe ≈ 190·s. squint = zusammengekniffene Augen */
+export function head(g: Element, cx: number, cy: number, s = 1, d = 0, o: { squint?: boolean; neck?: boolean } = {}): void {
+  const P = (a: number, b: number): P => [cx + a * s, cy + b * s]
+  if (o.neck !== false) {
+    ink(g, B(P(-26, 70), P(-26, 90), P(-28, 104), P(-34, 116)), { w: 2.4, d, t: 300 })
+    ink(g, B(P(26, 70), P(26, 90), P(28, 104), P(34, 116)), { w: 2.4, d, t: 300 })
+    ink(g, B(P(-34, 116), P(-70, 124), P(-90, 132), P(-100, 150)), { w: 2.4, d: d + 100, t: 300 })
+    ink(g, B(P(34, 116), P(70, 124), P(90, 132), P(100, 150)), { w: 2.4, d: d + 100, t: 300 })
+  }
+  for (const k of [-1, 1]) {
+    const ear = B(P(k * 60, -10), P(k * 76, -22), P(k * 80, 14), P(k * 58, 26))
+    ink(g, ear, { w: 2.2, d: d + 200, t: 300 })
+    ink(g, B(P(k * 62, -4), P(k * 70, -8), P(k * 72, 10), P(k * 62, 16)), { w: 1.2, d: d + 300, t: 200 })
+  }
+  const face = [...B(P(0, -96), P(-64, -96), P(-66, -10), P(-60, 20)), ...B(P(-60, 20), P(-54, 64), P(-24, 84), P(0, 86)).slice(1), ...B(P(0, 86), P(24, 84), P(54, 64), P(60, 20)).slice(1), ...B(P(60, 20), P(66, -10), P(64, -96), P(0, -96)).slice(1)]
+  blank(g, face)
+  ink(g, face, { w: 2.8, d, t: 700 })
+  const hair = [...B(P(-64, -20), P(-74, -90), P(-30, -124), P(10, -118)), ...B(P(10, -118), P(60, -112), P(76, -70), P(64, -20)).slice(1), ...B(P(64, -20), P(56, -56), P(30, -70), P(-6, -66)).slice(1), ...B(P(-6, -66), P(-36, -64), P(-56, -50), P(-64, -20)).slice(1)]
+  blank(g, hair)
+  hatch(g, hair, d + 600, true)
+  ink(g, hair, { w: 2.4, d: d + 300, t: 600 })
+  for (const k of [-1, 1]) {
+    ink(g, B(P(k * 12, -34), P(k * 22, -42), P(k * 38, -42), P(k * 46, -34)), { w: 3, d: d + 500, t: 200 })
+    const ex = k * 28
+    if (o.squint) {
+      ink(g, B(P(ex - 14, -14), P(ex - 6, -20), P(ex + 6, -20), P(ex + 14, -14)), { w: 2.6, d: d + 600, t: 200 })
+      ink(g, B(P(ex - 12, -12), P(ex - 4, -8), P(ex + 4, -8), P(ex + 12, -12)), { w: 1.6, d: d + 650, t: 200 })
+    } else {
+      const up = B(P(ex - 16, -14), P(ex - 8, -24), P(ex + 8, -24), P(ex + 16, -14))
+      const lo = B(P(ex - 16, -14), P(ex - 8, -6), P(ex + 8, -6), P(ex + 16, -14))
+      blank(g, [...up, ...lo.slice().reverse()])
+      ink(g, up, { w: 2.4, d: d + 600, t: 200 })
+      ink(g, lo, { w: 1.4, d: d + 650, t: 200 })
+      ink(g, E(cx + ex * s, cy - 15 * s, 6 * s), { w: 1.6, d: d + 700, t: 150 })
+      mk('circle', { cx: cx + ex * s, cy: cy - 15 * s, r: 3 * s, class: 'k fade', style: `--d:${d + 750}ms` }, g)
+    }
+  }
+  ink(g, B(P(-4, -14), P(-6, 6), P(-14, 18), P(-10, 26)), { w: 2, d: d + 800, t: 300 })
+  ink(g, B(P(-10, 26), P(-4, 30), P(4, 30), P(10, 26)), { w: 2, d: d + 850, t: 200 })
+  ink(g, B(P(-24, 50), P(-10, 44), P(10, 44), P(24, 50)), { w: 2.2, d: d + 900, t: 300 })
+  ink(g, B(P(-16, 54), P(-6, 60), P(6, 60), P(16, 54)), { w: 1.4, d: d + 950, t: 200 })
+}
+
+/** Kochmesser waagerecht, Griff links bei x, Klingenrücken bei y; Klinge nach rechts, Schneide unten */
+export function knife(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const grip = [...B(P(0, 4), P(-4, 10), P(-4, 22), P(2, 26)), P(56, 24), P(56, 6), P(0, 4)]
+  blank(g, grip)
+  hatch(g, grip, d + 300, true)
+  ink(g, grip, { w: 2.4, d, t: 300 })
+  for (const a of [14, 32, 48]) {
+    blank(g, E(x + a * s, y + 15 * s, 2.6 * s))
+    ink(g, E(x + a * s, y + 15 * s, 2.6 * s), { w: 1.2, d: d + 300, t: 100 })
+  }
+  ink(g, RR(x + 56 * s, y + 2 * s, 8 * s, 26 * s, 2), { w: 2.2, d: d + 200, t: 200 })
+  const blade = [P(64, 0), ...B(P(64, 0), P(120, -2), P(170, 0), P(200, 18)), ...B(P(200, 18), P(160, 30), P(110, 34), P(64, 32)).slice(1), P(64, 0)]
+  blank(g, blade)
+  ink(g, blade, { w: 2.6, d: d + 300, t: 500 })
+  ink(g, B(P(70, 26), P(110, 28), P(160, 26), P(194, 18)), { w: 0.9, d: d + 600, t: 300 })
+}
+
+/** Ganze Zwiebel: Hals mit trockenen Spitzen, papierne Längsadern, Wurzelscheibe; Mitte (cx, cy), Höhe ≈ 190·s */
+export function onion(g: Element, cx: number, cy: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [cx + a * s, cy + b * s]
+  const right = [...B(P(6, -80), P(20, -40), P(82, -30), P(80, 18)), ...B(P(80, 18), P(78, 60), P(30, 74), P(8, 74)).slice(1)]
+  const left = right.map(([px, py]): P => [2 * cx - px, py])
+  const body = [...right, ...left.slice().reverse()]
+  blank(g, body)
+  const meri = (k: number) => B(P(k * 6, -80), P(k * 86, -30), P(k * 84, 52), P(k * 8, 74))
+  hatch(g, [...right, ...meri(0.5).reverse()], d + 600)
+  ink(g, body, { w: 3, d, t: 800 })
+  for (const [i, k] of [-0.62, -0.25, 0.15, 0.5].entries()) ink(g, meri(k), { w: 1.1, d: d + 400 + i * 80, t: 500 })
+  ink(g, B(P(-6, -80), P(-8, -96), P(-4, -106), P(-10, -122)), { w: 2.2, d: d + 300, t: 300 })
+  ink(g, B(P(6, -80), P(6, -96), P(2, -108), P(8, -124)), { w: 2.2, d: d + 300, t: 300 })
+  ink(g, B(P(0, -104), P(4, -114), P(14, -120), P(20, -132)), { w: 1.4, d: d + 500, t: 200 })
+  ink(g, E(cx, cy + 74 * s, 14 * s, 4 * s), { w: 1.8, d: d + 500, t: 200 })
+  for (let k = 0; k < 7; k++) {
+    const x0 = (k - 3) * 4
+    ink(g, B(P(x0, 77), P(x0 + (k - 3) * 3, 86), P(x0 - 4 + k, 92), P(x0 + (k - 3) * 5, 100)), { w: 1, d: d + 700 + k * 40, t: 150 })
+  }
+}
+
+/** Halbierte Zwiebel, Schnittfläche von vorn: verschachtelte Schalen, Herz, Wurzelboden; Mitte (cx, cy), Radius r */
+export function halfOnion(g: Element, cx: number, cy: number, r: number, d = 0): void {
+  const shell = (k: number) => {
+    const f = k / 6
+    const P = (a: number, b: number): P => [cx + a * r * f, cy + r * 0.62 + (b - 0.62) * r * f]
+    return [...B(P(0, -1.05), P(0.55, -0.7), P(0.98, -0.3), P(0.95, 0.2)), ...B(P(0.95, 0.2), P(0.9, 0.62), P(0.4, 0.66), P(0, 0.66)).slice(1), ...B(P(0, 0.66), P(-0.4, 0.66), P(-0.9, 0.62), P(-0.95, 0.2)).slice(1), ...B(P(-0.95, 0.2), P(-0.98, -0.3), P(-0.55, -0.7), P(0, -1.05)).slice(1)]
+  }
+  blank(g, shell(6))
+  hatch(g, [...shell(6), ...shell(5.6).reverse()], d + 500, true)
+  for (let k = 6; k >= 1; k--) ink(g, shell(k), { w: k === 6 ? 3 : 1.3, d: d + (6 - k) * 90, t: 400 })
+  ink(g, B([cx, cy + r * 0.62], [cx - 3, cy + r * 0.3], [cx + 3, cy], [cx, cy - r * 0.2]), { w: 1.4, d: d + 700, t: 200 })
+  ink(g, B([cx - r * 0.3, cy + r * 1.28], [cx - r * 0.1, cy + r * 1.22], [cx + r * 0.1, cy + r * 1.22], [cx + r * 0.3, cy + r * 1.28]), { w: 2, d: d + 600, t: 200 })
+}
+
+/** Kugel-Stab-Modell: Atome [x, y, Zeichen, Füllung], Bindungen [i, j, doppelt] */
+export function mol(g: Element, atoms: [number, number, string, ('leer' | 'hell' | 'dicht')?][], bonds: [number, number, boolean?][], s = 1, d = 0): void {
+  bonds.forEach(([i, j, two], k) => {
+    const [a, b] = [atoms[i], atoms[j]]
+    const n = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1
+    const [ox, oy] = [(-(b[1] - a[1]) / n) * 3 * s, ((b[0] - a[0]) / n) * 3 * s]
+    for (const f of two ? [-1, 1] : [0]) ink(g, L([a[0] + ox * f, a[1] + oy * f], [b[0] + ox * f, b[1] + oy * f]), { w: 1.8 * s, d: d + k * 60, t: 150 })
+  })
+  atoms.forEach(([x, y, l, fill], k) => {
+    const r = (l === 'H' ? 7 : l === 'S' ? 13 : 11) * s
+    ball(g, x, y, r, { d: d + 200 + k * 50, fill, w: 1.8 * s, t: 150 })
+    if (l !== 'H' && s >= 0.9) text(g, x, y + 5 * s, l, { anchor: 'middle', size: 13 * s, cls: fill && fill !== 'leer' ? 'halo' : '', d: d + 300 + k * 50 })
+  })
+}
