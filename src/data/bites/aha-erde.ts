@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, vbars, type P } from './draw'
-import { LAND, arcArrow, ball, box, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, glide, moonFace, rad, ripple, smooth, stars, sun, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, type P } from './draw'
+import { LAND, arcArrow, ball, bird, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, flow, glide, house, mol, moonFace, rad, rain, ripple, smooth, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
 
 // Erde & Wetter: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -158,6 +158,26 @@ function irArrow(g: Element, a: P, b: P, d = 0, w = 2): void {
     return [a[0] + dx * t - (dy / l) * o, a[1] + dy * t + (dx / l) * o] as P
   })
   arrow(g, pts, { w, d, t: 700, head: 9 })
+}
+
+/** Salzkristall: Würfel räumlich mit Treppenkante */
+function crystal(g: Element, x: number, y: number, s = 20, d = 0): void {
+  const o = s * 0.35
+  const front = RR(x, y, s, s, 2)
+  const top: P[] = [[x, y], [x + o, y - o], [x + s + o, y - o], [x + s, y], [x, y]]
+  const side: P[] = [[x + s, y], [x + s + o, y - o], [x + s + o, y + s - o], [x + s, y + s], [x + s, y]]
+  blank(g, [[x, y], [x + o, y - o], [x + s + o, y - o], [x + s + o, y + s - o], [x + s, y + s], [x, y + s], [x, y]])
+  hatch(g, side, d + 200)
+  ink(g, front, { w: 2, d, t: 200 })
+  ink(g, top, { w: 1.4, d: d + 80, t: 150 })
+  ink(g, side, { w: 1.4, d: d + 120, t: 150 })
+  ink(g, [[x + s * 0.3, y + s * 0.3], [x + s * 0.7, y + s * 0.3], [x + s * 0.7, y + s * 0.7]], { w: 0.9, d: d + 200, t: 80 })
+}
+
+/** Ion als Kugel mit Ladungszeichen; na = kleines Natrium (+), sonst großes Chlorid (−) */
+function ion(g: Element, x: number, y: number, na: boolean, s = 1, d = 0): void {
+  ball(g, x, y, (na ? 8 : 12) * s, { d, fill: na ? 'dicht' : 'hell', w: 1.6, t: 100 })
+  if (s >= 0.8) text(g, x, y + 5 * s, na ? '+' : '−', { anchor: 'middle', size: 14 * s, cls: 'halo', d: d + 100 })
 }
 
 export const AHA_ERDE: Bite[] = [
@@ -621,90 +641,223 @@ export const AHA_ERDE: Bite[] = [
     images: [],
     draw: {
       meer(g) {
-        for (const [y, d] of [[300, 0], [340, 150], [380, 300]] as const) ink(g, waveP(20, 340, y, 6, 60, y / 30), { w: 2.4, d, t: 800 })
-        for (let i = 0; i < 6; i++) ink(g, RR(70 + i * 40, 160 + (i % 2) * 20, 14, 14, 2), { w: 2, d: 600 + i * 80, t: 200 })
+        // Felsen in der Brandung, darauf ausgeblühte Salzkristalle; Möwen
+        for (const [y, d] of [[330, 0], [366, 150], [402, 300]] as const) travelWave(g, 20, 340, y, 5, 60, { ms: 2600 + y, d, w: 2.2 })
+        const rock: P[] = smooth([[150, 400], [160, 300], [200, 270], [250, 290], [270, 400]], 3)
+        blank(g, [...rock, [150, 400]])
+        hatch(g, [...rock.slice(2), [230, 400]], 600)
+        ink(g, rock, { w: 3, d: 200, t: 600 })
+        for (const [x, y, s, d] of [[176, 276, 22, 900], [204, 256, 28, 1000], [234, 274, 18, 1100], [196, 236, 14, 1300]] as const) crystal(g, x, y, s, d)
+        for (const [x, y] of [[70, 150], [110, 120], [300, 170]] as const) {
+          const b = glide(g, 30, -10, { ms: 4000, d: 600, loop: true })
+          bird(b, x, y, 0.6, 500)
+        }
       },
       regen(g) {
-        cloud(g, 120, 400, 1.2)
-        for (let i = 0; i < 5; i++) drop(g, 70 + i * 24, 440 + (i % 2) * 24, 0.5, 600 + i * 80, false)
-        mountain(g, 160, 340, 620, [260, 470], 300)
+        // Regen über dem Gebirge; die Tropfen nehmen Kohlendioxid aus der Luft auf
+        cloud(g, 130, 360, 1.3, 0, true)
+        rain(g, 60, 390, 150, 180, { n: 12, d: 600, ms: 900 })
+        mountain(g, 120, 340, 620, [250, 450], 300)
+        mountain(g, 20, 180, 620, [90, 520], 400)
         ink(g, L([20, 620], [340, 620]), { w: 2.6, d: 200, t: 500 })
+        for (const [x, y] of [[230, 400], [290, 380], [260, 330]] as const) {
+          const w = wobble(g, { dx: -6, dy: 4, ms: 1400 + x, d: 1000 })
+          mol(w, [[x - 16, y, 'O', 'hell'], [x, y, 'C'], [x + 16, y, 'O', 'hell']], [[0, 1, true], [1, 2, true]], 0.7, 900)
+        }
       },
       saeure(g) {
-        box(g, 30, 380, 300, 64, 'Regen + CO₂ → schwache Säure', { size: 17 })
-        text(g, 180, 520, 'löst Mineralien aus dem Gestein', { anchor: 'middle', d: 800 })
+        // Tropfen auf Gestein: die schwache Säure löst Ionen aus den Mineralkörnern
+        const rock: P[] = smooth([[20, 560], [80, 548], [140, 556], [220, 544], [280, 552], [340, 546]], 3)
+        ink(g, rock, { w: 3, t: 600 })
+        hatch(g, [...rock, [340, 650], [20, 650]], 300)
+        for (let k = 0; k < 9; k++) {
+          const x = 36 + k * 36
+          const p: P[] = Array.from({ length: 7 }, (_, j) => [x + Math.cos(rad(j * 60 + k * 13)) * 14, 590 + (k % 2) * 22 + Math.sin(rad(j * 60 + k * 13)) * 10] as P)
+          blank(g, p)
+          ink(g, p, { w: 1.4, d: 400 + k * 40, t: 150 })
+        }
+        const dp: P[] = B([90, 548], [110, 420], [250, 420], [270, 548])
+        blank(g, [...dp, [90, 548]])
+        ink(g, dp, { w: 2.4, d: 600, t: 500 })
+        ink(g, B([120, 470], [140, 448], [170, 440], [190, 440]), { w: 1.2, d: 800, t: 200 })
+        for (let k = 0; k < 5; k++) {
+          const up = glide(g, (k - 2) * 14, -70, { ms: 2200, d: 1200 + k * 300, loop: true })
+          ion(up, 140 + k * 20, 540, k % 2 === 0, 0.7, 1100)
+        }
+        for (const [x, y] of [[150, 500], [210, 490]] as const) {
+          ball(g, x, y, 5, { d: 1000, fill: 'leer', w: 1.2, t: 60 })
+        }
       },
       fluss(g) {
-        mountain(g, 20, 180, 520, [90, 380])
-        ink(g, B([186, 516], [220, 560], [260, 556], [330, 610]), { w: 3, d: 600, t: 800 })
-        ink(g, B([186, 540], [214, 590], [250, 590], [310, 640]), { w: 3, d: 700, t: 800 })
-        for (let i = 0; i < 4; i++) dot(g, 214 + i * 26, 572 + i * 10, 3.5, 1200 + i * 100)
-        text(g, 300, 450, 'gelöste Salze', { anchor: 'middle', cls: 's', d: 1400 })
+        // Gebirge → Fluss mäandert zur Küste, gelöste Ionen treiben mit
+        mountain(g, 20, 200, 470, [100, 320], 0)
+        mountain(g, 120, 260, 470, [200, 360], 200)
+        ink(g, L([20, 472], [340, 472]), { w: 1.6, d: 200, t: 400 })
+        const riv = smooth([[110, 470], [140, 510], [90, 550], [160, 590], [250, 580], [300, 620], [340, 640]], 4)
+        ink(g, riv, { w: 3, d: 600, t: 900 })
+        ink(g, riv.map(([x, y]): P => [x + 10, y + 6]), { w: 3, d: 700, t: 900 })
+        flow(g, riv.map(([x, y]): P => [x + 5, y + 3]), { n: 6, ms: 4000, d: 1400, r: 2.4 })
+        for (const x of [70, 240, 300]) tree(g, x, 520 + (x % 3) * 10, 0.3, 900)
       },
       verdunsten(g) {
-        sun(g, 280, 340, 28)
-        ink(g, waveP(20, 340, 560, 6, 60), { w: 2.6, t: 700 })
-        for (const x of [80, 140, 200]) arrow(g, L([x, 540], [x, 430]), { w: 2.2, d: 600, t: 400, head: 9 })
-        text(g, 140, 410, 'Wasser steigt auf', { anchor: 'middle', cls: 's', d: 900 })
-        for (let i = 0; i < 8; i++) dot(g, 50 + i * 36, 610, 4, 1000 + i * 60)
-        text(g, 180, 650, 'Salz bleibt im Meer', { anchor: 'middle', cls: 's', d: 1300 })
+        // Sonne heizt das Meer: Wassermoleküle steigen auf, die Ionen bleiben im Wasser
+        sunDisk(g, 270, 340, 32, 0)
+        travelWave(g, 20, 340, 520, 5, 60, { ms: 2600, d: 200, w: 2.4 })
+        hatch(g, [[20, 526], [340, 526], [340, 650], [20, 650]], 500)
+        for (let k = 0; k < 4; k++) {
+          const up = glide(g, 10, -150, { ms: 2600, d: 800 + k * 500, loop: true })
+          water(up, 60 + k * 50, 500, 0.6, k * 40, 700)
+        }
+        for (let k = 0; k < 8; k++) {
+          const w = wobble(g, { dx: 4, dy: 3, ms: 700 + k * 80, d: 900 })
+          ion(w, 40 + k * 40, 570 + (k % 2) * 30, k % 2 === 0, 0.9, 900 + k * 60)
+        }
       },
       kreislauf(g) {
-        box(g, 30, 340, 130, 60, 'Fluss', { size: 17 })
-        box(g, 200, 340, 130, 60, 'Meer', { size: 17, fill: true })
-        box(g, 115, 520, 130, 60, 'Wolke', { size: 17, d: 400 })
-        carrow(g, [160, 370], [200, 370], 0, { d: 700 })
-        carrow(g, [265, 404], [230, 516], -20, { d: 900 })
-        carrow(g, [130, 516], [95, 404], -20, { d: 1100 })
-        text(g, 300, 470, 'nur Wasser', { anchor: 'middle', cls: 's', d: 1200 })
+        // Kreislauf in der Landschaft: Meer → Dampf → Wolke → Regen → Fluss → Meer; nur das Salz bleibt im Meer
+        travelWave(g, 200, 340, 600, 4, 40, { ms: 2400, w: 2.2 })
+        hatch(g, [[200, 606], [340, 606], [340, 650], [200, 650]], 300, true)
+        mountain(g, 20, 200, 610, [90, 450], 200)
+        ink(g, L([20, 612], [200, 612]), { w: 2, d: 200, t: 300 })
+        cloud(g, 120, 330, 1, 600)
+        rain(g, 70, 360, 100, 80, { n: 8, d: 800, ms: 900 })
+        for (const x of [240, 280, 320]) {
+          const p = B([x, 590], [x - 10, 520], [x - 60, 420], [x - 120, 350])
+          dashes(g, p, { w: 1.2, d: 900, dash: 4, gap: 4 })
+          flow(g, p, { n: 2, ms: 2400, d: 1000 + x, r: 2, kind: 'ring' })
+        }
+        const riv = smooth([[130, 560], [160, 590], [200, 600]], 3)
+        ink(g, riv, { w: 2.6, d: 1000, t: 400 })
+        flow(g, riv, { n: 3, ms: 1400, d: 1200, r: 2 })
+        for (let k = 0; k < 5; k++) dot(g, 220 + k * 24, 626 + (k % 2) * 10, 2.6, 1400 + k * 60)
       },
       gramm(g) {
-        text(g, 180, 460, '35 g', { anchor: 'middle', size: 60, d: 200 })
-        text(g, 180, 500, 'Salz in jedem Liter Meerwasser', { anchor: 'middle', cls: 's', d: 600 })
+        // ein Liter Meerwasser in der Flasche, daneben das Salz daraus auf der Küchenwaage
+        const bottle: P[] = [[60, 620], [60, 420], ...B([60, 420], [60, 390], [84, 380], [84, 350]).slice(1), [84, 320], [116, 320], [116, 350], ...B([116, 350], [116, 380], [140, 390], [140, 420]).slice(1), [140, 620], [60, 620]]
+        ink(g, bottle, { w: 2.8, t: 800 })
+        hatch(g, RR(64, 440, 72, 176, 4), 600)
+        ink(g, waveP(64, 136, 440, 2, 20), { w: 1.4, d: 500, t: 300 })
+        ink(g, RR(80, 306, 40, 16, 3), { w: 2.2, d: 400, t: 200 })
+        ink(g, RR(190, 580, 140, 40, 8), { w: 2.8, d: 600, t: 400 })
+        ink(g, RR(214, 592, 50, 18, 3), { w: 1.6, d: 800, t: 200 })
+        ink(g, E(260, 576, 64, 8), { w: 2.2, d: 700, t: 300 })
+        const pile: P[] = smooth([[210, 572], [236, 540], [260, 526], [286, 540], [310, 572]], 3)
+        blank(g, [...pile, [210, 572]])
+        ink(g, pile, { w: 2.2, d: 1000, t: 400 })
+        for (let k = 0; k < 18; k++) ink(g, RR(222 + (k % 6) * 13, 560 - Math.floor(k / 6) * 10, 4, 4, 1), { w: 1, d: 1100 + k * 30, t: 50 })
+        arrow(g, B([150, 460], [180, 440], [210, 460], [240, 510]), { w: 2, d: 1300, t: 400, head: 8 })
       },
       ionen(g) {
-        for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) {
-          const na = (i + j) % 2 === 0
-          ball(g, 90 + i * 60, 400 + j * 60, na ? 16 : 22, { fill: na ? 'leer' : 'hell', d: (i + j) * 80 })
+        // Kochsalzgitter: Natrium klein, Chlorid groß, abwechselnd; vorne löst sich ein Ion
+        for (let z = 2; z >= 0; z--) for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+          const x = 80 + i * 44 + z * 22
+          const y = 380 + j * 44 - z * 22
+          const na = (i + j + z) % 2 === 0
+          ball(g, x, y, na ? 10 : 16, { d: 300 + (z * 16 + i * 4 + j) * 25, fill: na ? 'dicht' : 'hell', w: 1.6, t: 100 })
         }
-        text(g, 180, 620, 'Natrium und Chlorid', { anchor: 'middle', cls: 's', d: 1100 })
+        const free = glide(g, 60, 90, { ms: 1600, d: 1800 })
+        ion(free, 212, 512, false, 1, 1600)
+        for (let k = 0; k < 4; k++) water(free, 212 + Math.cos(rad(k * 90 + 45)) * 30, 512 + Math.sin(rad(k * 90 + 45)) * 30, 0.5, k * 90 + 180, 1900)
       },
       vulkan(g) {
-        for (const [y, d] of [[340, 0], [370, 100]] as const) ink(g, waveP(20, 340, y, 5, 60, y / 30), { w: 2, d, t: 700 })
-        mountain(g, 100, 260, 620, [180, 520], 300, true)
-        for (const k of [-1, 0, 1]) ink(g, B([180 + k * 10, 510], [180 + k * 24, 480], [180 + k * 6, 450], [180 + k * 20, 420]), { w: 1.8, d: 900, t: 400 })
-        ink(g, L([20, 622], [340, 622]), { w: 2.6, d: 200, t: 500 })
-        text(g, 290, 560, 'heiße Quellen', { anchor: 'middle', cls: 's', d: 1200 })
+        // Schwarzer Raucher am Meeresgrund: Schlot, dunkle Wolke, Röhrenwürmer
+        ink(g, waveP(20, 340, 320, 4, 60), { w: 2, t: 600 })
+        const floor: P[] = smooth([[20, 620], [100, 610], [180, 616], [260, 606], [340, 614]], 3)
+        ink(g, floor, { w: 2.6, d: 200, t: 500 })
+        hatch(g, [...floor, [340, 650], [20, 650]], 400, true)
+        const ch: P[] = smooth([[150, 616], [158, 560], [164, 500], [172, 460], [188, 460], [194, 510], [204, 560], [214, 614]], 3)
+        blank(g, ch)
+        hatch(g, ch, 700)
+        ink(g, ch, { w: 2.8, d: 400, t: 600 })
+        for (let k = 0; k < 4; k++) {
+          const pl = wobble(g, { dx: 6 + k * 3, dy: -4, ms: 1600 + k * 300, d: 1000 })
+          const r = 18 + k * 10
+          const cy = 440 - k * 34
+          const puff: P[] = smooth(Array.from({ length: 9 }, (_, j) => [180 + k * 8 + Math.cos(rad(j * 45)) * r * (1 + (j % 2) * 0.2), cy + Math.sin(rad(j * 45)) * r * 0.7] as P), 3)
+          blank(pl, puff)
+          hatch(pl, puff, 900 + k * 200, true)
+          ink(pl, puff, { w: 1.6, d: 800 + k * 200, t: 300 })
+        }
+        for (const x of [100, 120, 240, 262]) {
+          const w = wobble(g, { deg: 6, ox: x, oy: 612, ms: 1800 + x * 4, d: 1200 })
+          ink(w, B([x, 612], [x - 4, 590], [x + 4, 570], [x, 556]), { w: 2, d: 900, t: 200 })
+          hatch(w, E(x, 552, 4, 7), 1100, true)
+        }
       },
       schicht(g) {
-        ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
-        const s: P[] = [[20, 600], [340, 600], [340, 520], [20, 520], [20, 600]]
-        hatch(g, s, 400, true)
-        ink(g, L([20, 520], [340, 520]), { w: 2.4, d: 300, t: 500 })
-        fig(g, 300, 518, 1.4, { d: 900 })
-        text(g, 180, 470, 'über 150 Meter dick', { anchor: 'middle', d: 1000 })
+        // Landschaft im Schnitt, bedeckt von einer über 150 m dicken Salzschicht; nur ein Hochhaus ragt heraus
+        const land: P[] = smooth([[20, 620], [80, 600], [140, 612], [220, 590], [340, 604]], 3)
+        ink(g, land, { w: 2.6, t: 500 })
+        hatch(g, [...land, [340, 650], [20, 650]], 300, true)
+        for (const x of [60, 160]) tree(g, x, 606, 0.4, 400)
+        house(g, 250, 596, 34, 500)
+        ink(g, RR(110, 380, 46, 222, 2), { w: 2.6, d: 600, t: 500 })
+        for (let r = 0; r < 12; r++) for (let c = 0; c < 3; c++) ink(g, RR(116 + c * 14, 390 + r * 18, 8, 10, 1), { w: 0.8, d: 800 + r * 30, t: 40 })
+        const lay = pop(g, 1600, '50% 100%')
+        const top: P[] = [[20, 440], [340, 440], [340, 620], [20, 620], [20, 440]]
+        hatch(lay, top, 0)
+        ink(lay, L([20, 440], [340, 440]), { w: 2.6, t: 0 })
+        for (let k = 0; k < 10; k++) ink(lay, RR(30 + k * 32, 452 + (k % 3) * 40, 6, 6, 1), { w: 1, t: 0 })
+        fig(g, 300, 440, 1.2, { d: 2000 })
       },
       totes(g) {
-        ink(g, waveP(20, 340, 480, 4, 60), { w: 2.4, t: 600 })
-        const p = st(g, '', '')
-        ink(p, [[120, 476], [140, 470], [220, 470], [240, 476]], { w: 2.4, d: 400, t: 300 })
-        ball(p, 110, 460, 12, { d: 500 })
-        ink(p, B([226, 470], [236, 456], [246, 450], [256, 440]), { w: 2.2, d: 600, t: 200 })
-        text(g, 180, 560, 'Totes Meer: etwa 34 % Salz', { anchor: 'middle', cls: 's', d: 900 })
-      },
-      ostsee(g) {
-        vbars(g, [
-          { label: 'Totes Meer', v: 34, fmt: () => '34 %', dense: true },
-          { label: 'Ozean', v: 3.5, fmt: () => '3,5 %' },
-          { label: 'Ostsee', v: 0.8, fmt: () => '< 1 %' },
-        ], { x: 40, base: 600, w: 70, gap: 110, h: 240 })
+        // Totes Meer: jemand liegt auf dem Wasser und liest, am Ufer Salzkrusten
+        travelWave(g, 20, 340, 500, 3, 60, { ms: 3000, w: 2.2 })
+        hatch(g, [[20, 506], [340, 506], [340, 650], [20, 650]], 400, true)
+        const p = wobble(g, { dy: 3, ms: 2400, d: 800 })
+        const body: P[] = smooth([[90, 494], [120, 484], [200, 482], [250, 486], [270, 496], [90, 500], [90, 494]], 3)
+        blank(p, body)
+        ink(p, body, { w: 2.4, d: 400, t: 400 })
+        ball(p, 80, 482, 13, { d: 500, w: 2.2, t: 200 })
+        ink(p, [[108, 484], [132, 452], [150, 446]], { w: 2.4, d: 600, t: 200 })
+        const paper: P[] = [[140, 430], [180, 420], [184, 450], [146, 460], [140, 430]]
+        blank(p, paper)
+        ink(p, paper, { w: 1.8, d: 700, t: 200 })
+        for (let k = 0; k < 3; k++) ink(p, L([148, 436 + k * 6], [176, 428 + k * 6]), { w: 0.8, d: 800, t: 60 })
+        ink(p, [[250, 488], [276, 470], [290, 474]], { w: 2.2, d: 700, t: 200 })
+        for (const [x, y, s] of [[290, 380, 16], [312, 372, 12], [40, 390, 14]] as const) crystal(g, x, y, s, 900)
+        ink(g, L([20, 404], [340, 404]), { w: 1.6, d: 300, t: 400 })
       },
       gefrieren(g) {
-        thermo(g, 90, 360, 200, 0.4)
-        text(g, 140, 480, 'gefriert erst bei −1,9 °C', { size: 18, d: 600 })
+        // Süßwasser friert bei 0 °C, Meerwasser erst knapp zwei Grad tiefer
+        for (const [x, lvl, salty] of [[90, 0.5, false], [250, 0.42, true]] as const) {
+          thermo(g, x, 330, 160, lvl, 0)
+          const y0 = 330 + 8 + 152 * (1 - 0.5)
+          ink(g, L([x + 12, y0], [x + 30, y0]), { w: 1.8, d: 400, t: 80 })
+          text(g, x + 34, y0 + 5, '0', { cls: 's', d: 500 })
+          const bowl: P[] = [[x - 50, 540], [x - 44, 610], [x + 44, 610], [x + 50, 540]]
+          ink(g, bowl, { w: 2.6, d: 300, t: 400 })
+          hatch(g, [[x - 46, 560], [x + 46, 560], [x + 42, 606], [x - 42, 606]], 600)
+          if (salty) for (let k = 0; k < 8; k++) dot(g, x - 34 + k * 10, 580 + (k % 2) * 12, 2, 800 + k * 40)
+          for (let k = 0; k < 3; k++) flake(g, x - 30 + k * 30, 548, 6, 900 + k * 80)
+        }
       },
       ende(g) {
-        for (const [y, d] of [[460, 0], [500, 150]] as const) ink(g, waveP(20, 340, y, 6, 60, y / 30), { w: 2.4, d, t: 800 })
+        for (const [y, d] of [[470, 0], [506, 150]] as const) travelWave(g, 20, 340, y, 5, 60, { ms: 2600 + y, d, w: 2.2 })
+        for (const [x, y, s, d] of [[150, 420, 26, 600], [184, 404, 32, 700], [220, 424, 22, 800]] as const) crystal(g, x, y, s, d)
+      },
+      gefaesse(g) {
+        // drei Wasserproben mit sehr unterschiedlich vielen gelösten Ionen
+        for (const [x, n] of [[30, 3], [140, 12], [250, 60]] as const) {
+          ink(g, [[x, 420], [x + 6, 600], [x + 74, 600], [x + 80, 420]], { w: 2.6, d: x * 2, t: 400 })
+          ink(g, waveP(x + 4, x + 76, 450, 2, 16), { w: 1.2, d: x * 2 + 200, t: 300 })
+          let seed = x
+          const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+          for (let k = 0; k < n; k++) dot(g, x + 12 + rnd() * 56, 462 + rnd() * 130, n > 30 ? 2.4 : 3, 600 + k * 15)
+          if (n > 30) for (let k = 0; k < 3; k++) {
+            const c = glide(g, 0, 10, { ms: 3000, d: 2000 + k * 300 })
+            ink(c, RR(x + 16 + k * 18, 584, 8, 8, 1), { w: 1.4, d: 1800, t: 80 })
+          }
+        }
+      },
+      muendung(g) {
+        // Flussmündung im Schnitt: leichtes Süßwasser schiebt sich über den schweren Salzkeil
+        ink(g, smooth([[20, 640], [120, 620], [220, 580], [340, 520]], 3), { w: 2.6, t: 600 })
+        ink(g, L([20, 420], [340, 420]), { w: 2.2, d: 200, t: 500 })
+        hatch(g, [[100, 626], [340, 466], [340, 650], [20, 650], [20, 640]], 600, true)
+        ink(g, B([100, 626], [180, 560], [260, 500], [340, 466]), { w: 2.2, d: 700, t: 600 })
+        for (let k = 0; k < 3; k++) flow(g, L([20, 440 + k * 28], [340, 440 + k * 22]), { n: 3, ms: 2600, d: 900 + k * 200, r: 2 })
+        for (let k = 0; k < 2; k++) flow(g, L([340, 560 + k * 30], [200, 600 + k * 20]), { n: 2, ms: 3600, d: 1100 + k * 200, r: 2, kind: 'ring' })
       },
     },
     scenes: [
@@ -722,10 +875,10 @@ export const AHA_ERDE: Bite[] = [
       { t: T('Meist ist es dasselbe wie im Salzstreuer: **Natrium und Chlorid**.', 64), gfx: { ionen: {} } },
       { t: T('Holte man alles Meersalz heraus und verteilte es über das Land, läge dort eine Schicht von über **150 Metern**.', 64), gfx: { schicht: {} } },
       { t: T('Wird das Meer immer salziger? Kaum – Salz lagert sich auch am Meeresboden ab. Der Salzgehalt ist seit langem **recht stabil**.', 64), gfx: { gramm: {} } },
-      { t: T('Wo viel verdunstet und kaum etwas abfließt, wird es extrem: Das **Tote Meer** enthält rund 34 Prozent Salz.', 64), gfx: { ostsee: {} } },
+      { t: T('Wo viel verdunstet und kaum etwas abfließt, wird es extrem: Das **Tote Meer** enthält rund 34 Prozent Salz.', 64), gfx: { gefaesse: {} } },
       { t: T('Das Wasser ist so dicht, dass man darin **liegen** kann wie auf einer Luftmatratze.', 64), gfx: { totes: {} } },
-      { t: T('Die Ostsee dagegen bekommt viel Flusswasser und verdunstet wenig. Sie ist nur **leicht salzig**.', 64), gfx: { ostsee: {} } },
-      { t: T('Salzwasser ist schwerer als Süßwasser. Wo Flüsse ins Meer münden, schiebt sich das Süßwasser oft **obenauf**.', 64), gfx: { ostsee: {} } },
+      { t: T('Die Ostsee dagegen bekommt viel Flusswasser und verdunstet wenig. Sie ist nur **leicht salzig**.', 64), gfx: { gefaesse: {} } },
+      { t: T('Salzwasser ist schwerer als Süßwasser. Wo Flüsse ins Meer münden, schiebt sich das Süßwasser oft **obenauf**.', 64), gfx: { muendung: {} } },
       { t: T('Und Salz verändert das Wasser: Meerwasser gefriert erst bei etwa **−1,9 Grad**.', 64), gfx: { gefrieren: {} } },
       { t: T('Das Meer ist die **Endstation** des Salzes.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],

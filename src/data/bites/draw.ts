@@ -283,9 +283,26 @@ export function bolt(g: Element, pts: P[], d = 0, w = 4): void {
 
 /** Berg (Dreieck mit Schneekappe) */
 export function mountain(g: Element, x0: number, x1: number, base: number, peak: P, d = 0, dense = false): void {
-  const outline: P[] = [[x0, base], peak, [x1, base]]
-  hatch(g, outline, d + 500, dense)
-  ink(g, [...L([x0, base], peak), ...L(peak, [x1, base]).slice(1)], { w: 3, d, t: 700 })
+  // Grat mit Nebengipfeln und Felsrinnen; Schattenseite (rechts) schraffiert, dense = ganz dunkel
+  let seed = Math.round(x0 * 13 + peak[0] * 7 + base)
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+  const side = (a: P, b: P, n: number): P[] => Array.from({ length: n + 1 }, (_, i) => {
+    const t = i / n
+    const j = i === 0 || i === n ? 0 : (rnd() - 0.5) * Math.abs(b[1] - a[1]) * 0.12
+    return [a[0] + (b[0] - a[0]) * t + j * 0.5, a[1] + (b[1] - a[1]) * t + j] as P
+  })
+  const left = side([x0, base], peak, 7)
+  const right = side(peak, [x1, base], 7)
+  const outline: P[] = [...left, ...right.slice(1)]
+  blank(g, [...outline, [x0, base]])
+  hatch(g, dense ? outline : [...right, [peak[0] + (x1 - peak[0]) * 0.15, base], peak], d + 500, dense)
+  ink(g, outline, { w: 3, d, t: 700 })
+  for (let k = 0; k < 3; k++) {
+    const t = 0.3 + k * 0.2
+    const p = left[Math.round(t * 7)]
+    ink(g, [p, [p[0] + (peak[0] - x0) * 0.08, p[1] + (base - peak[1]) * 0.12], [p[0] + (peak[0] - x0) * 0.04, p[1] + (base - peak[1]) * 0.22]], { w: 1.1, d: d + 600 + k * 80, t: 150 })
+  }
+  ink(g, [peak, [peak[0] + (x1 - peak[0]) * 0.1, peak[1] + (base - peak[1]) * 0.35], [peak[0] + (x1 - peak[0]) * 0.05, peak[1] + (base - peak[1]) * 0.6]], { w: 1.2, d: d + 700, t: 200 })
 }
 
 /** Gedankenblitz-Fragezeichen als Tusche */
