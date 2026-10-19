@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, check, clock, cross, crowd, dashes, eye, fig, hatch, hbars, ink, letter, lie, mk, question, rays, st, text, timeline, vbars, type P } from './draw'
-import { axes, ball, bird, box, bullets, carrow, cloud, dot, drop, earth, flake, flame, flow, glide, ground, heart, lens, pie, plot, rad, ripple, smooth, spin, sun, thermo, tree, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, check, clock, cross, crowd, dashes, eye, fig, group, hatch, hbars, ink, letter, lie, mk, question, rays, st, text, timeline, vbars, type P } from './draw'
+import { axes, ball, bird, box, bullets, carrow, cloud, dot, drop, earth, eyeFront, flake, flame, flow, glide, ground, heart, lens, pie, plot, rad, ripple, smooth, spin, sun, thermo, tree, waveP, wobble } from './kit'
 
 // Leben & Körper: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -159,15 +159,6 @@ function lad(g: Element, a: P, b: P, h = 26, d = 0): void {
   }
 }
 
-/** Schneeflocke: sechs Speichen vom Mittelpunkt */
-function snow(g: Element, cx: number, cy: number, r: number, d = 0): void {
-  for (let k = 0; k < 6; k++) {
-    const a = rad(k * 60 - 90)
-    ink(g, L([cx, cy], [cx + Math.cos(a) * r, cy + Math.sin(a) * r]), { w: 2.2, d: d + k * 60, t: 150 })
-    const m: P = [cx + Math.cos(a) * r * 0.6, cy + Math.sin(a) * r * 0.6]
-    for (const s of [-1, 1]) ink(g, L(m, [m[0] + Math.cos(a + s * 0.8) * r * 0.3, m[1] + Math.sin(a + s * 0.8) * r * 0.3]), { w: 1.6, d: d + 300 + k * 60, t: 100 })
-  }
-}
 
 /** Kleiner Drehregler */
 function regler0(g: Element, cx: number, cy: number, d = 0): void {
@@ -1160,8 +1151,8 @@ export const AHA_KOERPER: Bite[] = [
           { label: 'warm', v: 3, fmt: () => 'meist überlebt' },
           { label: 'kühl', v: 1, fmt: () => 'meist gestorben', dense: true },
         ], { x: 90, base: 600, w: 70, gap: 110, h: 220 })
-        sun(g, 125, 330, 12, 1200, 8)
-        flake(g, 235, 330, 12, 1300)
+        sun(g, 125, 300, 12, 1200, 8)
+        flake(g, 235, 300, 12, 1300)
       },
       puls(g) {
         heart(g, 180, 430, 2.2)
@@ -1270,70 +1261,130 @@ export const AHA_KOERPER: Bite[] = [
     images: [],
     draw: {
       arm(g) {
-        const arm: P[] = [...B([20, 180], [120, 160], [240, 150], [340, 140]), ...L([340, 140], [340, 300]).slice(1), ...B([340, 300], [240, 310], [120, 320], [20, 340]).slice(1)]
+        // Unterarm mit Handgelenk und Hand; Venen verzweigen sich unter der Haut, das Blut fließt Richtung Herz
+        const arm: P[] = [...B([20, 180], [120, 164], [220, 160], [280, 166]), ...B([280, 166], [310, 150], [340, 156], [350, 180]), ...L([350, 180], [350, 280]).slice(1), ...B([350, 280], [330, 300], [300, 300], [280, 290]).slice(1), ...B([280, 290], [220, 300], [120, 316], [20, 336]).slice(1)]
+        blank(g, arm)
         ink(g, arm, { w: 3, t: 900 })
-        for (const [y, d] of [[205, 600], [250, 800], [290, 1000]] as const) ink(g, waveP(40, 320, y - (y - 200) * 0.08, 6, 120, y / 30), { w: 1.6, d, t: 900 })
+        for (const y of [196, 214, 232]) ink(g, L([292, y], [296, y + 6]), { w: 1, d: 500, t: 100 })
+        const veins: P[][] = [
+          smooth([[290, 210], [220, 214], [150, 200], [20, 210]]),
+          smooth([[290, 252], [230, 250], [160, 264], [20, 290]]),
+          smooth([[160, 200], [150, 230], [150, 250], [160, 264]]),
+          smooth([[230, 214], [240, 232], [234, 248], [230, 250]]),
+        ]
+        veins.forEach((v, i) => {
+          ink(g, v, { w: i < 2 ? 2.4 : 1.6, d: 600 + i * 200, t: 800 })
+          if (i < 2) flow(g, v, { n: 3, ms: 3000, d: 1400 + i * 200, r: 1.8 })
+        })
       },
       tropfen(g) {
-        drop(g, 110, 470, 2.4)
-        drop(g, 250, 470, 2.4, 300)
-        hatch(g, E(250, 490, 28, 26), 700, true)
-        text(g, 110, 580, 'mit Sauerstoff', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 110, 600, 'hellrot', { anchor: 'middle', d: 1000 })
-        text(g, 250, 580, 'ohne Sauerstoff', { anchor: 'middle', cls: 's', d: 1100 })
-        text(g, 250, 600, 'dunkelrot', { anchor: 'middle', d: 1200 })
+        // zwei Blutproben: hellrot (Sauerstoff gebunden), dunkelrot (abgegeben)
+        for (const [x, dense, d] of [[110, false, 0], [250, true, 300]] as const) {
+          ink(g, RR(x - 24, 360, 48, 200, 22), { w: 2.8, d, t: 600 })
+          ink(g, RR(x - 30, 344, 60, 24, 6), { w: 2.4, d: d + 200, t: 300 })
+          hatch(g, RR(x - 20, 420, 40, 136, 18), d + 600, dense)
+          ink(g, L([x - 20, 420], [x + 20, 420]), { w: 1.4, d: d + 500, t: 200 })
+        }
+        for (let i = 0; i < 4; i++) {
+          const x = 70 + (i % 2) * 80
+          const y = 600 + Math.floor(i / 2) * 26
+          ball(g, x - 6, y, 5, { d: 900 + i * 80, w: 1.4, t: 0 })
+          ball(g, x + 6, y, 5, { d: 900 + i * 80, w: 1.4, t: 0 })
+        }
+        text(g, 250, 620, '–', { anchor: 'middle', size: 30, d: 1200 })
       },
       haemo(g) {
-        for (const [x, y] of [[140, 420], [220, 420], [140, 500], [220, 500]] as const) ball(g, x, y, 38, { fill: 'hell', w: 2.6 })
-        for (const [x, y] of [[140, 420], [220, 420], [140, 500], [220, 500]] as const) {
+        // Hämoglobin: vier gefaltete Ketten, jede mit einer Häm-Scheibe und Eisen; Sauerstoff dockt an
+        const blobs: [number, number, number][] = [[140, 420, 1], [220, 420, 2], [140, 500, 3], [220, 500, 4]]
+        blobs.forEach(([x, y, s], i) => {
+          const b: P[] = smooth(Array.from({ length: 10 }, (_, k) => {
+            const a = (k / 10) * Math.PI * 2
+            const r = 40 * (1 + 0.1 * Math.sin(a * 3 + s))
+            return [x + Math.cos(a) * r, y + Math.sin(a) * r] as P
+          }).concat([[x + 40 * (1 + 0.1 * Math.sin(s)), y]]), 5)
+          blank(g, b)
+          hatch(g, b, 400 + i * 100, i % 2 === 1)
+          ink(g, b, { w: 2.4, d: i * 100, t: 500 })
+          ink(g, smooth([[x - 26, y - 10], [x - 10, y - 26], [x + 16, y - 14], [x + 4, y + 10], [x + 24, y + 22]], 5), { w: 1, d: 600 + i * 100, t: 300 })
           blank(g, E(x, y, 13))
           ink(g, E(x, y, 13), { w: 2, d: 600, t: 300 })
           text(g, x, y + 5, 'Fe', { anchor: 'middle', cls: 's', d: 800 })
+        })
+        for (const [x, y, dx, dy] of [[60, 360, 70, 50], [300, 360, -70, 50], [60, 580, 70, -70], [300, 580, -70, -70]] as const) {
+          const m = glide(g, dx, dy, { ms: 1800, d: 1200 })
+          ball(m, x - 6, y, 5, { d: 1100, w: 1.4, t: 0 })
+          ball(m, x + 6, y, 5, { d: 1100, w: 1.4, t: 0 })
         }
-        text(g, 180, 600, 'Hämoglobin mit 4 Eisen-Atomen', { anchor: 'middle', cls: 's', d: 1000 })
       },
       menge(g) {
-        const bottle: P[] = [[130, 340], [130, 380], [100, 420], [100, 620], [260, 620], [260, 420], [230, 380], [230, 340]]
-        ink(g, bottle, { w: 3, t: 800 })
-        hatch(g, [[104, 440], [256, 440], [256, 616], [104, 616]], 700, true)
-        text(g, 180, 530, '≈ 5 Liter', { anchor: 'middle', size: 30, cls: 'halo', d: 1000 })
+        // fünf Ein-Liter-Flaschen
+        for (let i = 0; i < 5; i++) {
+          const x = 44 + i * 68
+          const b: P[] = [[x - 10, 420], [x - 10, 446], [x - 26, 470], [x - 26, 620], [x + 26, 620], [x + 26, 470], [x + 10, 446], [x + 10, 420]]
+          ink(g, b, { w: 2.4, d: i * 200, t: 500 })
+          ink(g, RR(x - 12, 410, 24, 12, 3), { w: 1.8, d: i * 200 + 300, t: 150 })
+          const lv = group(g, 'grow-y', `--d:${i * 200 + 400}ms`)
+          hatch(lv, [[x - 23, 490], [x + 23, 490], [x + 23, 617], [x - 23, 617]], i * 200 + 400, true)
+          ink(g, L([x - 23, 490], [x + 23, 490]), { w: 1.2, d: i * 200 + 500, t: 150 })
+        }
       },
       zahlrot(g) {
-        ink(g, E(180, 460, 110, 70), { w: 3, t: 700 })
-        ink(g, E(180, 460, 50, 26), { w: 2, d: 400, t: 500 })
-        hatch(g, [...E(180, 460, 106, 66), ...E(180, 460, 54, 30, 360, 0)], 800)
-        text(g, 180, 600, '270 Mio. Hämoglobin je Blutkörperchen', { anchor: 'middle', cls: 's', d: 1100 })
+        // rotes Blutkörperchen: Scheibe mit Delle, aufgeschnitten – innen dicht an dicht Farbstoff-Moleküle
+        ink(g, E(180, 440, 120, 60), { w: 3, t: 700 })
+        ink(g, E(180, 440, 54, 24), { w: 2, d: 400, t: 500 })
+        hatch(g, [...E(180, 440, 116, 56), ...E(180, 440, 58, 28, 360, 0)], 800)
+        ink(g, smooth([[60, 580], [70, 556], [120, 548], [180, 566], [240, 548], [290, 556], [300, 580], [290, 604], [240, 612], [180, 594], [120, 612], [70, 604], [60, 580]], 4), { w: 2.6, d: 900, t: 600 })
+        let seed = 7
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 40; i++) {
+          const x = 80 + rnd() * 200
+          const y = 566 + rnd() * 30 + (Math.abs(x - 180) < 30 ? 10 : 0)
+          dot(g, x, y, 1.8, 1200 + i * 20)
+        }
+        ink(g, L([180, 500], [180, 546]), { w: 1, d: 1000, t: 200 })
       },
       lippen(g) {
         const top: P[] = [...B([60, 470], [110, 420], [150, 430], [180, 446]), ...B([180, 446], [210, 430], [250, 420], [300, 470]).slice(1)]
         const bot: P[] = B([60, 470], [120, 540], [240, 540], [300, 470])
-        hatch(g, [...top, ...bot.slice().reverse()], 600)
+        hatch(g, [...top, ...bot.slice().reverse()], 600, true)
         ink(g, top, { w: 3, t: 600 })
         ink(g, bot, { w: 3, d: 200, t: 600 })
-        snow(g, 300, 340, 22, 700)
-        text(g, 180, 610, 'Kälte: Blut fließt langsamer', { anchor: 'middle', cls: 's', d: 1000 })
+        ink(g, B([70, 470], [130, 480], [230, 480], [290, 470]), { w: 1.6, d: 400, t: 400 })
+        for (let k = 0; k < 6; k++) ink(g, L([100 + k * 30, 500], [102 + k * 30, 520]), { w: 0.8, d: 700, t: 100 })
+        flake(g, 300, 340, 22, 700)
+        flake(g, 60, 360, 14, 800)
+        flow(g, smooth([[40, 580], [120, 572], [240, 588], [320, 578]]), { n: 3, ms: 5000, d: 1000, r: 2 })
+        ink(g, smooth([[40, 580], [120, 572], [240, 588], [320, 578]]), { w: 1.4, d: 900, t: 500 })
       },
       fleck(g) {
-        ;[['bläulich', 'dicht'], ['grün', 'hell'], ['gelb', 'leer']].forEach(([n, f], i) => {
+        // ein Fleck im Lauf der Tage: dunkel, dann grünlich, dann gelb (immer heller schraffiert)
+        ;[['Tag 1', 'dicht'], ['Tag 5', 'hell'], ['Tag 9', 'leer']].forEach(([n, f], i) => {
           const x = 70 + i * 110
-          blank(g, E(x, 460, 40, 34))
-          if (f !== 'leer') hatch(g, E(x, 460, 40, 34), 300 + i * 400, f === 'dicht')
-          ink(g, E(x, 460, 40, 34), { w: 2.6, d: i * 400, t: 400 })
+          const b: P[] = smooth(Array.from({ length: 9 }, (_, k) => {
+            const a = (k / 9) * Math.PI * 2
+            const r = 1 + 0.15 * Math.sin(a * 2 + i)
+            return [x + Math.cos(a) * 40 * r, 460 + Math.sin(a) * 32 * r] as P
+          }).concat([[x + 40 * (1 + 0.15 * Math.sin(i)), 460]]), 5)
+          blank(g, b)
+          if (f !== 'leer') hatch(g, b, 300 + i * 400, f === 'dicht')
+          else for (let k = 0; k < 10; k++) dot(g, x - 24 + (k % 5) * 12, 450 + Math.floor(k / 5) * 18, 1.4, 900 + i * 400)
+          ink(g, b, { w: 2.4, d: i * 400, t: 400 })
           text(g, x, 530, n, { anchor: 'middle', cls: 's', d: 200 + i * 400 })
           if (i < 2) arrow(g, L([x + 46, 460], [x + 64, 460]), { w: 2, d: 300 + i * 400, t: 200, head: 7 })
         })
-        text(g, 180, 600, 'Abbau des Blutfarbstoffs', { anchor: 'middle', cls: 's', d: 1400 })
+        ink(g, smooth([[20, 600], [120, 596], [240, 604], [340, 598]]), { w: 2.4, d: 300, t: 600 })
       },
       schichten(g) {
         ink(g, L([20, 360], [340, 360]), { w: 3, t: 500 })
         hatch(g, RR(20, 362, 320, 280, 2), 300)
+        ink(g, smooth([[20, 400], [120, 396], [240, 404], [340, 398]]), { w: 1, d: 300, t: 500 })
         blank(g, E(250, 520, 34, 26))
+        hatch(g, E(250, 520, 30, 22), 700, true)
         ink(g, E(250, 520, 34, 26), { w: 2.6, d: 500, t: 500 })
-        text(g, 250, 526, 'Vene', { anchor: 'middle', cls: 's', d: 700 })
         sun(g, 60, 290, 16, 200, 8)
         const blue = st(g, 'x1', '--o: 120px 380px')
-        arrow(blue, L([100, 320], [110, 404]), { w: 2.4, t: 0, head: 9 })
-        arrow(blue, L([120, 404], [134, 330]), { w: 2.4, t: 0, head: 9 })
+        arrow(blue, L([100, 320], [110, 384]), { w: 2.4, t: 0, head: 9 })
+        arrow(blue, L([120, 384], [134, 330]), { w: 2.4, t: 0, head: 9 })
         text(blue, 120, 316, 'Blau', { anchor: 'middle', cls: 's halo', fade: false })
         const red = st(g, 'x2', '--o: 250px 470px')
         arrow(red, L([220, 320], [242, 486]), { w: 2.4, t: 0, head: 9 })
@@ -1344,57 +1395,93 @@ export const AHA_KOERPER: Bite[] = [
         text(red2, 316, 312, 'Rot', { anchor: 'middle', cls: 's halo', fade: false })
       },
       vergleich(g) {
-        hatch(g, RR(40, 380, 120, 160, 10), 300)
-        ink(g, RR(40, 380, 120, 160, 10), { w: 2.6, t: 500 })
-        hatch(g, RR(200, 380, 120, 160, 10), 500, true)
-        ink(g, RR(200, 380, 120, 160, 10), { w: 2.6, d: 200, t: 500 })
-        text(g, 100, 580, 'Haut daneben', { anchor: 'middle', cls: 's', d: 800 })
-        text(g, 260, 580, 'über der Vene', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 260, 604, 'weniger Rot', { anchor: 'middle', d: 1000 })
+        // das Auge vergleicht: Haut daneben (warm) – Stelle über der Vene (weniger Rot)
+        hatch(g, RR(40, 400, 120, 140, 10), 300)
+        ink(g, RR(40, 400, 120, 140, 10), { w: 2.6, t: 500 })
+        hatch(g, RR(200, 400, 120, 140, 10), 500, true)
+        ink(g, RR(200, 400, 120, 140, 10), { w: 2.6, d: 200, t: 500 })
+        eyeFront(g, 180, 600, 0.55, 800)
+        for (const x of [100, 260]) dashes(g, L([180, 580], [x, 544]), { w: 1, d: 1000, dash: 4, gap: 4 })
+        question(g, 180, 350, 0.6, 1200)
       },
       gefaesse(g) {
-        ink(g, E(110, 470, 60), { w: 6, t: 700 })
-        ink(g, E(110, 470, 40), { w: 2, d: 300, t: 600 })
-        hatch(g, E(110, 470, 40), 600, true)
-        ink(g, E(260, 470, 56, 40), { w: 2, d: 500, t: 600 })
-        hatch(g, E(260, 470, 52, 36), 800, true)
-        text(g, 110, 570, 'Arterie: tief, dicke Wand', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 260, 540, 'Vene: dünn', { anchor: 'middle', cls: 's', d: 1000 })
+        // Schnitt durchs Gewebe: Vene dicht unter der Haut (dünne Wand, Klappe), Arterie tief (dicke Muskelwand)
+        ink(g, L([20, 340], [340, 340]), { w: 3, t: 400 })
+        hatch(g, RR(20, 342, 320, 300, 2), 300)
+        blank(g, E(90, 400, 46, 30))
+        ink(g, E(90, 400, 46, 30), { w: 1.6, d: 500, t: 400 })
+        hatch(g, E(90, 400, 42, 26), 700, true)
+        ink(g, [[60, 388], [90, 404], [120, 388]], { w: 1.4, d: 900, t: 200 })
+        blank(g, E(250, 560, 56))
+        ink(g, E(250, 560, 56), { w: 2.6, d: 600, t: 500 })
+        for (let k = 0; k < 4; k++) ink(g, E(250, 560, 50 - k * 4, 50 - k * 4, k * 30, k * 30 + 300), { w: 0.9, d: 800 + k * 60, t: 200 })
+        blank(g, E(250, 560, 32))
+        hatch(g, E(250, 560, 30), 900, true)
+        ink(g, E(250, 560, 32), { w: 2.2, d: 700, t: 400 })
+        arrow(g, L([316, 344], [316, 500]), { w: 1.4, d: 1100, t: 300, head: 6 })
       },
       lehrbuch(g) {
-        const vein = RR(96, 300, 22, 150, 11)
-        const art = RR(242, 300, 22, 150, 11)
+        // aufgeschlagenes Lehrbuch: Herz mit Gefäßen, Venen hell, Arterien dunkel gemalt
+        const l: P[] = [[180, 330], [40, 316], [40, 630], [180, 644], [180, 330]]
+        const r: P[] = [[180, 330], [320, 316], [320, 630], [180, 644], [180, 330]]
+        blank(g, l)
+        blank(g, r)
+        ink(g, l, { w: 2.6, t: 600 })
+        ink(g, r, { w: 2.6, d: 200, t: 600 })
+        for (let k = 0; k < 8; k++) ink(g, L([200, 360 + k * 16], [300, 356 + k * 16]), { w: 0.9, d: 600 + k * 40, t: 100 })
+        heart(g, 110, 500, 1.2, 400, false)
+        const vein = RR(70, 360, 14, 100, 7)
+        const art = RR(136, 360, 14, 100, 7)
         hatch(g, art, 900, true)
-        ink(g, art, { w: 2.6, d: 700, t: 500 })
-        ink(g, vein, { w: 2.6, d: 600, t: 500 })
+        ink(g, art, { w: 2.2, d: 700, t: 400 })
         hatch(g, vein, 900)
-        heart(g, 180, 500, 2.4, 0, false)
-        text(g, 107, 290, 'Vene: blau gemalt', { anchor: 'middle', cls: 's', d: 1200 })
-        text(g, 253, 290, 'Arterie: rot gemalt', { anchor: 'middle', cls: 's', d: 1300 })
+        ink(g, vein, { w: 2.2, d: 600, t: 400 })
+        for (let k = 0; k < 6; k++) ink(g, L([200, 520 + k * 16], [300, 516 + k * 16]), { w: 0.9, d: 900 + k * 40, t: 100 })
       },
       roehrchen(g) {
+        // Blutentnahme-Röhrchen mit Etikett, gefüllt mit dunkelrotem Venenblut; daneben die Kanüle
         ink(g, RR(150, 320, 60, 260, 26), { w: 3, t: 700 })
         hatch(g, RR(156, 420, 48, 154, 22), 600, true)
         ink(g, RR(144, 300, 72, 30, 6), { w: 2.6, d: 300, t: 300 })
-        text(g, 180, 630, 'Venenblut: dunkelrot', { anchor: 'middle', d: 1000 })
+        hatch(g, RR(144, 300, 72, 30, 6), 500)
+        blank(g, RR(160, 470, 40, 60, 2))
+        ink(g, RR(160, 470, 40, 60, 2), { w: 1.4, d: 800, t: 200 })
+        for (const y of [484, 496, 508]) ink(g, L([166, y], [194, y]), { w: 0.8, d: 900, t: 100 })
+        ink(g, L([250, 420], [300, 360]), { w: 1.6, d: 900, t: 200 })
+        ink(g, RR(290, 330, 24, 40, 4), { w: 2, d: 1000, t: 200 })
+        flow(g, L([248, 424], [214, 470]), { n: 2, ms: 1400, d: 1300, r: 2 })
       },
       krake(g) {
+        // Krake mit Saugnäpfen; ihr Blutfarbstoff enthält Kupfer
         ball(g, 180, 400, 70, { fill: 'hell', w: 3 })
         for (let k = 0; k < 6; k++) {
           const x = 120 + k * 24
-          ink(g, B([x, 462], [x - 16, 520], [x + 16, 560], [x + (k - 2.5) * 12, 620]), { w: 2.6, d: 500 + k * 100, t: 400 })
+          const a = wobble(g, { deg: 6, ox: x, oy: 462, ms: 1800 + k * 200, d: 900 })
+          const arm = B([x, 462], [x - 16, 520], [x + 16, 560], [x + (k - 2.5) * 12, 620])
+          ink(a, arm, { w: 2.6, d: 500 + k * 100, t: 400 })
+          for (let j = 2; j < arm.length - 2; j += 8) ink(a, E(arm[j][0] + 4, arm[j][1], 2.6), { w: 0.8, d: 900 + k * 100, t: 80 })
         }
-        dot(g, 156, 394, 5, 900)
-        dot(g, 204, 394, 5, 950)
-        text(g, 290, 340, 'Kupfer statt Eisen', { anchor: 'middle', cls: 's', d: 1200 })
+        ink(g, E(156, 394, 9, 7), { w: 1.6, d: 800, t: 200 })
+        ink(g, E(204, 394, 9, 7), { w: 1.6, d: 850, t: 200 })
+        dot(g, 156, 394, 3, 900)
+        dot(g, 204, 394, 3, 950)
+        blank(g, E(296, 340, 26))
+        ink(g, E(296, 340, 26), { w: 2.2, d: 1100, t: 300 })
+        text(g, 296, 347, 'Cu', { anchor: 'middle', size: 20, d: 1200 })
       },
       adel(g) {
-        fig(g, 110, 620, 4, { d: 0 })
-        for (let i = 0; i < 3; i++) ink(g, B([200 + i * 40, 600], [210 + i * 40, 560], [190 + i * 40, 520], [204 + i * 40, 480]), { w: 1.8, d: 600 + i * 150, t: 400 })
-        text(g, 240, 640, '„sangre azul“', { anchor: 'middle', cls: 'it', d: 1100, size: 20 })
+        // spanischer Adliger mit Halskrause, blasses Handgelenk mit durchscheinenden Adern
+        fig(g, 100, 640, 5, { d: 0 })
+        for (let k = 0; k < 10; k++) ink(g, E(100 + Math.cos(k * 0.63) * 18, 518 + Math.sin(k * 0.63) * 5, 6, 4), { w: 1, d: 600 + k * 30, t: 80 })
+        const wrist: P[] = [[190, 520], [330, 500], [334, 560], [196, 580]]
+        blank(g, [...wrist, wrist[0]])
+        ink(g, [...wrist, wrist[0]], { w: 2.4, d: 700, t: 400 })
+        for (let i = 0; i < 3; i++) ink(g, B([200, 536 + i * 12], [240, 528 + i * 14], [280, 540 + i * 10], [328, 520 + i * 12]), { w: 1.6, d: 1000 + i * 150, t: 400 })
+        text(g, 260, 630, '„sangre azul“', { anchor: 'middle', cls: 'it', d: 1300, size: 20 })
       },
       ende(g) {
         drop(g, 180, 470, 2.6)
+        heart(g, 280, 380, 0.6, 600)
       },
     },
     scenes: [
