@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
 import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, vbars, type P } from './draw'
-import { LAND, arcArrow, ball, box, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, rad, ripple, smooth, sun, thermo, water, waveP, wobble, worldMap } from './kit'
+import { LAND, arcArrow, ball, box, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, glide, moonFace, rad, ripple, smooth, stars, sun, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
 
 // Erde & Wetter: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -122,6 +122,42 @@ function regionHatch(g: Element, pr: (lon: number, lat: number) => P, li: number
   const pts = coastPts(li, pr)
   hatch(c, pts, d, true)
   ink(c, pts, { w: 2.4, d, t: 400, p: 0.3 })
+}
+
+/** Dromedar von der Seite, Kopf nach rechts; y = Boden, Höhe ≈ 110·s */
+function camel(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const body: P[] = smooth([P(-46, -64), P(-40, -84), P(-14, -110), P(10, -96), P(30, -80), P(44, -82), P(54, -104), P(64, -112), P(76, -108), P(80, -102), P(66, -98), P(60, -78), P(46, -58), P(20, -52), P(-30, -50), P(-46, -64)], 3)
+  blank(g, body)
+  hatch(g, body, d + 600)
+  ink(g, body, { w: 2.4, d, t: 700 })
+  for (const [a, k] of [[-36, -1], [-24, 1], [26, -1], [38, 1]] as const) ink(g, [P(a, -52), P(a + k * 3, -26), P(a, -24), P(a + k * 2, 0), P(a + 6, 0)], { w: 2.2, d: d + 300, t: 300 })
+  ink(g, B(P(-46, -64), P(-56, -60), P(-58, -46), P(-54, -36)), { w: 1.6, d: d + 400, t: 150 })
+  dot(g, x + 70 * s, y - 106 * s, 1.6 * s, d + 600)
+  ink(g, B(P(64, -112), P(62, -118), P(66, -120), P(68, -114)), { w: 1.4, d: d + 500, t: 80 })
+}
+
+/** Säulenkaktus mit Armen und Rippen; y = Boden */
+function cactus(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  ink(g, [P(-8, 0), P(-8, -110), ...B(P(-8, -110), P(-8, -124), P(8, -124), P(8, -110)).slice(1), P(8, 0)], { w: 2.4, d, t: 500 })
+  ink(g, [P(-8, -50), P(-26, -50), ...B(P(-26, -50), P(-30, -50), P(-32, -56), P(-32, -60)).slice(1), P(-32, -84), ...B(P(-32, -84), P(-32, -92), P(-22, -92), P(-22, -84)).slice(1), P(-22, -62), P(-8, -62)], { w: 2, d: d + 300, t: 300 })
+  ink(g, [P(8, -70), P(24, -70), P(24, -96), ...B(P(24, -96), P(24, -104), P(34, -104), P(34, -96)).slice(1), P(34, -66), ...B(P(34, -66), P(34, -60), P(30, -58), P(26, -58)).slice(1), P(8, -58)], { w: 2, d: d + 400, t: 300 })
+  for (const a of [-3, 3]) ink(g, L(P(a, -116), P(a, -4)), { w: 0.8, d: d + 500, t: 200 })
+}
+
+/** Infrarot-Wellenpfeil von a nach b */
+function irArrow(g: Element, a: P, b: P, d = 0, w = 2): void {
+  const n = 50
+  const dx = b[0] - a[0]
+  const dy = b[1] - a[1]
+  const l = Math.hypot(dx, dy)
+  const pts = Array.from({ length: n + 1 }, (_, i) => {
+    const t = i / n
+    const o = Math.sin(t * l / 6) * 5 * Math.min(1, (1 - t) * 6)
+    return [a[0] + dx * t - (dy / l) * o, a[1] + dy * t + (dx / l) * o] as P
+  })
+  arrow(g, pts, { w, d, t: 700, head: 9 })
 }
 
 export const AHA_ERDE: Bite[] = [
@@ -343,102 +379,211 @@ export const AHA_ERDE: Bite[] = [
     images: [],
     draw: {
       wueste(g) {
-        sun(g, 90, 160, 34)
-        moon(g, 270, 160, 30, 600)
-        dune(g, 20, 220, 420, 90, 300)
-        dune(g, 160, 340, 420, 60, 500)
+        // Dünen unter Sonne und Mond, Karawane, Windrippel
+        sunDisk(g, 80, 150, 30, 0)
+        moon(g, 280, 140, 26, 500)
+        stars(g, 200, 90, 150, 120, 10, 700, (x, y) => Math.hypot(x - 280, y - 140) < 40)
+        dune(g, 20, 230, 420, 110, 300)
+        dune(g, 150, 340, 420, 70, 500)
         ink(g, L([20, 422], [340, 422]), { w: 2.6, d: 200, t: 500 })
+        hatch(g, [...B([20, 420], [83, 310], [146, 310], [230, 420])], 900)
+        for (let k = 0; k < 5; k++) ink(g, B([60 + k * 30, 400 - k * 4], [70 + k * 30, 396 - k * 4], [80 + k * 30, 402 - k * 4], [90 + k * 30, 398 - k * 4]), { w: 0.9, d: 1000 + k * 60, t: 150 })
+        for (const [x, s] of [[200, 0.6], [262, 0.52], [314, 0.46]] as const) {
+          const w = glide(g, 20, 0, { ms: 6000, d: 1200, loop: true })
+          camel(w, x, 410, s, 900)
+        }
       },
       tag(g) {
-        sun(g, 260, 380, 36)
-        thermo(g, 90, 340, 200, 0.92, 300)
-        text(g, 150, 470, 'über 40 °C', { size: 22, d: 800 })
+        // Mittagshitze: Sonne, flimmernde Luft, Thermometer mit Skala weit oben
+        sunDisk(g, 250, 360, 40, 0)
+        for (let k = 0; k < 4; k++) {
+          const w = wobble(g, { dx: 6, ms: 1100 + k * 200, d: 900 })
+          ink(w, waveP(160, 330, 470 + k * 24, 3, 30, k), { w: 1, d: 800 + k * 80, t: 400 })
+        }
+        dune(g, 140, 340, 600, 60, 300)
+        cactus(g, 290, 600, 0.6, 500)
+        ink(g, L([20, 602], [340, 602]), { w: 2.6, d: 200, t: 500 })
+        thermo(g, 80, 330, 220, 0.9, 300)
+        const yv = (v: number) => 330 + 8 + (220 - 8) * (1 - (v + 10) / 55)
+        for (const v of [0, 20, 40]) {
+          ink(g, L([92, yv(v)], [104, yv(v)]), { w: 1.6, d: 500, t: 60 })
+          text(g, 108, yv(v) + 5, String(v), { cls: 's', d: 600 })
+        }
       },
       nacht(g) {
-        moon(g, 260, 380, 32)
-        for (const [x, y] of [[190, 340], [320, 440], [220, 470]] as const) star(g, x, y, 7, { d: 600 })
-        thermo(g, 90, 340, 200, 0.12, 300)
-        text(g, 130, 600, 'um 0 °C', { size: 22, d: 800 })
+        // Nacht in der Wüste: Mond, Sterne, Zelt, Thermometer bei null
+        moon(g, 260, 360, 32, 0)
+        stars(g, 150, 300, 200, 160, 18, 400, (x, y) => Math.hypot(x - 260, y - 360) < 46)
+        dune(g, 140, 340, 600, 60, 300)
+        ink(g, L([20, 602], [340, 602]), { w: 2.6, d: 200, t: 500 })
+        const tent: P[] = [[170, 600], [220, 520], [290, 600], [170, 600]]
+        blank(g, tent)
+        hatch(g, tent, 900)
+        ink(g, tent, { w: 2.4, d: 700, t: 400 })
+        ink(g, [[212, 600], [220, 548], [232, 600]], { w: 1.6, d: 900, t: 200 })
+        thermo(g, 80, 330, 220, 0.2, 300)
+        const yv = (v: number) => 330 + 8 + (220 - 8) * (1 - (v + 10) / 55)
+        for (const v of [0, 20, 40]) {
+          ink(g, L([92, yv(v)], [104, yv(v)]), { w: 1.6, d: 500, t: 60 })
+          text(g, 108, yv(v) + 5, String(v), { cls: 's', d: 600 })
+        }
       },
       strahlt(g) {
-        ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
-        for (const x of [70, 180, 290]) arrow(g, Array.from({ length: 51 }, (_, i) => [x + Math.sin(i / 3) * 8, 590 - i * 5] as P), { w: 2.4, d: 400, t: 900, head: 10 })
-        text(g, 180, 320, 'Wärme strahlt ins All', { anchor: 'middle', cls: 's', d: 1300 })
+        // klare Nacht: der Sand strahlt Wärme ab, sie entweicht ungehindert zu den Sternen
+        stars(g, 20, 300, 320, 120, 22, 0)
+        ink(g, L([20, 600], [340, 600]), { w: 3, d: 200, t: 500 })
+        hatch(g, [[20, 602], [340, 602], [340, 650], [20, 650]], 400)
+        for (let k = 0; k < 8; k++) dot(g, 30 + k * 40, 620 + (k % 2) * 14, 1.6, 600)
+        for (const x of [60, 150, 240, 320]) irArrow(g, [x, 590], [x + 10, 330], 400 + x * 2)
+        for (const x of [100, 200, 290]) {
+          const f = glide(g, 0, -260, { ms: 2400, d: 1400 + x * 3, loop: true })
+          ink(f, waveP(x - 8, x + 8, 590, 3, 6), { w: 1.6, d: 1300, t: 100 })
+        }
       },
       decke(g) {
+        // feuchte Luft: eine Schicht Wasserdampf schluckt die Strahlung und schickt einen Teil zurück
         ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
-        dashes(g, L([20, 400], [340, 400]), { w: 2, d: 300 })
-        text(g, 180, 380, 'Wasserdampf', { anchor: 'middle', cls: 's', d: 400 })
-        for (const x of [60, 160, 260]) {
-          arrow(g, L([x, 586], [x, 420]), { w: 2.4, d: 600, t: 500, head: 10 })
-          carrow(g, [x + 14, 420], [x + 40, 584], -12, { d: 1100 })
+        hatch(g, [[20, 602], [340, 602], [340, 650], [20, 650]], 300)
+        for (let i = 0; i < 12; i++) {
+          const w = wobble(g, { dx: 4, dy: 3, ms: 700 + i * 60, d: 900 })
+          water(w, 34 + i * 27, 400 + (i % 3) * 20, 0.5, i * 40, 200 + i * 40)
         }
+        for (const x of [60, 160, 260]) {
+          irArrow(g, [x, 590], [x + 10, 440], 600)
+          irArrow(g, [x + 30, 440], [x + 40, 590], 1300)
+        }
+        stars(g, 20, 300, 320, 60, 10, 0)
       },
       wasser(g) {
-        water(g, 180, 470, 3)
+        // Lupe auf trockene Luft: Stickstoff- und Sauerstoffmoleküle, nur ein einziges Wassermolekül
+        ink(g, E(180, 460, 140), { w: 3, t: 700 })
+        let seed = 4
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 16; i++) {
+          const a = rnd() * Math.PI * 2
+          const r = 20 + rnd() * 100
+          const x = 180 + Math.cos(a) * r
+          const y = 460 + Math.sin(a) * r
+          if (Math.hypot(x - 230, y - 420) < 40) continue
+          const w = wobble(g, { dx: (rnd() - 0.5) * 16, dy: (rnd() - 0.5) * 16, ms: 600 + rnd() * 600, d: 900 })
+          const o = rnd() * Math.PI
+          const fill = i % 4 === 0 ? 'hell' : 'leer'
+          ball(w, x - Math.cos(o) * 7, y - Math.sin(o) * 7, 8, { d: 300 + i * 40, fill, w: 1.6, t: 100 })
+          ball(w, x + Math.cos(o) * 7, y + Math.sin(o) * 7, 8, { d: 300 + i * 40, fill, w: 1.6, t: 100 })
+        }
+        const ww = wobble(g, { dx: 6, dy: -6, ms: 900, d: 1200 })
+        water(ww, 230, 420, 1.2, 20, 1000)
+        ripple(g, 230, 420, 20, 50, { n: 2, ms: 1600, d: 1400, w: 1 })
       },
       vergleich(g) {
-        hbars(g, [
-          { label: 'Wüste', v: 30, fmt: () => 'oft über 25 °C', dense: true },
-          { label: 'Regenwald', v: 9, fmt: () => 'unter 10 °C' },
-        ], { x: 30, y: 400, w: 300, h: 40, gap: 80 })
-        text(g, 180, 590, 'Unterschied Tag – Nacht', { anchor: 'middle', cls: 's', d: 1200 })
+        // links Wüste, rechts Regenwald; die Klammer zeigt den Unterschied zwischen Tag und Nacht
+        ink(g, L([20, 620], [340, 620]), { w: 2.6, t: 500 })
+        dune(g, 20, 170, 620, 50, 200)
+        cactus(g, 110, 620, 0.5, 300)
+        for (const [x, s] of [[230, 0.55], [280, 0.7], [320, 0.5]] as const) tree(g, x, 620, s, 300)
+        for (let k = 0; k < 3; k++) cloud(g, 230 + k * 40, 380 + (k % 2) * 16, 0.4, 600 + k * 100, k === 1)
+        for (const [x, top, bot, d] of [[60, 330, 560, 900], [200, 430, 500, 1200]] as const) {
+          arrow(g, L([x, (top + bot) / 2], [x, top]), { w: 2.4, d, t: 300, head: 8 })
+          arrow(g, L([x, (top + bot) / 2], [x, bot]), { w: 2.4, d, t: 300, head: 8 })
+          for (const y of [top, bot]) ink(g, L([x - 10, y], [x + 10, y]), { w: 2, d: d + 200, t: 80 })
+        }
+        sunDisk(g, 130, 340, 16, 400)
+        moon(g, 130, 540, 12, 500)
       },
       sand(g) {
-        vbars(g, [
-          { label: 'Wasser', v: 4.2, fmt: () => '4,2', dense: true },
-          { label: 'Sand', v: 0.8, fmt: () => '0,8' },
-        ], { x: 90, base: 590, w: 70, gap: 110, h: 220 })
-        text(g, 180, 640, 'Joule je Gramm und Grad', { anchor: 'middle', cls: 's', d: 1200 })
+        // gleiche Flamme unter Wasser und Sand: der Sand wird viel schneller heiß
+        for (const [x, dense, lvl] of [[40, false, 0.35], [200, true, 0.85]] as const) {
+          ink(g, [[x, 420], [x + 6, 560], [x + 114, 560], [x + 120, 420]], { w: 2.8, d: 200, t: 500 })
+          const fill: P[] = [[x + 4, 470], [x + 116, 470], [x + 112, 556], [x + 8, 556]]
+          if (dense) for (let k = 0; k < 40; k++) dot(g, x + 14 + (k % 10) * 10 + (Math.floor(k / 10) % 2) * 5, 480 + Math.floor(k / 10) * 20, 2, 500 + k * 15)
+          else {
+            hatch(g, fill, 500)
+            ink(g, waveP(x + 6, x + 114, 470, 2, 20), { w: 1.4, d: 400, t: 300 })
+          }
+          ink(g, L([x + 30, 560], [x + 30, 620]), { w: 2, d: 300, t: 200 })
+          ink(g, L([x + 90, 560], [x + 90, 620]), { w: 2, d: 300, t: 200 })
+          const fw = wobble(g, { deg: 4, ox: x + 60, oy: 616, ms: 600, d: 900 })
+          flame(fw, x + 60, 616, 0.4, 600)
+          thermo(g, x + 60, 320, 120, lvl, 900)
+        }
       },
       kueste(g) {
-        for (const [y, d] of [[560, 0], [600, 150]] as const) ink(g, waveP(20, 160, y, 5, 40, y / 20), { w: 2.2, d, t: 600 })
-        dune(g, 190, 340, 600, 70, 300)
-        ink(g, L([180, 602], [340, 602]), { w: 2.6, d: 200, t: 400 })
-        text(g, 90, 650, 'mild', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 265, 650, 'extrem', { anchor: 'middle', cls: 's', d: 1000 })
+        // links Meer, rechts Wüstenküste: das Wasser puffert, Thermometer schwanken unterschiedlich stark
+        for (const y of [560, 584, 608]) travelWave(g, 20, 170, y, 4, 40, { ms: 2400, d: 200, w: 1.8 })
+        ink(g, L([170, 620], [340, 620]), { w: 2.6, d: 200, t: 400 })
+        dune(g, 180, 340, 620, 60, 300)
+        ink(g, B([160, 620], [168, 600], [176, 580], [190, 570]), { w: 2, d: 300, t: 200 })
+        for (const [x, lo, hi] of [[90, 0.45, 0.55], [270, 0.15, 0.9]] as const) {
+          thermo(g, x, 330, 140, (lo + hi) / 2, 600)
+          const yv = (v: number) => 330 + 8 + 132 * (1 - v)
+          arrow(g, L([x + 26, yv((lo + hi) / 2)], [x + 26, yv(hi) - 4]), { w: 1.8, d: 1100, t: 200, head: 6 })
+          arrow(g, L([x + 26, yv((lo + hi) / 2)], [x + 26, yv(lo) + 4]), { w: 1.8, d: 1100, t: 200, head: 6 })
+        }
       },
       antarktis(g) {
-        hbars(g, [
-          { label: 'Antarktis', v: 14, fmt: () => '14', dense: true },
-          { label: 'Sahara', v: 9.2, fmt: () => '9,2' },
-        ], { x: 30, y: 400, w: 300, h: 40, gap: 80 })
-        text(g, 180, 590, 'Fläche in Mio. km²', { anchor: 'middle', cls: 's', d: 1200 })
+        // flächentreue Weltkarte: Antarktis und Sahara dicht schraffiert
+        const pr = worldMap(g, 20, 380, 320, 204, 'peters', 0, { hi: [LAND.antarktis] })
+        regionHatch(g, pr, LAND.afrika, -17, 34, 15, 34, 1300)
       },
       frost(g) {
-        for (const [x, y] of [[80, 340], [200, 320], [300, 360]] as const) star(g, x, y, 7, { d: 200 })
+        // sternklare Frühlingsnacht: Jungpflanze im Beet, Eiskristalle an den Blättern
+        stars(g, 20, 300, 320, 120, 20, 0)
         ink(g, L([20, 600], [340, 600]), { w: 3, d: 200, t: 500 })
-        ink(g, L([180, 600], [180, 500]), { w: 2.4, d: 400, t: 300 })
-        for (const k of [-1, 1]) ink(g, B([180, 540], [180 + k * 20, 520], [180 + k * 36, 520], [180 + k * 44, 500]), { w: 2.2, d: 600, t: 300 })
-        for (const [x, y] of [[150, 470], [212, 470], [180, 450]] as const) {
-          for (let k = 0; k < 3; k++) ink(g, L([x - 8 * Math.cos(rad(k * 60)), y - 8 * Math.sin(rad(k * 60))], [x + 8 * Math.cos(rad(k * 60)), y + 8 * Math.sin(rad(k * 60))]), { w: 1.6, d: 1000, t: 150 })
+        hatch(g, [[20, 602], [340, 602], [340, 650], [20, 650]], 400, true)
+        for (const x of [90, 180, 270]) {
+          ink(g, L([x, 600], [x, 520]), { w: 2.2, d: 400, t: 300 })
+          for (const k of [-1, 1]) {
+            const lf: P[] = smooth([[x, 550 - (k + 1) * 8], [x + k * 18, 530 - (k + 1) * 8], [x + k * 38, 536 - (k + 1) * 8], [x + k * 22, 552 - (k + 1) * 8], [x, 550 - (k + 1) * 8]], 3)
+            blank(g, lf)
+            ink(g, lf, { w: 1.8, d: 600, t: 300 })
+            for (let j = 0; j < 3; j++) flake(g, x + k * (10 + j * 9), 538 - (k + 1) * 8 + (j % 2) * 4, 3, 1300 + j * 100)
+          }
         }
-        text(g, 180, 650, 'klare Nacht: Bodenfrost', { anchor: 'middle', cls: 's', d: 1200 })
+        for (const x of [130, 230]) irArrow(g, [x, 590], [x + 10, 430], 800)
       },
       wolke(g) {
-        cloud(g, 180, 380, 1.4)
+        // bewölkte Nacht: die Wolkendecke wirft die Wärmestrahlung zurück
+        cloud(g, 110, 380, 1.1, 0, true)
+        cloud(g, 260, 370, 1.2, 200, true)
         ink(g, L([20, 600], [340, 600]), { w: 3, d: 200, t: 500 })
-        for (const x of [100, 260]) {
-          arrow(g, L([x, 586], [x, 410]), { w: 2.4, d: 600, t: 500, head: 10 })
-          carrow(g, [x + 16, 410], [x + 40, 584], -12, { d: 1100 })
+        hatch(g, [[20, 602], [340, 602], [340, 650], [20, 650]], 400)
+        for (const x of [80, 200, 300]) {
+          irArrow(g, [x, 590], [x + 6, 420], 600)
+          irArrow(g, [x + 20, 420], [x + 26, 590], 1300)
         }
-        text(g, 180, 650, 'bewölkte Nacht: milder', { anchor: 'middle', cls: 's', d: 1200 })
       },
       mond(g) {
-        ball(g, 180, 460, 80, { fill: 'hell' })
-        text(g, 180, 590, 'Tag: über 120 °C', { anchor: 'middle', cls: 's', d: 700 })
-        text(g, 180, 616, 'Nacht: unter −170 °C', { anchor: 'middle', cls: 's', d: 900 })
+        // Mond ohne Luft: Tagseite in der Sonne, Nachtseite dunkel
+        sunDisk(g, 40, 350, 24, 0)
+        moonFace(g, 200, 480, 110, 300)
+        hatch(g, [...E(200, 480, 110, 110, -90, 90), ...E(200, 480, 40, 110, 90, -90)], 1000, true)
+        ink(g, E(200, 480, 40, 110, -90, 90), { w: 1.4, d: 900, t: 500 })
       },
       gewand(g) {
-        fig(g, 180, 600, 4)
-        const robe: P[] = [[160, 520], [200, 520], [216, 600], [144, 600], [160, 520]]
+        // Tuareg in weitem Gewand mit Turban neben dem Dromedar
+        ink(g, L([20, 620], [340, 620]), { w: 2.6, t: 500 })
+        camel(g, 250, 620, 1, 200)
+        const robe: P[] = smooth([[96, 380], [130, 372], [146, 420], [158, 520], [168, 618], [56, 618], [70, 520], [82, 420], [96, 380]], 3)
         blank(g, robe)
-        hatch(g, robe, 600)
-        ink(g, robe, { w: 2.6, d: 400, t: 500 })
-        text(g, 180, 650, 'weite Gewänder: Schutz vor Hitze und Kälte', { anchor: 'middle', cls: 's', d: 1000 })
+        hatch(g, robe, 800)
+        ink(g, robe, { w: 2.6, d: 400, t: 600 })
+        for (let k = 0; k < 3; k++) ink(g, B([92 + k * 16, 420], [88 + k * 16, 500], [96 + k * 16, 560], [90 + k * 16, 616]), { w: 1.1, d: 700 + k * 80, t: 300 })
+        const headP: P[] = smooth([[96, 380], [92, 350], [100, 326], [126, 324], [134, 350], [130, 372], [96, 380]], 3)
+        blank(g, headP)
+        hatch(g, headP, 900, true)
+        ink(g, headP, { w: 2.4, d: 600, t: 300 })
+        blank(g, RR(102, 344, 26, 8, 3))
+        ink(g, RR(102, 344, 26, 8, 3), { w: 1.2, d: 900, t: 100 })
+        for (const x of [110, 120]) dot(g, x, 348, 1.6, 1000)
+        const w = wobble(g, { deg: 4, ox: 130, oy: 380, ms: 1600, d: 1200 })
+        ink(w, B([132, 360], [150, 370], [160, 400], [156, 430]), { w: 1.8, d: 1100, t: 200 })
       },
       ende(g) {
-        moon(g, 180, 460, 50)
+        moon(g, 180, 420, 50, 0)
+        stars(g, 30, 310, 300, 160, 16, 300, (x, y) => Math.hypot(x - 180, y - 420) < 70)
+        dune(g, 20, 220, 620, 70, 500)
+        dune(g, 160, 340, 620, 50, 700)
+        ink(g, L([20, 622], [340, 622]), { w: 2.6, d: 400, t: 500 })
       },
     },
     scenes: [
