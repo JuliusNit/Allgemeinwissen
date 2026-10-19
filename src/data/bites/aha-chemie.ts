@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, brain, car, check, cross, dashes, fig, hatch, ink, mk, pop, rays, st, strike, text, timeline, vbars, type P } from './draw'
-import { arcArrow, axes, bact, ball, box, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, leaf, mol, onion, plot, rad, ripple, smooth, spin, stars, sun, thermo, travelWave, tree, water, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, brain, car, check, cross, dashes, fig, hatch, ink, mk, pop, rays, st, strike, text, vbars, type P } from './draw'
+import { arcArrow, axes, bact, ball, box, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, leaf, mapRegion, mol, onion, plot, rad, ripple, smooth, spin, stars, sun, thermo, travelWave, tree, water, waveP, wobble } from './kit'
 
 // Chemie: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -188,27 +188,56 @@ function palm(g: Element, x: number, y: number, dir: number, d = 0): void {
   hatch(g, [P(-36, 116), P(-36, 130), P(0, 130), P(0, 116)], d + 500)
 }
 
-/** Popcorn-Korn im Schnitt */
+/** Popcorn-Korn im Schnitt: Schale (doppelte Linie), Stärkezellen, Keimling, Spitze unten */
 function kernel(g: Element, cx: number, cy: number, s = 1, d = 0): void {
-  const o = [...B([cx, cy - 60 * s], [cx + 50 * s, cy - 50 * s], [cx + 50 * s, cy + 40 * s], [cx, cy + 60 * s]), ...B([cx, cy + 60 * s], [cx - 50 * s, cy + 40 * s], [cx - 50 * s, cy - 50 * s], [cx, cy - 60 * s]).slice(1)]
+  const P = (a: number, b: number): P => [cx + a * s, cy + b * s]
+  const shape = (k: number): P[] => [...B(P(0, -60 * k), P(52 * k, -58 * k), P(50 * k, 20 * k), P(14 * k, 56 * k)), P(-14 * k, 56 * k), ...B(P(-14 * k, 56 * k), P(-50 * k, 20 * k), P(-52 * k, -58 * k), P(0, -60 * k)).slice(1)]
+  const o = shape(1)
   blank(g, o)
-  ink(g, o, { w: 4, d, t: 800 })
-  const i = [...B([cx, cy - 46 * s], [cx + 36 * s, cy - 38 * s], [cx + 36 * s, cy + 30 * s], [cx, cy + 44 * s]), ...B([cx, cy + 44 * s], [cx - 36 * s, cy + 30 * s], [cx - 36 * s, cy - 38 * s], [cx, cy - 46 * s]).slice(1)]
-  hatch(g, i, d + 600)
+  ink(g, o, { w: 3.6 * Math.min(1, s), d, t: 800 })
+  ink(g, shape(0.9), { w: 1.2, d: d + 200, t: 800 })
+  hatch(g, [...o, ...shape(0.9).reverse()], d + 500, true)
+  const cap: P[] = [P(-12, 56), P(12, 56), P(8, 66), P(-8, 66), P(-12, 56)]
+  hatch(g, cap, d + 600, true)
+  ink(g, cap, { w: 1.6, d: d + 500, t: 150 })
+  const germ: P[] = [...B(P(-10, 50), P(-26, 30), P(-20, 6), P(-6, 4)), ...B(P(-6, 4), P(6, 10), P(6, 34), P(-10, 50)).slice(1)]
+  hatch(g, germ, d + 700)
+  ink(g, germ, { w: 1.4, d: d + 600, t: 200 })
+  if (s >= 0.8) for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    const x = -30 + c * 18 + (r % 2) * 9
+    const y = -40 + r * 16
+    if (Math.abs(x) > 36 - r * 2) continue
+    ink(g, Array.from({ length: 7 }, (_, k) => P(x + Math.cos(rad(k * 60)) * 7, y + Math.sin(rad(k * 60)) * 6)), { w: 0.8, d: d + 700 + (r * 4 + c) * 20, t: 60 })
+  }
 }
 
-/** Popcorn-Flocke (Wolkenblume) */
+/** Aufgepopptes Korn: unregelmäßige Lappen mit Falten, unten ein Stück Schale */
 function puff(g: Element, cx: number, cy: number, s = 1, d = 0): void {
+  let seed = Math.round(cx * 7 + cy * 3)
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+  const n = 9
+  const rs = Array.from({ length: n }, () => 22 + rnd() * 12)
   const pts: P[] = []
-  for (let k = 0; k < 7; k++) {
-    const a0 = rad(k * (360 / 7))
-    const a1 = rad((k + 1) * (360 / 7))
-    const r = 24 * s
+  for (let k = 0; k < n; k++) {
+    const a0 = rad(k * (360 / n))
+    const a1 = rad((k + 1) * (360 / n))
     const m = (a0 + a1) / 2
-    pts.push(...B([cx + Math.cos(a0) * r, cy + Math.sin(a0) * r], [cx + Math.cos(m - 0.3) * r * 1.6, cy + Math.sin(m - 0.3) * r * 1.6], [cx + Math.cos(m + 0.3) * r * 1.6, cy + Math.sin(m + 0.3) * r * 1.6], [cx + Math.cos(a1) * r, cy + Math.sin(a1) * r]).slice(k ? 1 : 0))
+    const r0 = rs[k] * s
+    const r1 = rs[(k + 1) % n] * s
+    const rm = Math.max(r0, r1) * 1.45
+    pts.push(...B([cx + Math.cos(a0) * r0, cy + Math.sin(a0) * r0], [cx + Math.cos(m - 0.32) * rm, cy + Math.sin(m - 0.32) * rm], [cx + Math.cos(m + 0.32) * rm, cy + Math.sin(m + 0.32) * rm], [cx + Math.cos(a1) * r1, cy + Math.sin(a1) * r1]).slice(k ? 1 : 0))
   }
   blank(g, pts)
   ink(g, pts, { w: 2.6, d, t: 700 })
+  if (s >= 0.7) for (let k = 0; k < n; k += 2) {
+    const a = rad(k * (360 / n) + 6)
+    const r = rs[k] * s
+    ink(g, B([cx + Math.cos(a) * r * 0.3, cy + Math.sin(a) * r * 0.3], [cx + Math.cos(a + 0.3) * r * 0.6, cy + Math.sin(a + 0.3) * r * 0.6], [cx + Math.cos(a - 0.1) * r * 0.8, cy + Math.sin(a - 0.1) * r * 0.8], [cx + Math.cos(a) * r, cy + Math.sin(a) * r]), { w: 1.1, d: d + 400 + k * 40, t: 150 })
+  }
+  const hull: P[] = [[cx - 10 * s, cy + 26 * s], [cx + 6 * s, cy + 30 * s], [cx + 2 * s, cy + 38 * s], [cx - 12 * s, cy + 34 * s], [cx - 10 * s, cy + 26 * s]]
+  blank(g, hull)
+  hatch(g, hull, d + 600, true)
+  ink(g, hull, { w: 1.4, d: d + 500, t: 150 })
 }
 
 export const AHA_CHEMIE: Bite[] = [
@@ -1735,103 +1764,232 @@ export const AHA_CHEMIE: Bite[] = [
     images: [],
     draw: {
       flocken(g) {
-        ;[[110, 160, 1.2], [220, 130, 1], [270, 250, 0.9], [150, 290, 1.1], [60, 260, 0.8]].forEach(([x, y, s], i) => puff(g, x, y, s, i * 200))
+        // gestreifte Kinotüte, Flocken quellen oben heraus, einzelne fliegen
+        const bag: P[] = [[100, 230], [260, 230], [240, 440], [120, 440], [100, 230]]
+        for (let k = 0; k < 4; k++) {
+          const x0 = 100 + k * 40
+          const st0: P[] = [[x0, 230], [x0 + 20, 230], [x0 + 20 - (k < 2 ? -5 : 5) * (k + 0.5) * 0.4, 440], [x0 - (k < 2 ? -5 : 5) * (k + 0.5) * 0.4, 440]]
+          hatch(g, [...st0, st0[0]], 500 + k * 80, true)
+        }
+        ink(g, bag, { w: 3, t: 700 })
+        ink(g, L([98, 244], [262, 244]), { w: 1.6, d: 300, t: 300 })
+        for (const [x, y, s] of [[120, 214, 0.8], [160, 200, 0.9], [205, 206, 0.85], [245, 216, 0.75], [140, 180, 0.7], [190, 172, 0.8], [230, 184, 0.7]] as const) puff(g, x, y, s, 200 + x * 3)
+        for (let i = 0; i < 4; i++) {
+          const f = glide(g, (i % 2 ? 40 : -40), -60, { ms: 1800 + i * 300, d: 900 + i * 400, loop: true })
+          puff(f, 120 + i * 40, 150 - (i % 2) * 20, 0.5, 900 + i * 100)
+        }
       },
       maschine(g) {
-        kernel(g, 180, 470, 1.6)
-        flame(g, 180, 660, 0.6, 900)
-        text(g, 300, 380, 'Dampfmaschine', { anchor: 'middle', cls: 's', d: 1100 })
+        // Korn in der heißen Pfanne: Dampf kreist eingeschlossen in der Schale
+        kernel(g, 180, 440, 1.9, 0)
+        for (let k = 0; k < 3; k++) {
+          const a0 = k * 120
+          flow(g, E(180, 430, 40, 50, a0, a0 + 300), { n: 2, ms: 1400, d: 900 + k * 150, r: 2, kind: 'ring' })
+        }
+        ink(g, B([40, 570], [50, 600], [310, 600], [320, 570]), { w: 3, d: 300, t: 500 })
+        ink(g, L([320, 576], [350, 566]), { w: 3, d: 400, t: 200 })
+        for (let k = 0; k < 6; k++) {
+          const fw = wobble(g, { deg: 5, ox: 105 + k * 30, oy: 640, ms: 500 + k * 70, d: 900 })
+          flame(fw, 105 + k * 30, 640, 0.3, 700 + k * 50)
+        }
       },
       schnitt(g) {
-        kernel(g, 160, 470, 1.8)
-        for (let i = 0; i < 6; i++) drop(g, 130 + (i % 3) * 30, 440 + Math.floor(i / 3) * 50, 0.3, 900 + i * 80, false)
-        text(g, 290, 400, 'harte Schale', { anchor: 'middle', cls: 's', d: 1100 })
-        text(g, 290, 540, 'Stärke + 14 % Wasser', { anchor: 'middle', cls: 's', d: 1300 })
+        // Schnitt: Schale, Stärkezellen, eingeschlossene Wassertröpfchen, Keimling
+        kernel(g, 180, 470, 2.4, 0)
+        for (let i = 0; i < 8; i++) {
+          const w = wobble(g, { dx: 2, dy: 2, ms: 600 + i * 70, d: 1000 })
+          water(w, 120 + (i % 4) * 40, 400 + Math.floor(i / 4) * 60 + (i % 2) * 14, 0.35, i * 45, 900 + i * 60)
+        }
       },
       druck(g) {
-        kernel(g, 180, 470, 1.8)
-        for (let k = 0; k < 8; k++) {
-          const a = rad(k * 45)
-          arrow(g, L([180 + Math.cos(a) * 20, 470 + Math.sin(a) * 20], [180 + Math.cos(a) * 52, 470 + Math.sin(a) * 52]), { w: 2, d: 700 + k * 60, t: 200, head: 7 })
+        // Dampf drückt von innen gegen die Schale, die sich spannt
+        const sw = wobble(g, { deg: 0, dx: 0, dy: -2, ms: 400, d: 1200 })
+        kernel(sw, 180, 470, 2.2, 0)
+        for (let k = 0; k < 10; k++) {
+          const a = rad(k * 36)
+          arrow(g, L([180 + Math.cos(a) * 30, 460 + Math.sin(a) * 34], [180 + Math.cos(a) * 92, 460 + Math.sin(a) * 104]), { w: 2, d: 700 + k * 60, t: 200, head: 7 })
         }
-        text(g, 180, 620, 'Dampfdruck steigt', { anchor: 'middle', cls: 's', d: 1300 })
+        for (let k = 0; k < 6; k++) flow(g, L([180 + Math.cos(rad(k * 60)) * 10, 460 + Math.sin(rad(k * 60)) * 10], [180 + Math.cos(rad(k * 60)) * 80, 460 + Math.sin(rad(k * 60)) * 90]), { n: 2, ms: 500, d: 1000 + k * 60, r: 1.8 })
       },
       zahl180(g) {
-        thermo(g, 90, 330, 240, 0.75)
-        text(g, 140, 470, '≈ 180 °C', { size: 26, d: 700 })
-        text(g, 140, 510, 'innen etwa 9-facher Luftdruck', { cls: 's', d: 1000 })
+        // Thermometer mit Skala und Manometer, dessen Zeiger auf das Neunfache steigt
+        ink(g, RR(56, 320, 40, 300, 20), { w: 1.4, t: 500 })
+        thermo(g, 76, 330, 240, 0.78, 200)
+        for (const [v, l] of [[0, '0'], [100, '100'], [200, '200']] as const) {
+          const y = 330 + 8 + (240 - 8) * (1 - v / 230)
+          ink(g, L([96, y], [108, y]), { w: 1.6, d: 400, t: 60 })
+          text(g, 112, y + 5, l, { cls: 's', d: 500 })
+        }
+        const cx = 240
+        const cy = 470
+        ink(g, E(cx, cy, 80), { w: 3.2, d: 600, t: 600 })
+        ink(g, E(cx, cy, 70), { w: 1.2, d: 700, t: 600 })
+        for (let v = 0; v <= 10; v++) {
+          const a = rad(135 + v * 27)
+          ink(g, L([cx + Math.cos(a) * 58, cy + Math.sin(a) * 58], [cx + Math.cos(a) * 68, cy + Math.sin(a) * 68]), { w: v % 5 ? 1 : 2, d: 800 + v * 30, t: 50 })
+          if (v % 5 === 0) text(g, cx + Math.cos(a) * 44, cy + Math.sin(a) * 44 + 5, String(v), { anchor: 'middle', size: 14, cls: 'halo', d: 900 })
+        }
+        hatch(g, [[cx, cy], ...E(cx, cy, 68, 68, 135 + 8 * 27, 135 + 10 * 27), [cx, cy]], 1100, true)
+        ink(g, RR(cx - 10, cy + 80, 20, 30, 3), { w: 2.2, d: 700, t: 200 })
+        const nd = mk('g', {}, g)
+        mk('animateTransform', { attributeName: 'transform', type: 'rotate', from: `0 ${cx} ${cy}`, to: `${9 * 27} ${cx} ${cy}`, dur: '2.4s', begin: '1.2s', fill: 'freeze' }, nd)
+        ink(nd, [[cx - 4, cy + 4], [cx + Math.cos(rad(135)) * 60, cy + Math.sin(rad(135)) * 60], [cx + 4, cy - 4]], { w: 2.4, d: 1100, t: 150 })
+        dot(g, cx, cy, 5, 1200)
       },
       platzen(g) {
-        const half = (k: number, d: number) => ink(g, B([180, 410 + k * 50], [180 + k * 60, 420], [180 + k * 70, 500], [180 + k * 20, 530]), { w: 3.4, d, t: 300 })
-        half(-1, 0)
-        half(1, 0)
-        puff(g, 180, 460, 1.6, 500)
-        for (let k = 0; k < 8; k++) {
-          const a = rad(k * 45 + 20)
-          ink(g, L([180 + Math.cos(a) * 80, 460 + Math.sin(a) * 80], [180 + Math.cos(a) * 100, 460 + Math.sin(a) * 100]), { w: 2, d: 900 + k * 40, t: 100 })
+        // die Schale reißt auf, die Hälften fliegen weg, der Schaum quillt heraus
+        for (const k of [-1, 1]) {
+          const h = glide(g, k * 60, -40 + k * 10, { ms: 600, d: 900 })
+          const half: P[] = [...B([180, 400], [180 + k * 60, 404], [180 + k * 64, 480], [180 + k * 22, 530])]
+          hatch(h, [...half, ...B([180 + k * 18, 520], [180 + k * 54, 476], [180 + k * 50, 410], [180, 410])], 300, true)
+          ink(h, half, { w: 3.2, d: 0, t: 300 })
         }
+        const foam = pop(g, 1000, '50% 50%')
+        puff(foam, 180, 470, 2, 0)
+        for (let k = 0; k < 10; k++) {
+          const a = rad(k * 36 + 10)
+          ink(g, L([180 + Math.cos(a) * 110, 470 + Math.sin(a) * 110], [180 + Math.cos(a) * 140, 470 + Math.sin(a) * 140]), { w: 2, d: 1100 + k * 30, t: 100 })
+        }
+        ripple(g, 180, 470, 40, 160, { n: 2, ms: 1200, d: 1100, w: 1.2 })
       },
       schaum(g) {
-        kernel(g, 80, 470, 0.5)
-        arrow(g, L([120, 470], [170, 470]), { w: 2.6, d: 500, t: 300, head: 9 })
-        puff(g, 260, 470, 2.6, 700)
-        text(g, 180, 620, 'bis zu 40-mal so groß', { anchor: 'middle', d: 1300 })
+        // Lupe: erstarrter Stärkeschaum aus vielen Blasen; a1: Korn neben Flocke im gleichen Maßstab
+        const h1 = st(g, 'h1', '')
+        puff(h1, 110, 470, 2.2, 0)
+        blank(h1, E(250, 420, 80))
+        ink(h1, E(250, 420, 80), { w: 3, d: 400, t: 500 })
+        ink(h1, L([190, 474], [140, 500]), { w: 2, d: 500, t: 200 })
+        const c = clipBox(h1, 170, 340, 160, 160)
+        let seed = 9
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let r = 0; r < 6; r++) for (let k = 0; k < 6; k++) {
+          const x = 180 + k * 28 + (r % 2) * 14 + rnd() * 6
+          const y = 350 + r * 26 + rnd() * 6
+          const rr = 9 + rnd() * 5
+          ink(c, Array.from({ length: 7 }, (_, j) => [x + Math.cos(rad(j * 60 + 30)) * rr, y + Math.sin(rad(j * 60 + 30)) * rr * 0.9] as P), { w: 1.4, d: 600 + (r * 6 + k) * 20, t: 80 })
+        }
+        const x1 = st(g, 'x1', '--o: 180px 500px')
+        kernel(x1, 70, 560, 0.4, 0)
+        puff(x1, 230, 480, 3, 0)
+        ink(x1, L([30, 640], [330, 640]), { w: 1.6, t: 0 })
+        for (let k = 0; k <= 10; k++) ink(x1, L([30 + k * 30, 634], [30 + k * 30, 646]), { w: 1.2, t: 0 })
       },
       plopp(g) {
-        puff(g, 120, 480, 1.6)
-        for (let i = 0; i < 3; i++) ink(g, E(220, 440, 30 + i * 22, 30 + i * 22, -50, 50), { w: 2, d: 700 + i * 200, t: 200 })
-        text(g, 270, 560, 'Plopp = Dampf entweicht', { anchor: 'middle', cls: 's', d: 1300 })
+        // Hochgeschwindigkeitskamera filmt: Dampfstrahl aus dem Riss, Schallwellen
+        puff(g, 110, 480, 1.6, 0)
+        for (let k = 0; k < 4; k++) flow(g, L([150, 470 - k * 6], [230, 440 - k * 18]), { n: 3, ms: 600, d: 600 + k * 80, r: 1.8, kind: 'ring' })
+        ripple(g, 170, 460, 20, 140, { n: 3, ms: 1400, d: 900, w: 1.4 })
+        const cam: P[] = RR(250, 330, 80, 50, 6)
+        blank(g, cam)
+        ink(g, cam, { w: 2.6, d: 300, t: 400 })
+        ink(g, [[250, 344], [226, 336], [226, 376], [250, 368]], { w: 2.2, d: 400, t: 200 })
+        ink(g, E(300, 322, 10, 6), { w: 1.6, d: 500, t: 150 })
+        dot(g, 318, 342, 3, 600)
+        for (const x of [270, 310]) ink(g, L([x, 380], [x + (x - 290) * 0.6, 430]), { w: 2, d: 600, t: 200 })
       },
       sprung(g) {
+        // stroboskopische Bahn: ein Stärke-„Bein“ stößt das Korn vom Pfannenboden ab
         ink(g, L([20, 600], [340, 600]), { w: 3, t: 400 })
-        puff(g, 180, 430, 1.2, 300)
-        ink(g, L([170, 470], [160, 596]), { w: 3, d: 700, t: 200 })
-        arrow(g, L([240, 470], [240, 380]), { w: 2.4, d: 1000, t: 300, head: 9 })
-        text(g, 100, 560, 'Stärke-„Bein“', { anchor: 'middle', cls: 's', d: 900 })
+        hatch(g, [[20, 602], [340, 602], [340, 620], [20, 620]], 200, true)
+        const path: P[] = Array.from({ length: 21 }, (_, i) => [70 + i * 12, 580 - Math.sin((i / 20) * Math.PI) * 230] as P)
+        dashes(g, path, { w: 1.2, d: 600, dash: 4, gap: 5 })
+        kernel(g, 70, 572, 0.32, 300)
+        ink(g, B([66, 590], [60, 594], [54, 598], [50, 600]), { w: 3, d: 500, t: 150 })
+        for (const [i, s] of [[5, 0.6], [10, 0.8], [15, 0.85]] as const) {
+          const [x, y] = path[i]
+          const p = pop(g, 700 + i * 60, '50% 50%')
+          puff(p, x, y, s, 0)
+        }
+        puff(pop(g, 1800, '50% 50%'), 310, 572, 0.85, 0)
       },
       zeit(g) {
-        text(g, 180, 460, '≈ 0,03 s', { anchor: 'middle', size: 50, d: 200 })
-        text(g, 180, 510, 'vom Riss zum Popcorn', { anchor: 'middle', cls: 's', d: 700 })
+        // Filmstreifen: vier Bilder im Abstand von zehn Millisekunden
+        ink(g, RR(20, 380, 320, 160, 4), { w: 2.8, t: 600 })
+        for (const y of [390, 530]) for (let k = 0; k < 16; k++) ink(g, RR(26 + k * 20, y - 5, 10, 8, 2), { w: 1, d: 300 + k * 20, t: 50 })
+        for (let k = 1; k < 4; k++) ink(g, L([20 + k * 80, 400], [20 + k * 80, 520]), { w: 1.6, d: 400, t: 200 })
+        kernel(g, 60, 460, 0.55, 600)
+        kernel(g, 140, 460, 0.55, 800)
+        ink(g, [[140, 430], [146, 444], [138, 456]], { w: 2, d: 1000, t: 100 })
+        puff(g, 220, 460, 0.8, 1100)
+        puff(g, 300, 460, 1.1, 1300)
+        for (const [k, l] of [[0, '0 ms'], [1, '10 ms'], [2, '20 ms'], [3, '30 ms']] as const) text(g, 60 + k * 80, 580, l, { anchor: 'middle', cls: 's', d: 600 + k * 200 })
       },
       zuckermais(g) {
-        kernel(g, 100, 470, 1)
-        for (let k = 0; k < 5; k++) {
-          const a = rad(-60 + k * 30)
-          arrow(g, L([100 + Math.cos(a) * 66, 470 + Math.sin(a) * 66], [100 + Math.cos(a) * 90, 470 + Math.sin(a) * 90]), { w: 1.8, d: 700 + k * 80, t: 150, head: 6 })
+        // links Zuckermais: runzlige, poröse Schale, Dampf entweicht; rechts Popcornmais: glatt, dicht, Druck bleibt
+        const wr: P[] = smooth([[100, 400], [140, 410], [150, 470], [130, 530], [100, 544], [70, 530], [50, 470], [60, 410], [100, 400]], 4).map(([x, y], i): P => [x + Math.sin(i * 1.3) * 3, y + Math.cos(i * 1.7) * 3])
+        blank(g, wr)
+        ink(g, wr, { w: 2.6, t: 600 })
+        for (const p of [[[70, 430], [84, 450], [74, 470]], [[120, 440], [110, 470], [126, 500]]] as P[][]) ink(g, p, { w: 1.2, d: 400, t: 200 })
+        for (let k = 0; k < 6; k++) {
+          const a = rad(-100 + k * 40)
+          const p = L([100 + Math.cos(a) * 40, 472 + Math.sin(a) * 56], [100 + Math.cos(a) * 80, 472 + Math.sin(a) * 96])
+          flow(g, p, { n: 2, ms: 900, d: 900 + k * 60, r: 1.8, kind: 'ring' })
         }
-        text(g, 100, 580, 'Zuckermais: undicht', { anchor: 'middle', cls: 's', d: 1100 })
-        kernel(g, 270, 470, 1, 400)
-        text(g, 270, 580, 'Popcornmais: dicht', { anchor: 'middle', cls: 's', d: 1200 })
+        kernel(g, 260, 470, 1.1, 400)
+        for (let k = 0; k < 6; k++) {
+          const a = rad(k * 60)
+          arrow(g, L([260 + Math.cos(a) * 10, 466 + Math.sin(a) * 12], [260 + Math.cos(a) * 34, 466 + Math.sin(a) * 40]), { w: 1.6, d: 1000 + k * 50, t: 150, head: 5 })
+        }
+        const x1 = st(g, 'x1', '--o: 260px 470px')
+        ink(x1, [...B([260, 400], [320, 404], [318, 490], [276, 538]), [244, 538], ...B([244, 538], [202, 490], [200, 404], [260, 400]).slice(1)], { w: 4.4, t: 0 })
       },
       jungfer(g) {
-        kernel(g, 180, 470, 1.4)
-        ink(g, [[208, 410], [196, 440], [214, 460]], { w: 2, d: 900, t: 200 })
-        text(g, 180, 600, 'Riss oder zu trocken: bleibt hart', { anchor: 'middle', cls: 's', d: 1100 })
+        // Korn mit Riss: Dampf zischt heraus, das Korn bleibt hart; daneben eine Flocke
+        kernel(g, 130, 480, 1.4, 0)
+        ink(g, [[160, 408], [152, 430], [168, 448], [158, 468]], { w: 2.4, d: 700, t: 200 })
+        for (let k = 0; k < 3; k++) flow(g, B([162, 430 + k * 10], [190, 410 + k * 8], [220, 390], [250, 360 - k * 10]), { n: 2, ms: 900, d: 1000 + k * 100, r: 1.8, kind: 'ring' })
+        puff(g, 280, 560, 1, 900)
+        ink(g, L([20, 600], [340, 600]), { w: 2.4, d: 200, t: 500 })
       },
       mikro(g) {
-        ink(g, RR(50, 380, 260, 180, 14), { w: 3, t: 700 })
-        ink(g, RR(70, 400, 170, 140, 8), { w: 2.2, d: 300, t: 600 })
-        for (let i = 0; i < 3; i++) ink(g, E(286, 420 + i * 40, 8), { w: 2, d: 500 + i * 100, t: 200 })
-        puff(g, 150, 470, 1, 900)
-        text(g, 180, 620, 'heizt direkt das Wasser im Korn', { anchor: 'middle', cls: 's', d: 1200 })
+        // Mikrowelle: Tür mit Lochgitter, Bedienfeld, Drehteller; die Tüte bläht sich, Wellen erreichen das Wasser im Korn
+        ink(g, RR(30, 360, 300, 220, 14), { w: 3, t: 700 })
+        ink(g, RR(48, 378, 200, 184, 8), { w: 2.2, d: 200, t: 500 })
+        const c = clipBox(g, 52, 382, 192, 176)
+        for (let r = 0; r < 18; r++) for (let k = 0; k < 20; k++) if ((r + k) % 2 === 0) dot(c, 56 + k * 10, 386 + r * 10, 0.9, 300 + r * 10)
+        ink(g, RR(262, 380, 52, 26, 4), { w: 2, d: 400, t: 200 })
+        text(g, 288, 400, '2:30', { anchor: 'middle', size: 14, d: 500 })
+        for (let k = 0; k < 2; k++) for (let j = 0; j < 3; j++) ink(g, RR(266 + k * 24, 424 + j * 26, 18, 16, 3), { w: 1.4, d: 500 + (k * 3 + j) * 40, t: 80 })
+        ink(g, E(288, 530, 14), { w: 2, d: 600, t: 200 })
+        const bag = wobble(g, { dy: -6, ms: 900, d: 1200 })
+        const b: P[] = smooth([[90, 520], [100, 470], [150, 456], [200, 470], [210, 520], [150, 530], [90, 520]], 3)
+        blank(bag, b)
+        ink(bag, b, { w: 2.4, d: 700, t: 400 })
+        hatch(bag, [[110, 520], [190, 520], [194, 500], [106, 500]], 900)
+        ink(g, E(150, 540, 80, 8), { w: 1.8, d: 600, t: 300 })
+        for (let k = 0; k < 3; k++) travelWave(g, 60, 240, 410 + k * 24, 5, 30, { ms: 900, d: 900 + k * 100, w: 1.2 })
       },
       formen(g) {
-        puff(g, 100, 470, 1.4)
-        for (const k of [-1, 1]) ink(g, B([100 + k * 30, 450], [100 + k * 70, 420], [100 + k * 80, 480], [100 + k * 40, 490]), { w: 2.4, d: 600, t: 300 })
-        ball(g, 260, 470, 40, { d: 400, w: 2.8 })
-        text(g, 100, 580, 'Schmetterling', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 260, 580, 'Pilz', { anchor: 'middle', cls: 's', d: 1000 })
+        // Schmetterling mit Flügeln; Pilz als runde, feste Kugel mit Karamellüberzug
+        puff(g, 100, 470, 1.3, 0)
+        for (const k of [-1, 1]) {
+          const wing: P[] = smooth([[100 + k * 24, 452], [100 + k * 70, 400], [100 + k * 90, 440], [100 + k * 70, 480], [100 + k * 34, 488]], 3)
+          ink(g, wing, { w: 2.2, d: 500, t: 300 })
+          ink(g, smooth([[100 + k * 34, 460], [100 + k * 60, 430], [100 + k * 72, 450]], 3), { w: 1, d: 700, t: 200 })
+        }
+        const ball0: P[] = smooth(Array.from({ length: 13 }, (_, k) => [260 + Math.cos(rad(k * 30)) * (44 + (k % 2) * 6), 470 + Math.sin(rad(k * 30)) * (44 + (k % 2) * 6)] as P), 3)
+        blank(g, ball0)
+        hatch(g, ball0, 900, true)
+        ink(g, ball0, { w: 2.8, d: 400, t: 500 })
+        for (const x of [240, 262, 284]) {
+          const dr = glide(g, 0, 16, { ms: 1600, d: 1300 + x * 2, loop: true })
+          drop(dr, x, 528, 0.3, 1100)
+        }
       },
       peru(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.08, label: 'vor 6.000 J.', sub: 'Peru', up: true },
-          { at: 0.9, label: 'heute', up: true },
-        ])
-        puff(g, 70, 570, 0.8, 1200)
-        puff(g, 290, 570, 0.8, 1400)
+        // Südamerika, Fundort an der Küste Perus (Paredones / Huaca Prieta), daneben ein uralter kleiner Kolben
+        const pr = mapRegion(g, 30, 300, 190, 340, -90, -30, -56, 14, 0)
+        const [x, y] = pr(-79.3, -7.9)
+        dot(g, x, y, 5, 1200)
+        ripple(g, x, y, 6, 30, { n: 2, ms: 1600, d: 1400, w: 1.2 })
+        const cob: P[] = smooth([[280, 340], [300, 360], [304, 460], [290, 520], [270, 520], [256, 460], [260, 360], [280, 340]], 3)
+        blank(g, cob)
+        ink(g, cob, { w: 2.4, d: 1000, t: 500 })
+        for (let r = 0; r < 9; r++) for (let k = 0; k < 3; k++) ink(g, E(266 + k * 13 + (r % 2) * 4, 366 + r * 16, 5, 6), { w: 1, d: 1200 + r * 40, t: 60 })
+        for (const k of [-1, 1]) ink(g, B([280, 520], [280 + k * 20, 560], [280 + k * 30, 580], [280 + k * 26, 610]), { w: 1.8, d: 1400, t: 200 })
       },
       ende(g) {
-        puff(g, 180, 480, 2)
+        puff(g, 180, 480, 2.2, 0)
       },
     },
     scenes: [
@@ -1842,12 +2000,12 @@ export const AHA_CHEMIE: Bite[] = [
       { t: T('Bei rund **180 Grad** herrscht innen etwa neunmal so viel Druck wie in der Luft um dich herum.', 64), gfx: { zahl180: {} } },
       { t: T('Dann gibt die Schale nach und **platzt** schlagartig auf.', 64), gfx: { platzen: {} } },
       { t: T('Die heiße Stärke ist weich wie Brei. Der Dampf schäumt sie auf – und an der kühleren Luft **erstarrt** der Schaum sofort.', 64), gfx: { schaum: {} } },
-      { t: T('Aus einem kleinen Korn wird so eine Flocke, die bis zu **40-mal** so viel Platz braucht.', 64), gfx: { schaum: {} } },
+      { t: T('Aus einem kleinen Korn wird so eine Flocke, die bis zu **40-mal** so viel Platz braucht.', 64), gfx: { schaum: { cls: 'a1' } } },
       { t: T('Französische Forscher filmten das 2015 mit Hochgeschwindigkeits-Kameras. Ihr Ergebnis: Das Plopp kommt nicht vom Riss, sondern vom **entweichenden Dampf**.', 64), gfx: { plopp: {} } },
       { t: T('Und das Hüpfen? Ein Stück Stärke drückt wie ein **Bein** gegen den Boden – das Korn katapultiert sich hoch.', 64), gfx: { sprung: {} } },
       { t: T('Das alles dauert nur wenige **Hundertstelsekunden**.', 64), gfx: { zeit: {} } },
       { t: T('Warum ploppt Zuckermais nicht? Seine Schale ist **zu durchlässig**: Der Dampf entweicht, bevor sich Druck aufbaut.', 64), gfx: { zuckermais: {} } },
-      { t: T('Popcornmais ist eine eigene Sorte mit besonders **dichter, harter** Schale.', 64), gfx: { zuckermais: {} } },
+      { t: T('Popcornmais ist eine eigene Sorte mit besonders **dichter, harter** Schale.', 64), gfx: { zuckermais: { cls: 'a1' } } },
       { t: T('Körner, die übrig bleiben, haben meist einen **Riss** in der Schale – oder sie sind zu trocken.', 64), gfx: { jungfer: {} } },
       { t: T('Ideal sind etwa **13 bis 14 Prozent** Wasser im Korn. Zu feucht, und das Popcorn wird zäh – zu trocken, und es bleibt klein.', 64), gfx: { schnitt: {} } },
       { t: T('Die Mikrowelle passt perfekt dazu: Sie erhitzt **direkt das Wasser** im Inneren der Körner.', 64), gfx: { mikro: {} } },
