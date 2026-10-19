@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
 import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, check, clock, cross, crowd, dashes, fig, group, hatch, hbars, ink, letter, lie, mk, question, rays, st, text, timeline, vbars, type P } from './draw'
-import { axes, ball, bird, box, bullets, carrow, cloud, dot, drop, earth, eyeFront, flake, flame, flow, glide, ground, heart, lens, mapRegion, pie, plot, rad, ripple, smooth, spin, sun, thermo, tree, waveP, wobble } from './kit'
+import { arcArrow, axes, ball, bird, box, carrow, cloud, dot, drop, earth, eyeFront, flake, flame, flow, glide, ground, heart, lens, mapRegion, pie, plot, rad, ripple, smooth, spin, sun, thermo, tree, waveP, wobble } from './kit'
 
 // Leben & Körper: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -1968,62 +1968,99 @@ export const AHA_KOERPER: Bite[] = [
     draw: {
       zelle(g) {
         cell(g, 180, 250, 150, 120)
-        mito(g, 90, 220, 0.8, 900)
-        mito(g, 260, 300, 0.8, 1000)
-        mito(g, 240, 170, 0.7, 1100)
+        mito(g, 90, 200, 0.8, 900)
+        mito(g, 262, 310, 0.8, 1000)
+        mito(g, 250, 170, 0.7, 1100)
+        mito(g, 110, 320, 0.6, 1200)
       },
       kraftwerk(g) {
-        mito(g, 180, 470, 2.6)
-        text(g, 40, 380, 'Zucker', { d: 800 })
-        text(g, 40, 580, 'Sauerstoff', { d: 900 })
-        arrow(g, L([70, 392], [100, 430]), { w: 2.2, d: 900, t: 300, head: 8 })
-        arrow(g, L([90, 562], [110, 520]), { w: 2.2, d: 1000, t: 300, head: 8 })
-        arrow(g, L([262, 470], [300, 470]), { w: 2.6, d: 1200, t: 300, head: 9 })
+        // Mitochondrium im Schnitt: Zucker und Sauerstoff hinein, ATP hinaus
+        mito(g, 180, 470, 2.8)
+        ink(g, L([60, 380], [110, 430]), { w: 1.6, d: 900, t: 300 })
+        for (let k = 0; k < 6; k++) {
+          const a = rad(k * 60 + 30)
+          ink(g, L([40 + Math.cos(a) * 10, 366 + Math.sin(a) * 10], [40 + Math.cos(a + rad(60)) * 10, 366 + Math.sin(a + rad(60)) * 10]), { w: 1.8, d: 800, t: 80 })
+        }
+        flow(g, L([56, 380], [110, 432]), { n: 2, ms: 1200, d: 1300, r: 2.2 })
+        ball(g, 34, 580, 6, { d: 900, w: 1.4, t: 0 })
+        ball(g, 46, 580, 6, { d: 900, w: 1.4, t: 0 })
+        flow(g, L([56, 572], [110, 520]), { n: 2, ms: 1200, d: 1400, r: 2.2 })
+        const out = L([270, 470], [306, 470])
+        arrow(g, out, { w: 2.4, d: 1200, t: 300, head: 9 })
+        flow(g, out, { n: 3, ms: 900, d: 1600, r: 2.4 })
         text(g, 316, 476, 'ATP', { d: 1300 })
       },
       atp(g) {
         vbars(g, [
           { label: 'du', v: 70, fmt: (v) => `${Math.round(v)} kg` },
-          { label: 'ATP pro Tag', v: 70, fmt: (v) => `≈ ${Math.round(v)} kg`, dense: true },
+          { label: 'ATP', v: 70, fmt: (v) => `≈ ${Math.round(v)} kg`, dense: true },
         ], { x: 90, base: 600, w: 70, gap: 110, h: 220 })
+        arcArrow(g, 235, 300, 26, 200, 520, { d: 1500, t: 500, w: 1.6, head: 6 })
       },
       herz(g) {
-        heart(g, 110, 470, 2, 0, false)
-        mito(g, 90, 460, 0.6, 600)
-        mito(g, 130, 480, 0.6, 700)
-        ink(g, RR(200, 400, 130, 140, 10), { w: 2.6, d: 400, t: 500 })
-        pie(g, 265, 470, 50, 0.33, 800)
-        text(g, 265, 580, 'ein Drittel', { anchor: 'middle', cls: 's', d: 1300 })
+        heart(g, 100, 470, 1.8, 0, false)
+        // Herzmuskelzelle in der Lupe: Faserbündel, dazwischen Reihen von Mitochondrien
+        ink(g, L([150, 450], [196, 430]), { w: 1, d: 600, t: 200 })
+        blank(g, E(260, 460, 74))
+        for (let r = 0; r < 4; r++) {
+          const y = 410 + r * 32
+          hatch(g, RR(196, y, 128, 12, 6), 900 + r * 100, true)
+          ink(g, RR(196, y, 128, 12, 6), { w: 1.2, d: 800 + r * 100, t: 200 })
+          if (r < 3) for (let k = 0; k < 4; k++) {
+            const x = 210 + k * 30
+            ink(g, RR(x, y + 16, 22, 10, 5), { w: 1.2, d: 1100 + k * 40, t: 100 })
+          }
+        }
+        ink(g, E(260, 460, 74), { w: 2.8, d: 700, t: 400 })
       },
       gift(g) {
-        mito(g, 160, 470, 2.4)
-        cross(g, 300, 380, 1.4, 1000)
-        text(g, 180, 600, 'Blausäure blockiert die Atmungskette', { anchor: 'middle', cls: 's', d: 1300 })
+        mito(g, 180, 470, 2.6)
+        // Atmungskette in der inneren Membran: ein Glied ist blockiert
+        for (let k = 0; k < 4; k++) {
+          const x = 120 + k * 40
+          ball(g, x, 420, 9, { d: 700 + k * 100, fill: k === 3 ? 'dicht' : 'hell', w: 1.6 })
+          if (k < 3) arrow(g, L([x + 10, 420], [x + 30, 420]), { w: 1.4, d: 800 + k * 100, t: 150, head: 5 })
+        }
+        cross(g, 240, 420, 0.7, 1300)
+        ink(g, [[290, 330], [310, 330], [314, 370], [286, 370], [290, 330]], { w: 2, d: 900, t: 300 })
+        ink(g, L([292, 340], [308, 340]), { w: 1, d: 1000, t: 100 })
+        flow(g, L([300, 372], [250, 414]), { n: 2, ms: 1200, d: 1400, r: 2 })
       },
       gehirn(g) {
         brain(g, 180, 450, 1.1)
-        text(g, 180, 620, '20 % deiner Energie', { anchor: 'middle', size: 22, d: 1200 })
+        pie(g, 290, 600, 30, 0.2, 1100)
+        for (let k = 0; k < 8; k++) {
+          const p = mk('g', { class: 'blink', style: `--d:${900 + k * 150}ms` }, g)
+          dot(p, 120 + (k % 4) * 40, 410 + Math.floor(k / 4) * 50, 3, 900)
+        }
       },
       ring(g) {
         mito(g, 110, 470, 2)
         blank(g, E(110, 470, 26))
         ink(g, E(110, 470, 22), { w: 2.4, d: 800, t: 400 })
+        for (let k = 0; k < 8; k++) ink(g, L([110 + Math.cos(k * 0.785) * 18, 470 + Math.sin(k * 0.785) * 18], [110 + Math.cos(k * 0.785) * 26, 470 + Math.sin(k * 0.785) * 26]), { w: 0.9, d: 1000, t: 60 })
         text(g, 110, 560, 'Ring-DNA', { anchor: 'middle', cls: 's', d: 1000 })
         for (const [x, h] of [[240, 90], [270, 70], [300, 110]] as const) {
           hatch(g, RR(x - 6, 470 - h / 2, 12, h, 6), 900, true)
           ink(g, RR(x - 6, 470 - h / 2, 12, h, 6), { w: 2, d: 700, t: 300 })
         }
-        text(g, 270, 560, 'Zellkern', { anchor: 'middle', cls: 's', d: 1100 })
+        ink(g, E(270, 470, 60, 76), { w: 2, d: 600, t: 400 })
       },
       bakterium(g) {
         bact(g, 170, 470, 4)
         blank(g, E(150, 470, 22))
         ink(g, E(150, 470, 18), { w: 2.2, d: 600, t: 300 })
-        text(g, 180, 580, 'Bakterien: ebenfalls Ring-DNA', { anchor: 'middle', cls: 's', d: 900 })
+        for (let k = 0; k < 8; k++) ink(g, L([150 + Math.cos(k * 0.785) * 14, 470 + Math.sin(k * 0.785) * 14], [150 + Math.cos(k * 0.785) * 22, 470 + Math.sin(k * 0.785) * 22]), { w: 0.9, d: 800, t: 60 })
       },
       merkmale(g) {
+        // zwei Hüllen im Ausschnitt – und eine Teilung in der Mitte
         mito(g, 180, 380, 1.8)
-        bullets(g, 50, 500, ['zwei Hüllen', 'teilen sich selbst', 'bakterienähnliche Ribosomen'], { d: 700, gap: 40, size: 17 })
+        ink(g, RR(118, 352, 124, 56, 28), { w: 1.2, d: 600, t: 400 })
+        const a = glide(g, -40, 0, { ms: 2400, d: 1000, loop: true })
+        mito(a, 140, 540, 0.9, 900)
+        const b = glide(g, 40, 0, { ms: 2400, d: 1000, loop: true })
+        mito(b, 220, 540, 0.9, 900)
+        ink(g, L([180, 510], [180, 570]), { w: 1, d: 1000, t: 200 })
       },
       schlucken(g) {
         const host: P[] = [...B([60, 470], [60, 340], [230, 330], [260, 400]), ...B([260, 400], [240, 430], [240, 510], [260, 540]).slice(1), ...B([260, 540], [230, 610], [60, 600], [60, 470]).slice(1)]
@@ -2031,24 +2068,33 @@ export const AHA_KOERPER: Bite[] = [
         ink(g, host, { w: 3, t: 900 })
         hatch(g, E(130, 470, 34, 30), 700, true)
         ink(g, E(130, 470, 34, 30), { w: 2.2, d: 500, t: 400 })
+        ink(g, B([250, 410], [290, 390], [320, 430], [300, 470]), { w: 2, d: 800, t: 300 })
+        ink(g, B([250, 530], [290, 550], [320, 510], [300, 470]), { w: 2, d: 800, t: 300 })
         const b = st(g, 'm1', '--m1: translateX(-90px); transition-duration: 2s')
         bact(b, 310, 470, 1.4, 800, true)
       },
       partner(g) {
         cell(g, 180, 470, 150, 120)
         mito(g, 250, 470, 1.1, 600)
-        arrow(g, L([236, 448], [200, 424]), { w: 2.2, d: 1000, t: 300, head: 8 })
+        const e = B([236, 448], [222, 436], [210, 428], [200, 424])
+        arrow(g, e, { w: 2.2, d: 1000, t: 300, head: 8 })
+        flow(g, e, { n: 2, ms: 1000, d: 1400, r: 2 })
+        const n = B([180, 516], [200, 510], [220, 500], [236, 494])
+        arrow(g, n, { w: 2.2, d: 1300, t: 300, head: 8 })
+        flow(g, n, { n: 2, ms: 1000, d: 1700, r: 2 })
         text(g, 196, 404, 'Energie', { anchor: 'middle', cls: 's', d: 1200 })
-        arrow(g, L([200, 516], [236, 494]), { w: 2.2, d: 1300, t: 300, head: 8 })
-        text(g, 200, 544, 'Schutz, Nahrung', { anchor: 'middle', cls: 's', d: 1500 })
       },
       komplex(g) {
-        ball(g, 70, 470, 20, { fill: 'hell' })
-        arrow(g, L([100, 470], [150, 470]), { w: 2.6, d: 400, t: 300, head: 9 })
-        cell(g, 250, 470, 90, 80, 600)
-        mito(g, 220, 430, 0.5, 1200)
-        mito(g, 290, 500, 0.5, 1300)
-        text(g, 180, 600, 'Pflanzen, Pilze, Tiere', { anchor: 'middle', d: 1500 })
+        ball(g, 50, 470, 18, { fill: 'hell' })
+        arrow(g, L([76, 470], [110, 470]), { w: 2.2, d: 400, t: 300, head: 8 })
+        cell(g, 170, 470, 50, 44, 600)
+        mito(g, 160, 450, 0.3, 1200)
+        arrow(g, L([226, 470], [250, 470]), { w: 2.2, d: 900, t: 300, head: 8 })
+        tree(g, 290, 440, 0.3, 1200)
+        fig(g, 300, 560, 1.4, { d: 1400 })
+        const shroom: P[] = [...B([250, 560], [250, 530], [290, 530], [290, 560])]
+        ink(g, [...shroom, [250, 560]], { w: 1.8, d: 1500, t: 200 })
+        ink(g, L([270, 560], [270, 580]), { w: 1.8, d: 1600, t: 100 })
       },
       margulis(g) {
         for (let i = 0; i < 15; i++) {
@@ -2057,7 +2103,7 @@ export const AHA_KOERPER: Bite[] = [
           letter(g, x - 4, y, 46, i * 80)
           cross(g, x + 34, y + 36, 0.5, 300 + i * 80)
         }
-        text(g, 180, 640, 'Lynn Margulis, 1967', { anchor: 'middle', d: 1600 })
+        check(g, 180, 620, 1.2, 1700)
       },
       verwandt(g) {
         ink(g, L([180, 600], [180, 520]), { w: 2.6, t: 400 })
@@ -2065,33 +2111,41 @@ export const AHA_KOERPER: Bite[] = [
         ink(g, L([180, 520], [260, 420]), { w: 2.6, d: 400, t: 400 })
         mito(g, 100, 390, 1, 800)
         bact(g, 260, 390, 1.4, 900)
-        text(g, 100, 350, 'Mitochondrien', { anchor: 'middle', cls: 's', d: 1000 })
         text(g, 260, 350, 'Alphaproteobakterien', { anchor: 'middle', cls: 's', d: 1100 })
+        ladder(g, 60, 300, 640, 20, 1200, 600)
       },
       chloro(g) {
-        leaf(g, 180, 470, 1.4)
-        blank(g, E(200, 450, 40, 20))
-        ink(g, E(200, 450, 40, 20), { w: 2.4, d: 900, t: 400 })
-        for (let k = 0; k < 4; k++) ink(g, L([176 + k * 14, 440], [176 + k * 14, 460]), { w: 1.6, d: 1100 + k * 60, t: 100 })
-        text(g, 180, 600, 'Chloroplasten: einst Cyanobakterien', { anchor: 'middle', cls: 's', d: 1300 })
+        leaf(g, 140, 500, 1.1)
+        ink(g, L([170, 470], [220, 430]), { w: 1, d: 900, t: 200 })
+        blank(g, E(270, 400, 70, 40))
+        ink(g, E(270, 400, 70, 40), { w: 2.6, d: 900, t: 400 })
+        for (const x of [230, 260, 290, 314]) for (let k = 0; k < 4; k++) {
+          hatch(g, RR(x - 10, 382 + k * 9, 20, 6, 3), 1200, true)
+          ink(g, RR(x - 10, 382 + k * 9, 20, 6, 3), { w: 0.8, d: 1100 + k * 40, t: 80 })
+        }
       },
       mutter(g) {
-        fig(g, 90, 440, 2.4, { d: 0 })
-        fig(g, 270, 440, 2.4, { d: 200 })
-        fig(g, 180, 620, 1.8, { d: 500 })
-        arrow(g, L([100, 456], [168, 552]), { w: 2.6, d: 900, t: 400, head: 9 })
-        dashes(g, L([258, 456], [196, 548]), { w: 1.4, d: 1100 })
-        text(g, 90, 348, 'Mutter', { anchor: 'middle', cls: 's', d: 700 })
-        text(g, 270, 348, 'Vater', { anchor: 'middle', cls: 's', d: 800 })
-        text(g, 60, 560, 'Mitochondrien', { anchor: 'middle', cls: 's', d: 1300 })
+        // Eizelle voller Mitochondrien, Spermium bringt kaum welche mit
+        ink(g, E(110, 470, 80), { w: 3, t: 700 })
+        ink(g, E(110, 470, 72), { w: 1, d: 200, t: 700 })
+        for (let k = 0; k < 10; k++) mito(g, 110 + Math.cos(k * 0.63) * 46, 470 + Math.sin(k * 0.63) * 46, 0.28, 600 + k * 50)
+        hatch(g, E(110, 470, 22), 900, true)
+        const sp = glide(g, -70, 0, { ms: 2600, d: 1000 })
+        ink(sp, E(270, 470, 12, 8), { w: 2, d: 800, t: 300 })
+        ink(sp, waveP(282, 340, 470, 4, 16), { w: 1.6, d: 900, t: 300 })
+        cross(g, 300, 430, 0.5, 1800)
+        fig(g, 110, 650, 1.6, { d: 1200 })
       },
       eva(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.2, label: 'vor ≈ 150.000 J.', sub: 'Afrika', up: true },
+        timeline(g, 30, 330, 420, [
+          { at: 0.2, label: 'vor ≈ 150.000 J.', up: true },
           { at: 0.92, label: 'heute', up: true },
         ])
-        crowd(g, 220, 580, 6, 20, 1.2, 800, 80)
-        fig(g, 60, 580, 1.6, { d: 600 })
+        const pr = mapRegion(g, 40, 470, 140, 170, -20, 55, -36, 38, 600)
+        const c = pr(36, 5)
+        dot(g, c[0], c[1], 4, 1400)
+        ripple(g, c[0], c[1], 6, 30, { n: 2, ms: 2000, d: 1600, w: 1.2 })
+        crowd(g, 220, 600, 6, 20, 1.2, 800, 80)
       },
       linie(g) {
         ball(g, 180, 330, 10, { fill: 'dicht', t: 200 })
@@ -2104,10 +2158,11 @@ export const AHA_KOERPER: Bite[] = [
         }))
         ball(g, 140, 620, 10, { d: 1300, fill: 'dicht', t: 200 })
         ink(g, L([140, 532], [140, 608]), { w: 3, d: 1100, t: 300 })
-        text(g, 200, 626, 'heute', { cls: 's', d: 1400 })
+        flow(g, [[180, 340], [100, 410], [140, 510], [140, 610]], { n: 2, ms: 2000, d: 1600, r: 2.4 })
       },
       ende(g) {
         mito(g, 180, 480, 2.2)
+        flow(g, L([250, 480], [330, 480]), { n: 3, ms: 900, d: 900, r: 2.2 })
       },
     },
     scenes: [
