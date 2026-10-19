@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
 import { B, E, HOOK, L, RR, T, arrow, blank, brain, car, check, cross, dashes, fig, hatch, ink, mk, pop, rays, st, strike, text, vbars, type P } from './draw'
-import { arcArrow, axes, bact, ball, box, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, leaf, mapRegion, mol, onion, plot, rad, ripple, smooth, spin, stars, sun, thermo, travelWave, tree, water, waveP, wobble } from './kit'
+import { axes, bact, ball, box, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, leaf, mapRegion, mito, mol, onion, plot, rad, rain, ripple, smooth, spin, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble } from './kit'
 
 // Chemie: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -54,6 +54,26 @@ function lakeBed(g: Element, d = 0): void {
     ink(w, B([x, 400], [x - 2, 400 - h / 2], [x + 3, 400 - h * 0.8], [x + 1, 400 - h]), { w: 1.6, d: d + 500, t: 300 })
     ink(w, E(x + 1, 400 - h + 12, 3, 8), { w: 1.8, d: d + 700, t: 150 })
   }
+}
+
+/** Rostiger Nagel waagerecht: Kopf bei x, Spitze rechts (≈ 260·s lang), Rostflecken und raue Kanten */
+function rustyNail(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const shank: P[] = [P(6, -10), P(220, -10), P(262, 0), P(220, 10), P(6, 10), P(6, -10)]
+  blank(g, shank)
+  ink(g, shank, { w: 2.8, d, t: 700 })
+  ink(g, L(P(10, -4), P(210, -4)), { w: 0.9, d: d + 300, t: 400 })
+  for (let k = 0; k < 4; k++) ink(g, L(P(20 + k * 6, -10), P(16 + k * 6, 10)), { w: 0.9, d: d + 400, t: 60 })
+  blank(g, E(x, y, 8 * s, 28 * s))
+  ink(g, E(x, y, 8 * s, 28 * s), { w: 2.8, d: d + 200, t: 400 })
+  ink(g, E(x + 3 * s, y, 4 * s, 22 * s, -90, 90), { w: 1.2, d: d + 300, t: 200 })
+  for (const [a, r, b] of [[60, 12, 2], [110, 18, -2], [170, 10, 3], [208, 8, 0]] as const) {
+    const sp: P[] = smooth(Array.from({ length: 9 }, (_, k) => [x + (a + Math.cos(rad(k * 45)) * r * (1 + (k % 3) * 0.25)) * s, y + (b + Math.sin(rad(k * 45)) * 8) * s] as P), 3)
+    hatch(g, sp, d + 600 + a, true)
+    ink(g, sp, { w: 1, d: d + 500 + a, t: 150 })
+  }
+  for (const a of [96, 124, 180]) ink(g, [P(a, 10), P(a + 3, 15), P(a + 7, 11)], { w: 1.2, d: d + 700, t: 60 })
+  hatch(g, E(x, y + 6 * s, 6 * s, 14 * s), d + 700, true)
 }
 
 /** Grenze Eis/Schmelzwasser: unten geordnetes Gitter, darüber ungeordnete Moleküle */
@@ -2027,117 +2047,309 @@ export const AHA_CHEMIE: Bite[] = [
     images: [],
     draw: {
       nagel(g) {
-        ink(g, [[60, 240], [260, 240], [300, 252], [260, 264], [60, 264]], { w: 3, t: 800 })
-        ink(g, RR(40, 220, 20, 64, 4), { w: 3, d: 300, t: 400 })
-        for (const [x, r] of [[120, 10], [190, 14], [240, 8]] as const) hatch(g, E(x, 252, r, 8), 900, true)
+        // rostiger Nagel auf Holz, Regentropfen darauf, Rostflecken und abplatzende Schuppen
+        rain(g, 20, 70, 320, 150, { n: 14, d: 0, ms: 900 })
+        ink(g, L([20, 330], [340, 330]), { w: 2.6, d: 200, t: 500 })
+        for (let k = 0; k < 4; k++) ink(g, B([30 + k * 80, 342], [60 + k * 80, 338], [80 + k * 80, 346], [100 + k * 80, 342]), { w: 1, d: 400 + k * 60, t: 200 })
+        rustyNail(g, 60, 290, 1, 400)
+        drop(g, 200, 278, 0.55, 1200, false)
+        ink(g, E(194, 270, 3, 5, 200, 300), { w: 1.2, d: 1400, t: 80 })
+        for (let k = 0; k < 3; k++) {
+          const f = glide(g, 6 - k * 4, 36, { ms: 1400, d: 1600 + k * 400 })
+          const fl: P[] = [[150 + k * 40, 300], [158 + k * 40, 298], [156 + k * 40, 305], [150 + k * 40, 300]]
+          hatch(f, fl, 1500, true)
+          ink(f, fl, { w: 1, d: 1500, t: 60 })
+        }
       },
       vergleich(g) {
-        flame(g, 90, 560, 1.4)
-        text(g, 90, 600, 'Feuer: Sekunden', { anchor: 'middle', cls: 's', d: 700 })
-        ink(g, RR(210, 470, 100, 26, 6), { w: 2.6, d: 400, t: 400 })
-        hatch(g, E(240, 483, 14, 8), 900, true)
-        hatch(g, E(280, 483, 10, 6), 1000, true)
-        text(g, 260, 600, 'Rost: Wochen', { anchor: 'middle', cls: 's', d: 1000 })
+        // links Lagerfeuer mit Stoppuhr, rechts rostender Eisenträger mit Kalenderblatt
+        for (const [a, b] of [[[30, 610], [150, 580]], [[40, 580], [160, 610]]] as const) {
+          const log = [...L(a as P, b as P)]
+          ink(g, log, { w: 12, d: 0, t: 400 })
+          blank(g, log)
+          ink(g, E((b as P)[0], (b as P)[1], 5, 7), { w: 1.4, d: 300, t: 100 })
+        }
+        for (let k = 0; k < 3; k++) {
+          const fw = wobble(g, { deg: 5, ox: 70 + k * 30, oy: 592, ms: 600 + k * 90, d: 900 })
+          flame(fw, 70 + k * 30, 592, 0.7 + (k === 1 ? 0.3 : 0), 400 + k * 80)
+        }
+        ink(g, E(90, 380, 28), { w: 2.4, d: 600, t: 400 })
+        ink(g, RR(84, 344, 12, 8, 2), { w: 1.8, d: 700, t: 100 })
+        const hand = spin(g, 90, 380, 1500, 1200)
+        ink(hand, L([90, 380], [90, 358]), { w: 2, d: 900, t: 100 })
+        const beam: P[] = [[200, 560], [330, 560], [330, 610], [200, 610], [200, 560]]
+        ink(g, beam, { w: 3, d: 300, t: 500 })
+        ink(g, L([200, 572], [330, 572]), { w: 1.4, d: 400, t: 300 })
+        ink(g, L([200, 598], [330, 598]), { w: 1.4, d: 400, t: 300 })
+        for (const [x, r] of [[226, 9], [262, 13], [300, 7], [316, 10]] as const) hatch(g, E(x, 585, r, 6), 900 + x, true)
+        ink(g, RR(220, 330, 90, 100, 6), { w: 2.4, d: 600, t: 400 })
+        ink(g, L([220, 356], [310, 356]), { w: 1.6, d: 700, t: 200 })
+        for (const x of [240, 290]) ink(g, E(x, 330, 5, 10), { w: 1.8, d: 700, t: 100 })
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) ink(g, RR(228 + c * 13, 364 + r * 15, 9, 10, 1), { w: 0.8, d: 800 + (r * 6 + c) * 15, t: 40 })
+        for (let k = 0; k < 6; k++) {
+          const pg = glide(g, 40 + k * 4, -30, { ms: 800, d: 1300 + k * 250 })
+          ink(pg, RR(230 + k, 340 + k, 70, 80, 4), { w: 1, d: 1200 + k * 250, t: 100 })
+        }
       },
       wueste(g) {
-        sun(g, 260, 360, 30)
-        ink(g, B([20, 600], [100, 560], [200, 590], [340, 560]), { w: 3, t: 700 })
-        ink(g, RR(80, 540, 120, 20, 5), { w: 2.6, d: 600, t: 400 })
-        text(g, 180, 640, 'trocken: kaum Rost', { anchor: 'middle', cls: 's', d: 1000 })
+        // Wüste: Dünen, flimmernde Hitze, Kaktus, ein blanker Eisenschlüssel ohne Rost
+        sunDisk(g, 270, 350, 34, 0)
+        for (let k = 0; k < 3; k++) {
+          const w = wobble(g, { dx: 6, ms: 1200 + k * 300, d: 800 })
+          ink(w, waveP(40 + k * 30, 200 + k * 30, 420 + k * 22, 3, 30), { w: 1, d: 700 + k * 100, t: 400 })
+        }
+        ink(g, B([20, 560], [100, 500], [180, 520], [240, 540]), { w: 2.6, d: 200, t: 600 })
+        ink(g, B([140, 600], [220, 540], [300, 540], [340, 560]), { w: 2.6, d: 300, t: 600 })
+        for (let k = 0; k < 5; k++) ink(g, B([60 + k * 50, 590 + (k % 2) * 10], [80 + k * 50, 586], [100 + k * 50, 594], [120 + k * 50, 590]), { w: 0.9, d: 500 + k * 60, t: 150 })
+        const c: P[] = [[60, 560], [60, 440], ...B([60, 440], [60, 426], [76, 426], [76, 440]).slice(1), [76, 560]]
+        ink(g, c, { w: 2.6, d: 400, t: 500 })
+        ink(g, [[60, 490], [44, 490], [44, 460], ...B([44, 460], [44, 452], [36, 452], [36, 460]).slice(1), [36, 498], [60, 498]], { w: 2.2, d: 600, t: 300 })
+        for (let k = 0; k < 6; k++) ink(g, L([68, 440 + k * 20], [68, 452 + k * 20]), { w: 0.9, d: 700, t: 60 })
+        ink(g, E(200, 610, 14), { w: 2.4, d: 900, t: 200 })
+        ink(g, E(200, 610, 6), { w: 1.4, d: 950, t: 100 })
+        ink(g, [[214, 610], [290, 610], [290, 622], [282, 622], [282, 616], [272, 616], [272, 622], [264, 622], [264, 610]], { w: 2.2, d: 1000, t: 300 })
+        ink(g, L([222, 606], [286, 606]), { w: 0.9, d: 1100, t: 200 })
       },
       tropfen(g) {
+        // Tropfenversuch nach Evans: Eisen gibt in der Mitte Ionen ab; x1: am Rand kommt Sauerstoff hinein
         ink(g, L([20, 560], [340, 560]), { w: 3, t: 500 })
         hatch(g, RR(20, 562, 320, 80, 2), 300, true)
-        const dp: P[] = [...B([60, 560], [80, 470], [280, 470], [300, 560])]
+        const dp: P[] = [...B([50, 560], [70, 440], [290, 440], [310, 560])]
+        blank(g, [...dp, [50, 560]])
         ink(g, dp, { w: 2.6, d: 300, t: 600 })
-        for (const x of [160, 180, 200]) arrow(g, L([x, 556], [x, 520]), { w: 2, d: 900, t: 200, head: 7 })
-        text(g, 180, 454, 'Eisen geht in Lösung', { anchor: 'middle', cls: 's', d: 1000 })
-        const ox = st(g, 'x1', '--o: 90px 520px')
-        arrow(ox, L([40, 440], [76, 520]), { w: 2, t: 0, head: 7 })
-        arrow(ox, L([320, 440], [284, 520]), { w: 2, t: 0, head: 7 })
-        text(ox, 180, 410, 'Sauerstoff am Rand', { anchor: 'middle', cls: 's', fade: false })
+        ink(g, B([90, 470], [110, 454], [140, 448], [160, 448]), { w: 1.2, d: 500, t: 200 })
+        for (let k = 0; k < 4; k++) {
+          const up = glide(g, (k - 1.5) * 16, -60, { ms: 2000, d: 1000 + k * 300, loop: true })
+          ball(up, 160 + k * 14, 550, 6, { d: 900, fill: 'dicht', w: 1.4, t: 60 })
+        }
+        ripple(g, 180, 560, 10, 50, { n: 2, ms: 1600, d: 1100, w: 1, ry: 0.3 })
+        const ox = st(g, 'x1', '--o: 180px 520px')
+        for (const [x0, x1] of [[20, 74], [340, 286]] as const) {
+          const p = L([x0, 420], [x1, 540])
+          mol(ox, [[x0 + (x1 - x0) * 0.3, 450, 'O', 'hell'], [x0 + (x1 - x0) * 0.3 + 18, 450, 'O', 'hell']], [[0, 1, true]], 0.7, 0)
+          flow(ox, p, { n: 2, ms: 1400, r: 2.2 })
+        }
+        for (const x of [80, 280]) ripple(ox, x, 556, 6, 26, { n: 2, ms: 1400, w: 1, ry: 0.4 })
       },
       kreis(g) {
+        // derselbe Tropfen: Elektronen laufen im Metall von der Mitte zum Rand, dazwischen wächst ein Rostring
         ink(g, L([20, 560], [340, 560]), { w: 3, t: 500 })
-        ink(g, B([60, 560], [80, 470], [280, 470], [300, 560]), { w: 2.6, d: 200, t: 600 })
-        arrow(g, B([180, 600], [130, 610], [100, 600], [80, 580]), { w: 2.4, d: 800, t: 500, head: 9 })
-        arrow(g, B([180, 600], [230, 610], [260, 600], [280, 580]), { w: 2.4, d: 800, t: 500, head: 9 })
-        text(g, 180, 640, 'Elektronen fließen im Metall', { anchor: 'middle', cls: 's', d: 1200 })
+        hatch(g, RR(20, 562, 320, 80, 2), 300)
+        const dp: P[] = [...B([50, 560], [70, 440], [290, 440], [310, 560])]
+        ink(g, dp, { w: 2.6, d: 200, t: 600 })
+        for (const k of [-1, 1]) {
+          const p = B([180 + k * 10, 600], [180 + k * 50, 612], [180 + k * 90, 606], [180 + k * 112, 576])
+          dashes(g, p, { w: 1.2, d: 800, dash: 4, gap: 4 })
+          flow(g, p, { n: 3, ms: 1200, d: 900, r: 2.2 })
+          const ring: P[] = smooth([[180 + k * 70, 560], [180 + k * 76, 540], [180 + k * 96, 536], [180 + k * 104, 560]], 3)
+          hatch(g, [...ring, [180 + k * 70, 560]], 1300, true)
+          ink(g, ring, { w: 1.6, d: 1200, t: 300 })
+        }
+        ink(g, E(180, 560, 16, 5), { w: 1.6, d: 700, t: 200 })
       },
       poroes(g) {
-        ink(g, L([20, 520], [340, 520]), { w: 3, t: 500 })
-        for (let i = 0; i < 7; i++) {
-          const x = 40 + i * 44
-          const fl: P[] = [[x, 516], [x + 6, 494 - (i % 3) * 6], [x + 30, 490 - (i % 2) * 8], [x + 36, 516]]
-          hatch(g, fl, 600 + i * 80, true)
-          ink(g, fl, { w: 1.8, d: 400 + i * 80, t: 200 })
+        // Schnitt: Eisen unten, darüber rissige Rostschicht; Wasser und Sauerstoff dringen durch Risse ein, Schuppen fallen ab
+        ink(g, L([20, 560], [340, 560]), { w: 3, t: 500 })
+        hatch(g, RR(20, 562, 320, 80, 2), 300, true)
+        const crust: P[] = smooth([[20, 560], [40, 520], [70, 530], [100, 500], [140, 516], [170, 490], [210, 512], [250, 494], [290, 520], [340, 506]], 3)
+        hatch(g, [...crust, [340, 560], [20, 560]], 700)
+        ink(g, crust, { w: 2.2, d: 500, t: 600 })
+        for (const x of [90, 160, 240, 300]) ink(g, [[x, 500 + (x % 20)], [x + 6, 524], [x - 4, 540], [x + 2, 558]], { w: 2, d: 800, t: 200 })
+        for (const x of [90, 240]) flow(g, L([x - 30, 400], [x + 2, 556]), { n: 3, ms: 1400, d: 1100, r: 2 })
+        for (const [x, y] of [[60, 420], [200, 400], [300, 430]] as const) water(g, x, y, 0.7, x, 1000)
+        for (let k = 0; k < 3; k++) {
+          const f = glide(g, 10 + k * 6, 60, { ms: 1600, d: 1600 + k * 400 })
+          const fl: P[] = [[120 + k * 70, 500], [146 + k * 70, 494], [150 + k * 70, 504], [124 + k * 70, 510], [120 + k * 70, 500]]
+          blank(f, fl)
+          hatch(f, fl, 1500, true)
+          ink(f, fl, { w: 1.4, d: 1500, t: 100 })
         }
-        for (const [x, y] of [[90, 450], [200, 430], [280, 460]] as const) arrow(g, L([x, y - 40], [x, y]), { w: 2, d: 1200, t: 200, head: 7 })
-        text(g, 180, 380, 'Wasser und Luft dringen weiter vor', { anchor: 'middle', cls: 's', d: 1300 })
       },
       salz(g) {
-        drop(g, 110, 460, 1.8)
-        for (const [x, y] of [[100, 470], [124, 480], [112, 456]] as const) ball(g, x, y, 4, { d: 800, fill: 'dicht', w: 1.2, t: 0 })
-        const car: P[] = [[180, 520], [180, 494], [214, 490], [236, 460], [300, 460], [322, 490], [340, 494], [340, 520], [180, 520]]
-        ink(g, car, { w: 2.6, d: 600, t: 600 })
-        hatch(g, E(230, 512, 18, 6), 1300, true)
-        text(g, 180, 600, 'Salz: leitet besser, rostet schneller', { anchor: 'middle', cls: 's', d: 1400 })
+        // Winterstraße: Auto wirbelt Salzwasser auf, am Radkasten blüht der Rost
+        ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
+        hatch(g, [[20, 602], [340, 602], [340, 640], [20, 640]], 300)
+        for (let k = 0; k < 8; k++) ink(g, RR(30 + k * 40, 612, 5, 5, 1), { w: 1, d: 500 + k * 40, t: 50 })
+        car(g, 200, 600, 2.6, 200)
+        for (const [x, y, r] of [[118, 566, 9], [140, 552, 6], [254, 560, 7], [290, 572, 5]] as const) {
+          const sp: P[] = smooth(Array.from({ length: 7 }, (_, k) => [x + Math.cos(rad(k * 60)) * r * (1 + (k % 2) * 0.4), y + Math.sin(rad(k * 60)) * r * 0.7] as P), 3)
+          hatch(g, sp, 1200, true)
+          ink(g, sp, { w: 1.2, d: 1200, t: 150 })
+        }
+        for (let k = 0; k < 6; k++) flow(g, B([128, 596], [100 - k * 6, 590 - k * 6], [70 - k * 8, 570 - k * 10], [40 - k * 6, 560 - k * 14]), { n: 2, ms: 700, d: 1000 + k * 60, r: 1.4 })
+        for (let k = 0; k < 6; k++) flake(g, 40 + k * 56, 360 + (k % 3) * 30, 6, 600 + k * 80)
       },
       alu(g) {
-        ink(g, RR(60, 460, 240, 60, 8), { w: 3, t: 600 })
-        hatch(g, RR(60, 446, 240, 12, 4), 700, true)
-        ink(g, RR(60, 446, 240, 12, 4), { w: 1.8, d: 600, t: 400 })
-        text(g, 180, 430, 'dichte Oxidschicht', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 180, 560, 'Aluminium', { anchor: 'middle', d: 1000 })
+        // Aluminium im Schnitt: hauchdünne, dichte Oxidhaut; Sauerstoff prallt ab
+        hatch(g, RR(40, 480, 280, 140, 6), 300)
+        ink(g, RR(40, 480, 280, 140, 6), { w: 3, t: 600 })
+        hatch(g, RR(40, 470, 280, 10, 3), 700, true)
+        ink(g, RR(40, 470, 280, 10, 3), { w: 1.8, d: 600, t: 400 })
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 9; c++) ink(g, E(60 + c * 30 + (r % 2) * 15, 500 + r * 30, 5), { w: 1, d: 800 + (r * 9 + c) * 15, t: 50 })
+        for (const x of [80, 180, 280]) {
+          const p: P[] = [...L([x - 40, 330], [x, 464]), ...L([x, 464], [x + 40, 330]).slice(1)]
+          dashes(g, p, { w: 1, d: 1000, dash: 3, gap: 4 })
+          flow(g, p, { n: 1, ms: 1600, d: 1100 + x, r: 2.2 })
+        }
+        // Getränkedose als Beispiel
+        ink(g, RR(290, 320, 44, 84, 8), { w: 2.2, d: 900, t: 300 })
+        ink(g, E(312, 324, 18, 4), { w: 1.4, d: 1000, t: 150 })
       },
       chrom(g) {
-        ink(g, RR(60, 460, 240, 60, 8), { w: 3, t: 600 })
-        ink(g, RR(60, 452, 240, 6, 3), { w: 1.4, d: 600, t: 400 })
-        text(g, 180, 430, 'unsichtbare Chromoxid-Haut', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 180, 560, 'Edelstahl', { anchor: 'middle', d: 1000 })
-        arcArrow(g, 300, 380, 24, 0, 300, { d: 1200, t: 400 })
-        text(g, 300, 330, 'heilt selbst', { anchor: 'middle', cls: 's', d: 1400 })
+        // Edelstahl: unsichtbare Chromoxidhaut; ein Kratzer reißt sie auf, sie wächst von selbst wieder zu
+        hatch(g, RR(40, 480, 280, 140, 6), 300)
+        ink(g, [[40, 486], [40, 620], [320, 620], [320, 486]], { w: 3, t: 600 })
+        ink(g, [[40, 480], [160, 480], [172, 506], [184, 480], [320, 480]], { w: 1.2, d: 600, t: 400 })
+        const heal = pop(g, 1800, '50% 100%')
+        ink(heal, [[160, 482], [172, 508], [184, 482]], { w: 1.2, t: 0 })
+        for (let k = 0; k < 4; k++) dot(heal, 164 + k * 6, 488 + (k % 2) * 8, 1.6, 0)
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 9; c++) {
+          const cr = (r * 9 + c) % 5 === 0
+          ink(g, E(60 + c * 30 + (r % 2) * 15, 520 + r * 26, cr ? 6 : 4), { w: cr ? 1.6 : 0.9, d: 800 + (r * 9 + c) * 15, t: 50 })
+        }
+        const n = glide(g, 30, 0, { ms: 500, d: 1200 })
+        ink(n, [[100, 420], [150, 470], [160, 478]], { w: 2.4, d: 1000, t: 200 })
+        ink(n, [[96, 416], [104, 424]], { w: 4, d: 1000, t: 100 })
+        ripple(g, 172, 494, 6, 30, { n: 2, ms: 1400, d: 2000, w: 1 })
       },
       zink(g) {
-        ink(g, RR(60, 470, 240, 60, 8), { w: 3, t: 600 })
-        hatch(g, RR(60, 450, 240, 20, 4), 600)
-        ink(g, RR(60, 450, 240, 20, 4), { w: 2, d: 500, t: 400 })
-        text(g, 180, 430, 'Zink opfert sich zuerst', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 180, 570, 'Eisen bleibt geschützt', { anchor: 'middle', cls: 's', d: 1100 })
+        // verzinktes Eisen mit Kratzer: Zink gibt Ionen ab, die Elektronen schützen das freiliegende Eisen
+        hatch(g, RR(40, 500, 280, 120, 6), 300, true)
+        ink(g, RR(40, 500, 280, 120, 6), { w: 3, t: 600 })
+        const zn: P[] = [[40, 500], [150, 500], [150, 470], [40, 470], [40, 500]]
+        const zn2: P[] = [[210, 500], [320, 500], [320, 470], [210, 470], [210, 500]]
+        for (const z of [zn, zn2]) {
+          hatch(g, z, 600)
+          ink(g, z, { w: 2, d: 500, t: 300 })
+        }
+        for (const x of [150, 210]) for (let k = 0; k < 2; k++) {
+          const up = glide(g, (x - 180) * 0.6, -70, { ms: 1800, d: 1000 + k * 600, loop: true })
+          ball(up, x + (x < 180 ? -10 : 10), 466, 5, { d: 900, fill: 'hell', w: 1.2, t: 60 })
+        }
+        for (const k of [-1, 1]) flow(g, L([180 + k * 100, 486], [180 + k * 14, 506]), { n: 3, ms: 1000, d: 1200, r: 2 })
+        ripple(g, 180, 500, 6, 30, { n: 2, ms: 1600, d: 1400, w: 1, ry: 0.4 })
+        // verzinkter Eimer mit Zinkblumen
+        ink(g, [[230, 330], [240, 420], [320, 420], [330, 330]], { w: 2.4, d: 800, t: 300 })
+        ink(g, E(280, 330, 50, 8), { w: 2, d: 900, t: 300 })
+        ink(g, B([232, 332], [240, 290], [320, 290], [328, 332]), { w: 1.6, d: 1000, t: 300 })
+        for (let k = 0; k < 6; k++) ink(g, [[250 + k * 12, 350 + (k % 3) * 20], [256 + k * 12, 360 + (k % 3) * 20], [246 + k * 12, 366 + (k % 3) * 20]], { w: 0.8, d: 1100 + k * 40, t: 60 })
       },
       waerme(g) {
-        ink(g, RR(110, 380, 140, 200, 20), { w: 3, t: 700 })
-        for (let i = 0; i < 20; i++) dot(g, 130 + (i % 5) * 25, 410 + Math.floor(i / 5) * 40, 3, 500 + i * 30)
-        for (const x of [140, 180, 220]) ink(g, B([x, 370], [x - 8, 350], [x + 8, 330], [x, 310]), { w: 2, d: 1300, t: 300 })
-        text(g, 180, 620, 'Eisenpulver + Salz + Luft', { anchor: 'middle', cls: 's', d: 1400 })
+        // Wärmepad: Vlies-Beutel mit Eisenpulver, Lupe zeigt Körner mit Sauerstoff, Wärme steigt auf
+        const pad = RR(60, 440, 170, 180, 18)
+        blank(g, pad)
+        ink(g, pad, { w: 3, t: 700 })
+        dashes(g, RR(70, 450, 150, 160, 12), { w: 1, d: 300, dash: 3, gap: 3 })
+        for (let i = 0; i < 40; i++) dot(g, 84 + (i % 8) * 17 + (Math.floor(i / 8) % 2) * 8, 470 + Math.floor(i / 8) * 28, 2.4, 500 + i * 15)
+        for (let k = 0; k < 3; k++) {
+          const w = wobble(g, { dx: 5, ms: 1200 + k * 200, d: 1200 })
+          ink(w, B([100 + k * 45, 430], [90 + k * 45, 400], [110 + k * 45, 380], [100 + k * 45, 340]), { w: 1.8, d: 1100 + k * 100, t: 300 })
+        }
+        ripple(g, 145, 530, 40, 120, { n: 2, ms: 2400, d: 1400, w: 1 })
+        blank(g, E(280, 380, 52))
+        ink(g, E(280, 380, 52), { w: 2.4, d: 900, t: 400 })
+        ink(g, L([244, 418], [214, 470]), { w: 1.8, d: 1000, t: 200 })
+        for (const [x, y] of [[262, 370], [292, 396], [298, 360]] as const) ball(g, x, y, 10, { d: 1100, fill: 'dicht', w: 1.4, t: 100 })
+        mol(g, [[260, 340, 'O', 'hell'], [276, 340, 'O', 'hell']], [[0, 1, true]], 0.6, 1300)
+        thermo(g, 320, 480, 120, 0.85, 1200)
       },
       koerper(g) {
-        fig(g, 110, 620, 5)
-        flame(g, 260, 560, 0.8, 600)
-        text(g, 260, 600, 'kontrolliert, in Schritten', { anchor: 'middle', cls: 's', d: 1000 })
+        // Mensch, in der Lupe ein Mitochondrium; die Energie wird über viele kleine Stufen frei
+        fig(g, 80, 640, 7, { d: 0 })
+        blank(g, E(250, 380, 80))
+        ink(g, E(250, 380, 80), { w: 2.6, d: 400, t: 500 })
+        ink(g, L([190, 432], [100, 500]), { w: 1.8, d: 500, t: 200 })
+        mito(g, 250, 380, 0.9, 600)
+        const steps: P[] = [[180, 470]]
+        for (let k = 0; k < 6; k++) steps.push([180 + k * 26, 490 + k * 24], [206 + k * 26, 490 + k * 24])
+        ink(g, steps, { w: 2.4, d: 1000, t: 600 })
+        for (let k = 0; k < 6; k++) {
+          const fw = wobble(g, { deg: 6, ox: 192 + k * 26, oy: 488 + k * 24, ms: 600 + k * 50, d: 1400 })
+          flame(fw, 192 + k * 26, 488 + k * 24, 0.16, 1200 + k * 120)
+        }
       },
       mars(g) {
-        ball(g, 180, 460, 110, { fill: 'hell', w: 3.2 })
-        for (const [x, y, r] of [[140, 420, 18], [220, 500, 24], [200, 400, 10]] as const) ink(g, E(x, y, r), { w: 1.8, d: 800, t: 300 })
-        text(g, 180, 630, 'Mars: Staub mit Eisenoxid', { anchor: 'middle', cls: 's', d: 1100 })
+        // Mars: Polkappe, Olympus Mons, Valles Marineris, Staubsturm
+        blank(g, E(180, 470, 130))
+        hatch(g, E(180, 470, 130), 600)
+        ink(g, E(180, 470, 130), { w: 3.2, t: 800 })
+        const cap: P[] = [...E(180, 470, 130, 130, 240, 300), ...B([245, 357], [210, 380], [150, 380], [115, 357]).slice(1)]
+        blank(g, cap)
+        ink(g, cap, { w: 1.8, d: 700, t: 400 })
+        blank(g, E(110, 440, 26, 20))
+        ink(g, E(110, 440, 26, 20), { w: 2, d: 900, t: 300 })
+        ink(g, E(110, 440, 8, 6), { w: 1.6, d: 1000, t: 150 })
+        const vm: P[] = smooth([[150, 490], [190, 486], [230, 496], [270, 486]], 3)
+        ink(g, vm, { w: 3, d: 1100, t: 400 })
+        ink(g, vm.map(([x, y]): P => [x, y + 8]), { w: 1.4, d: 1150, t: 400 })
+        for (const [x, y, r] of [[230, 560, 12], [150, 560, 8], [260, 430, 7]] as const) {
+          blank(g, E(x, y, r))
+          ink(g, E(x, y, r), { w: 1.6, d: 1200, t: 150 })
+        }
+        const st0 = spin(g, 120, 540, 6000, 1400)
+        for (let k = 0; k < 3; k++) ink(st0, E(120, 540, 14 + k * 9, 10 + k * 7, k * 60, k * 60 + 220), { w: 1.4, d: 1300, t: 300 })
       },
       statue(g) {
-        ink(g, RR(150, 420, 60, 200, 10), { w: 3, t: 700 })
-        ball(g, 180, 390, 26, { d: 300, fill: 'hell', w: 2.6 })
-        for (let k = 0; k < 5; k++) {
-          const a = rad(-150 + k * 30)
-          ink(g, L([180 + Math.cos(a) * 28, 390 + Math.sin(a) * 28], [180 + Math.cos(a) * 46, 390 + Math.sin(a) * 46]), { w: 2.4, d: 600 + k * 80, t: 150 })
+        // Freiheitsstatue: Krone mit sieben Strahlen, erhobene Fackel, Tafel, Faltengewand, Sockel; alles in Patina
+        const cx = 170
+        ink(g, [[110, 640], [110, 600], [230, 600], [230, 640]], { w: 3, t: 500 })
+        ink(g, RR(124, 580, 92, 20, 3), { w: 2.4, d: 100, t: 300 })
+        const robe: P[] = [[132, 580], ...B([132, 580], [128, 520], [136, 460], [148, 420]).slice(1), [192, 420], ...B([192, 420], [204, 470], [210, 530], [208, 580]).slice(1), [132, 580]]
+        blank(g, robe)
+        hatch(g, robe, 800)
+        ink(g, robe, { w: 2.8, d: 200, t: 700 })
+        for (let k = 0; k < 4; k++) ink(g, B([146 + k * 14, 436], [142 + k * 14, 490], [150 + k * 14, 540], [144 + k * 14, 578]), { w: 1.2, d: 500 + k * 80, t: 300 })
+        const tab: P[] = [[132, 470], [118, 440], [130, 420], [146, 450], [132, 470]]
+        blank(g, tab)
+        ink(g, tab, { w: 2.2, d: 600, t: 200 })
+        blank(g, E(cx, 398, 18, 22))
+        hatch(g, E(cx, 398, 18, 22), 900)
+        ink(g, E(cx, 398, 18, 22), { w: 2.4, d: 400, t: 300 })
+        for (let k = 0; k < 7; k++) {
+          const a = rad(-160 + k * 23)
+          ink(g, [[cx + Math.cos(a) * 20, 386 + Math.sin(a) * 16], [cx + Math.cos(a) * 44, 386 + Math.sin(a) * 38]], { w: 2.4, d: 700 + k * 50, t: 100 })
         }
-        ink(g, L([210, 440], [260, 330]), { w: 3, d: 700, t: 300 })
-        flame(g, 262, 332, 0.4, 1000)
-        hatch(g, RR(152, 422, 56, 196, 8), 1100)
-        text(g, 180, 650, 'Kupfer + Luft → grüne Patina', { anchor: 'middle', cls: 's', d: 1300 })
+        const arm: P[] = [[188, 424], [214, 330], [226, 334], [204, 428]]
+        blank(g, arm)
+        hatch(g, arm, 900)
+        ink(g, arm, { w: 2.4, d: 800, t: 300 })
+        ink(g, [[210, 330], [206, 310], [234, 310], [230, 330], [210, 330]], { w: 2.2, d: 900, t: 200 })
+        const fw = wobble(g, { deg: 5, ox: 220, oy: 308, ms: 700, d: 1200 })
+        flame(fw, 220, 308, 0.4, 1000)
       },
       ende(g) {
-        flame(g, 120, 560, 1)
+        flame(g, 110, 560, 1.1, 0)
         text(g, 180, 520, '≈', { anchor: 'middle', size: 30, d: 400 })
-        ink(g, RR(220, 500, 90, 24, 6), { w: 2.6, d: 500, t: 400 })
-        hatch(g, E(250, 512, 14, 8), 900, true)
+        rustyNail(g, 210, 500, 0.5, 500)
+      },
+      formel(g) {
+        // vier Eisenatome + drei Sauerstoffmoleküle + Wasser → wasserhaltiges Eisenoxid
+        for (let k = 0; k < 2; k++) mol(g, [[40 + k * 34, 380, 'Fe', 'dicht']], [], 1.1, k * 100)
+        text(g, 116, 386, '+', { anchor: 'middle', size: 22, d: 300 })
+        mol(g, [[140, 380, 'O', 'hell'], [164, 380, 'O', 'hell']], [[0, 1, true]], 1, 400)
+        text(g, 196, 386, '+', { anchor: 'middle', size: 22, d: 500 })
+        water(g, 240, 380, 1, 0, 600)
+        arrow(g, L([180, 420], [180, 480]), { w: 2.6, d: 900, t: 300, head: 9 })
+        const cl: [number, number, string, ('leer' | 'hell' | 'dicht')?][] = [[130, 540, 'Fe', 'dicht'], [190, 520, 'O', 'hell'], [250, 540, 'Fe', 'dicht'], [190, 576, 'O', 'hell'], [100, 590, 'O', 'hell'], [280, 590, 'O', 'hell']]
+        const wr = wobble(g, { deg: 2, ox: 190, oy: 560, ms: 2400, d: 1600 })
+        mol(wr, cl, [[0, 1], [1, 2], [0, 3], [3, 2], [0, 4], [2, 5]], 1.1, 1100)
+        water(wr, 300, 500, 0.8, 30, 1500)
+      },
+      kosten(g) {
+        // rostige Stahlbrücke; daneben die Torte der Weltwirtschaft mit dem kleinen Stück
+        ink(g, L([20, 560], [220, 560]), { w: 3, t: 500 })
+        ink(g, L([20, 500], [220, 500]), { w: 2.6, d: 100, t: 500 })
+        for (let k = 0; k < 5; k++) {
+          ink(g, L([20 + k * 40, 560], [40 + k * 40, 500]), { w: 2, d: 200 + k * 60, t: 200 })
+          ink(g, L([60 + k * 40, 560], [40 + k * 40, 500]), { w: 2, d: 220 + k * 60, t: 200 })
+        }
+        for (const [x, y] of [[50, 540], [118, 520], [170, 548], [200, 506]] as const) hatch(g, E(x, y, 9, 5), 900, true)
+        ink(g, waveP(20, 220, 610, 4, 40), { w: 1.6, d: 600, t: 500 })
+        for (const x of [20, 220]) ink(g, L([x, 500], [x, 620]), { w: 3, d: 300, t: 300 })
+        ink(g, E(280, 420, 56), { w: 3, d: 600, t: 600 })
+        hatch(g, [[280, 420], ...E(280, 420, 56, 56, -90, -79), [280, 420]], 1300, true)
+        ink(g, L([280, 420], [280, 364]), { w: 2, d: 1200, t: 150 })
+        ink(g, L([280, 420], [280 + Math.cos(rad(-79)) * 56, 420 + Math.sin(rad(-79)) * 56]), { w: 2, d: 1200, t: 150 })
       },
     },
     scenes: [
@@ -2148,7 +2360,7 @@ export const AHA_CHEMIE: Bite[] = [
       { t: T('Unter einem Wassertropfen gehen Eisen-Teilchen in Lösung. Dabei geben sie **Elektronen** ab.', 64), gfx: { tropfen: {} } },
       { t: T('Am Rand des Tropfens, wo viel Sauerstoff aus der Luft ankommt, werden diese Elektronen **verbraucht**.', 64), gfx: { tropfen: { cls: 'a1' } } },
       { t: T('Die Elektronen fließen dazwischen durch das Metall: ein winziger **Stromkreis**, eine Batterie im Tropfen.', 64), gfx: { kreis: {} } },
-      { t: T('Aus Eisen, Sauerstoff und Wasser entsteht der rotbraune **Rost**.', 64), gfx: { f1: { draw: 'formel', args: [['Eisen', '+', 'Sauerstoff', '+', 'Wasser', '→', 'Rost'], 360] } } },
+      { t: T('Aus Eisen, Sauerstoff und Wasser entsteht der rotbraune **Rost**.', 64), gfx: { formel: {} } },
       { t: T('Rost ist **porös** und blättert ab. Darunter liegt wieder frisches Eisen frei – der Rost frisst sich immer weiter.', 64), gfx: { poroes: {} } },
       { t: T('Salz beschleunigt das: Salzwasser **leitet Strom** viel besser. Darum rosten Autos im Winter und am Meer schneller.', 64), gfx: { salz: {} } },
       { t: T('Aluminium oxidiert sogar viel bereitwilliger als Eisen. Aber seine Oxidschicht ist **dicht** – und schützt das Metall darunter.', 64), gfx: { alu: {} } },
@@ -2159,7 +2371,7 @@ export const AHA_CHEMIE: Bite[] = [
       { t: T('Auch dein Körper „verbrennt“ langsam: Er oxidiert Nährstoffe mit Sauerstoff – **kontrolliert**, in vielen kleinen Schritten.', 64), gfx: { koerper: {} } },
       { t: T('Und die Freiheitsstatue? Sie ist aus **Kupfer**. Ihr Grün ist Patina – Kupfer, das jahrzehntelang mit der Luft reagiert hat.', 64), gfx: { statue: {} } },
       { t: T('Und der Mars? Der Rote Planet ist rot, weil sein Staub voller **Eisenoxid** steckt – Rost im Planetenmaßstab.', 64), gfx: { mars: {} } },
-      { t: T('Korrosion ist teuer: Weltweit kostet sie nach Schätzungen rund **drei Prozent** der gesamten Wirtschaftsleistung.', 64), gfx: { z1: { draw: 'zahl', args: ['3 %', 'der Wirtschaftsleistung weltweit', 440] } } },
+      { t: T('Korrosion ist teuer: Weltweit kostet sie nach Schätzungen rund **drei Prozent** der gesamten Wirtschaftsleistung.', 64), gfx: { kosten: {} } },
       { t: T('Rost ist **Verbrennung** in Zeitlupe.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],
     summary: ['Rosten ist wie Brennen eine Oxidation – nur viel langsamer und nur mit Wasser.', 'Unter einem Tropfen entsteht ein winziger Stromkreis; Salz beschleunigt ihn.', 'Dichte Oxidschichten (Aluminium, Chrom) schützen; Wärmepads nutzen schnelles Rosten.'],
