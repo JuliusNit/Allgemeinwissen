@@ -310,7 +310,7 @@ export const AHA_KOERPER: Bite[] = [
     hook: 'Warum bekommst du Gänsehaut?',
     mood: 'raetsel',
     ambience: 'wind',
-    images: [],
+    images: [img('gaensehaut')],
     draw: {
       haut(g) {
         let x = 30
@@ -468,7 +468,7 @@ export const AHA_KOERPER: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { haut: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Kalt, gruselig, ergreifend – Gänsehaut. Winzige Muskeln an deinen Haarwurzeln ziehen sich zusammen und **richten die Haare auf**.', 64), gfx: { quer: {} } },
       { t: T('Jedes Härchen hat so einen Muskel: den **Haaraufrichter**. Zieht er, wölbt sich die Haut neben dem Haar zu einer Beule.', 64), gfx: { quer: { cls: 'a1' } } },
       { t: T('Gesteuert wird das vom **Sympathikus** – dem Teil des Nervensystems, der dich auf Kampf oder Flucht vorbereitet.', 64), gfx: { nerv: {} } },

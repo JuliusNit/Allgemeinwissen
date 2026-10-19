@@ -541,7 +541,7 @@ export const AHA_DENKEN: Bite[] = [
     hook: 'Wie viel Reis liegt auf dem letzten Feld eines Schachbretts?',
     mood: 'episch',
     ambience: 'uhr',
-    images: [],
+    images: [img('schachbrett')],
     draw: {
       brett(g) {
         ink(g, RR(60, 120, 240, 240, 4), { w: 3, t: 800 })
@@ -599,7 +599,7 @@ export const AHA_DENKEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { brett: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Eine alte Legende aus Indien: Der Erfinder des Schachspiels darf sich vom König eine **Belohnung** wünschen.', 64), gfx: { koenig: {} } },
       { t: T('Er bittet um Reis: ein Korn auf das erste Feld, zwei auf das zweite, vier auf das dritte – **immer doppelt** so viel wie davor.', 64), gfx: { reihe: {} } },
       { t: T('Der König wundert sich über die **bescheidene** Bitte. Ein paar Säcke Reis, mehr nicht.', 64), gfx: { koenig: {} } },
@@ -629,7 +629,7 @@ export const AHA_DENKEN: Bite[] = [
     hook: 'Wie oft müsstest du ein Blatt Papier falten, um bis zum Mond zu kommen?',
     mood: 'kosmisch',
     ambience: 'weltraum',
-    images: [],
+    images: [img('papierstapel')],
     draw: {
       blatt(g) {
         ink(g, [[60, 300], [240, 260], [300, 340], [120, 380], [60, 300]], { w: 3, t: 800 })
@@ -697,7 +697,7 @@ export const AHA_DENKEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { blatt: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein normales Blatt Papier ist etwa **0,1 Millimeter** dick.', 64), gfx: { dicke: {} } },
       { t: T('Einmal falten: doppelt so dick. Zweimal: vierfach. Jede Faltung **verdoppelt** die Dicke.', 64), gfx: { stapel: {} } },
       { t: T('Nach 10 Faltungen: gut 10 Zentimeter – so dick wie ein **dickes Buch**.', 64), gfx: { leiter: {} } },
@@ -831,7 +831,7 @@ export const AHA_DENKEN: Bite[] = [
     hook: 'Warum beginnen so viele Zahlen mit einer 1?',
     mood: 'raetsel',
     ambience: 'uhr',
-    images: [],
+    images: [img('kurstabellen')],
     draw: {
       einsen(g) {
         let seed = 4
@@ -897,7 +897,7 @@ export const AHA_DENKEN: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { einsen: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Nimm irgendeine Liste echter Zahlen: Einwohner von Städten, Längen von Flüssen, Rechnungsbeträge, Börsenkurse.', 64), gfx: { listen: {} } },
       { t: T('Wie oft beginnen sie mit 1, 2, 3 … bis 9? Man würde denken: jede Ziffer **gleich oft** – also je rund 11 Prozent.', 64), gfx: { gleich: {} } },
       { t: T('Tatsächlich beginnen rund **30 Prozent** mit einer 1 – und nur knapp 5 Prozent mit einer 9.', 64), gfx: { echt: {} } },

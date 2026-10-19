@@ -887,7 +887,7 @@ export const AHA_GESCHICHTE: Bite[] = [
     hook: 'Warum ist ein Marathon genau 42,195 Kilometer lang?',
     mood: 'episch',
     ambience: 'atem',
-    images: [img('marathon'), img('pietri')],
+    images: [img('marathon'), img('pietri'), img('windsor')],
     draw: {
       laeufer(g) {
         runner(g, 180, 380, 3)
@@ -962,7 +962,7 @@ export const AHA_GESCHICHTE: Bite[] = [
       { t: T('Berühmt wurde sie 1896: Für die ersten modernen **Olympischen Spiele** in Athen schlug ein Franzose einen Lauf von Marathon ins Stadion vor.', 64), gfx: { athen: {} } },
       { t: T('Es gewann ein Grieche – der Wasserträger **Spyridon Louis**. Das Land jubelte.', 64), gfx: { louis: {} } },
       { t: T('Die Strecke war damals rund **40 Kilometer** lang – und bei jeden Spielen ein wenig anders.', 64), gfx: { strecken: {} } },
-      { t: T('Dann kam **London 1908**. Der Start wurde an Schloss Windsor gelegt, damit die königliche Familie zusehen konnte.', 64), gfx: { windsor: {} } },
+      { t: T('Dann kam **London 1908**. Der Start wurde an Schloss Windsor gelegt, damit die königliche Familie zusehen konnte.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Schloss Windsor' } } },
       { t: T('Das Ziel lag im Stadion – genau vor der **königlichen Loge**.', 64), gfx: { loge: {} } },
       { t: T('Heraus kamen 26 Meilen und 385 Yards: **42,195 Kilometer**.', 64), gfx: { loge: {} } },
       { t: T('Das Rennen selbst wurde legendär: Der Italiener **Dorando Pietri** kam als Erster ins Stadion – völlig erschöpft.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Dorando Pietri im Ziel, London 1908' } } },

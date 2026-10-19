@@ -637,7 +637,7 @@ export const AHA_GELD: Bite[] = [
     hook: 'Lohnt sich Handel sogar, wenn einer alles besser kann?',
     mood: 'hell',
     ambience: 'wellen',
-    images: [img('containerhafen'), img('ricardo')],
+    images: [img('containerhafen'), img('ricardo'), img('chirurgen')],
     draw: {
       tausch(g) {
         fig(g, 70, 400, 3.4)
@@ -712,7 +712,7 @@ export const AHA_GELD: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
-      { t: T('Stell dir eine Chirurgin und ihren Assistenten vor. Sie operiert besser – und tippt ihre Berichte sogar **schneller** als er.', 64), gfx: { chirurgin: {} } },
+      { t: T('Stell dir eine Chirurgin und ihren Assistenten vor. Sie operiert besser – und tippt ihre Berichte sogar **schneller** als er.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Soll sie ihre Berichte also selbst tippen? **Nein**.', 64), gfx: { chirurgin: {} } },
       { t: T('In der Stunde, in der sie tippt, könnte sie operieren. Das ist viel **wertvoller**. Das Tippen kostet sie eigentlich eine Operation.', 64), gfx: { stunde: {} } },
       { t: T('Diese Kosten nennt man **Opportunitätskosten**: das, was du aufgibst, wenn du etwas anderes tust.', 64), gfx: { stunde: {} } },

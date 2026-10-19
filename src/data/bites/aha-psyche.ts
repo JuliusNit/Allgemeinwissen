@@ -785,7 +785,7 @@ export const AHA_PSYCHE: Bite[] = [
     hook: 'Wie hörst du in einem lauten Raum deinen Namen heraus?',
     mood: 'verspielt',
     ambience: 'stadt',
-    images: [],
+    images: [img('menschen-abend')],
     draw: {
       party(g) {
         crowd(g, 40, 400, 8, 40, 2.2, 0, 80)
@@ -870,7 +870,7 @@ export const AHA_PSYCHE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { party: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Auf einer Party reden alle durcheinander. Trotzdem kannst du **einer Person** zuhören und den Rest ausblenden.', 64), gfx: { zuhoeren: {} } },
       { t: T('Das ist der **Cocktailparty-Effekt** – benannt 1953 vom britischen Forscher Colin Cherry.', 64), gfx: { cherry: {} } },
       { t: T('Dein Gehirn nutzt dafür viele **Hinweise** gleichzeitig.', 64), gfx: { hinweise: {} } },
