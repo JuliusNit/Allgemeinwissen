@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, check, clock, countUp, cross, crowd, dashes, eye, fig, hatch, hbars, ink, letter, lie, mk, question, rays, st, text, timeline, vbars, type P } from './draw'
-import { axes, ball, bird, box, bullets, carrow, cloud, dot, drop, earth, flake, flame, flow, glide, ground, heart, lens, pie, plot, rad, ripple, smooth, sun, thermo, tree, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, check, clock, cross, crowd, dashes, eye, fig, hatch, hbars, ink, letter, lie, mk, question, rays, st, text, timeline, vbars, type P } from './draw'
+import { axes, ball, bird, box, bullets, carrow, cloud, dot, drop, earth, flake, flame, flow, glide, ground, heart, lens, pie, plot, rad, ripple, smooth, spin, sun, thermo, tree, waveP, wobble } from './kit'
 
 // Leben & Körper: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -773,15 +773,22 @@ export const AHA_KOERPER: Bite[] = [
     images: [],
     draw: {
       hicks(g) {
-        bubble(g, 70, 150, 220, 100, 'l', 200)
-        text(g, 180, 214, 'Hicks!', { anchor: 'middle', size: 40, d: 600 })
-        fig(g, 70, 420, 3, { d: 0 })
+        // Person hält sich die Brust, Sprechblase zuckt im Takt
+        fig(g, 90, 440, 3.4, { d: 0, arms: 'cross' })
+        const b = wobble(g, { dy: -6, ms: 900, d: 900 })
+        bubble(b, 140, 150, 190, 90, 'l', 200)
+        text(b, 235, 208, 'Hicks!', { anchor: 'middle', size: 38, d: 600 })
+        for (const k of [0, 1, 2]) ink(g, E(90, 360, 30 + k * 10, 20 + k * 6, 200, 340), { w: 1.2, d: 1000 + k * 120, t: 200 })
       },
       zwerchfell(g) {
+        // Brustkorb von vorn: Rippen, Lungenflügel, darunter die Kuppel des Zwerchfells – sie zuckt nach unten
         const torso: P[] = [...B([110, 300], [80, 380], [80, 540], [110, 620]), ...L([110, 620], [250, 620]).slice(1), ...B([250, 620], [280, 540], [280, 380], [250, 300]).slice(1)]
         ink(g, torso, { w: 3, t: 900 })
+        ink(g, L([180, 310], [180, 470]), { w: 3, d: 200, t: 400 })
+        for (let k = 0; k < 6; k++) for (const s of [-1, 1]) ink(g, B([180, 330 + k * 26], [180 + s * 50, 320 + k * 26], [180 + s * 86, 340 + k * 28], [180 + s * 90, 366 + k * 28]), { w: 1, d: 300 + k * 60, t: 200 })
         for (const k of [-1, 1]) {
           const lung: P[] = [...B([180 + k * 12, 340], [180 + k * 60, 330], [180 + k * 72, 420], [180 + k * 66, 486]), ...B([180 + k * 66, 486], [180 + k * 40, 476], [180 + k * 14, 480], [180 + k * 12, 470]).slice(1), [180 + k * 12, 340]]
+          blank(g, lung)
           hatch(g, lung, 700)
           ink(g, lung, { w: 2.4, d: 400, t: 600 })
         }
@@ -789,128 +796,206 @@ export const AHA_KOERPER: Bite[] = [
         ink(up, B([96, 520], [130, 470], [230, 470], [264, 520]), { w: 3.6, d: 900, t: 600 })
         const down = st(g, 'f1')
         ink(down, B([96, 540], [130, 520], [230, 520], [264, 540]), { w: 3.6, t: 0 })
-        arrow(down, L([180, 270], [180, 320]), { w: 2.6, t: 0, head: 9 })
-        text(g, 300, 650, 'Zwerchfell', { anchor: 'end', cls: 's', d: 1200 })
+        arrow(down, L([180, 470], [180, 508]), { w: 2.4, t: 0, head: 9 })
+        flow(down, L([180, 250], [180, 330]), { n: 3, ms: 700, r: 2.4, kind: 'dash' })
       },
       stimmritze(g) {
-        ink(g, L([120, 320], [120, 600]), { w: 3, t: 600 })
-        ink(g, L([240, 320], [240, 600]), { w: 3, t: 600 })
-        const l = st(g, 'm1', '--m1: rotate(28deg); transform-origin: 120px 460px')
-        ink(l, L([122, 460], [178, 430]), { w: 4, d: 500, t: 300 })
-        const r = st(g, 'm1', '--m1: rotate(-28deg); transform-origin: 240px 460px')
-        ink(r, L([238, 460], [182, 430]), { w: 4, d: 500, t: 300 })
-        arrow(g, L([180, 600], [180, 500]), { w: 2.4, d: 800, t: 300, head: 9 })
-        text(st(g, 'f1', '--dl:600ms'), 180, 380, 'zu nach 35 ms', { anchor: 'middle', cls: 's', fade: false })
+        // Kehlkopf von oben: zwei Stimmlippen als V; sie klappen zusammen
+        const ring = E(180, 460, 110, 130)
+        ink(g, ring, { w: 3, t: 700 })
+        hatch(g, [...ring, ...E(180, 460, 92, 112, 360, 0)], 500)
+        const l = st(g, 'm1', '--m1: rotate(9deg); transform-origin: 180px 360px; transition-duration: .25s')
+        const lf: P[] = [[180, 360], [120, 560], [140, 566], [178, 380]]
+        blank(l, lf)
+        ink(l, [...lf, lf[0]], { w: 2.6, d: 400, t: 400 })
+        const r = st(g, 'm1', '--m1: rotate(-9deg); transform-origin: 180px 360px; transition-duration: .25s')
+        const rf: P[] = [[180, 360], [240, 560], [220, 566], [182, 380]]
+        blank(r, rf)
+        ink(r, [...rf, rf[0]], { w: 2.6, d: 400, t: 400 })
+        for (const s of [-1, 1]) ink(g, E(180 + s * 40, 586, 16, 10), { w: 1.8, d: 600, t: 200 })
+        flow(st(g, 'h1'), L([180, 600], [180, 400]), { n: 3, ms: 700, d: 800, r: 2.4, kind: 'dash' })
+        text(st(g, 'f1', '--dl:400ms'), 300, 640, '35 ms', { anchor: 'middle', size: 18, fade: false })
       },
       takt(g) {
-        clock(g, 180, 460, 100, 0, 0)
-        for (let k = 0; k < 6; k++) {
-          const a = rad(-90 + k * 60)
-          dot(g, 180 + Math.cos(a) * 124, 460 + Math.sin(a) * 124, 5, 800 + k * 150)
+        // Uhr, um die die Hickser im Kreis aufblitzen
+        clock(g, 180, 470, 100, 0, 0)
+        const h = spin(g, 180, 470, 6000, 800)
+        ink(h, L([180, 470], [180, 390]), { w: 2, d: 800, t: 100 })
+        for (let k = 0; k < 12; k++) {
+          const a = rad(-90 + k * 30)
+          const p = mk('g', { class: 'blink', style: `--d:${800 + k * 500}ms` }, g)
+          dot(p, 180 + Math.cos(a) * 124, 470 + Math.sin(a) * 124, 5, 800 + k * 150)
         }
-        text(g, 180, 620, '4 bis 60 Hickser pro Minute', { anchor: 'middle', d: 1500 })
       },
       reize(g) {
+        // Hirnstamm, Zwerchfellnerv hinunter zum Zwerchfell; Auslöser drumherum: Sprudel, Teller, Glas, Herzklopfen
         brain(g, 100, 360, 0.6)
-        text(g, 100, 450, 'Hirnstamm', { anchor: 'middle', cls: 's', d: 800 })
-        bullets(g, 180, 330, ['zu schnell gegessen', 'Kohlensäure', 'Alkohol', 'Aufregung'], { d: 900, gap: 40 })
-        ink(g, B([100, 470], [110, 540], [140, 590], [220, 620]), { w: 2.2, d: 1200, t: 600 })
-        text(g, 230, 626, 'Zwerchfell', { cls: 's', d: 1700 })
+        ink(g, B([110, 400], [120, 480], [150, 560], [220, 610]), { w: 2.2, d: 1000, t: 600 })
+        flow(g, B([110, 400], [120, 480], [150, 560], [220, 610]), { n: 3, ms: 1400, d: 1600, r: 2 })
+        ink(g, B([170, 610], [200, 590], [280, 590], [330, 610]), { w: 3, d: 1200, t: 400 })
+        // Sprudelflasche
+        ink(g, RR(214, 330, 30, 70, 8), { w: 2, d: 300, t: 300 })
+        for (let i = 0; i < 4; i++) flow(g, L([222 + i * 5, 396], [224 + i * 5, 340]), { n: 1, ms: 1200, d: 700 + i * 200, r: 1.6, kind: 'ring' })
+        // Teller mit Gabel
+        ink(g, E(290, 380, 34, 10), { w: 2, d: 500, t: 300 })
+        ink(g, L([326, 390], [340, 330]), { w: 1.8, d: 600, t: 200 })
+        // Glas
+        ink(g, [[230, 460], [236, 510], [254, 510], [260, 460]], { w: 2, d: 700, t: 300 })
+        hatch(g, [[232, 478], [236, 508], [254, 508], [258, 478]], 900)
+        heart(g, 300, 490, 0.4, 900)
       },
       vorfahren(g) {
-        const fish: P[] = [...B([40, 470], [60, 440], [110, 440], [130, 470]), ...B([130, 470], [110, 500], [60, 500], [40, 470]).slice(1)]
+        // Fisch → Amphibie → Mensch
+        const fish: P[] = [...B([30, 470], [50, 440], [100, 440], [120, 470]), ...B([120, 470], [100, 500], [50, 500], [30, 470]).slice(1)]
+        blank(g, fish)
+        hatch(g, fish, 500)
         ink(g, fish, { w: 2.6, t: 600 })
-        ink(g, [[40, 470], [24, 454], [24, 486], [40, 470]], { w: 2.4, d: 300, t: 300 })
-        arrow(g, L([142, 470], [178, 470]), { w: 2.4, d: 600, t: 300, head: 9 })
-        ink(g, E(220, 470, 26, 18), { w: 2.6, d: 800, t: 500 })
-        dot(g, 230, 462, 3, 1100)
-        arrow(g, L([256, 470], [286, 470]), { w: 2.4, d: 1200, t: 300, head: 9 })
-        fig(g, 320, 500, 1.6, { d: 1400 })
-        text(g, 180, 560, 'Fisch · Amphibie · Mensch', { anchor: 'middle', cls: 's', d: 1600 })
+        ink(g, [[30, 470], [14, 454], [14, 486], [30, 470]], { w: 2.4, d: 300, t: 300 })
+        dot(g, 104, 464, 2.4, 600)
+        for (let k = 0; k < 3; k++) ink(g, B([84 - k * 6, 456], [80 - k * 6, 464], [80 - k * 6, 476], [84 - k * 6, 484]), { w: 1, d: 700, t: 100 })
+        arrow(g, L([130, 470], [158, 470]), { w: 2.2, d: 600, t: 300, head: 8 })
+        const frog: P[] = smooth([[168, 490], [176, 460], [208, 450], [236, 466], [240, 490]], 4)
+        blank(g, frog)
+        hatch(g, frog, 1000)
+        ink(g, frog, { w: 2.4, d: 800, t: 500 })
+        ink(g, E(222, 452, 6), { w: 1.6, d: 1000, t: 200 })
+        dot(g, 222, 452, 2, 1100)
+        ink(g, [[176, 488], [164, 500], [180, 500]], { w: 1.6, d: 1100, t: 200 })
+        arrow(g, L([248, 470], [276, 470]), { w: 2.2, d: 1200, t: 300, head: 8 })
+        fig(g, 314, 510, 1.8, { d: 1400 })
       },
       kaulquappe(g) {
         const body: P[] = [...B([110, 460], [110, 400], [200, 400], [210, 460]), ...B([210, 460], [200, 520], [110, 520], [110, 460]).slice(1)]
         blank(g, body)
+        hatch(g, body, 600)
         ink(g, body, { w: 3, t: 700 })
-        ink(g, B([110, 460], [80, 430], [50, 500], [20, 450]), { w: 2.6, d: 400, t: 600 })
+        const tail = wobble(g, { deg: 10, ox: 110, oy: 460, ms: 700, d: 900 })
+        ink(tail, B([110, 460], [80, 430], [50, 500], [20, 450]), { w: 2.6, d: 400, t: 600 })
         dot(g, 180, 446, 4, 800)
-        for (let k = 0; k < 3; k++) ink(g, L([152 + k * 8, 490], [156 + k * 8, 506]), { w: 1.6, d: 900 + k * 80, t: 100 })
-        text(g, 158, 560, 'Kiemen', { anchor: 'middle', cls: 's', d: 1100 })
+        for (let k = 0; k < 3; k++) ink(g, B([150 + k * 9, 486], [146 + k * 9, 494], [148 + k * 9, 504], [154 + k * 9, 510]), { w: 1.6, d: 900 + k * 80, t: 100 })
+        flow(g, B([140, 430], [146, 470], [160, 500], [176, 540]), { n: 3, ms: 1100, d: 1300, r: 1.8, kind: 'dash' })
+        blank(g, E(160, 452, 22, 14))
+        ink(g, E(160, 452, 22, 14), { w: 1.4, d: 1000, t: 300 })
+        text(g, 158, 570, 'Kiemen', { anchor: 'middle', cls: 's', d: 1100 })
         text(g, 280, 420, 'Lunge', { anchor: 'middle', cls: 's', d: 1200 })
-        arrow(g, L([254, 428], [204, 446]), { w: 2, d: 1300, t: 300, head: 8 })
+        arrow(g, L([254, 428], [184, 448]), { w: 1.6, d: 1300, t: 300, head: 7 })
+        ink(g, L([158, 556], [158, 516]), { w: 1, d: 1100, t: 200 })
       },
       muster(g) {
-        for (const [y, n, d] of [[400, 'Kaulquappe', 0], [520, 'Schluckauf', 600]] as const) {
-          text(g, 30, y - 30, n, { cls: 's', d })
-          hatch(g, RR(30, y - 16, 120, 32, 6), d + 300)
-          ink(g, RR(30, y - 16, 120, 32, 6), { w: 2.4, d, t: 400 })
-          text(g, 90, y + 6, 'einatmen', { anchor: 'middle', cls: 's halo', d: d + 200 })
-          ink(g, RR(160, y - 16, 150, 32, 6), { w: 2.4, d: d + 200, t: 400 })
-          text(g, 235, y + 6, 'Stimmritze zu', { anchor: 'middle', cls: 's', d: d + 400 })
+        // beide Abläufe als Zeitleiste: kurzes Einatmen, dann schließt die Stimmritze
+        for (const [y, label, d] of [[420, 'Kaulquappe', 0], [560, 'Mensch', 600]] as const) {
+          text(g, 30, y - 46, label, { cls: 's', d })
+          axes(g, 30, y + 20, 330, y - 30, { d })
+          ink(g, [[30, y + 16], [70, y + 16], [90, y - 20], [130, y - 20], [134, y + 16], [330, y + 16]], { w: 2.4, d: d + 200, t: 600 })
+          hatch(g, RR(70, y - 20, 60, 36, 3), d + 500)
+          ink(g, L([134, y - 30], [134, y + 24]), { w: 1.6, d: d + 500, t: 200 })
+          for (const k of [-1, 1]) ink(g, L([150, y - 6 + k * 6], [164, y - 6]), { w: 2, d: d + 700, t: 100 })
         }
       },
       baby(g) {
+        // Ungeborenes in der Fruchtblase, Zwerchfell zuckt
         ink(g, E(180, 470, 130, 150), { w: 3, t: 900 })
-        ink(g, E(200, 410, 34), { w: 2.8, d: 500, t: 500 })
-        ink(g, B([180, 440], [120, 470], [130, 560], [200, 560]), { w: 2.8, d: 800, t: 600 })
-        ink(g, B([200, 560], [240, 560], [250, 520], [222, 500]), { w: 2.6, d: 1200, t: 400 })
-        text(g, 180, 660, 'Hicksen schon im Mutterleib', { anchor: 'middle', cls: 's', d: 1400 })
+        ink(g, E(180, 470, 120, 140), { w: 1, d: 200, t: 900 })
+        const b = wobble(g, { dy: -4, ms: 800, d: 1400 })
+        ink(b, E(206, 404, 36, 32), { w: 2.8, d: 500, t: 500 })
+        ink(b, B([186, 432], [120, 470], [130, 560], [200, 560]), { w: 2.8, d: 800, t: 600 })
+        ink(b, B([200, 560], [240, 560], [252, 520], [224, 500]), { w: 2.6, d: 1200, t: 400 })
+        ink(b, B([196, 450], [216, 470], [230, 470], [236, 460]), { w: 2, d: 1300, t: 200 })
+        ink(b, E(222, 400, 4, 2, 0, 180), { w: 1.4, d: 1400, t: 100 })
+        ink(g, B([150, 560], [130, 600], [120, 616], [124, 640]), { w: 2, d: 1300, t: 300 })
       },
       flasche(g) {
-        ink(g, RR(90, 380, 60, 160, 14), { w: 3, t: 600 })
-        ink(g, [[104, 380], [110, 350], [130, 350], [136, 380]], { w: 2.6, d: 300, t: 300 })
-        hatch(g, RR(94, 440, 52, 96, 10), 600)
+        ink(g, RR(70, 380, 60, 160, 14), { w: 3, t: 600 })
+        ink(g, [[84, 380], [90, 350], [110, 350], [116, 380]], { w: 2.6, d: 300, t: 300 })
+        ink(g, B([92, 350], [94, 332], [106, 332], [108, 350]), { w: 2.2, d: 400, t: 200 })
+        hatch(g, RR(74, 440, 52, 96, 10), 600)
+        for (let k = 0; k < 4; k++) ink(g, L([70, 420 + k * 30], [80, 420 + k * 30]), { w: 1, d: 700, t: 80 })
         const st2: P[] = [...B([220, 420], [280, 400], [320, 470], [290, 540]), ...B([290, 540], [260, 590], [210, 560], [220, 420]).slice(1)]
         ink(g, st2, { w: 3, d: 500, t: 700 })
+        ink(g, B([226, 420], [222, 390], [230, 360], [236, 330]), { w: 2.4, d: 600, t: 300 })
+        hatch(g, [...B([214, 520], [240, 540], [280, 530], [296, 510]), [290, 540], [260, 580], [214, 560]], 900)
         ball(g, 266, 462, 14, { d: 1000, w: 2 })
-        arrow(g, L([266, 442], [266, 380]), { w: 2.2, d: 1200, t: 300, head: 8 })
-        text(g, 266, 620, 'Luft aus dem Magen', { anchor: 'middle', cls: 's', d: 1300 })
+        flow(g, B([266, 448], [250, 420], [236, 380], [236, 320]), { n: 2, ms: 1400, d: 1300, r: 4, kind: 'ring' })
       },
       tiere(g) {
         const dog: P[] = [...B([60, 520], [70, 470], [180, 470], [230, 480]), [250, 440], [290, 440], [300, 470], [270, 480], ...B([270, 480], [260, 520], [200, 530], [60, 520]).slice(1)]
         blank(g, dog)
         hatch(g, dog, 700)
         ink(g, dog, { w: 2.8, t: 900 })
+        ink(g, [[256, 444], [262, 424], [272, 442]], { w: 2.2, d: 700, t: 200 })
         for (const x of [80, 110, 200, 230]) ink(g, L([x, 524], [x, 590]), { w: 2.6, d: 600, t: 200 })
-        ink(g, B([60, 500], [40, 480], [36, 460], [44, 440]), { w: 2.4, d: 800, t: 200 })
+        const tl = wobble(g, { deg: 20, ox: 60, oy: 500, ms: 600, d: 1000 })
+        ink(tl, B([60, 500], [40, 480], [36, 460], [44, 440]), { w: 2.4, d: 800, t: 200 })
         dot(g, 278, 452, 3, 1000)
-        bubble(g, 230, 340, 100, 50, 'l', 1100)
-        text(g, 280, 372, 'hicks', { anchor: 'middle', d: 1300 })
+        ground(g, 30, 330, 592, 400)
+        const b = wobble(g, { dy: -5, ms: 900, d: 1300 })
+        bubble(b, 230, 340, 100, 50, 'l', 1100)
+        text(b, 280, 372, 'hicks', { anchor: 'middle', d: 1300 })
       },
       raetsel(g) {
         question(g, 110, 460, 1.6)
         question(g, 250, 500, 1.1, 400)
+        lens(g, 200, 380, 30, 800)
       },
       mittel(g) {
-        bullets(g, 40, 340, ['Luft anhalten', 'in eine Tüte atmen', 'kaltes Wasser trinken', 'Erschrecken'], { gap: 48, size: 18 })
-        text(g, 40, 560, 'CO₂ im Blut erhöhen oder', { d: 1500 })
-        text(g, 40, 584, 'den Reflex-Nerv reizen', { d: 1600 })
+        // Hausmittel als kleine Bilder: Luft anhalten, Tüte, Wasser kopfüber trinken, Erschrecken
+        const cell = (x: number, y: number, d: number) => ink(g, RR(x, y, 140, 120, 8), { w: 2, d, t: 300 })
+        cell(30, 330, 0)
+        fig(g, 100, 440, 2.4, { d: 200 })
+        ink(g, E(100, 368, 14, 12), { w: 1.6, d: 400, t: 200 })
+        cell(190, 330, 200)
+        fig(g, 240, 440, 2.4, { d: 400 })
+        ink(g, [[256, 360], [300, 340], [304, 400], [256, 384]], { w: 2, d: 600, t: 300 })
+        cell(30, 470, 400)
+        ink(g, [[70, 500], [76, 560], [100, 560], [106, 500]], { w: 2, d: 600, t: 300 })
+        hatch(g, [[72, 520], [76, 558], [100, 558], [104, 520]], 800)
+        ink(g, L([120, 510], [150, 560]), { w: 1.6, d: 700, t: 200 })
+        cell(190, 470, 600)
+        fig(g, 230, 580, 2.4, { d: 800, arms: 'up' })
+        text(g, 290, 520, '!', { size: 34, d: 1000 })
       },
       rekord(g) {
         timeline(g, 30, 330, 470, [
           { at: 0.1, label: '1922', sub: 'Beginn', up: true },
           { at: 0.9, label: '1990', sub: 'Ende', up: true },
         ])
-        text(g, 180, 560, '68 Jahre', { anchor: 'middle', size: 34, d: 1400 })
+        for (let i = 0; i < 7; i++) {
+          const x = 50 + i * 40
+          fig(g, x, 610, 0.8 + i * 0.12, { d: 900 + i * 100 })
+        }
       },
       zahl(g) {
-        const t = text(g, 180, 470, '', { anchor: 'middle', size: 44, d: 200 })
-        countUp(t, 430, 200, 1600, (v) => `${Math.round(v)} Mio.`)
-        text(g, 180, 520, 'Hickser, geschätzt', { anchor: 'middle', d: 600 })
+        // Strichliste wächst und wächst
+        for (let r = 0; r < 6; r++)
+          for (let c = 0; c < 7; c++) {
+            const x = 40 + c * 42
+            const y = 350 + r * 50
+            for (let k = 0; k < 4; k++) ink(g, L([x + k * 6, y], [x + k * 6, y + 30]), { w: 1.4, d: (r * 7 + c) * 40 + k * 8, t: 40 })
+            ink(g, L([x - 4, y + 24], [x + 22, y + 6]), { w: 1.6, d: (r * 7 + c) * 40 + 40, t: 40 })
+          }
       },
       arzt(g) {
-        hatch(g, RR(150, 380, 60, 180, 6), 400, true)
-        ink(g, RR(150, 380, 60, 180, 6), { w: 3, t: 500 })
-        hatch(g, RR(90, 440, 180, 60, 6), 400, true)
-        blank(g, RR(152, 442, 56, 56, 2))
-        hatch(g, RR(152, 442, 56, 56, 2), 400, true)
-        ink(g, [[150, 440], [90, 440], [90, 500], [150, 500]], { w: 3, d: 200, t: 400 })
-        ink(g, [[210, 440], [270, 440], [270, 500], [210, 500]], { w: 3, d: 200, t: 400 })
-        text(g, 180, 620, 'länger als zwei Tage', { anchor: 'middle', d: 900 })
+        // Arztpraxis: Kreuz, Stethoskop
+        hatch(g, RR(150, 340, 60, 160, 6), 400, true)
+        ink(g, RR(150, 340, 60, 160, 6), { w: 3, t: 500 })
+        hatch(g, RR(100, 390, 160, 60, 6), 400, true)
+        blank(g, RR(152, 392, 56, 56, 2))
+        hatch(g, RR(152, 392, 56, 56, 2), 400, true)
+        ink(g, [[150, 390], [100, 390], [100, 450], [150, 450]], { w: 3, d: 200, t: 400 })
+        ink(g, [[210, 390], [260, 390], [260, 450], [210, 450]], { w: 3, d: 200, t: 400 })
+        ink(g, B([110, 540], [110, 600], [170, 620], [190, 580]), { w: 2.6, d: 700, t: 500 })
+        ink(g, B([250, 540], [250, 600], [190, 620], [190, 580]), { w: 2.6, d: 700, t: 500 })
+        ink(g, B([190, 620], [190, 650], [240, 660], [270, 640]), { w: 2.4, d: 1000, t: 300 })
+        ball(g, 276, 636, 12, { d: 1200, fill: 'hell', t: 200 })
+        for (let k = 0; k < 2; k++) {
+          ink(g, RR(36 + k * 14, 540 + k * 10, 50, 56, 4), { w: 2, d: 1300 + k * 100, t: 200 })
+          cross(g, 61 + k * 14, 574 + k * 10, 0.5, 1500 + k * 150)
+        }
       },
       ende(g) {
-        bubble(g, 90, 420, 180, 90, 'l')
-        text(g, 180, 478, 'Hicks', { anchor: 'middle', size: 32, d: 400 })
+        const b = wobble(g, { dy: -6, ms: 900, d: 600 })
+        bubble(b, 90, 420, 180, 90, 'l')
+        text(b, 180, 478, 'Hicks', { anchor: 'middle', size: 32, d: 400 })
       },
     },
     scenes: [
@@ -946,15 +1031,32 @@ export const AHA_KOERPER: Bite[] = [
     images: [],
     draw: {
       thermo(g) {
-        thermo(g, 180, 90, 280, 0.82)
-        text(g, 220, 160, '39 °C', { size: 26, d: 900 })
+        // Fieberthermometer mit Skala, daneben die Person im Bett
+        thermo(g, 70, 100, 280, 0.82)
+        for (let k = 0; k <= 6; k++) {
+          const y = 108 + (k / 6) * 272
+          ink(g, L([82, y], [92, y]), { w: 1.2, d: 600 + k * 50, t: 80 })
+          if (k % 2 === 0) text(g, 98, y + 4, `${42 - k}`, { cls: 's', d: 700 + k * 50, size: 11 })
+        }
+        ink(g, RR(150, 360, 190, 30, 8), { w: 2.6, d: 300, t: 500 })
+        lie(g, 180, 350, 2.2, 'back', 500)
+        hatch(g, RR(200, 340, 130, 22, 6), 900)
+        ink(g, RR(200, 340, 130, 22, 6), { w: 1.8, d: 800, t: 300 })
+        for (const x of [154, 336]) ink(g, L([x, 390], [x, 420]), { w: 2.4, d: 400, t: 100 })
+        for (const k of [0, 1]) {
+          const s = wobble(g, { dy: -6, ms: 1600, d: 1000 + k * 400 })
+          ink(s, B([176 + k * 14, 320], [170 + k * 14, 306], [182 + k * 14, 294], [176 + k * 14, 280]), { w: 1.2, d: 1100, t: 200 })
+        }
       },
       regler(g) {
+        // Thermostat im Kopf: Zeiger springt von 37 auf 39
         ink(g, E(180, 470, 110), { w: 3.2, t: 800 })
+        ink(g, E(180, 470, 100), { w: 1, d: 200, t: 800 })
         for (let k = 0; k <= 10; k++) {
           const a = rad(150 + k * 24)
-          ink(g, L([180 + Math.cos(a) * 92, 470 + Math.sin(a) * 92], [180 + Math.cos(a) * 104, 470 + Math.sin(a) * 104]), { w: 2, d: 300 + k * 40, t: 100 })
+          ink(g, L([180 + Math.cos(a) * 86, 470 + Math.sin(a) * 86], [180 + Math.cos(a) * 98, 470 + Math.sin(a) * 98]), { w: k % 5 ? 1.4 : 2.4, d: 300 + k * 40, t: 100 })
         }
+        hatch(g, [[180, 470], ...E(180, 470, 98, 98, 270, 318), [180, 470]], 1500)
         const n = st(g, 'm1', '--m1: rotate(48deg); transform-origin: 180px 470px; transition-duration: 1.6s')
         ink(n, L([180, 470], [180 + Math.cos(rad(222)) * 80, 470 + Math.sin(rad(222)) * 80]), { w: 4, d: 800, t: 300 })
         ball(g, 180, 470, 12, { d: 700, fill: 'dicht', t: 300 })
@@ -962,108 +1064,175 @@ export const AHA_KOERPER: Bite[] = [
         text(g, 280, 620, '39 °C', { anchor: 'middle', d: 1100 })
       },
       tagesgang(g) {
-        axes(g, 40, 600, 330, 340, { xl: 'Uhrzeit', yl: 'Temperatur' })
+        axes(g, 40, 600, 330, 340, { yl: 'Temperatur' })
         plot(g, 46, 520, 270, 100, (t) => 0.5 + 0.45 * Math.sin((t - 0.35) * Math.PI * 2), { d: 500 })
-        text(g, 110, 624, 'morgens', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 250, 624, 'abends', { anchor: 'middle', cls: 's', d: 1000 })
+        sun(g, 250, 620, 8, 900, 8)
+        const m: P[] = [...E(110, 620, 9, 9, 60, 300), ...E(116, 620, 7, 7, 290, 70)]
+        ink(g, m, { w: 1.8, d: 900, t: 200 })
+        for (let k = 0; k < 5; k++) ink(g, L([46 + k * 67.5, 600], [46 + k * 67.5, 606]), { w: 1.2, d: 600, t: 60 })
       },
       wunderlich(g) {
         timeline(g, 30, 330, 440, [
           { at: 0.1, label: '1868', sub: '37,0 °C', up: true },
-          { at: 0.85, label: 'heute', sub: 'eher 36,6 °C', up: true },
+          { at: 0.85, label: 'heute', sub: '36,6 °C', up: true },
         ])
-        text(g, 180, 540, 'Carl Wunderlich, Leipzig', { anchor: 'middle', cls: 's', d: 1400 })
+        // altes Glasthermometer, unter die Achsel geklemmt
+        fig(g, 110, 640, 3.4, { d: 1200, arms: 'cross' })
+        ink(g, L([90, 580], [40, 560]), { w: 3, d: 1500, t: 300 })
+        ball(g, 40, 560, 5, { d: 1600, fill: 'dicht', t: 0 })
+        thermo(g, 260, 510, 110, 0.6, 1700)
       },
       signal(g) {
+        // Erreger im Gewebe → Immunzelle schüttet Botenstoffe aus → mit dem Blut zum Hypothalamus
         brain(g, 220, 380, 0.8)
         ball(g, 230, 420, 12, { d: 1100, fill: 'dicht', t: 300 })
+        ripple(g, 230, 420, 14, 34, { n: 2, ms: 1600, d: 1600, w: 1.2 })
         text(g, 300, 470, 'Hypothalamus', { anchor: 'end', cls: 's', d: 1300 })
-        virus(g, 70, 590, 14, 300)
-        ink(g, B([90, 570], [130, 540], [180, 520], [222, 438]), { w: 2, d: 800, t: 500 })
-        text(g, 160, 620, 'Botenstoffe im Blut', { cls: 's', d: 1000 })
+        virus(g, 60, 590, 14, 300)
+        ball(g, 110, 600, 18, { d: 500, fill: 'hell', t: 300 })
+        ball(g, 106, 596, 6, { d: 700, fill: 'dicht', t: 0 })
+        const p = B([128, 590], [160, 560], [190, 520], [222, 438])
+        ink(g, p, { w: 1.6, d: 800, t: 500 })
+        flow(g, p, { n: 4, ms: 1400, d: 1300, r: 2.4 })
       },
       frieren(g) {
         thermo(g, 70, 330, 220, 0.85)
-        text(g, 70, 610, 'Soll: 39', { anchor: 'middle', cls: 's', d: 600 })
+        text(g, 70, 610, 'Soll', { anchor: 'middle', cls: 's', d: 600 })
         thermo(g, 160, 330, 220, 0.55, 300)
-        text(g, 160, 610, 'Ist: 37', { anchor: 'middle', cls: 's', d: 900 })
-        fig(g, 280, 590, 2.4, { d: 600, arms: 'cross' })
+        text(g, 160, 610, 'Ist', { anchor: 'middle', cls: 's', d: 900 })
+        const sh = wobble(g, { dx: 2, ms: 120, d: 1000 })
+        fig(sh, 280, 590, 2.6, { d: 600, arms: 'cross' })
+        ink(sh, RR(250, 470, 60, 60, 10), { w: 1.6, d: 800, t: 300 })
         for (const [x, y] of [[236, 470], [324, 470], [236, 520], [324, 520]] as const) ink(g, [[x - 6, y], [x - 2, y - 6], [x + 2, y + 6], [x + 6, y]], { w: 1.8, d: 1200, t: 200 })
       },
       zittern(g) {
-        fig(g, 180, 620, 6, { d: 0, arms: 'down' })
-        for (const [x, y] of [[100, 400], [260, 400], [100, 500], [260, 500]] as const) ink(g, [[x - 8, y], [x - 3, y - 8], [x + 3, y + 8], [x + 8, y]], { w: 2, d: 800, t: 200 })
-        text(g, 60, 640, 'kalte Hände', { anchor: 'middle', cls: 's', d: 1200 })
+        // Muskeln zittern (Wärme), die Hautgefäße verengen sich – Hände werden kalt
+        const sh = wobble(g, { dx: 2.4, ms: 110, d: 900 })
+        fig(sh, 140, 640, 6, { d: 0, arms: 'down' })
+        for (const [x, y] of [[60, 420], [220, 420], [60, 520], [220, 520]] as const) ink(g, [[x - 8, y], [x - 3, y - 8], [x + 3, y + 8], [x + 8, y]], { w: 2, d: 800, t: 200 })
+        // Lupe: Blutgefäß in der Haut, eng gestellt
+        blank(g, E(290, 420, 48))
+        ink(g, E(290, 420, 48), { w: 2.6, d: 1000, t: 400 })
+        for (const s of [-1, 1]) ink(g, B([250, 420 + s * 16], [276, 420 + s * 4], [304, 420 + s * 4], [330, 420 + s * 16]), { w: 2, d: 1200, t: 300 })
+        flow(g, L([256, 420], [324, 420]), { n: 2, ms: 1800, d: 1500, r: 1.6 })
+        flake(g, 290, 500, 10, 1400)
       },
       erreger(g) {
         axes(g, 40, 600, 330, 320, { xl: 'Temperatur', yl: 'Vermehrung' })
         plot(g, 50, 590, 270, 240, (t) => (t < 0.45 ? 0.9 : 0.9 - Math.pow((t - 0.45) / 0.55, 1.4) * 0.75), { d: 500 })
         text(g, 118, 600 + 24, '37', { anchor: 'middle', cls: 's', d: 900 })
         text(g, 240, 600 + 24, '40', { anchor: 'middle', cls: 's', d: 900 })
+        for (const [x, y, n] of [[110, 400, 6], [260, 520, 2]] as const) for (let k = 0; k < n; k++) bact(g, x + (k % 3) * 26, y + Math.floor(k / 3) * 22, 0.45, 1300 + k * 60)
       },
       immun(g) {
-        ball(g, 130, 470, 44, { fill: 'hell', w: 3 })
-        ball(g, 120, 462, 14, { d: 300, fill: 'dicht', t: 300 })
-        for (const [y, d] of [[440, 700], [470, 800], [500, 900]] as const) ink(g, L([20, y], [70, y]), { w: 2, d, t: 200 })
-        arrow(g, L([186, 470], [300, 470]), { w: 3, d: 900, t: 500, head: 10 })
+        // Fresszelle streckt Ausläufer aus und wandert zum Erreger
+        const m = glide(g, 60, 0, { ms: 2600, d: 900 })
+        const cellP: P[] = smooth([[90, 470], [100, 430], [140, 420], [178, 440], [196, 470], [176, 510], [130, 516], [96, 500], [90, 470]], 5)
+        blank(m, cellP)
+        hatch(m, cellP, 400)
+        ink(m, cellP, { w: 3, t: 700 })
+        ball(m, 130, 466, 14, { d: 300, fill: 'dicht', t: 300 })
+        ink(m, B([196, 470], [214, 466], [226, 458], [236, 462]), { w: 2.4, d: 700, t: 300 })
+        for (const [y, d] of [[440, 700], [470, 800], [500, 900]] as const) ink(m, L([30, y], [70, y]), { w: 1.6, d, t: 200 })
         virus(g, 320, 470, 12, 1200)
-        text(g, 180, 600, 'Abwehrzellen wandern schneller', { anchor: 'middle', cls: 's', d: 1400 })
+        ink(g, L([20, 560], [340, 560]), { w: 1.6, d: 400, t: 500 })
+        ink(g, L([20, 380], [340, 380]), { w: 1.6, d: 400, t: 500 })
       },
       echse(g) {
         const body: P[] = [...B([40, 560], [80, 530], [200, 530], [250, 546]), ...B([250, 546], [280, 540], [300, 546], [310, 556]).slice(1), ...B([310, 556], [290, 570], [240, 568], [220, 566]).slice(1), ...B([220, 566], [160, 580], [80, 576], [40, 560]).slice(1)]
         blank(g, body)
         hatch(g, body, 700)
         ink(g, body, { w: 2.8, t: 900 })
+        for (let k = 0; k < 8; k++) ink(g, E(90 + k * 18, 548, 4, 2.4), { w: 0.8, d: 1000 + k * 30, t: 80 })
+        dot(g, 288, 548, 2.4, 1000)
         for (const x of [110, 200]) {
           ink(g, L([x, 574], [x - 10, 600]), { w: 2.2, d: 600, t: 200 })
           ink(g, L([x + 12, 574], [x + 22, 600]), { w: 2.2, d: 600, t: 200 })
         }
-        ink(g, L([20, 600], [340, 600]), { w: 3, d: 300, t: 500 })
+        const rock: P[] = [[20, 600], [40, 590], [320, 588], [340, 600]]
+        ink(g, rock, { w: 3, d: 300, t: 500 })
+        hatch(g, [...rock, [340, 640], [20, 640]], 700, true)
         sun(g, 270, 380, 30, 600)
+        for (const x of [180, 220, 260]) flow(g, L([x + 30, 420], [x, 520]), { n: 2, ms: 1200, d: 1100, r: 1.8, kind: 'dash' })
       },
       ueberleben(g) {
         vbars(g, [
           { label: 'warm', v: 3, fmt: () => 'meist überlebt' },
           { label: 'kühl', v: 1, fmt: () => 'meist gestorben', dense: true },
         ], { x: 90, base: 600, w: 70, gap: 110, h: 220 })
-        text(g, 180, 330, 'Wüstenleguane, infiziert', { anchor: 'middle', cls: 's', d: 1200 })
+        sun(g, 125, 330, 12, 1200, 8)
+        flake(g, 235, 330, 12, 1300)
       },
       puls(g) {
-        heart(g, 180, 440, 2.2)
-        ink(g, [...L([30, 580], [120, 580]), ...L([120, 580], [140, 540]).slice(1), ...L([140, 540], [160, 620]).slice(1), ...L([160, 620], [176, 580]).slice(1), ...L([176, 580], [330, 580]).slice(1)], { w: 2.6, d: 700, t: 900 })
-        text(g, 180, 656, 'etwa + 10 Schläge je Grad', { anchor: 'middle', cls: 's', d: 1400 })
+        heart(g, 180, 430, 2.2)
+        ink(g, [...L([30, 580], [120, 580]), ...L([120, 580], [140, 540]).slice(1), ...L([140, 540], [160, 620]).slice(1), ...L([160, 620], [176, 580]).slice(1), ...L([176, 580], [240, 580]).slice(1), ...L([240, 580], [256, 548]).slice(1), ...L([256, 548], [272, 612]).slice(1), ...L([272, 612], [284, 580]).slice(1), ...L([284, 580], [330, 580]).slice(1)], { w: 2.6, d: 700, t: 900 })
+        flow(g, [[30, 580], [120, 580], [140, 540], [160, 620], [176, 580], [240, 580], [256, 548], [272, 612], [284, 580], [330, 580]], { n: 1, ms: 1600, d: 1600, r: 3 })
       },
       hitzschlag(g) {
-        box(g, 30, 360, 140, 110, ['Fieber:', 'Sollwert hoch'], { size: 16 })
-        box(g, 190, 360, 140, 110, ['Hitzschlag:', 'Kühlung versagt'], { size: 16, d: 400, fill: true })
-        sun(g, 260, 560, 26, 800)
-        regler0(g, 100, 560, 800)
+        // links: Thermostat hochgedreht, Körper heizt bewusst – rechts: in praller Sonne, Kühlung versagt
+        regler0(g, 90, 420, 200)
+        fig(g, 90, 600, 3, { d: 400, arms: 'cross' })
+        ink(g, L([180, 340], [180, 640]), { w: 1, d: 300, t: 400 })
+        sun(g, 290, 380, 26, 500)
+        fig(g, 270, 620, 3, { d: 700 })
+        for (const [x, y] of [[240, 520], [300, 520]] as const) drop(g, x, y, 0.4, 1100, false)
+        cross(g, 316, 470, 0.6, 1400)
       },
       energie(g) {
         flame(g, 180, 560, 1.6)
-        text(g, 180, 620, '+ 10 bis 13 % Energie je Grad', { anchor: 'middle', d: 900 })
+        for (let k = 0; k < 3; k++) {
+          const f = wobble(g, { dy: -6, ms: 900 + k * 200, d: 900 })
+          ink(f, B([150 + k * 30, 450], [144 + k * 30, 430], [156 + k * 30, 410], [150 + k * 30, 390]), { w: 1.4, d: 1000, t: 200 })
+        }
       },
       schlapp(g) {
         ink(g, RR(40, 500, 280, 40, 10), { w: 3, t: 600 })
         lie(g, 80, 484, 2.6, 'back', 400)
+        hatch(g, RR(130, 470, 180, 28, 8), 900)
+        ink(g, RR(130, 470, 180, 28, 8), { w: 2, d: 800, t: 300 })
         ink(g, L([50, 540], [50, 580]), { w: 2.6, d: 300, t: 200 })
         ink(g, L([310, 540], [310, 580]), { w: 2.6, d: 300, t: 200 })
+        for (const [x, y] of [[100, 420], [120, 400], [144, 380]] as const) text(g, x, y, 'z', { size: 16 + (x - 100) / 4, d: 1200 + (x - 100) * 10 })
+        ink(g, RR(250, 380, 60, 50, 6), { w: 1.6, d: 1300, t: 300 })
+        thermo(g, 280, 384, 34, 0.8, 1400)
       },
       schwitzen(g) {
         fig(g, 180, 620, 6)
-        for (const [x, y] of [[110, 420], [250, 420], [96, 520], [264, 520]] as const) drop(g, x, y, 0.6, 700, false)
-        text(g, 180, 360, 'Sollwert sinkt: zu warm', { anchor: 'middle', cls: 's', d: 900 })
+        for (const [x, y] of [[110, 420], [250, 420], [96, 520], [264, 520]] as const) {
+          drop(g, x, y, 0.6, 700, false)
+          flow(g, L([x, y + 14], [x, y + 60]), { n: 1, ms: 1200, d: 1200 + x, r: 1.6 })
+        }
+        regler0(g, 300, 360, 900)
       },
       arzt(g) {
-        bullets(g, 40, 360, ['sehr hohes Fieber', 'Säuglinge', 'mehrere Tage', 'Atemnot, Verwirrtheit'], { gap: 50, size: 18 })
+        // Warnzeichen als kleine Bilder: Säugling, Thermometer hoch, Kalender, Atemnot
+        const box0 = (x: number, y: number, d: number) => ink(g, RR(x, y, 140, 120, 8), { w: 2, d, t: 300 })
+        box0(30, 330, 0)
+        ink(g, E(100, 400, 30, 22), { w: 2.2, d: 200, t: 300 })
+        ink(g, E(78, 384, 14), { w: 2, d: 300, t: 200 })
+        box0(190, 330, 200)
+        thermo(g, 260, 340, 70, 0.95, 400)
+        box0(30, 470, 400)
+        for (let k = 0; k < 3; k++) {
+          ink(g, RR(50 + k * 20, 490 + k * 10, 50, 56, 4), { w: 1.8, d: 600 + k * 100, t: 200 })
+        }
+        box0(190, 470, 600)
+        brain(g, 260, 540, 0.35, 800)
+        question(g, 300, 520, 0.4, 1000)
       },
       grenze(g) {
         thermo(g, 120, 320, 260, 0.95)
         dashes(g, L([150, 340], [300, 340]), { w: 1.8, d: 600 })
-        text(g, 160, 330, 'ab ≈ 41 °C gefährlich', { d: 900 })
+        text(g, 160, 330, 'ab ≈ 41 °C', { d: 900 })
+        // Eiweißkette, die sich entfaltet
+        ink(g, smooth([[180, 470], [210, 440], [250, 470], [220, 500], [260, 520], [300, 490]], 6), { w: 2.4, d: 1100, t: 600 })
+        arrow(g, L([240, 540], [240, 570]), { w: 1.6, d: 1500, t: 200, head: 6 })
+        ink(g, waveP(180, 320, 600, 6, 20), { w: 2.4, d: 1600, t: 600 })
       },
       ende(g) {
-        thermo(g, 180, 380, 200, 0.7)
+        thermo(g, 140, 380, 200, 0.7)
+        virus(g, 250, 460, 16, 600)
+        cross(g, 250, 460, 1.2, 1200)
       },
     },
     scenes: [
