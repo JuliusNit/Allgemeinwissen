@@ -1,65 +1,99 @@
 import type { Bite } from '../feed'
 import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, check, clock, countUp, cross, crowd, dashes, eye, fig, hatch, hbars, ink, letter, lie, question, rays, st, text, timeline, vbars, type P } from './draw'
-import { axes, ball, box, bullets, carrow, dot, drop, earth, flame, heart, lens, pie, plot, rad, sun, thermo, tree, waveP } from './kit'
+import { axes, ball, bird, box, bullets, carrow, cloud, dot, drop, earth, flame, flow, glide, ground, heart, lens, pie, plot, rad, smooth, sun, thermo, tree, waveP } from './kit'
 
 // Leben & Körper: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
-/** Blatt mit Mittelrippe, Spitze nach rechts oben */
+/** Blatt mit Mittelrippe und Seitenadern, Stiel unten links, Spitze nach rechts oben */
 function leaf(g: Element, cx: number, cy: number, s = 1, d = 0): P[] {
   const P = (a: number, b: number): P => [cx + a * s, cy + b * s]
   const o = [...B(P(-80, 40), P(-60, -30), P(20, -60), P(80, -40)), ...B(P(80, -40), P(60, 30), P(-20, 60), P(-80, 40)).slice(1)]
   blank(g, o)
   hatch(g, o, d + 600)
   ink(g, o, { w: 3, d, t: 800 })
-  ink(g, B(P(-80, 40), P(-30, 10), P(30, -20), P(76, -38)), { w: 2, d: d + 500, t: 600 })
+  const mid = B(P(-80, 40), P(-30, 10), P(30, -20), P(76, -38))
+  ink(g, mid, { w: 2, d: d + 500, t: 600 })
+  for (let i = 1; i < 6; i++) {
+    const q = mid[Math.round((i / 6) * (mid.length - 1))]
+    for (const k of [-1, 1]) ink(g, B(q, [q[0] + 8 * s, q[1] + k * 8 * s], [q[0] + 14 * s, q[1] + k * 16 * s], [q[0] + 16 * s, q[1] + k * 24 * s]), { w: 1, d: d + 700 + i * 60, t: 150 })
+  }
+  ink(g, L(P(-80, 40), P(-100, 56)), { w: 2.4, d: d + 300, t: 200 })
   return o
 }
 
-/** Mitochondrium: Kapsel mit gefalteter Innenhaut */
+/** Mitochondrium: doppelte Hülle, innere Haut zu Falten (Cristae) gelegt */
 function mito(g: Element, cx: number, cy: number, s = 1, d = 0): void {
-  const w = 60 * s
-  const h = 30 * s
+  const w = 64 * s
+  const h = 32 * s
   blank(g, RR(cx - w / 2, cy - h / 2, w, h, h / 2))
+  hatch(g, RR(cx - w / 2 + 3 * s, cy - h / 2 + 3 * s, w - 6 * s, h - 6 * s, h / 2 - 3 * s), d + 500)
   ink(g, RR(cx - w / 2, cy - h / 2, w, h, h / 2), { w: 2.4, d, t: 400 })
-  const pts: P[] = []
-  for (let i = 0; i <= 8; i++) pts.push([cx - w / 2 + 8 * s + i * ((w - 16 * s) / 8), cy + (i % 2 ? -1 : 1) * h * 0.28])
-  ink(g, pts, { w: 1.6, d: d + 300, t: 400 })
-}
-
-/** Bakterium (Stäbchen mit Geißel) */
-function bact(g: Element, x: number, y: number, s = 1, d = 0, fill = false): void {
-  blank(g, RR(x - 20 * s, y - 8 * s, 40 * s, 16 * s, 8 * s))
-  if (fill) hatch(g, RR(x - 20 * s, y - 8 * s, 40 * s, 16 * s, 8 * s), d + 200, true)
-  ink(g, RR(x - 20 * s, y - 8 * s, 40 * s, 16 * s, 8 * s), { w: 2.2, d, t: 300 })
-  ink(g, B([x + 20 * s, y], [x + 28 * s, y - 6 * s], [x + 32 * s, y + 6 * s], [x + 40 * s, y]), { w: 1.4, d: d + 200, t: 200 })
-}
-
-/** Virus: Kugel mit Stacheln */
-function virus(g: Element, cx: number, cy: number, r: number, d = 0): void {
-  ball(g, cx, cy, r, { d, fill: 'hell', w: 2.4 })
-  for (let k = 0; k < 10; k++) {
-    const a = rad(k * 36)
-    ink(g, L([cx + Math.cos(a) * r, cy + Math.sin(a) * r], [cx + Math.cos(a) * (r + 9), cy + Math.sin(a) * (r + 9)]), { w: 1.8, d: d + 300, t: 100 })
-    dot(g, cx + Math.cos(a) * (r + 11), cy + Math.sin(a) * (r + 11), 2.6, d + 400)
+  for (let i = 0; i < 6; i++) {
+    const x = cx - w / 2 + 10 * s + i * ((w - 20 * s) / 5)
+    const up = i % 2 === 0
+    const y0 = up ? cy - h / 2 + 3 * s : cy + h / 2 - 3 * s
+    const y1 = up ? cy + h * 0.18 : cy - h * 0.18
+    blank(g, RR(x - 2.4 * s, Math.min(y0, y1), 4.8 * s, Math.abs(y1 - y0), 2.4 * s))
+    ink(g, [[x - 2.4 * s, y0], [x - 2.4 * s, y1], [x + 2.4 * s, y1], [x + 2.4 * s, y0]], { w: 1.2, d: d + 300 + i * 40, t: 150 })
   }
 }
 
-/** Antikörper (Y), Fuß bei (x, y), Drehung in Grad */
+/** Bakterium (Stäbchen) mit Erbgut-Knäuel, feinen Härchen und Geißel */
+function bact(g: Element, x: number, y: number, s = 1, d = 0, fill = false): void {
+  for (let k = 0; k < 8; k++) {
+    const a = rad(k * 45 + 20)
+    ink(g, L([x + Math.cos(a) * 20 * s, y + Math.sin(a) * 8 * s], [x + Math.cos(a) * 26 * s, y + Math.sin(a) * 13 * s]), { w: 0.8, d: d + 200, t: 60 })
+  }
+  blank(g, RR(x - 20 * s, y - 8 * s, 40 * s, 16 * s, 8 * s))
+  if (fill) hatch(g, RR(x - 20 * s, y - 8 * s, 40 * s, 16 * s, 8 * s), d + 200, true)
+  ink(g, RR(x - 20 * s, y - 8 * s, 40 * s, 16 * s, 8 * s), { w: 2.2, d, t: 300 })
+  if (s >= 0.8 && !fill) ink(g, Array.from({ length: 24 }, (_, i) => [x - 10 * s + i * 0.9 * s, y + Math.sin(i * 1.3) * 3.5 * s] as P), { w: 0.9, d: d + 300, t: 200 })
+  ink(g, B([x + 20 * s, y], [x + 28 * s, y - 6 * s], [x + 32 * s, y + 6 * s], [x + 40 * s, y]), { w: 1.4, d: d + 200, t: 200 })
+  ink(g, B([x + 40 * s, y], [x + 46 * s, y - 5 * s], [x + 50 * s, y + 5 * s], [x + 56 * s, y]), { w: 1.2, d: d + 300, t: 200 })
+}
+
+/** Virus: Hülle mit keulenförmigen Stacheln, innen das Erbgut */
+function virus(g: Element, cx: number, cy: number, r: number, d = 0): void {
+  for (let k = 0; k < 12; k++) {
+    const a = rad(k * 30)
+    ink(g, L([cx + Math.cos(a) * r, cy + Math.sin(a) * r], [cx + Math.cos(a) * (r + 9), cy + Math.sin(a) * (r + 9)]), { w: 1.8, d: d + 300, t: 100 })
+    const c: P = [cx + Math.cos(a) * (r + 12), cy + Math.sin(a) * (r + 12)]
+    blank(g, E(c[0], c[1], 4))
+    ink(g, E(c[0], c[1], 4), { w: 1.4, d: d + 400, t: 100 })
+  }
+  ball(g, cx, cy, r, { d, fill: 'hell', w: 2.4 })
+  if (r > 14) ink(g, Array.from({ length: 40 }, (_, i) => [cx + Math.cos(i * 0.5) * r * 0.5 * (1 - i / 60), cy + Math.sin(i * 0.5) * r * 0.5 * (1 - i / 60)] as P), { w: 1, d: d + 500, t: 300 })
+}
+
+/** Antikörper (Y aus vier Ketten), Fuß bei (x, y), Drehung in Grad */
 function antibody(g: Element, x: number, y: number, s = 1, deg = 0, d = 0): void {
   const r = ([a, b]: P): P => [x + a * s * Math.cos(rad(deg)) - b * s * Math.sin(rad(deg)), y + a * s * Math.sin(rad(deg)) + b * s * Math.cos(rad(deg))]
-  ink(g, [r([0, 0]), r([0, -18])], { w: 2.6, d, t: 200 })
-  ink(g, [r([0, -18]), r([-12, -32])], { w: 2.6, d: d + 150, t: 200 })
-  ink(g, [r([0, -18]), r([12, -32])], { w: 2.6, d: d + 150, t: 200 })
+  for (const k of [-1, 1]) {
+    ink(g, [r([k * 2.2, 0]), r([k * 2.2, -18])], { w: 2, d, t: 200 })
+    ink(g, [r([k * 2.2, -18]), r([k * 12, -30])], { w: 2.2, d: d + 150, t: 200 })
+    ink(g, [r([k * 7, -16]), r([k * 17, -26])], { w: 1.6, d: d + 250, t: 200 })
+  }
+  ink(g, [r([-2.2, -12]), r([2.2, -12])], { w: 1, d: d + 300, t: 60 })
 }
 
-/** DNA als Strickleiter (waagerecht) */
+/** DNA als Doppelhelix (waagerecht): zwei Stränge umeinander, dazwischen die Basenpaare */
 function ladder(g: Element, x0: number, x1: number, y: number, h = 30, d = 0, t = 800): void {
-  ink(g, L([x0, y - h / 2], [x1, y - h / 2]), { w: 2.6, d, t })
-  ink(g, L([x0, y + h / 2], [x1, y + h / 2]), { w: 2.6, d, t })
-  for (let x = x0 + 8; x < x1 - 4; x += 14) ink(g, L([x, y - h / 2 + 3], [x, y + h / 2 - 3]), { w: 1.6, d: d + ((x - x0) / (x1 - x0)) * t, t: 80 })
+  const turn = 62
+  const s1: P[] = []
+  const s2: P[] = []
+  for (let x = x0; x <= x1; x += 2) {
+    s1.push([x, y + Math.sin(((x - x0) / turn) * Math.PI * 2) * h / 2])
+    s2.push([x, y - Math.sin(((x - x0) / turn) * Math.PI * 2) * h / 2])
+  }
+  for (let x = x0 + 5; x < x1 - 2; x += 8) {
+    const a = Math.sin(((x - x0) / turn) * Math.PI * 2) * h / 2
+    if (Math.abs(a) > 3) ink(g, L([x, y + a * 0.86], [x, y - a * 0.86]), { w: 1.2, d: d + ((x - x0) / (x1 - x0)) * t, t: 80 })
+  }
+  ink(g, s1, { w: 2.6, d, t })
+  ink(g, s2, { w: 2.2, d, t })
 }
 
-/** Zelle mit Kern */
+/** Zelle mit Kern, Kernkörperchen, Mitochondrien und Membranfalten */
 function cell(g: Element, cx: number, cy: number, rx: number, ry: number, d = 0, nucleus = true): void {
   const o = [...B([cx - rx, cy], [cx - rx, cy - ry * 1.2], [cx + rx * 0.4, cy - ry * 1.1], [cx + rx, cy - ry * 0.3]), ...B([cx + rx, cy - ry * 0.3], [cx + rx * 1.1, cy + ry * 0.8], [cx - rx * 0.3, cy + ry * 1.2], [cx - rx, cy]).slice(1)]
   blank(g, o)
@@ -67,6 +101,17 @@ function cell(g: Element, cx: number, cy: number, rx: number, ry: number, d = 0,
   if (nucleus) {
     hatch(g, E(cx - rx * 0.1, cy, rx * 0.26, ry * 0.3), d + 700, true)
     ink(g, E(cx - rx * 0.1, cy, rx * 0.26, ry * 0.3), { w: 2.4, d: d + 500, t: 500 })
+    blank(g, E(cx - rx * 0.06, cy - ry * 0.04, rx * 0.07, ry * 0.08))
+    ink(g, E(cx - rx * 0.06, cy - ry * 0.04, rx * 0.07, ry * 0.08), { w: 1.2, d: d + 800, t: 200 })
+    if (rx > 60) {
+      for (const [a, b, k] of [[0.45, -0.35, 1], [0.5, 0.35, -1], [-0.55, 0.4, 1]] as const) {
+        const mx = cx + a * rx
+        const my = cy + b * ry
+        ink(g, RR(mx - rx * 0.12, my - ry * 0.06, rx * 0.24, ry * 0.12, ry * 0.06), { w: 1.4, d: d + 900, t: 200 })
+        ink(g, Array.from({ length: 9 }, (_, i) => [mx - rx * 0.09 + i * rx * 0.0225, my + (i % 2 ? -1 : 1) * ry * 0.03 * k] as P), { w: 0.8, d: d + 1000, t: 150 })
+      }
+      for (let i = 0; i < 3; i++) ink(g, E(cx - rx * 0.1, cy, rx * (0.36 + i * 0.06), ry * (0.42 + i * 0.07), 200 + i * 10, 300 - i * 10), { w: 0.9, d: d + 1100 + i * 60, t: 200 })
+    }
   }
 }
 
@@ -142,26 +187,54 @@ export const AHA_KOERPER: Bite[] = [
     images: [],
     draw: {
       baum(g) {
-        ink(g, L([20, 440], [340, 440]), { w: 3, t: 500 })
-        tree(g, 180, 440, 1.9, 200)
+        sun(g, 300, 110, 20, 0, 10)
+        ground(g, 20, 340, 440, 0)
+        tree(g, 170, 440, 1.9, 200)
+        bird(g, 60, 120, 0.8, 1200)
+        for (let i = 0; i < 3; i++) {
+          const f = glide(g, -60 - i * 20, 140, { ms: 5000 + i * 800, d: 1500 + i * 700, loop: true })
+          ink(f, E(250 + i * 30, 230 + i * 20, 5, 2.6), { w: 1.4, d: 1500, t: 100 })
+        }
       },
       gewicht(g) {
-        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
+        ground(g, 20, 340, 620, 0)
         tree(g, 110, 620, 1.6, 200)
-        text(g, 270, 470, '? t', { anchor: 'middle', size: 60, d: 900 })
+        // Gewicht mit Henkel und Fragezeichen
+        const kb: P[] = [...B([220, 620], [200, 560], [220, 500], [270, 500]), ...B([270, 500], [320, 500], [340, 560], [320, 620]).slice(1), [220, 620]]
+        blank(g, kb)
+        hatch(g, kb, 900, true)
+        ink(g, kb, { w: 2.8, d: 700, t: 500 })
+        ink(g, B([236, 506], [236, 450], [304, 450], [304, 506]), { w: 4, d: 900, t: 300 })
+        text(g, 270, 584, '? t', { anchor: 'middle', size: 34, cls: 'halo', d: 1200 })
       },
       boden(g) {
-        ink(g, L([20, 480], [340, 480]), { w: 3, t: 500 })
+        // Boden im Schnitt: Schichten, Steine, verzweigte Wurzeln – kommt die Masse von dort?
+        ground(g, 20, 340, 480, 0)
         hatch(g, RR(20, 482, 320, 170, 4), 300)
+        for (const [x, y, r] of [[60, 600, 10], [280, 560, 14], [210, 630, 8], [110, 540, 7]] as const) {
+          blank(g, E(x, y, r, r * 0.7))
+          ink(g, E(x, y, r, r * 0.7), { w: 1.6, d: 500, t: 200 })
+        }
         tree(g, 180, 480, 1.2, 200)
-        for (const [a, b] of [[[176, 484], [140, 560]], [[184, 484], [220, 570]], [[180, 486], [182, 590]]] as const) ink(g, L(a as P, b as P), { w: 2.2, d: 700, t: 300 })
-        for (const x of [120, 240]) arrow(g, L([x, 620], [x, 540]), { w: 2.4, d: 1000, t: 400, head: 9 })
-        text(g, 180, 646, 'aus dem Boden?', { anchor: 'middle', cls: 'halo', d: 1200 })
+        const root = (a: P, b: P, c: P, dd: number) => ink(g, B(a, [(a[0] + b[0]) / 2, a[1] + 20], b, c), { w: 2, d: dd, t: 300 })
+        root([176, 484], [140, 540], [100, 580], 700)
+        root([184, 484], [230, 540], [260, 600], 750)
+        root([180, 486], [176, 560], [190, 620], 800)
+        root([150, 530], [126, 520], [80, 520], 900)
+        root([220, 530], [250, 520], [300, 512], 950)
+        for (const x of [100, 260]) {
+          const p = L([x, 620], [x + (180 - x) * 0.4, 520])
+          arrow(g, p, { w: 2, d: 1000, t: 400, head: 8 })
+          flow(g, p, { n: 2, ms: 1200, d: 1400, r: 2.2 })
+        }
+        question(g, 300, 380, 0.8, 1300)
       },
       topf(g) {
+        // van Helmonts Versuch: Topf mit Erde, Weidenzweig – nach fünf Jahren ein Baum
         const pot: P[] = [[100, 520], [260, 520], [240, 640], [120, 640], [100, 520]]
         blank(g, pot)
         ink(g, pot, { w: 3, t: 600 })
+        ink(g, L([94, 520], [266, 520]), { w: 3.4, d: 200, t: 300 })
         hatch(g, [[106, 540], [254, 540], [244, 600], [116, 600]], 400)
         const small = st(g, 'h1')
         ink(small, L([180, 540], [180, 470]), { w: 2.4, d: 600, t: 300 })
@@ -171,110 +244,191 @@ export const AHA_KOERPER: Bite[] = [
         tree(big, 180, 540, 1.3, 0)
         text(g, 30, 470, 'Erde: 90,7 kg', { cls: 's', d: 1000 })
         text(st(g, 'f1', '--dl:500ms'), 340, 330, 'Weide: 2,3 → 76,7 kg', { anchor: 'end', cls: 's', fade: false })
-        text(st(g, 'f2'), 30, 496, 'Erde: nur 57 g weniger', { cls: 's', fade: false })
+        text(st(g, 'f2'), 30, 496, '− 57 g', { size: 18, fade: false })
       },
       wasser(g) {
-        drop(g, 120, 470, 2.4)
-        text(g, 120, 580, 'Wasser?', { anchor: 'middle', d: 600 })
-        question(g, 260, 470, 1.4, 800)
+        // nur gegossen: Gießkanne über dem Topf
+        const pot: P[] = [[150, 560], [290, 560], [272, 650], [168, 650], [150, 560]]
+        blank(g, pot)
+        ink(g, pot, { w: 2.8, t: 500 })
+        hatch(g, [[156, 576], [284, 576], [276, 620], [164, 620]], 300)
+        tree(g, 220, 576, 0.7, 300)
+        const can: P[] = [[40, 380], [110, 380], [104, 440], [46, 440], [40, 380]]
+        blank(g, can)
+        ink(g, can, { w: 2.6, d: 400, t: 400 })
+        ink(g, L([110, 400], [160, 370]), { w: 2.4, d: 600, t: 200 })
+        ink(g, E(162, 368, 6, 4), { w: 1.8, d: 700, t: 100 })
+        ink(g, B([44, 386], [20, 380], [20, 420], [44, 424]), { w: 2, d: 600, t: 200 })
+        for (let i = 0; i < 4; i++) flow(g, B([164, 370], [176, 380], [184, 420 + i * 6], [190 + i * 6, 500]), { n: 2, ms: 900, d: 900 + i * 100, r: 1.8, kind: 'dash' })
+        question(g, 310, 420, 0.8, 1300)
       },
       kohlenstoff(g) {
-        pie(g, 180, 450, 110, 0.5)
-        text(g, 180, 600, 'Holz, trocken: etwa die Hälfte Kohlenstoff', { anchor: 'middle', cls: 's', d: 1000 })
+        // Holzscheibe mit Jahresringen – zur Hälfte Kohlenstoff
+        blank(g, E(150, 470, 110, 96))
+        for (let k = 1; k < 9; k++) ink(g, E(150 + k * 1.5, 470, 110 - k * 12, 96 - k * 10.5, k * 20, k * 20 + 340), { w: k === 1 ? 2.8 : 1, d: k * 80, t: 300 })
+        ink(g, L([150, 470], [254, 440]), { w: 1.2, d: 800, t: 200 })
+        ink(g, E(150, 470, 110, 96), { w: 3, t: 700 })
+        pie(g, 300, 600, 34, 0.5, 1000)
+        text(g, 300, 556, 'C', { anchor: 'middle', size: 18, d: 1600 })
       },
       blatt(g) {
-        leaf(g, 200, 520, 1.3)
-        for (const [x, y] of [[150, 500], [210, 470], [250, 530]] as const) ink(g, E(x, y, 7, 3.5), { w: 1.6, d: 900, t: 200 })
-        ;[[50, 330], [130, 310], [250, 320]].forEach(([x, y], i) => {
-          ball(g, x - 9, y, 6, { d: 1100 + i * 200, w: 1.6, t: 0 })
-          ball(g, x + 9, y, 6, { d: 1100 + i * 200, w: 1.6, t: 0 })
-          ball(g, x, y, 8, { d: 1150 + i * 200, fill: 'dicht', w: 1.8, t: 0 })
+        leaf(g, 170, 540, 1.3)
+        // Spaltöffnung in der Lupe: zwei Schließzellen, dazwischen strömt CO₂ hinein
+        blank(g, E(280, 420, 60))
+        for (const k of [-1, 1]) {
+          const gc: P[] = [...B([280, 384], [280 + k * 34, 392], [280 + k * 34, 448], [280, 456]), ...B([280, 456], [280 + k * 12, 440], [280 + k * 12, 400], [280, 384]).slice(1)]
+          hatch(g, gc, 1000, true)
+          ink(g, gc, { w: 2, d: 800, t: 400 })
+        }
+        ink(g, E(280, 420, 60), { w: 2.8, d: 700, t: 500 })
+        ink(g, L([236, 462], [198, 512]), { w: 1.4, d: 900, t: 200 })
+        ;[[40, 330], [110, 310], [170, 336]].forEach(([x, y], i) => {
+          const m = glide(g, 280 - x - 6, 420 - y, { ms: 3200, d: 1300 + i * 600, loop: true })
+          ball(m, x - 9, y, 5.5, { d: 1100 + i * 200, w: 1.4, t: 0 })
+          ball(m, x + 9, y, 5.5, { d: 1100 + i * 200, w: 1.4, t: 0 })
+          ball(m, x, y, 7, { d: 1150 + i * 200, fill: 'dicht', w: 1.6, t: 0 })
         })
-        arrow(g, L([130, 330], [150, 470]), { w: 2, d: 1600, t: 400, head: 8 })
-        text(g, 300, 330, 'CO₂', { d: 1400 })
+        text(g, 40, 300, 'CO₂', { d: 1400 })
       },
       formel(g) {
-        box(g, 30, 340, 80, 50, 'CO₂', { size: 18 })
-        text(g, 124, 372, '+', { anchor: 'middle', size: 22, d: 200 })
-        box(g, 140, 340, 80, 50, 'Wasser', { size: 16, d: 200 })
-        text(g, 234, 372, '+', { anchor: 'middle', size: 22, d: 400 })
-        sun(g, 290, 365, 16, 400, 10)
-        arrow(g, L([180, 410], [180, 470]), { w: 3, d: 900, t: 300, head: 10 })
-        box(g, 60, 490, 110, 50, 'Zucker', { size: 18, fill: true, d: 1100 })
-        text(g, 196, 522, '+', { anchor: 'middle', size: 22, d: 1300 })
-        box(g, 220, 490, 80, 50, 'O₂', { size: 18, d: 1300 })
+        // Chloroplast: CO₂ und H₂O hinein, mit Licht entsteht Zucker, O₂ geht hinaus
+        const cp = E(180, 490, 90, 54)
+        blank(g, cp)
+        ink(g, cp, { w: 3, t: 700 })
+        ink(g, E(180, 490, 82, 46), { w: 1.2, d: 200, t: 600 })
+        for (const [x, y] of [[130, 476], [170, 504], [210, 474], [244, 500]] as const)
+          for (let k = 0; k < 4; k++) {
+            hatch(g, RR(x - 12, y - 10 + k * 6, 24, 5, 2.5), 600, true)
+            ink(g, RR(x - 12, y - 10 + k * 6, 24, 5, 2.5), { w: 0.9, d: 500 + k * 40, t: 100 })
+          }
+        sun(g, 300, 340, 16, 300, 10)
+        for (const y of [370, 390]) flow(g, L([286, y], [236, 436]), { n: 2, ms: 900, d: 800, r: 1.8, kind: 'dash' })
+        const inA = L([40, 380], [104, 444])
+        arrow(g, inA, { w: 2, d: 900, t: 300, head: 8 })
+        text(g, 40, 370, 'CO₂', { d: 900 })
+        const inB = L([40, 610], [104, 534])
+        arrow(g, inB, { w: 2, d: 1000, t: 300, head: 8 })
+        text(g, 40, 634, 'H₂O', { d: 1000 })
+        arrow(g, L([256, 534], [316, 610]), { w: 2, d: 1300, t: 300, head: 8 })
+        text(g, 290, 640, 'Zucker', { anchor: 'middle', d: 1400 })
+        arrow(g, L([180, 436], [180, 380]), { w: 2, d: 1400, t: 300, head: 8 })
+        text(g, 160, 372, 'O₂', { anchor: 'end', d: 1500 })
+        flow(g, inA, { n: 2, ms: 1200, d: 1300, r: 2 })
       },
       bilanz(g) {
-        box(g, 30, 420, 120, 70, ['1 kg', 'Holz'], { size: 18, fill: true })
-        arrow(g, L([250, 455], [158, 455]), { w: 3, d: 500, t: 400, head: 10 })
-        box(g, 256, 420, 90, 70, ['1,8 kg', 'CO₂'], { size: 18, d: 300 })
-        text(g, 180, 560, 'aus der Luft geholt', { anchor: 'middle', cls: 's', d: 900 })
+        // ein Holzscheit – und fast doppelt so viel CO₂, das der Baum dafür aus der Luft geholt hat
+        const log: P[] = [[40, 470], [150, 470], [150, 520], [40, 520], [40, 470]]
+        blank(g, log)
+        hatch(g, log, 400)
+        ink(g, log, { w: 2.6, t: 500 })
+        ink(g, E(150, 495, 10, 25), { w: 2.2, d: 300, t: 300 })
+        for (let k = 1; k < 4; k++) ink(g, E(150, 495, 10 - k * 2.5, 25 - k * 6), { w: 0.9, d: 500, t: 200 })
+        arrow(g, L([240, 495], [168, 495]), { w: 3, d: 700, t: 400, head: 10 })
+        let seed = 5
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 9; i++) {
+          const x = 262 + rnd() * 70
+          const y = 410 + rnd() * 170
+          ball(g, x - 7, y, 4.5, { d: 900 + i * 60, w: 1.2, t: 0 })
+          ball(g, x + 7, y, 4.5, { d: 900 + i * 60, w: 1.2, t: 0 })
+          ball(g, x, y, 6, { d: 950 + i * 60, fill: 'dicht', w: 1.4, t: 0 })
+        }
+        text(g, 95, 556, '1 kg', { anchor: 'middle', size: 18, d: 1500 })
+        text(g, 296, 616, '1,8 kg', { anchor: 'middle', size: 18, d: 1600 })
       },
       verdunsten(g) {
-        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
-        tree(g, 180, 620, 1.5, 200)
-        for (const [x, y, d] of [[80, 330, 900], [180, 300, 1000], [280, 330, 1100]] as const) {
-          drop(g, x, y, 0.6, d, false)
-          arrow(g, L([x, y - 20], [x, y - 56]), { w: 1.8, d: d + 200, t: 200, head: 7 })
+        sun(g, 318, 300, 14, 0, 10)
+        ground(g, 20, 340, 620, 0)
+        tree(g, 170, 620, 1.5, 200)
+        flow(g, L([170, 620], [170, 470]), { n: 4, ms: 1600, d: 1000, r: 2.2 })
+        for (const [x, y, d] of [[80, 330, 900], [170, 300, 1000], [260, 330, 1100]] as const) {
+          drop(g, x, y, 0.5, d, false)
+          flow(g, L([x, y - 16], [x + 6, y - 70]), { n: 2, ms: 1800, d: d + 400, r: 1.6, kind: 'ring' })
         }
       },
       zellulose(g) {
+        // Zellulose: Zuckerringe, über Sauerstoffbrücken zur langen Kette verbunden; viele Ketten bilden eine Faser
         for (let i = 0; i < 5; i++) {
           const cx = 50 + i * 65
-          const cy = 470 + (i % 2 ? 14 : -14)
+          const cy = 420 + (i % 2 ? 14 : -14)
           const hx: P[] = Array.from({ length: 7 }, (_, k) => [cx + Math.cos(rad(k * 60 + 30)) * 24, cy + Math.sin(rad(k * 60 + 30)) * 24])
           hatch(g, hx, 400 + i * 150)
           ink(g, hx, { w: 2.6, d: i * 150, t: 400 })
-          if (i < 4) ink(g, L([cx + 21, cy + (i % 2 ? -12 : 12) * 0.5], [cx + 44, cy + (i % 2 ? -8 : 8)]), { w: 2, d: 300 + i * 150, t: 150 })
+          text(g, cx + 12, cy - 6, 'O', { cls: 's halo', d: 300 + i * 150, size: 10 })
+          if (i < 4) {
+            ink(g, L([cx + 21, cy + (i % 2 ? -12 : 12) * 0.5], [cx + 44, cy + (i % 2 ? -8 : 8)]), { w: 2, d: 300 + i * 150, t: 150 })
+            dot(g, cx + 33, cy + (i % 2 ? -10 : 10) * 0.5, 2.4, 400 + i * 150)
+          }
         }
-        text(g, 180, 580, 'Zellulose: Zucker an Zucker', { anchor: 'middle', d: 1200 })
+        for (let k = 0; k < 6; k++) ink(g, smooth([[30, 540 + k * 14], [120, 534 + k * 14], [240, 546 + k * 14], [330, 538 + k * 14]]), { w: 1.4, d: 1100 + k * 80, t: 500 })
+        ink(g, L([180, 450], [180, 530]), { w: 1, d: 1000, t: 200 })
       },
       sauerstoff(g) {
-        leaf(g, 170, 520, 1.3)
+        leaf(g, 170, 540, 1.3)
         ;[[90, 340], [200, 330], [300, 370]].forEach(([x, y], i) => {
-          ball(g, x - 8, y, 8, { d: 1000 + i * 200, w: 1.8, t: 0 })
-          ball(g, x + 8, y, 8, { d: 1000 + i * 200, w: 1.8, t: 0 })
+          const m = glide(g, 0, -60, { ms: 2600, d: 1300 + i * 400, loop: true })
+          ball(m, x - 8, y + 60, 8, { d: 1000 + i * 200, w: 1.8, t: 0 })
+          ball(m, x + 8, y + 60, 8, { d: 1000 + i * 200, w: 1.8, t: 0 })
         })
-        for (const [a, b] of [[[120, 450], [96, 362]], [[200, 440], [200, 356]], [[250, 470], [290, 392]]] as const) arrow(g, L(a as P, b as P), { w: 2, d: 900, t: 400, head: 8 })
-        text(g, 180, 300, 'O₂ als Abfall', { anchor: 'middle', d: 1500 })
+        for (const [a, b] of [[[120, 470], [96, 392]], [[200, 460], [200, 386]], [[250, 490], [290, 422]]] as const) arrow(g, L(a as P, b as P), { w: 2, d: 900, t: 400, head: 8 })
       },
       anteile(g) {
         hbars(g, [
-          { label: 'Kohlenstoff + Sauerstoff, aus CO₂', v: 93, fmt: (v) => `${Math.round(v)} %` },
-          { label: 'Wasserstoff, aus Wasser', v: 6, fmt: (v) => `${Math.round(v)} %` },
-          { label: 'Mineralien, aus dem Boden', v: 1, fmt: () => '≈ 1 %', dense: true },
+          { label: 'Kohlenstoff, Sauerstoff', v: 93, fmt: (v) => `${Math.round(v)} %` },
+          { label: 'H', v: 6, fmt: (v) => `${Math.round(v)} %` },
+          { label: 'Kalium, Calcium, Magnesium …', v: 1, fmt: () => '≈ 1 %', dense: true },
         ], { y: 340, gap: 100, max: 100 })
+        cloud(g, 300, 650, 0.35, 1400)
+        drop(g, 230, 630, 0.5, 1500)
+        hatch(g, RR(130, 630, 50, 20, 4), 1600, true)
+        ink(g, RR(130, 630, 50, 20, 4), { w: 1.6, d: 1600, t: 200 })
       },
       feuer(g) {
-        flame(g, 140, 600, 1.2)
-        for (const x of [100, 140, 180]) arrow(g, L([x, 470], [x + 10, 380]), { w: 2.2, d: 900, t: 400, head: 8 })
-        text(g, 150, 360, 'CO₂ zurück in die Luft', { anchor: 'middle', cls: 's', d: 1200 })
-        const ash: P[] = [...B([230, 620], [250, 580], [290, 580], [310, 620])]
-        hatch(g, [...ash, [230, 620]], 1500, true)
+        // Lagerfeuer: Holz verbrennt, CO₂ steigt auf, zurück bleibt Asche
+        for (const [a, b] of [[[80, 610], [210, 580]], [[90, 580], [220, 612]]] as [P, P][]) {
+          const lg: P[] = [[a[0], a[1] - 9], [b[0], b[1] - 9], [b[0], b[1] + 9], [a[0], a[1] + 9], [a[0], a[1] - 9]]
+          blank(g, lg)
+          hatch(g, lg, 300)
+          ink(g, lg, { w: 2.2, t: 400 })
+        }
+        flame(g, 150, 590, 1.2, 300)
+        for (const x of [110, 150, 190]) flow(g, L([x, 470], [x + 14, 320]), { n: 3, ms: 2000, d: 900 + x, r: 2.4, kind: 'ring' })
+        const ash: P[] = [...B([250, 622], [266, 590], [300, 590], [316, 622])]
+        hatch(g, [...ash, [250, 622]], 1500, true)
         ink(g, ash, { w: 2.4, d: 1300, t: 400 })
-        ink(g, L([200, 622], [340, 622]), { w: 2.6, d: 1200, t: 300 })
-        text(g, 270, 650, 'Asche', { anchor: 'middle', cls: 's', d: 1600 })
+        ink(g, L([30, 624], [340, 624]), { w: 2.6, d: 1200, t: 300 })
       },
       luftbaum(g) {
-        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
+        ground(g, 20, 340, 620, 0)
         tree(g, 180, 620, 1.7, 200)
-        for (const [a, b] of [[[30, 330], [86, 380]], [[330, 330], [274, 380]], [[40, 460], [82, 450]], [[320, 460], [278, 450]]] as const) arrow(g, L(a as P, b as P), { w: 2.4, d: 1200, t: 400, head: 9 })
+        for (const [a, b] of [[[30, 330], [86, 380]], [[330, 330], [274, 380]], [[40, 460], [82, 450]], [[320, 460], [278, 450]]] as const) {
+          arrow(g, L(a as P, b as P), { w: 2.2, d: 1200, t: 400, head: 9 })
+          flow(g, L(a as P, b as P), { n: 2, ms: 1400, d: 1600, r: 2.2 })
+        }
       },
       wald(g) {
-        ink(g, L([20, 620], [340, 620]), { w: 3, t: 500 })
-        ;[[70, 0.8], [180, 0.9], [290, 0.8]].forEach(([x, s], i) => tree(g, x, 620, s, 200 + i * 200))
-        text(g, 180, 330, 'Kohlenstoffspeicher', { anchor: 'middle', d: 1300 })
+        ground(g, 20, 340, 620, 0)
+        ;[[60, 0.7], [140, 0.9], [230, 0.8], [310, 0.65]].forEach(([x, s], i) => tree(g, x, 620, s, 200 + i * 200))
+        hatch(g, RR(20, 622, 320, 30, 3), 1200, true)
+        for (let i = 0; i < 6; i++) dot(g, 40 + i * 52, 638, 2.4, 1400 + i * 50)
       },
       kette(g) {
-        text(g, 50, 470, 'Luft', { anchor: 'middle', size: 20 })
-        arrow(g, L([80, 464], [116, 464]), { w: 2.6, d: 300, t: 300, head: 9 })
-        leaf(g, 180, 470, 0.55, 400)
-        arrow(g, L([234, 464], [270, 464]), { w: 2.6, d: 800, t: 300, head: 9 })
-        fig(g, 310, 500, 2, { d: 1000 })
-        text(g, 310, 540, 'du', { anchor: 'middle', cls: 's', d: 1200 })
+        // Luft → Blatt → Apfel → du
+        ball(g, 40, 466, 6, { w: 1.4, t: 0 })
+        ball(g, 54, 466, 6, { w: 1.4, t: 0 })
+        ball(g, 47, 466, 8, { fill: 'dicht', w: 1.6, t: 0 })
+        arrow(g, L([66, 464], [96, 464]), { w: 2.4, d: 300, t: 300, head: 9 })
+        leaf(g, 150, 470, 0.45, 400)
+        arrow(g, L([196, 464], [220, 464]), { w: 2.4, d: 800, t: 300, head: 9 })
+        ball(g, 246, 470, 18, { d: 900, fill: 'hell', w: 2.2 })
+        ink(g, L([246, 452], [250, 440]), { w: 1.8, d: 1000, t: 100 })
+        arrow(g, L([268, 464], [290, 464]), { w: 2.4, d: 1100, t: 300, head: 9 })
+        fig(g, 318, 510, 2, { d: 1200 })
       },
       ende(g) {
-        tree(g, 180, 600, 1.4)
+        ground(g, 30, 330, 620, 0)
+        tree(g, 180, 620, 1.4, 0)
+        for (const [a, b] of [[[30, 400], [80, 440]], [[330, 400], [280, 440]]] as const) flow(g, L(a as P, b as P), { n: 3, ms: 1400, d: 800, r: 2.2 })
       },
     },
     scenes: [
