@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, brain, check, cross, dashes, fig, hatch, ink, mk, pop, rays, st, strike, text, timeline, vbars, type P } from './draw'
-import { arcArrow, bact, ball, box, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, mol, onion, rad, ripple, smooth, spin, stars, sun, thermo, travelWave, water, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, brain, car, check, cross, dashes, fig, hatch, ink, mk, pop, rays, st, strike, text, timeline, vbars, type P } from './draw'
+import { arcArrow, axes, bact, ball, box, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, leaf, mol, onion, plot, rad, ripple, smooth, spin, stars, sun, thermo, travelWave, tree, water, waveP, wobble } from './kit'
 
 // Chemie: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -53,6 +53,20 @@ function lakeBed(g: Element, d = 0): void {
     const w = wobble(g, { deg: 4, ox: x, oy: 400, ms: 2000 + x * 7, d: d + 900 })
     ink(w, B([x, 400], [x - 2, 400 - h / 2], [x + 3, 400 - h * 0.8], [x + 1, 400 - h]), { w: 1.6, d: d + 500, t: 300 })
     ink(w, E(x + 1, 400 - h + 12, 3, 8), { w: 1.8, d: d + 700, t: 150 })
+  }
+}
+
+/** Grenze Eis/Schmelzwasser: unten geordnetes Gitter, darüber ungeordnete Moleküle */
+function iceFilm(g: Element, d = 0): void {
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 7; c++) water(g, 40 + c * 47 + (r % 2) * 23, 556 + r * 36, 0.75, (r % 2) * 60, d + (r * 7 + c) * 25)
+  for (let k = 0; k < 7; k++) dashes(g, L([40 + k * 47, 556], [63 + k * 47, 592]), { w: 0.9, d: d + 500, dash: 3, gap: 3 })
+  hatch(g, [[20, 536], [340, 536], [340, 650], [20, 650]], d + 300)
+  ink(g, waveP(20, 340, 534, 3, 50), { w: 2, d: d + 200, t: 600 })
+  let seed = 5
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+  for (let i = 0; i < 9; i++) {
+    const w = wobble(g, { dx: (rnd() - 0.5) * 10, dy: (rnd() - 0.5) * 8, ms: 500 + rnd() * 500, d: d + 800 })
+    water(w, 40 + (i % 5) * 68 + rnd() * 20, 440 + Math.floor(i / 5) * 50 + rnd() * 20, 0.75, rnd() * 360, d + 400 + i * 40)
   }
 }
 
@@ -1407,111 +1421,284 @@ export const AHA_CHEMIE: Bite[] = [
     images: [],
     draw: {
       strasse(g) {
-        ink(g, [[20, 400], [130, 160], [230, 160], [340, 400]], { w: 3, t: 800 })
-        dashes(g, L([180, 180], [180, 390]), { w: 2.4, d: 400, dash: 16, gap: 14 })
+        // Straße in Fluchtperspektive, Schneewälle, Laterne, Streuwagen in der Ferne, Salzkörner
+        ink(g, [[20, 420], [150, 170], [210, 170], [340, 420]], { w: 3, t: 800 })
+        for (const k of [-1, 1]) {
+          const bank: P[] = smooth([[180 + k * 160, 420], [180 + k * 150, 380], [180 + k * 100, 290], [180 + k * 40, 180], [180 + k * 30, 170]], 3)
+          ink(g, bank, { w: 2, d: 300, t: 600 })
+        }
+        for (let k = 0; k < 6; k++) {
+          const t0 = k / 6
+          const t1 = t0 + 0.06
+          const y0 = 180 + t0 * t0 * 240
+          const y1 = 180 + t1 * t1 * 240
+          ink(g, L([180, y0], [180, y1]), { w: 1.4 + t0 * 4, d: 400 + k * 60, t: 100 })
+        }
+        ink(g, L([300, 420], [290, 220]), { w: 2.6, d: 500, t: 300 })
+        ink(g, B([290, 220], [288, 204], [278, 198], [262, 200]), { w: 2.2, d: 700, t: 200 })
+        ink(g, [[252, 200], [272, 200], [268, 208], [256, 208], [252, 200]], { w: 1.8, d: 800, t: 150 })
+        ripple(g, 262, 214, 6, 30, { n: 2, ms: 2400, d: 1200, w: 0.8, ry: 0.6 })
+        car(g, 180, 200, 0.5, 600)
+        for (let k = 0; k < 4; k++) flow(g, B([162, 196], [150 - k * 6, 202], [140 - k * 10, 214], [134 - k * 14, 226]), { n: 2, ms: 900, d: 1200 + k * 80, r: 1.2 })
         let seed = 2
         const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
-        for (let i = 0; i < 22; i++) {
-          const y = 190 + rnd() * 200
-          const half = 50 + ((y - 160) / 240) * 110
-          const x = 180 + (rnd() - 0.5) * 2 * half * 0.9
-          ink(g, RR(x - 3, y - 3, 6, 6, 1), { w: 1.4, d: 800 + i * 40, t: 80 })
+        for (let i = 0; i < 26; i++) {
+          const y = 230 + rnd() * 180
+          const half = 30 + ((y - 170) / 250) * 130
+          const x = 180 + (rnd() - 0.5) * 2 * half * 0.85
+          const z = 2 + ((y - 230) / 180) * 3
+          ink(g, RR(x - z, y - z, z * 2, z * 2, 1), { w: 1.2, d: 900 + i * 40, t: 80 })
+        }
+        for (let i = 0; i < 10; i++) {
+          const fl = glide(g, -10, 60, { ms: 3000 + i * 200, d: i * 300, loop: true })
+          flake(fl, 30 + i * 32, 90 + (i % 3) * 30, 4 + (i % 2) * 2, 200)
         }
       },
       gleichgewicht(g) {
-        ink(g, L([20, 520], [340, 520]), { w: 2, t: 400 })
-        for (let r = 0; r < 2; r++) for (let c = 0; c < 6; c++) water(g, 50 + c * 52, 560 + r * 44, 0.9, 0, (r * 6 + c) * 30)
-        for (let c = 0; c < 5; c++) water(g, 70 + c * 60, 470 + (c % 2) * 14, 0.9, c * 70, 400 + c * 60)
-        arrow(g, L([120, 500], [120, 540]), { w: 2, d: 900, t: 200, head: 7 })
-        arrow(g, L([240, 540], [240, 500]), { w: 2, d: 900, t: 200, head: 7 })
-        text(g, 30, 420, 'Schmelzwasser', { cls: 's', d: 700 })
-        text(g, 30, 660, 'Eis', { cls: 's', d: 700 })
+        // Eisgitter unten, Schmelzwasserfilm darüber; ein Molekül löst sich, eines friert fest
+        iceFilm(g, 0)
+        const out = glide(g, 10, -70, { ms: 1800, d: 1400, loop: true })
+        water(out, 120, 556, 0.8, 0, 1200)
+        const inn = glide(g, -6, 74, { ms: 1800, d: 1600, loop: true })
+        water(inn, 250, 470, 0.8, 140, 1200)
+        thermo(g, 320, 300, 70, 0.5, 600)
       },
       salz(g) {
-        ink(g, L([20, 520], [340, 520]), { w: 2, t: 400 })
-        for (let r = 0; r < 2; r++) for (let c = 0; c < 6; c++) water(g, 50 + c * 52, 560 + r * 44, 0.9, 0, 0)
-        for (let c = 0; c < 5; c++) water(g, 70 + c * 60, 470 + (c % 2) * 14, 0.9, c * 70, 0)
-        for (const [x, y] of [[100, 440], [190, 430], [280, 450], [150, 490]] as const) {
-          ball(g, x, y, 9, { d: 600, fill: 'dicht', w: 1.6, t: 0 })
+        // dieselbe Grenze mit gelösten Natrium- und Chlorid-Ionen im Film; x1: das Eis schmilzt zurück
+        iceFilm(g, 0)
+        for (const [x, y, na] of [[90, 440, true], [190, 424, false], [280, 450, true], [150, 490, false]] as const) {
+          const w = wobble(g, { dx: 3, dy: 2, ms: 700 + x, d: 900 })
+          ball(w, x, y, na ? 9 : 13, { d: 600, fill: na ? 'dicht' : 'hell', w: 1.8, t: 150 })
+          text(w, x, y + 5, na ? '+' : '−', { anchor: 'middle', size: 15, cls: 'halo', d: 700 })
+          for (let k = 0; k < 4; k++) water(w, x + Math.cos(rad(k * 90 + 45)) * 22, y + Math.sin(rad(k * 90 + 45)) * 22, 0.4, k * 90 + (na ? 180 : 0), 800 + k * 50)
         }
-        const melt = st(g, 'x1', '--o: 240px 520px')
-        arrow(melt, L([240, 546], [240, 500]), { w: 3, t: 0, head: 9 })
-        text(melt, 250, 410, 'schmilzt', { cls: 's', fade: false })
-      },
-      grad(g) {
-        thermo(g, 120, 330, 260, 0.15)
-        text(g, 150, 560, '−21 °C', { size: 26, d: 800 })
-        text(g, 150, 590, 'Grenze für Kochsalz', { cls: 's', d: 1000 })
+        const melt = st(g, 'x1', '--o: 180px 540px')
+        for (const x of [70, 180, 290]) {
+          const up = glide(melt, 0, -60, { ms: 1400, d: x * 3, loop: true })
+          water(up, x, 560, 0.7, x, 0)
+        }
+        hatch(melt, [[20, 522], [340, 522], [340, 540], [20, 540]], 0)
       },
       eiscreme(g) {
-        ink(g, [[80, 360], [90, 600], [270, 600], [280, 360]], { w: 3, t: 700 })
-        ink(g, RR(130, 380, 100, 200, 10), { w: 2.6, d: 300, t: 600 })
-        hatch(g, RR(134, 440, 92, 136, 8), 800)
-        for (let i = 0; i < 10; i++) cube(g, 94 + (i % 2) * 150 + (i % 2 ? 0 : 0), 380 + Math.floor(i / 2) * 42, 24, 600 + i * 60)
-        text(g, 180, 640, 'Eis + Salz: unter −10 °C', { anchor: 'middle', cls: 's', d: 1300 })
+        // alte Speiseeismaschine: Holzkübel mit Reifen, Metalldose, Kurbel, dazwischen Eis und Salz
+        const tub: P[] = [[60, 380], [80, 620], [280, 620], [300, 380]]
+        ink(g, tub, { w: 3, t: 700 })
+        for (let k = 1; k < 7; k++) ink(g, L([60 + k * 34.3, 380], [80 + k * 28.6, 620]), { w: 1, d: 300 + k * 40, t: 300 })
+        for (const y of [420, 580]) {
+          const f = (y - 380) / 240
+          ink(g, L([60 + f * 20 - 2, y], [300 - f * 20 + 2, y]), { w: 4, d: 500, t: 300 })
+          ink(g, L([60 + f * 20, y + 8], [300 - f * 20, y + 8]), { w: 1, d: 550, t: 300 })
+        }
+        const can = RR(130, 360, 100, 240, 8)
+        blank(g, can)
+        hatch(g, RR(134, 430, 92, 166, 6), 900)
+        ink(g, can, { w: 2.6, d: 400, t: 600 })
+        ink(g, L([180, 360], [180, 320]), { w: 3, d: 700, t: 200 })
+        const cr = spin(g, 180, 320, 2400, 1200)
+        ink(cr, [[180, 320], [240, 320], [240, 296]], { w: 3, d: 900, t: 300 })
+        ball(cr, 240, 290, 7, { d: 1000, fill: 'dicht', w: 1.6, t: 100 })
+        for (let i = 0; i < 10; i++) cube(g, i % 2 ? 240 : 86, 400 + Math.floor(i / 2) * 42, 22, 600 + i * 60)
+        for (let i = 0; i < 14; i++) ink(g, RR(i % 2 ? 250 : 96, 432 + i * 12, 4, 4, 1), { w: 1, d: 1200 + i * 30, t: 50 })
+        for (const [x, y] of [[40, 340], [320, 330], [300, 650]] as const) flake(g, x, y, 9, 1400)
       },
       teilchen(g) {
-        vbars(g, [
-          { label: 'Zucker', v: 1, fmt: () => '1 Teilchen' },
-          { label: 'Kochsalz', v: 2, fmt: () => '2 Teilchen' },
-          { label: 'Calciumchlorid', v: 3, fmt: () => '3 Teilchen', dense: true },
-        ], { x: 40, base: 590, w: 70, gap: 110, h: 220 })
-        text(g, 180, 320, 'pro aufgelöster Einheit', { anchor: 'middle', cls: 's', d: 1400 })
+        // je aufgelöster Einheit: Zucker bleibt ein Molekül, Kochsalz zerfällt in zwei Ionen, Calciumchlorid in drei
+        const ring = (x: number, y: number, d: number) => {
+          const hx: P[] = Array.from({ length: 7 }, (_, k) => [x + Math.cos(rad(k * 60 + 30)) * 18, y + Math.sin(rad(k * 60 + 30)) * 18])
+          ink(g, hx, { w: 2, d, t: 300 })
+        }
+        ring(70, 400, 0)
+        ring(70 + 31, 400 + 18, 100)
+        ink(g, L([88, 409], [83, 400]), { w: 1.4, d: 200, t: 80 })
+        for (const [x, y, r, l, f] of [[160, 390, 9, 'Na', 'dicht'], [204, 430, 13, 'Cl', 'hell']] as const) {
+          ball(g, x, y, r, { d: 500, fill: f, w: 1.8, t: 150 })
+          text(g, x, y - r - 6, l, { anchor: 'middle', size: 13, d: 600 })
+        }
+        for (const [x, y, r, l, f] of [[270, 380, 10, 'Ca', 'dicht'], [300, 430, 13, 'Cl', 'hell'], [250, 444, 13, 'Cl', 'hell']] as const) {
+          ball(g, x, y, r, { d: 900, fill: f, w: 1.8, t: 150 })
+          text(g, x, y - r - 6, l, { anchor: 'middle', size: 13, d: 1000 })
+        }
+        for (const [x, n] of [[85, 1], [182, 2], [275, 3]] as const) {
+          ink(g, L([x - 40, 490], [x + 40, 490]), { w: 1.4, d: 1100, t: 200 })
+          for (let k = 0; k < n; k++) ink(g, RR(x - 20, 630 - k * 44, 40, 40, 4), { w: 2.4, d: 1200 + k * 150, t: 200 })
+          for (let k = 0; k < n; k++) hatch(g, RR(x - 20, 630 - k * 44, 40, 40, 4), 1300 + k * 150, n === 3)
+        }
+        const x1 = st(g, 'x1', '--o: 275px 520px')
+        ink(x1, RR(222, 336, 106, 314, 14), { w: 2.4, t: 0 })
       },
       meer(g) {
-        ink(g, waveP(20, 340, 420, 6, 60), { w: 2.6, t: 700 })
-        thermo(g, 180, 460, 140, 0.3, 300)
-        text(g, 210, 560, '≈ −2 °C', { size: 24, d: 900 })
+        // Polarmeer: Pfannkucheneis an der Oberfläche, Thermometer im Wasser
+        travelWave(g, 20, 340, 400, 5, 70, { ms: 3000, w: 2.4 })
+        for (const [x, w] of [[60, 40], [140, 56], [230, 44], [300, 34]] as const) {
+          const b = wobble(g, { dy: 3, ms: 2200 + x * 4, d: 900 })
+          const pan: P[] = E(x, 398, w / 2, 7)
+          blank(b, pan)
+          hatch(b, pan, 600, true)
+          ink(b, pan, { w: 2, d: 500, t: 300 })
+          ink(b, E(x, 396, w / 2 - 4, 4), { w: 1, d: 700, t: 300 })
+        }
+        thermo(g, 180, 450, 150, 0.28, 600)
+        for (const y of [470, 520, 570]) ink(g, L([196, y], [206, y]), { w: 1.4, d: 900, t: 60 })
+        ink(g, L([196, 545], [212, 545]), { w: 2.4, d: 1100, t: 80 })
+        for (let k = 0; k < 6; k++) ink(g, waveP(20, 340, 470 + k * 30, 2, 50, k), { w: 0.8, d: 300 + k * 60, t: 600 })
       },
       meereis(g) {
-        ink(g, waveP(20, 340, 460, 4, 60), { w: 2.4, t: 700 })
-        const ice: P[] = [[80, 460], [100, 420], [260, 420], [280, 460], [260, 490], [100, 490], [80, 460]]
-        blank(g, ice)
-        ink(g, ice, { w: 2.8, d: 300, t: 600 })
-        for (const [x, y] of [[90, 540], [140, 560], [200, 530], [260, 560]] as const) ball(g, x, y, 6, { d: 900, fill: 'dicht', w: 1.4, t: 0 })
-        text(g, 180, 400, 'Meereis: fast süß', { anchor: 'middle', cls: 's', d: 1000 })
-        text(g, 180, 620, 'Salz bleibt im Wasser', { anchor: 'middle', cls: 's', d: 1200 })
+        // Meereis im Schnitt: Solekanäle tropfen nach unten, das Salz sinkt aus dem Eis
+        ink(g, waveP(20, 340, 420, 3, 60), { w: 2.4, t: 600 })
+        const floe: P[] = [[40, 410], [70, 380], [290, 376], [320, 410], [310, 500], [60, 504], [40, 410]]
+        blank(g, floe)
+        ink(g, floe, { w: 3, d: 200, t: 700 })
+        for (let k = 0; k < 6; k++) {
+          const x = 80 + k * 40
+          const ch: P[] = smooth([[x, 390], [x + 4, 420], [x - 4, 450], [x + 2, 500]], 3)
+          ink(g, ch, { w: 1.4, d: 600 + k * 60, t: 300 })
+          for (const y of [410, 440, 470]) hatch(g, E(x + (y % 3), y, 3, 6), 800 + k * 60, true)
+          const dr = glide(g, 0, 120, { ms: 2400 + k * 200, d: 1200 + k * 200, loop: true })
+          ball(dr, x + 2, 510, 3.6, { d: 1000, fill: 'dicht', w: 1.2, t: 60 })
+        }
+        for (let k = 0; k < 8; k++) water(g, 50 + k * 40, 600 + (k % 2) * 20, 0.45, k * 45, 1400 + k * 40)
       },
       nachteile(g) {
-        const car: P[] = [[60, 520], [60, 490], [100, 486], [130, 450], [220, 450], [250, 486], [300, 490], [300, 520], [60, 520]]
-        ink(g, car, { w: 2.8, t: 700 })
-        for (const x of [110, 250]) ball(g, x, 524, 18, { d: 400, t: 300 })
-        for (let i = 0; i < 8; i++) dot(g, 70 + i * 28, 506, 3, 900 + i * 60)
-        text(g, 180, 600, 'Rost, kranke Bäume, salzige Böden', { anchor: 'middle', cls: 's', d: 1200 })
+        // Auto mit Rostflecken, Straßenbaum mit welken Blättern, versalzter Boden
+        ink(g, L([20, 560], [340, 560]), { w: 3, t: 500 })
+        hatch(g, [[20, 562], [340, 562], [340, 650], [20, 650]], 300)
+        car(g, 130, 560, 2.2, 300)
+        for (const [x, y, r] of [[72, 536, 7], [96, 528, 5], [160, 534, 6], [210, 528, 4]] as const) {
+          const sp: P[] = smooth(Array.from({ length: 7 }, (_, k) => [x + Math.cos(rad(k * 60)) * r * (1 + (k % 2) * 0.4), y + Math.sin(rad(k * 60)) * r * 0.7] as P), 3)
+          hatch(g, sp, 1000, true)
+          ink(g, sp, { w: 1.2, d: 1000, t: 150 })
+        }
+        tree(g, 300, 560, 0.7, 600)
+        for (let k = 0; k < 5; k++) {
+          const lf = glide(g, -10 - k * 6, 120, { ms: 2600 + k * 300, d: 1400 + k * 400, loop: true })
+          leaf(lf, 290 + k * 8, 420 + k * 6, 0.18, 1200)
+        }
+        for (let i = 0; i < 14; i++) ink(g, RR(30 + i * 22, 590 + (i % 3) * 16, 5, 5, 1), { w: 1.2, d: 1300 + i * 30, t: 50 })
       },
       sole(g) {
-        ink(g, L([20, 560], [340, 560]), { w: 3, t: 400 })
-        ink(g, RR(100, 420, 160, 80, 10), { w: 2.8, d: 200, t: 500 })
-        for (let i = 0; i < 6; i++) ink(g, L([110 + i * 28, 504], [104 + i * 28, 550]), { w: 1.8, d: 700 + i * 60, t: 150 })
-        text(g, 180, 620, 'Sole: vorbeugend gesprüht', { anchor: 'middle', cls: 's', d: 1100 })
+        // Streuwagen mit Sprühbalken: feiner Solefilm statt Salzkörnern
+        ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
+        const cab: P[] = [[250, 596], [250, 470], [300, 470], [330, 520], [334, 596]]
+        ink(g, cab, { w: 2.8, d: 200, t: 500 })
+        ink(g, [[262, 480], [296, 480], [318, 518], [262, 518], [262, 480]], { w: 1.6, d: 400, t: 300 })
+        const tank = RR(60, 450, 180, 120, 50)
+        hatch(g, RR(64, 500, 172, 66, 30), 700)
+        ink(g, tank, { w: 3, d: 300, t: 600 })
+        ink(g, L([60, 576], [334, 576]), { w: 2.6, d: 400, t: 400 })
+        for (const x of [100, 200, 300]) {
+          blank(g, E(x, 596, 20))
+          ink(g, E(x, 596, 20), { w: 2.6, d: 500, t: 300 })
+          const wh = spin(g, x, 596, 1200, 900)
+          for (let k = 0; k < 3; k++) ink(wh, L([x, 596], [x + Math.cos(rad(k * 120)) * 12, 596 + Math.sin(rad(k * 120)) * 12]), { w: 1.4, d: 700, t: 100 })
+        }
+        ink(g, L([20, 580], [70, 580]), { w: 2.6, d: 600, t: 200 })
+        for (let k = 0; k < 5; k++) {
+          const p = L([28 + k * 10, 584], [20 + k * 14, 628])
+          flow(g, p, { n: 3, ms: 600, d: 1000 + k * 60, r: 1.2 })
+        }
+        for (let k = 0; k < 5; k++) ink(g, L([30 + k * 8, 640], [44 + k * 8, 640]), { w: 1.2, d: 1200, t: 100 })
       },
       kuehler(g) {
-        const car: P[] = [[40, 540], [40, 500], [90, 494], [130, 450], [230, 450], [270, 494], [320, 500], [320, 540], [40, 540]]
-        ink(g, car, { w: 2.8, t: 700 })
-        for (const x of [100, 260]) ball(g, x, 544, 20, { d: 400, t: 300 })
-        thermo(g, 300, 300, 120, 0.1, 700)
-        text(g, 180, 620, 'Frostschutz im Kühlwasser', { anchor: 'middle', cls: 's', d: 1000 })
+        // Motorraum: Kühler mit Lamellen, Schläuche, Ausgleichsbehälter; Frost draußen
+        ink(g, RR(40, 380, 160, 220, 6), { w: 3, t: 600 })
+        for (let k = 0; k < 18; k++) ink(g, L([50 + k * 8.5, 392], [50 + k * 8.5, 588]), { w: 0.9, d: 300 + k * 20, t: 200 })
+        for (const y of [390, 590]) ink(g, L([40, y], [200, y]), { w: 2.2, d: 400, t: 200 })
+        const hose1 = B([200, 420], [250, 420], [260, 380], [300, 380])
+        const hose2 = B([200, 560], [250, 560], [270, 600], [310, 600])
+        for (const h of [hose1, hose2]) {
+          ink(g, h, { w: 8, d: 600, t: 400 })
+          blank(g, h)
+          flow(g, h, { n: 2, ms: 1400, d: 1200, r: 2 })
+        }
+        ink(g, RR(250, 440, 60, 90, 8), { w: 2.4, d: 700, t: 400 })
+        hatch(g, RR(254, 480, 52, 46, 6), 900)
+        ink(g, RR(266, 428, 28, 12, 3), { w: 2, d: 800, t: 150 })
+        thermo(g, 320, 300, 70, 0.08, 900)
+        for (const [x, y] of [[70, 330], [150, 310], [230, 340]] as const) flake(g, x, y, 10, 1100)
       },
       nudeln(g) {
-        ink(g, [[80, 400], [90, 580], [270, 580], [280, 400]], { w: 3, t: 700 })
-        hatch(g, RR(94, 440, 172, 136, 4), 500)
-        for (const x of [130, 180, 230]) ink(g, B([x, 390], [x - 10, 370], [x + 10, 350], [x, 330]), { w: 2, d: 900, t: 300 })
-        text(g, 180, 630, 'Siedepunkt: nur ein Hauch höher', { anchor: 'middle', cls: 's', d: 1100 })
+        // Topf auf der Herdplatte, Salzstreuer, siedendes Wasser, Thermometer knapp über 100
+        ink(g, [[70, 420], [80, 600], [260, 600], [270, 420]], { w: 3, t: 700 })
+        ink(g, L([60, 420], [280, 420]), { w: 3, d: 200, t: 400 })
+        for (const k of [-1, 1]) ink(g, L([170 + k * 100, 440], [170 + k * 122, 440]), { w: 3.4, d: 300, t: 150 })
+        hatch(g, RR(84, 450, 172, 146, 4), 500)
+        for (let k = 0; k < 8; k++) {
+          const b = glide(g, 0, -60, { ms: 900 + k * 80, d: 800 + k * 120, loop: true })
+          ink(b, E(100 + k * 20, 580 - (k % 3) * 20, 4 + (k % 3)), { w: 1.4, d: 700, t: 100 })
+        }
+        ink(g, RR(60, 604, 220, 14, 4), { w: 2.6, d: 400, t: 300 })
+        for (let k = 0; k < 4; k++) ink(g, B([120 + k * 30, 410], [110 + k * 30, 380], [130 + k * 30, 360], [120 + k * 30, 330]), { w: 1.4, d: 1000 + k * 80, t: 300 })
+        const shaker = wobble(g, { deg: 10, ox: 300, oy: 340, ms: 500, d: 1200 })
+        ink(shaker, RR(282, 300, 36, 56, 8), { w: 2.4, d: 900, t: 300 })
+        ink(shaker, RR(286, 288, 28, 14, 4), { w: 2, d: 1000, t: 150 })
+        for (let k = 0; k < 3; k++) dot(shaker, 292 + k * 8, 294, 1.4, 1100)
+        flow(g, L([292, 290], [240, 410]), { n: 4, ms: 900, d: 1400, r: 1.4 })
       },
       fisch(g) {
-        const f: P[] = [...B([60, 470], [100, 410], [240, 410], [290, 470]), ...B([290, 470], [240, 530], [100, 530], [60, 470]).slice(1)]
+        // Antarktischer Eisfisch; in der Lupe hängen Frostschutz-Eiweiße an einem Eiskeim
+        const f: P[] = [...B([40, 520], [80, 470], [220, 460], [300, 510]), ...B([300, 510], [230, 560], [90, 566], [40, 520]).slice(1)]
         blank(g, f)
+        hatch(g, [...B([60, 534], [120, 556], [220, 552], [290, 516]), [60, 534]], 700)
         ink(g, f, { w: 3, t: 800 })
-        ink(g, [[60, 470], [24, 440], [24, 500], [60, 470]], { w: 2.6, d: 400, t: 300 })
-        dot(g, 250, 460, 4, 700)
-        for (const [x, y] of [[140, 470], [190, 460]] as const) {
-          ink(g, E(x, y, 12), { w: 1.8, d: 900, t: 200 })
-          ink(g, E(x, y, 20, 20, 200, 340), { w: 1.6, d: 1100, t: 200 })
+        ink(g, [[300, 510], [340, 476], [332, 512], [342, 548], [300, 510]], { w: 2.6, d: 300, t: 400 })
+        ink(g, B([120, 474], [150, 430], [190, 432], [220, 464]), { w: 2, d: 500, t: 300 })
+        ink(g, B([90, 486], [96, 506], [96, 526], [88, 546]), { w: 2, d: 600, t: 200 })
+        blank(g, E(64, 508, 7))
+        ink(g, E(64, 508, 7), { w: 1.8, d: 700, t: 150 })
+        dot(g, 64, 508, 3, 800)
+        ink(g, B([40, 520], [50, 526], [60, 528], [70, 526]), { w: 1.6, d: 700, t: 150 })
+        for (let k = 0; k < 6; k++) ink(g, B([140 + k * 22, 486], [146 + k * 22, 496], [140 + k * 22, 506], [146 + k * 22, 516]), { w: 0.9, d: 800 + k * 40, t: 100 })
+        ink(g, E(240, 360, 56), { w: 2.6, d: 1000, t: 400 })
+        ink(g, L([210, 406], [190, 470]), { w: 1.8, d: 1100, t: 200 })
+        const hx: P[] = Array.from({ length: 7 }, (_, k) => [240 + Math.cos(rad(k * 60)) * 18, 360 + Math.sin(rad(k * 60)) * 18])
+        hatch(g, hx, 1300)
+        ink(g, hx, { w: 2, d: 1200, t: 300 })
+        for (let k = 0; k < 6; k++) {
+          const a = rad(k * 60 + 30)
+          const px = 240 + Math.cos(a) * 26
+          const py = 360 + Math.sin(a) * 26
+          ink(g, smooth([[px - Math.sin(a) * 8, py + Math.cos(a) * 8], [px + Math.cos(a) * 8, py + Math.sin(a) * 8], [px + Math.sin(a) * 8, py - Math.cos(a) * 8]], 3), { w: 2.4, d: 1400 + k * 80, t: 150 })
         }
-        text(g, 180, 600, 'Frostschutz-Eiweiße umklammern Eiskeime', { anchor: 'middle', cls: 's', d: 1300 })
       },
       ende(g) {
-        for (let i = 0; i < 5; i++) ink(g, RR(110 + i * 30, 470 + (i % 2) * 12, 14, 14, 2), { w: 2, d: i * 100, t: 150 })
+        for (let i = 0; i < 5; i++) cube(g, 90 + i * 40, 480 + (i % 2) * 18, 26, i * 100)
+        flake(g, 180, 380, 30, 700)
+        const t = glide(g, 0, 40, { ms: 1600, d: 1400, loop: true })
+        drop(t, 270, 380, 0.5, 1300)
+      },
+      gefrier(g) {
+        // Gefrierpunkt sinkt mit dem Salzgehalt, bis etwa −21 °C bei 23 %
+        axes(g, 60, 360, 330, 640, { d: 0 })
+        for (const [v, l] of [[0, '0'], [-10, '−10'], [-20, '−20']] as const) {
+          const y = 360 + (-v / 22) * 260
+          ink(g, L([54, y], [66, y]), { w: 1.6, d: 300, t: 80 })
+          text(g, 48, y + 5, l, { anchor: 'end', cls: 's', d: 400 })
+        }
+        for (const [v, l] of [[10, '10 %'], [20, '20 %']] as const) {
+          const x = 60 + (v / 25) * 260
+          ink(g, L([x, 354], [x, 366]), { w: 1.6, d: 300, t: 80 })
+          text(g, x, 340, l, { anchor: 'middle', cls: 's', d: 400 })
+        }
+        const pts = plot(g, 60, 360, 240, -1, (t) => (21 * (0.85 * t + 0.15 * t * t) * 260) / 22, { d: 600, t: 1200 })
+        const end = pts[pts.length - 1]
+        dot(g, end[0], end[1], 5, 1700)
+        ripple(g, end[0], end[1], 6, 26, { n: 2, ms: 1600, d: 1900, w: 1 })
+        for (let k = 0; k < 4; k++) {
+          const x = 120 + k * 50
+          for (let j = 0; j < k + 1; j++) ink(g, RR(x - 6 + (j % 2) * 8, 300 - Math.floor(j / 2) * 10, 7, 7, 1), { w: 1.2, d: 800 + k * 120 + j * 40, t: 60 })
+        }
+      },
+      kalt(g) {
+        // Schüssel mit Eiswürfeln und Salz: Wärme fließt von außen hinein, das Thermometer fällt
+        ink(g, B([40, 470], [50, 620], [270, 620], [280, 470]), { w: 3, t: 700 })
+        ink(g, E(160, 470, 120, 20), { w: 2.4, d: 200, t: 500 })
+        for (let i = 0; i < 7; i++) cube(g, 70 + (i % 4) * 46 + (i > 3 ? 22 : 0), 460 + (i > 3 ? 30 : 0), 30, 400 + i * 80)
+        for (let i = 0; i < 16; i++) ink(g, RR(74 + ((i * 37) % 160), 452 + ((i * 13) % 50), 4, 4, 1), { w: 1, d: 1000 + i * 30, t: 50 })
+        for (const [a, b] of [[[0, 560], [44, 560]], [[160, 680], [160, 626]], [[340, 560], [282, 560]]] as const) {
+          flow(g, L(a as P, b as P), { n: 2, ms: 1200, d: 1200, r: 2.2 })
+          arrow(g, L(a as P, b as P), { w: 1.6, d: 1100, t: 300, head: 7 })
+        }
+        thermo(g, 230, 330, 140, 0.12, 900)
       },
     },
     scenes: [
@@ -1520,12 +1707,12 @@ export const AHA_CHEMIE: Bite[] = [
       { t: T('Bei null Grad halten sich beide Vorgänge die **Waage**. Es scheint nichts zu passieren.', 64), gfx: { gleichgewicht: {} } },
       { t: T('Salz löst sich im dünnen Wasserfilm auf dem Eis. Die Salz-Teilchen stehen den Wassermolekülen beim Festfrieren **im Weg**.', 64), gfx: { salz: {} } },
       { t: T('Nun frieren weniger Moleküle fest, als sich lösen – das Eis **schmilzt**, obwohl es unter null Grad ist.', 64), gfx: { salz: { cls: 'a1' } } },
-      { t: T('Das heißt **Gefrierpunktserniedrigung**: Salzwasser gefriert erst bei tieferen Temperaturen als reines Wasser.', 64), gfx: { f1: { draw: 'formel', args: [['mehr gelöste Teilchen', '→', 'tieferer Gefrierpunkt'], 360] } } },
-      { t: T('Mit Kochsalz geht das bis etwa **minus 21 Grad**. Ist es kälter, taut Streusalz nichts mehr.', 64), gfx: { grad: {} } },
-      { t: T('Das Schmelzen braucht Energie, und die kommt aus der Umgebung. Eine Mischung aus Eis und Salz wird darum **eiskalt**.', 64), gfx: { grad: {} } },
+      { t: T('Das heißt **Gefrierpunktserniedrigung**: Salzwasser gefriert erst bei tieferen Temperaturen als reines Wasser.', 64), gfx: { gefrier: {} } },
+      { t: T('Mit Kochsalz geht das bis etwa **minus 21 Grad**. Ist es kälter, taut Streusalz nichts mehr.', 64), gfx: { gefrier: {} } },
+      { t: T('Das Schmelzen braucht Energie, und die kommt aus der Umgebung. Eine Mischung aus Eis und Salz wird darum **eiskalt**.', 64), gfx: { kalt: {} } },
       { t: T('So machte man früher Speiseeis: Eis mit Salz im äußeren Kübel kühlte die Creme auf **unter minus 10 Grad**.', 64), gfx: { eiscreme: {} } },
       { t: T('Es kommt nicht auf die Sorte an, sondern auf die **Zahl der Teilchen**. Zucker wirkt auch – nur viel schwächer.', 64), gfx: { teilchen: {} } },
-      { t: T('Calciumchlorid zerfällt in **drei** Teilchen statt zwei. Es taut noch bei Temperaturen weit unter minus 21 Grad.', 64), gfx: { teilchen: {} } },
+      { t: T('Calciumchlorid zerfällt in **drei** Teilchen statt zwei. Es taut noch bei Temperaturen weit unter minus 21 Grad.', 64), gfx: { teilchen: { cls: 'a1' } } },
       { t: T('Derselbe Effekt lässt das Meer erst bei etwa **minus 2 Grad** gefrieren.', 64), gfx: { meer: {} } },
       { t: T('Und gefriert Meerwasser, bleibt das meiste Salz draußen: Junges **Meereis** ist erstaunlich salzarm.', 64), gfx: { meereis: {} } },
       { t: T('Streusalz hat Nachteile: Es lässt Autos **rosten**, schadet Straßenbäumen und versalzt Böden.', 64), gfx: { nachteile: {} } },

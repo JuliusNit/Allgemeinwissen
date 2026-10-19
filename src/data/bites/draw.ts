@@ -399,12 +399,25 @@ export function goat(g: Element, x: number, y: number, s = 1, d = 0): void {
 /** Auto von der Seite, Räder auf y */
 export function car(g: Element, x: number, y: number, s = 1, d = 0): void {
   const P = (a: number, b: number): P => [x + a * s, y + b * s]
-  const body: P[] = [P(-40, -8), P(-40, -24), P(-20, -26), P(-10, -42), P(18, -42), P(30, -26), P(42, -24), P(42, -8), P(-40, -8)]
-  hatch(g, body, d + 400, true)
-  ink(g, body, { w: 2.6 * Math.min(1.2, s), d, t: 600 })
-  for (const k of [-22, 24]) {
+  const w = 2.4 * Math.min(1.2, Math.max(0.6, s))
+  // Limousine von der Seite, Front rechts; y = Boden
+  const body: P[] = [P(-42, -8), P(-43, -20), ...B(P(-43, -20), P(-40, -24), P(-30, -25), P(-24, -25)).slice(1), ...B(P(-24, -25), P(-18, -36), P(-12, -40), P(0, -40)).slice(1), P(12, -40), ...B(P(12, -40), P(18, -40), P(24, -30), P(28, -26)).slice(1), ...B(P(28, -26), P(38, -25), P(43, -22), P(44, -14)).slice(1), P(44, -8), P(-42, -8)]
+  blank(g, body)
+  hatch(g, [P(-42, -8), P(-42, -16), P(44, -16), P(44, -8)], d + 400)
+  ink(g, body, { w, d, t: 600 })
+  const win: P[] = [P(-20, -26), ...B(P(-20, -26), P(-15, -34), P(-10, -37), P(-2, -37)).slice(1), P(10, -37), ...B(P(10, -37), P(15, -37), P(20, -31), P(23, -26)).slice(1), P(-20, -26)]
+  ink(g, win, { w: w * 0.6, d: d + 200, t: 300 })
+  ink(g, L(P(3, -37), P(3, -26)), { w: w * 0.7, d: d + 250, t: 100 })
+  ink(g, L(P(3, -26), P(3, -10)), { w: w * 0.4, d: d + 300, t: 100 })
+  ink(g, L(P(-8, -22), P(-4, -22)), { w: w * 0.6, d: d + 320, t: 60 })
+  ink(g, L(P(12, -22), P(16, -22)), { w: w * 0.6, d: d + 320, t: 60 })
+  ink(g, RR(x + 38 * s, y - 22 * s, 5 * s, 4 * s, 1), { w: w * 0.5, d: d + 350, t: 80 })
+  hatch(g, RR(x - 43 * s, y - 21 * s, 3 * s, 4 * s, 1), d + 400, true)
+  for (const k of [-26, 28]) {
+    ink(g, E(x + k * s, y - 8 * s, 11 * s, 11 * s, 180, 360), { w: w * 0.7, d: d + 250, t: 200 })
     blank(g, E(x + k * s, y - 6 * s, 8 * s))
-    ink(g, E(x + k * s, y - 6 * s, 8 * s), { w: 2.4, d: d + 300, t: 300 })
+    ink(g, E(x + k * s, y - 6 * s, 8 * s), { w, d: d + 300, t: 300 })
+    ink(g, E(x + k * s, y - 6 * s, 4 * s), { w: w * 0.5, d: d + 400, t: 150 })
   }
 }
 
