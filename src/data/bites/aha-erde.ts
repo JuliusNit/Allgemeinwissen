@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mountain, question, rays, st, star, text, timeline, vbars, type P } from './draw'
-import { arcArrow, ball, box, bullets, carrow, cloud, dot, drop, rad, sun, thermo, water, waveP } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, vbars, type P } from './draw'
+import { LAND, arcArrow, ball, box, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, rad, ripple, smooth, sun, thermo, water, waveP, wobble, worldMap } from './kit'
 
 // Erde & Wetter: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -16,16 +16,6 @@ function blob(g: Element, cx: number, cy: number, rx: number, ry: number, seed: 
   if (fill) hatch(g, pts, d + 400)
   ink(g, pts, { w: 2.4, d, t: 700 })
   return pts
-}
-
-/** Kartennetz: Rahmen, Längengrade gleichmäßig, Breitengrade nach Projektion */
-function grid(g: Element, x: number, y: number, w: number, h: number, proj: 'mercator' | 'flaeche', d = 0): (lat: number) => number {
-  const merc = (p: number) => Math.log(Math.tan(Math.PI / 4 + rad(p) / 2))
-  const yOf = (lat: number) => y + h / 2 - (proj === 'mercator' ? merc(lat) / merc(80) : Math.sin(rad(lat))) * (h / 2)
-  ink(g, RR(x, y, w, h, 2), { w: 2.8, d, t: 700 })
-  for (let k = 1; k < 8; k++) ink(g, L([x + (w * k) / 8, y + 2], [x + (w * k) / 8, y + h - 2]), { w: 1, d: d + 300 + k * 40, t: 300 })
-  for (const lat of [-60, -40, -20, 0, 20, 40, 60]) ink(g, L([x + 2, yOf(lat)], [x + w - 2, yOf(lat)]), { w: lat === 0 ? 1.8 : 1, d: d + 500 + Math.abs(lat) * 5, t: 300 })
-  return yOf
 }
 
 /** Düne als Bogen von x0 bis x1, Grundlinie y */
@@ -99,6 +89,41 @@ function seismo(g: Element, x0: number, x1: number, y: number, amp: number, d = 
   ink(g, pts, { w: 1.8, d, t: 900 })
 }
 
+let goreN = 0
+
+/** Galeone von der Seite: Rumpf mit Heckkastell, drei Masten mit geblähten Segeln, Wellen; Wasserlinie bei y */
+function galleon(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const hull: P[] = [P(-60, -30), P(-50, -30), P(-46, -20), P(44, -20), P(62, -34), ...B(P(62, -34), P(54, -10), P(40, 0), P(30, 0)).slice(1), P(-40, 0), ...B(P(-40, 0), P(-54, -6), P(-60, -18), P(-60, -30)).slice(1)]
+  blank(g, hull)
+  hatch(g, hull, d + 500)
+  ink(g, hull, { w: 2.4 * Math.max(0.6, s), d, t: 500 })
+  ink(g, L(P(-46, -12), P(46, -12)), { w: 1, d: d + 200, t: 300 })
+  for (const [mx, h] of [[-30, 70], [4, 90], [34, 64]] as const) {
+    ink(g, L(P(mx, -20), P(mx, -20 - h)), { w: 1.8 * Math.max(0.6, s), d: d + 300, t: 200 })
+    for (const [t0, t1] of [[0.15, 0.5], [0.55, 0.85]] as const) {
+      const sail: P[] = [P(mx - 16, -20 - h * t1), P(mx + 16, -20 - h * t1), ...B(P(mx + 16, -20 - h * t1), P(mx + 22, -20 - h * (t0 + t1) / 2), P(mx + 20, -20 - h * t0), P(mx + 16, -20 - h * t0)).slice(1), P(mx - 16, -20 - h * t0), ...B(P(mx - 16, -20 - h * t0), P(mx - 12, -20 - h * (t0 + t1) / 2), P(mx - 14, -20 - h * t1), P(mx - 16, -20 - h * t1)).slice(1)]
+      blank(g, sail)
+      ink(g, sail, { w: 1.4 * Math.max(0.6, s), d: d + 400, t: 300 })
+    }
+  }
+  ink(g, [P(4, -110), P(18, -106), P(4, -102)], { w: 1.2, d: d + 600, t: 100 })
+  ink(g, L(P(62, -34), P(84, -50)), { w: 1.4, d: d + 500, t: 100 })
+  ink(g, waveP(x - 80 * s, x + 90 * s, y + 2, 2 * s, 18 * s), { w: 1.4, d: d + 300, t: 400 })
+}
+
+/** Teil einer Landmasse (Kasten in Länge/Breite) dicht schraffieren, auf schon gezeichneter Karte */
+function regionHatch(g: Element, pr: (lon: number, lat: number) => P, li: number, lon0: number, lon1: number, lat0: number, lat1: number, d = 0): void {
+  const id = `rh${++goreN}`
+  const cp = mk('clipPath', { id }, g)
+  const box: P[] = [...Array.from({ length: 21 }, (_, k) => pr(lon0 + ((lon1 - lon0) * k) / 20, lat1)), ...Array.from({ length: 21 }, (_, k) => pr(lon1 - ((lon1 - lon0) * k) / 20, lat0))]
+  mk('path', { d: `M${box.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}Z` }, cp)
+  const c = mk('g', { 'clip-path': `url(#${id})` }, g)
+  const pts = coastPts(li, pr)
+  hatch(c, pts, d, true)
+  ink(c, pts, { w: 2.4, d, t: 400, p: 0.3 })
+}
+
 export const AHA_ERDE: Bite[] = [
   {
     id: 'mercator',
@@ -110,87 +135,176 @@ export const AHA_ERDE: Bite[] = [
     images: [],
     draw: {
       karte(g) {
-        const yOf = grid(g, 30, 80, 300, 340, 'mercator')
-        blob(g, 150, yOf(72), 46, 30, 1, 900)
-        blob(g, 200, yOf(4), 48, 56, 3, 1100)
+        worldMap(g, 20, 120, 320, 250, 'mercator', 0, { hi: [LAND.afrika, LAND.groenland] })
       },
       netz(g) {
-        grid(g, 30, 300, 300, 340, 'mercator')
-        text(g, 180, 670, 'Breitengrade rücken zu den Polen auseinander', { anchor: 'middle', cls: 's', d: 1200 })
+        // nur das Netz: Abstände der Breitengrade wachsen nach außen
+        const x = 30
+        const y = 300
+        const w = 250
+        const h = 340
+        const yOf = (lat: number) => y + h / 2 - (Math.log(Math.tan(Math.PI / 4 + rad(lat) / 2)) / Math.log(Math.tan(Math.PI / 4 + rad(80) / 2))) * (h / 2)
+        ink(g, RR(x, y, w, h, 2), { w: 2.6, t: 700 })
+        for (let k = 1; k < 8; k++) ink(g, L([x + (w * k) / 8, y + 2], [x + (w * k) / 8, y + h - 2]), { w: 1, d: 300 + k * 40, t: 300 })
+        const lats = [-75, -60, -45, -30, -15, 0, 15, 30, 45, 60, 75]
+        lats.forEach((lat, i) => ink(g, L([x + 2, yOf(lat)], [x + w - 2, yOf(lat)]), { w: lat === 0 ? 1.8 : 1, d: 500 + i * 60, t: 300 }))
+        for (let i = 5; i < lats.length - 1; i++) {
+          const y0 = yOf(lats[i])
+          const y1 = yOf(lats[i + 1])
+          arrow(g, L([x + w + 20, y0 - 3], [x + w + 20, y1 + 3]), { w: 1.4, d: 1200 + i * 120, t: 150, head: 5 })
+          arrow(g, L([x + w + 20, y1 + 3], [x + w + 20, y0 - 3]), { w: 1.4, d: 1200 + i * 120, t: 150, head: 5 })
+          ink(g, L([x + w + 10, y1], [x + w + 30, y1]), { w: 1, d: 1200 + i * 120, t: 60 })
+        }
       },
       mercator(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.35, label: '1569', sub: 'Gerhard Mercator', up: true }])
+        // Seekarte im Stil des 16. Jahrhunderts: Windrose mit 16 Kurslinien, Küste, Segelschiff
+        ink(g, RR(24, 310, 312, 330, 4), { w: 3, t: 700 })
+        ink(g, RR(32, 318, 296, 314, 2), { w: 1.2, d: 200, t: 700 })
+        const cx = 180
+        const cy = 470
+        const cg = clipBox(g, 32, 318, 296, 314)
+        for (let k = 0; k < 16; k++) {
+          const a = rad(k * 22.5)
+          ink(cg, L([cx, cy], [cx + Math.cos(a) * 220, cy + Math.sin(a) * 220]), { w: k % 4 ? 0.7 : 1.2, d: 400 + k * 30, t: 300 })
+        }
+        for (let k = 0; k < 8; k++) {
+          const a = rad(k * 45 - 90)
+          const r = k % 2 ? 26 : 50
+          const tip: P = [cx + Math.cos(a) * r, cy + Math.sin(a) * r]
+          const l: P = [cx + Math.cos(a - rad(90)) * 8, cy + Math.sin(a - rad(90)) * 8]
+          const rr: P = [cx + Math.cos(a + rad(90)) * 8, cy + Math.sin(a + rad(90)) * 8]
+          blank(g, [l, tip, rr, [cx, cy], l])
+          hatch(g, [[cx, cy], tip, rr, [cx, cy]], 900 + k * 40, true)
+          ink(g, [l, tip, rr, [cx, cy], l], { w: 1.6, d: 800 + k * 40, t: 150 })
+        }
+        ink(g, E(cx, cy, 14), { w: 1.6, d: 1100, t: 150 })
+        ink(g, smooth([[32, 340], [70, 360], [80, 400], [60, 440], [70, 480], [40, 520], [32, 560]], 3), { w: 2.4, d: 600, t: 600 })
+        const sh = wobble(g, { dy: 3, deg: 2, ox: 270, oy: 590, ms: 1800, d: 1200 })
+        galleon(sh, 270, 590, 0.9, 1000)
       },
       schiff(g) {
-        const yOf = grid(g, 30, 300, 300, 340, 'mercator')
-        arrow(g, L([60, yOf(-40)], [300, yOf(40)]), { w: 3, d: 1200, t: 900, head: 12 })
-        ship(g, 70, yOf(-40) + 30, 0.7, 900)
+        // Mercator-Karte: gerade Linie = fester Kompasskurs von Lissabon in die Karibik, Schiff fährt sie ab
+        const pr = worldMap(g, 20, 330, 320, 250, 'mercator', 0, { hi: [] })
+        const a = pr(-9, 38.7)
+        const b = pr(-66, 18)
+        arrow(g, L(a, b), { w: 3, d: 1000, t: 900, head: 12 })
+        const sh = mk('g', {}, g)
+        mk('animateTransform', { attributeName: 'transform', type: 'translate', from: '0 0', to: `${b[0] - a[0]} ${b[1] - a[1]}`, dur: '4s', begin: '1.8s', repeatCount: 'indefinite' }, sh)
+        galleon(sh, a[0], a[1] - 2, 0.35, 1400)
+        const rose = pr(-30, 60)
+        for (let k = 0; k < 8; k++) ink(g, L(rose, [rose[0] + Math.cos(rad(k * 45)) * 16, rose[1] + Math.sin(rad(k * 45)) * 16]), { w: k % 2 ? 0.8 : 1.6, d: 1200, t: 80 })
+        ink(g, E(rose[0], rose[1], 8), { w: 1.2, d: 1250, t: 100 })
+        ink(g, E(a[0], a[1], 14, 14, 180, 180 + Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI - 180), { w: 1.6, d: 2000, t: 300 })
       },
       wahr(g) {
-        hbars(g, [
-          { label: 'Afrika', v: 30.3, fmt: () => '30,3 Mio. km²', dense: true },
-          { label: 'Grönland', v: 2.2, fmt: () => '2,2 Mio. km²' },
-        ], { x: 110, y: 400, w: 190, h: 40, gap: 80 })
+        // flächentreu: Afrika, darüber Grönland in wahrer Größe hineingeschoben
+        const k = 3.8
+        const af = coastPts(LAND.afrika, (lon, lat) => [180 + (lon - 17) * Math.cos(rad(lat)) * k, 470 - lat * k])
+        blank(g, af)
+        hatch(g, af, 500, true)
+        ink(g, af, { w: 2.4, t: 900 })
+        const m = mk('g', {}, g)
+        mk('animateTransform', { attributeName: 'transform', type: 'translate', from: '-90 -170', to: '0 0', dur: '1.6s', begin: '1.2s', fill: 'freeze', calcMode: 'spline', keySplines: '.3 0 .3 1', keyTimes: '0;1' }, m)
+        const gr = coastPts(LAND.groenland, (lon, lat) => [190 + (lon + 42) * Math.cos(rad(lat)) * k, 430 - (lat - 72) * k])
+        blank(m, gr)
+        ink(m, gr, { w: 2.6, d: 1000, t: 600 })
+        ripple(g, 190, 430, 10, 50, { n: 2, ms: 1600, d: 3000, w: 1 })
       },
       orange(g) {
+        // Globus-Segmente: sechs Streifen, je 60° breit, wie eine abgezogene Orangenschale
+        const k = 2.2
         for (let i = 0; i < 6; i++) {
-          const x = 50 + i * 52
-          const p: P[] = [...B([x, 360], [x - 30, 420], [x - 30, 520], [x, 580]), ...B([x, 580], [x + 30, 520], [x + 30, 420], [x, 360]).slice(1)]
-          hatch(g, p, 400 + i * 80)
-          ink(g, p, { w: 2.4, d: i * 80, t: 400 })
+          const c = -150 + i * 60
+          const gx = 30 + i * 50 + 25
+          const pr = (lon: number, lat: number): P => [gx + (lon - c) * Math.cos(rad(lat)) * k * 0.38, 470 - lat * k * 0.95]
+          const gore: P[] = [...Array.from({ length: 37 }, (_, j) => pr(c + 30, -90 + j * 5)), ...Array.from({ length: 37 }, (_, j) => pr(c - 30, 90 - j * 5))]
+          const id = `gore${++goreN}`
+          const cp = mk('clipPath', { id }, g)
+          mk('path', { d: `M${gore.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}Z` }, cp)
+          const cg = mk('g', { 'clip-path': `url(#${id})` }, g)
+          ;[LAND.afrika, LAND.eurasien, LAND.nordamerika, LAND.groenland, LAND.suedamerika, LAND.australien, LAND.antarktis].forEach((li, j) => {
+            const pts = coastPts(li, (lon, lat) => {
+              let l = lon
+              while (l - c > 180) l -= 360
+              while (l - c < -180) l += 360
+              return pr(l, lat)
+            })
+            hatch(cg, pts, 600 + i * 80 + j * 20)
+            ink(cg, pts, { w: 1, d: 400 + i * 80, t: 500, p: 0.3 })
+          })
+          ink(g, [...gore, gore[0]], { w: 2.2, d: i * 80, t: 500 })
         }
-        text(g, 180, 630, 'flach nur mit Lücken', { anchor: 'middle', cls: 's', d: 1000 })
       },
       gauss(g) {
-        globe(g, 90, 470, 60)
-        arrow(g, L([170, 470], [210, 470]), { w: 2.6, d: 900, t: 300, head: 10 })
-        ink(g, RR(225, 420, 110, 100, 2), { w: 2.8, d: 1100, t: 500 })
-        question(g, 280, 470, 0.6, 1500)
-        text(g, 180, 600, 'Gauß 1827: ohne Verzerrung unmöglich', { anchor: 'middle', cls: 's', d: 1600 })
+        // Kugel → flach: es geht nur mit Rissen oder Dehnung
+        earth(g, 90, 470, 62, 0, { lon: 0, lat: 20, grid: true })
+        arrow(g, L([168, 470], [204, 470]), { w: 2.6, d: 900, t: 300, head: 10 })
+        const sheet: P[] = [[220, 400], [336, 404], [332, 540], [224, 536], [220, 400]]
+        blank(g, sheet)
+        ink(g, sheet, { w: 2.6, d: 1100, t: 500 })
+        ink(g, [[278, 402], [270, 430], [284, 452], [272, 470]], { w: 2.2, d: 1500, t: 200 })
+        ink(g, [[334, 470], [310, 476], [318, 492], [300, 500]], { w: 2.2, d: 1600, t: 200 })
+        for (let k = 0; k < 3; k++) ink(g, waveP(232, 320, 500 + k * 10, 2, 16, k), { w: 0.9, d: 1700 + k * 80, t: 300 })
+        question(g, 280, 600, 0.6, 1900)
       },
       kreise(g) {
-        const yOf = grid(g, 30, 300, 300, 340, 'mercator')
-        for (const [lat, k] of [[0, 1], [40, 1.31], [60, 2], [-40, 1.31], [-60, 2]] as const) for (const x of [105, 255]) ink(g, E(x, yOf(lat), 9 * k), { w: 2, d: 1200 + Math.abs(lat) * 10, t: 300 })
+        // gleich große Kreise auf der Kugel, auf der Karte zu den Polen hin immer größer
+        const pr = worldMap(g, 20, 340, 320, 250, 'mercator', 0, { grid: true })
+        for (const lat of [-60, -30, 0, 30, 60]) for (const lon of [-120, -40, 40, 120]) {
+          const [cx, cy] = pr(lon, lat)
+          const r = 7 / Math.cos(rad(lat))
+          blank(g, E(cx, cy, r))
+          hatch(g, E(cx, cy, r), 1300 + Math.abs(lat) * 12, true)
+          ink(g, E(cx, cy, r), { w: 1.6, d: 1200 + Math.abs(lat) * 12, t: 200 })
+        }
       },
       russland(g) {
-        hbars(g, [
-          { label: 'Afrika', v: 30.3, fmt: () => '30,3', dense: true },
-          { label: 'Russland', v: 17.1, fmt: () => '17,1' },
-          { label: 'Brasilien', v: 8.5, fmt: () => '8,5', dense: true },
-          { label: 'Alaska', v: 1.7, fmt: () => '1,7' },
-        ], { x: 90, y: 350, w: 220, h: 30, gap: 70 })
-        text(g, 180, 650, 'Fläche in Mio. km²', { anchor: 'middle', cls: 's', d: 1400 })
+        // flächentreue Karte: Afrika, Sibirien, Brasilien, Alaska jeweils dicht schraffiert
+        const pr = worldMap(g, 20, 380, 320, 204, 'peters', 0, { hi: [LAND.afrika] })
+        regionHatch(g, pr, LAND.eurasien, 30, 180, 48, 80, 1200)
+        regionHatch(g, pr, LAND.suedamerika, -70, -34, -33, 5, 1500)
+        regionHatch(g, pr, LAND.nordamerika, -170, -141, 54, 72, 1800)
       },
       antarktis(g) {
-        grid(g, 30, 300, 300, 340, 'mercator')
-        const band: P[] = [[32, 600], [328, 600], [328, 638], [32, 638], [32, 600]]
-        hatch(g, band, 1100, true)
-        ink(g, L([32, 600], [328, 600]), { w: 2.4, d: 1000, t: 500 })
+        worldMap(g, 20, 340, 320, 250, 'mercator', 0, { hi: [LAND.antarktis, LAND.suedamerika] })
       },
       peters(g) {
-        const yOf = grid(g, 30, 300, 300, 260, 'flaeche')
-        blob(g, 150, yOf(72) + 10, 50, 10, 1, 900)
-        blob(g, 200, yOf(4), 40, 74, 3, 1100)
-        text(g, 180, 600, 'Gall-Peters: Flächen stimmen', { anchor: 'middle', cls: 's', d: 1400 })
-        text(g, 180, 624, 'Formen gestaucht', { anchor: 'middle', cls: 's', d: 1500 })
+        worldMap(g, 20, 380, 320, 204, 'peters', 0, { hi: [LAND.afrika, LAND.groenland] })
       },
       handy(g) {
-        ink(g, RR(120, 330, 120, 230, 18), { w: 3, t: 600 })
-        grid(g, 134, 360, 92, 170, 'mercator', 300)
-        dot(g, 190, 440, 5, 1300)
-        text(g, 180, 610, 'Online-Karten: Mercator', { anchor: 'middle', cls: 's', d: 1400 })
+        // Smartphone mit Kartenausschnitt: rechtwinklige Straßenecken, Standortnadel, Zoom
+        ink(g, RR(110, 310, 140, 290, 22), { w: 3, t: 600 })
+        ink(g, RR(160, 320, 40, 8, 4), { w: 1.6, d: 200, t: 150 })
+        const c = clipBox(g, 120, 334, 120, 250)
+        for (let k = 0; k < 5; k++) {
+          ink(c, L([120, 360 + k * 50], [240, 352 + k * 50]), { w: k === 2 ? 6 : 3, d: 300 + k * 60, t: 300 })
+          ink(c, L([140 + k * 30, 334], [150 + k * 30, 584]), { w: k === 1 ? 5 : 2.4, d: 400 + k * 60, t: 300 })
+        }
+        for (let k = 0; k < 6; k++) hatch(c, RR(148 + (k % 3) * 30, 366 + Math.floor(k / 3) * 100, 18, 30, 2), 800 + k * 40)
+        const pin: P[] = [...B([180, 470], [168, 450], [166, 430], [180, 424]), ...B([180, 424], [194, 430], [192, 450], [180, 470]).slice(1)]
+        const pp = pop(g, 1300, '50% 100%')
+        blank(pp, pin)
+        hatch(pp, pin, 0, true)
+        ink(pp, pin, { w: 2, t: 0 })
+        blank(pp, E(180, 438, 5))
+        ripple(g, 180, 470, 6, 26, { n: 2, ms: 1600, d: 1500, w: 1, ry: 0.4 })
+        ink(g, E(180, 584, 10), { w: 1.6, d: 500, t: 150 })
+        for (const [dx, s] of [[-1, '+'], [1, '−']] as const) {
+          ink(g, E(290 + dx * 0, 400 + dx * 26, 12), { w: 1.8, d: 900, t: 150 })
+          text(g, 290, 406 + dx * 26, s, { anchor: 'middle', size: 18, d: 1000 })
+        }
       },
       tripel(g) {
-        const o: P[] = E(180, 470, 150, 95)
-        ink(g, o, { w: 3, t: 800 })
-        ink(g, L([30, 470], [330, 470]), { w: 1.2, d: 400, t: 400 })
-        for (const k of [-0.6, -0.3, 0, 0.3, 0.6]) ink(g, E(180, 470, 150 * Math.abs(k) + 0.1, 95, k < 0 ? 90 : -90, k < 0 ? 270 : 90), { w: 1, d: 500, t: 400 })
-        blob(g, 140, 400, 18, 12, 1, 1000)
-        blob(g, 200, 480, 34, 40, 3, 1100)
-        text(g, 180, 610, 'Winkel-Tripel: guter Kompromiss', { anchor: 'middle', cls: 's', d: 1400 })
+        worldMap(g, 20, 380, 320, 196, 'tripel', 0, {})
       },
       ende(g) {
-        globe(g, 180, 480, 90)
+        // Tischglobus: Kugel, Meridianring, Achse, Fuß
+        earth(g, 180, 450, 100, 0, { lon: 10, lat: 25, grid: true })
+        ink(g, E(180, 450, 112, 112, -150, 120), { w: 3, d: 700, t: 600 })
+        ink(g, L([180 + Math.cos(rad(-112)) * 116, 450 + Math.sin(rad(-112)) * 116], [180 + Math.cos(rad(-112)) * 104, 450 + Math.sin(rad(-112)) * 104]), { w: 3, d: 900, t: 100 })
+        ink(g, L([180, 562], [180, 600]), { w: 3.4, d: 900, t: 200 })
+        ink(g, E(180, 612, 60, 12), { w: 2.8, d: 1000, t: 400 })
+        ink(g, B([120, 612], [122, 626], [238, 626], [240, 612]), { w: 2.4, d: 1100, t: 300 })
       },
     },
     scenes: [

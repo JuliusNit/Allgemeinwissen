@@ -993,3 +993,82 @@ export function mol(g: Element, atoms: [number, number, string, ('leer' | 'hell'
     if (l !== 'H' && s >= 0.9) text(g, x, y + 5 * s, l, { anchor: 'middle', size: 13 * s, cls: fill && fill !== 'leer' ? 'halo' : '', d: d + 300 + k * 50 })
   })
 }
+
+/** Indizes der Landmassen in COASTS */
+export const LAND = { afrika: 0, eurasien: 1, nordamerika: 2, groenland: 3, suedamerika: 4, australien: 5, antarktis: 13 } as const
+
+export type Proj = 'mercator' | 'peters' | 'equi' | 'tripel'
+
+/** normierte Kartenkoordinaten: x ∈ [−1, 1], y ∈ [−1, 1] (oben = Norden) */
+export function project(proj: Proj, lon: number, lat: number): [number, number] {
+  const la = rad(Math.max(-89.5, Math.min(89.5, lat)))
+  const lo = rad(lon)
+  if (proj === 'mercator') {
+    const m = (p: number) => Math.log(Math.tan(Math.PI / 4 + p / 2))
+    return [lon / 180, m(la) / m(rad(80))]
+  }
+  if (proj === 'peters') return [lon / 180, Math.sin(la)]
+  if (proj === 'equi') return [lon / 180, lat / 90]
+  const a = Math.acos(Math.cos(la) * Math.cos(lo / 2))
+  const sinc = a === 0 ? 1 : Math.sin(a) / a
+  const x = 0.5 * (lo * (2 / Math.PI) + (2 * Math.cos(la) * Math.sin(lo / 2)) / sinc)
+  const y = 0.5 * (la + Math.sin(la) / sinc)
+  return [x / 2.5708, y / 1.5708]
+}
+
+/** Weltkarte in (x, y, w, h): Netz alle 30°, Küsten schraffiert; hi = Landmassen dicht schraffiert.
+ *  Gibt den Projektor (Länge, Breite) → Bühne zurück. */
+export function worldMap(g: Element, x: number, y: number, w: number, h: number, proj: Proj, d = 0, o: { hi?: number[]; grid?: boolean; frame?: boolean } = {}): (lon: number, lat: number) => P {
+  const pr = (lon: number, lat: number): P => {
+    const [nx, ny] = project(proj, lon, lat)
+    return [x + w / 2 + (nx * w) / 2, y + h / 2 - (ny * h) / 2]
+  }
+  const id = `wm${++clipN}`
+  const cp = mk('clipPath', { id }, g)
+  if (proj === 'tripel') {
+    const rim: P[] = [...Array.from({ length: 37 }, (_, k) => pr(180, 90 - k * 5)), ...Array.from({ length: 37 }, (_, k) => pr(-180, -90 + k * 5))]
+    mk('path', { d: `M${rim.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}Z` }, cp)
+  } else mk('rect', { x, y, width: w, height: h }, cp)
+  const c = mk('g', { 'clip-path': `url(#${id})` }, g)
+  if (o.grid !== false) {
+    for (let lon = -150; lon <= 150; lon += 30) ink(c, Array.from({ length: 37 }, (_, k) => pr(lon, -90 + k * 5)), { w: lon === 0 ? 1.2 : 0.8, d: d + 200, t: 400 })
+    for (let lat = -60; lat <= 60; lat += 30) ink(c, Array.from({ length: 73 }, (_, k) => pr(-180 + k * 5, lat)), { w: lat === 0 ? 1.4 : 0.8, d: d + 300, t: 400 })
+  }
+  COASTS.forEach((poly, i) => {
+    const pts: P[] = []
+    for (let k = 0; k < poly.length - 1; k++) {
+      const [a0, b0] = poly[k]
+      const [a1, b1] = poly[k + 1]
+      const n = Math.max(1, Math.ceil(Math.max(Math.abs(a1 - a0), Math.abs(b1 - b0)) / 1.5))
+      for (let j = k ? 1 : 0; j <= n; j++) pts.push(pr(a0 + ((a1 - a0) * j) / n, b0 + ((b1 - b0) * j) / n))
+    }
+    if (i === LAND.antarktis) pts.push(pr(180, -90), pr(-180, -90))
+    blank(c, pts)
+    hatch(c, pts, d + 500 + i * 30, o.hi?.includes(i))
+    ink(c, pts, { w: o.hi?.includes(i) ? 2 : 1.4, d: d + 300 + i * 40, t: 700, p: 0.3 })
+  })
+  for (const sea of SEAS) {
+    const pts: P[] = []
+    for (let k = 0; k < sea.length - 1; k++) for (let j = k ? 1 : 0; j <= 4; j++) pts.push(pr(sea[k][0] + ((sea[k + 1][0] - sea[k][0]) * j) / 4, sea[k][1] + ((sea[k + 1][1] - sea[k][1]) * j) / 4))
+    blank(c, pts)
+    ink(c, pts, { w: 1.2, d: d + 800, t: 400, p: 0.3 })
+  }
+  if (o.frame !== false) {
+    if (proj === 'tripel') ink(g, [...Array.from({ length: 37 }, (_, k) => pr(180, 90 - k * 5)), ...Array.from({ length: 37 }, (_, k) => pr(-180, -90 + k * 5)), pr(180, 90)], { w: 2.6, d, t: 800 })
+    else ink(g, RR(x, y, w, h, 2), { w: 2.6, d, t: 800 })
+  }
+  return pr
+}
+
+/** Küstenlinie einer Landmasse als Punkte, beliebig projiziert */
+export function coastPts(i: number, pr: (lon: number, lat: number) => P, step = 1.5): P[] {
+  const poly = COASTS[i]
+  const pts: P[] = []
+  for (let k = 0; k < poly.length - 1; k++) {
+    const [a0, b0] = poly[k]
+    const [a1, b1] = poly[k + 1]
+    const n = Math.max(1, Math.ceil(Math.max(Math.abs(a1 - a0), Math.abs(b1 - b0)) / step))
+    for (let j = k ? 1 : 0; j <= n; j++) pts.push(pr(a0 + ((a1 - a0) * j) / n, b0 + ((b1 - b0) * j) / n))
+  }
+  return pts
+}
