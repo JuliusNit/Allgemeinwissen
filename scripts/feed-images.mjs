@@ -7,7 +7,7 @@ import path from 'node:path'
 import sharp from 'sharp'
 
 const OUT = path.resolve('public/feed')
-const UA = 'Allgemeinwissen-App/1.0 (https://github.com/JuliusNit/Allgemeinwissen)'
+const UA = 'AllgemeinwissenBot/1.0 (https://github.com/JuliusNit/Allgemeinwissen; images for an educational app)'
 
 export const IMAGES = {
   "hund-schlaf": "File:Little Man the Pillow (5415264131).jpg",
