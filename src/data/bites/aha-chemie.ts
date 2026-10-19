@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, brain, check, clock, cross, dashes, fig, hatch, ink, mk, pop, rays, st, strike, text, timeline, vbars, type P } from './draw'
-import { arcArrow, ball, box, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, mol, onion, rad, ripple, smooth, spin, stars, sun, thermo, water, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, brain, check, cross, dashes, fig, hatch, ink, mk, pop, rays, st, strike, text, timeline, vbars, type P } from './draw'
+import { arcArrow, bact, ball, box, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, mol, onion, rad, ripple, smooth, spin, stars, sun, thermo, travelWave, water, waveP, wobble } from './kit'
 
 // Chemie: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -124,6 +124,54 @@ function soap(g: Element, x: number, y: number, deg: number, len = 40, d = 0): v
   }
   ink(g, pts, { w: 1.8, d: d + 100, t: 200 })
   ball(g, x, y, 6, { d, fill: 'dicht', w: 1.6, t: 0 })
+}
+
+/** Seifenblase: Haut, Schillerbänder, gespiegeltes Fenster als Glanzlicht */
+function bubble3(g: Element, x: number, y: number, r: number, d = 0): void {
+  blank(g, E(x, y, r))
+  ink(g, E(x, y, r), { w: 2.4, d, t: 600 })
+  ink(g, E(x, y, r * 0.9, r * 0.9, 110, 200), { w: 1.2, d: d + 300, t: 300 })
+  dashes(g, E(x, y, r * 0.8, r * 0.8, 120, 180), { w: 1, d: d + 400, dash: 3, gap: 3 })
+  ink(g, E(x, y, r * 0.88, r * 0.88, 20, 70), { w: 1, d: d + 350, t: 200 })
+  const wx = x - r * 0.5
+  const wy = y - r * 0.5
+  const s = r * 0.22
+  ink(g, RR(wx - s, wy - s, s * 2, s * 1.6, s * 0.3), { w: 1.4, d: d + 500, t: 200 })
+  ink(g, L([wx, wy - s], [wx, wy + s * 0.6]), { w: 1, d: d + 550, t: 100 })
+  ink(g, E(x + r * 0.55, y + r * 0.55, r * 0.06), { w: 1.4, d: d + 600, t: 100 })
+}
+
+/** Seifenmolekül groß: Carboxylat-Kopf (C, zwei O, Ladung) links bei (x, y), Kohlenwasserstoffschwanz nach rechts */
+function soapBig(g: Element, x: number, y: number, len = 260, d = 0): void {
+  const n = 16
+  const pts: P[] = []
+  for (let i = 0; i <= n; i++) pts.push([x + 24 + (i / n) * len, y + (i % 2 ? -10 : 10)])
+  ink(g, [[x, y], ...pts], { w: 2.2, d: d + 300, t: 900 })
+  pts.forEach(([px, py], i) => {
+    if (i === 0) return
+    const s = i % 2 ? -1 : 1
+    ink(g, L([px, py], [px - 4, py + s * 14]), { w: 1, d: d + 500 + i * 30, t: 60 })
+    ink(g, L([px, py], [px + 4, py + s * 14]), { w: 1, d: d + 500 + i * 30, t: 60 })
+  })
+  ink(g, L([x - 6, y - 4], [x - 22, y - 30]), { w: 1.8, d: d + 100, t: 100 })
+  ink(g, L([x + 2, y - 6], [x - 14, y - 32]), { w: 1.8, d: d + 100, t: 100 })
+  ink(g, L([x - 6, y + 6], [x - 22, y + 30]), { w: 1.8, d: d + 100, t: 100 })
+  ball(g, x, y, 11, { d, fill: 'leer', w: 2, t: 200 })
+  ball(g, x - 22, y - 34, 10, { d: d + 150, fill: 'dicht', w: 2, t: 200 })
+  ball(g, x - 22, y + 34, 10, { d: d + 150, fill: 'dicht', w: 2, t: 200 })
+}
+
+/** Hand von der Seite, Fingerspitzen oben; dir −1 = linke Hand (Außenkante links), +1 = rechte */
+function palm(g: Element, x: number, y: number, dir: number, d = 0): void {
+  const P = (a: number, b: number): P => [x + dir * a, y + b]
+  const o: P[] = [P(0, 130), P(0, -104), ...B(P(0, -104), P(2, -118), P(-20, -122), P(-26, -106)).slice(1), ...B(P(-26, -106), P(-32, -60), P(-36, -30), P(-36, -14)).slice(1), ...B(P(-36, -14), P(-60, -4), P(-62, 26), P(-40, 40)).slice(1), P(-36, 130)]
+  blank(g, o)
+  ink(g, o, { w: 2.6, d, t: 600 })
+  for (const a of [-8, -16, -24]) ink(g, B(P(a, -100), P(a - 1, -80), P(a - 2, -60), P(a - 3, -40)), { w: 1, d: d + 300, t: 200 })
+  ink(g, B(P(-24, -118), P(-26, -112), P(-26, -104), P(-22, -100)), { w: 1.4, d: d + 400, t: 100 })
+  ink(g, B(P(-36, -10), P(-44, 4), P(-44, 20), P(-38, 30)), { w: 1.2, d: d + 400, t: 150 })
+  ink(g, L(P(-2, 110), P(-34, 112)), { w: 1, d: d + 500, t: 150 })
+  hatch(g, [P(-36, 116), P(-36, 130), P(0, 130), P(0, 116)], d + 500)
 }
 
 /** Popcorn-Korn im Schnitt */
@@ -1001,160 +1049,348 @@ export const AHA_CHEMIE: Bite[] = [
     images: [],
     draw: {
       blasen(g) {
-        for (const [x, y, r, d] of [[120, 220, 70, 0], [250, 160, 46, 300], [240, 300, 30, 500], [70, 340, 22, 700]] as const) {
-          ink(g, E(x, y, r), { w: 2.6, d, t: 600 })
-          ink(g, E(x - r * 0.35, y - r * 0.35, r * 0.25, r * 0.25, 190, 260), { w: 2, d: d + 400, t: 200 })
+        // Seifenblasen mit Schillerbändern, Glanzlicht; unten der Pustering
+        for (const [x, y, r, d] of [[130, 220, 74, 0], [262, 150, 46, 300], [250, 310, 32, 500], [70, 360, 22, 700]] as const) {
+          const w = wobble(g, { dx: 4, dy: -8, ms: 2600 + r * 20, d: 1200 })
+          bubble3(w, x, y, r, d)
         }
+        ink(g, E(300, 400, 26), { w: 3, d: 900, t: 400 })
+        ink(g, E(300, 400, 20), { w: 1.2, d: 1000, t: 400 })
+        ink(g, L([300, 426], [314, 450]), { w: 3, d: 1100, t: 200 })
       },
       oel(g) {
-        beaker(g, 110, 620, 140, 280, 0.8)
-        blank(g, RR(113, 396, 134, 46, 2))
-        hatch(g, RR(113, 396, 134, 46, 2), 900, true)
-        ink(g, L([113, 442], [247, 442]), { w: 1.8, d: 800, t: 300 })
-        text(g, 280, 420, 'Öl', { d: 1000 })
-        text(g, 280, 540, 'Wasser', { d: 1100 })
+        beaker(g, 100, 630, 160, 300, 0.85, 0)
+        const top = 630 - 300 * 0.85
+        const oil: P[] = RR(103, top, 154, 46, 2)
+        blank(g, oil)
+        hatch(g, oil, 900, true)
+        ink(g, B([103, top - 3], [110, top + 1], [250, top + 1], [257, top - 3]), { w: 1.8, d: 800, t: 300 })
+        ink(g, B([103, top + 46], [140, top + 42], [220, top + 50], [257, top + 46]), { w: 1.8, d: 900, t: 300 })
+        for (let k = 0; k < 6; k++) {
+          const up = glide(g, 0, -(120 + k * 20), { ms: 2200 + k * 300, d: 1000 + k * 250, loop: true })
+          const x = 120 + ((k * 37) % 120)
+          const y = 600 - (k % 3) * 20
+          hatch(up, E(x, y, 6 + (k % 3) * 2), 1000 + k * 100, true)
+          ink(up, E(x, y, 6 + (k % 3) * 2), { w: 1.4, d: 900 + k * 100, t: 150 })
+        }
       },
       polar(g) {
-        water(g, 80, 450, 1.6, 0)
-        water(g, 150, 420, 1.6, 40, 200)
-        water(g, 120, 520, 1.6, -30, 400)
-        const fat: P[] = []
-        for (let i = 0; i <= 8; i++) fat.push([220 + i * 13, 470 + (i % 2 ? -8 : 8)])
-        ink(g, fat, { w: 2.6, d: 700, t: 500 })
-        text(g, 110, 600, 'Wasser hält zusammen', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 270, 600, 'Fett: unpolar', { anchor: 'middle', cls: 's', d: 1100 })
+        // Wassermoleküle verhakt über Wasserstoffbrücken, das Fettmolekül bleibt außen vor
+        const ws: [number, number, number][] = [[60, 380, 0], [130, 360, 50], [90, 450, -30], [160, 440, 20], [60, 530, 70], [130, 520, -60], [100, 610, 10], [170, 600, 40]]
+        ws.forEach(([x, y, r], i) => {
+          const w = wobble(g, { dx: 2, dy: 2, ms: 600 + i * 70, d: 900 })
+          water(w, x, y, 0.9, r, i * 80)
+        })
+        for (const [a, b] of [[0, 1], [0, 2], [1, 3], [2, 3], [2, 4], [3, 5], [4, 5], [4, 6], [5, 7], [6, 7]] as const) dashes(g, L([ws[a][0], ws[a][1]], [ws[b][0], ws[b][1]]), { w: 1, d: 700, dash: 3, gap: 4 })
+        const chain: [number, number, string][] = []
+        for (let i = 0; i < 7; i++) chain.push([240 + (i % 2) * 22, 330 + i * 46, 'C'])
+        const bonds: [number, number][] = chain.slice(1).map((_, i) => [i, i + 1])
+        const atoms: [number, number, string][] = [...chain]
+        chain.forEach(([x, y], i) => {
+          const s = i % 2 ? 1 : -1
+          atoms.push([x + s * 30, y - 8, 'H'])
+          bonds.push([i, atoms.length - 1])
+        })
+        const fw = wobble(g, { dx: 6, ms: 2400, d: 1200 })
+        mol(fw, atoms, bonds, 0.8, 600)
       },
       molekuel(g) {
-        soap(g, 80, 470, 0, 200, 0)
-        text(g, 80, 440, 'Kopf', { anchor: 'middle', cls: 's', d: 400 })
-        text(g, 80, 520, 'liebt Wasser', { anchor: 'middle', cls: 's', d: 500 })
-        const t = st(g, 'f1')
-        text(t, 210, 440, 'Schwanz', { anchor: 'middle', cls: 's', fade: false })
-        text(t, 210, 520, 'liebt Fett', { anchor: 'middle', cls: 's', fade: false })
+        // Seifenmolekül (Natriumstearat): geladener Kopf, langer Kohlenwasserstoffschwanz;
+        // x1 die Wasserseite am Kopf, x2 die Fettseite am Schwanz
+        soapBig(g, 60, 470, 260, 0)
+        const wa = st(g, 'x1', '--o: 60px 470px')
+        for (const [x, y, r] of [[40, 380, 30], [26, 560, -60], [104, 400, 120]] as const) water(wa, x, y, 0.8, r, 0)
+        const fa = st(g, 'f2', '')
+        const blob: P[] = smooth([[120, 420], [220, 400], [330, 420], [340, 500], [240, 540], [130, 520], [120, 420]], 3)
+        hatch(fa, blob, 0)
+        ink(fa, blob, { w: 1.6, t: 0 })
       },
       fleck(g) {
-        ink(g, L([20, 560], [340, 560]), { w: 3, t: 400 })
-        const fat = [...E(180, 560, 80, 50, 180, 360)]
-        hatch(g, fat, 600, true)
-        ink(g, fat, { w: 2.6, d: 300, t: 500 })
-        for (let k = 0; k < 7; k++) {
-          const a = 190 + k * 26
-          soap(g, 180 + Math.cos(rad(a)) * 130, 560 + Math.sin(rad(a)) * 90, a + 180, 40, 800 + k * 100)
+        // Gewebe im Schnitt: Fäden, darauf der Fettfleck; Seifenschwänze stecken im Fett
+        for (let k = 0; k < 9; k++) {
+          const x = 30 + k * 38
+          ink(g, E(x, 594, 16, 9), { w: 1.8, d: k * 40, t: 200 })
+          hatch(g, E(x, 594, 16, 9), 300 + k * 40)
         }
+        ink(g, waveP(14, 346, 594, 12, 76), { w: 2.6, d: 400, t: 600 })
+        const fat: P[] = [...B([90, 584], [100, 480], [260, 480], [270, 584])]
+        blank(g, [...fat, [90, 584]])
+        hatch(g, [...fat, [90, 584]], 700, true)
+        ink(g, fat, { w: 2.6, d: 500, t: 500 })
+        for (let k = 0; k < 9; k++) {
+          const a = 200 + k * 17.5
+          const w = wobble(g, { dx: Math.cos(rad(a)) * 4, dy: Math.sin(rad(a)) * 4, ms: 900 + k * 60, d: 1500 })
+          soap(w, 180 + Math.cos(rad(a)) * 150, 584 + Math.sin(rad(a)) * 150, a + 180, 46, 800 + k * 80)
+        }
+        for (const [x, y] of [[50, 400], [310, 380], [180, 330]] as const) water(g, x, y, 0.8, x, 1400)
       },
       mizelle(g) {
         const fat = E(180, 470, 46)
         hatch(g, fat, 300, true)
         ink(g, fat, { w: 2, t: 400 })
-        for (let k = 0; k < 14; k++) {
-          const a = k * (360 / 14)
-          soap(g, 180 + Math.cos(rad(a)) * 104, 470 + Math.sin(rad(a)) * 104, a + 180, 46, 500 + k * 60)
+        for (let k = 0; k < 18; k++) {
+          const a = k * 20
+          soap(g, 180 + Math.cos(rad(a)) * 100, 470 + Math.sin(rad(a)) * 100, a + 180, 44, 500 + k * 50)
         }
-        text(g, 180, 640, 'Mizelle', { anchor: 'middle', d: 1500 })
+        for (let k = 0; k < 8; k++) {
+          const a = rad(k * 45 + 22)
+          const w = wobble(g, { dx: 3, dy: 3, ms: 700 + k * 90, d: 1400 })
+          water(w, 180 + Math.cos(a) * 140, 470 + Math.sin(a) * 140, 0.6, k * 40, 1400 + k * 60)
+        }
       },
       weg(g) {
+        // Mizellen treiben mit dem Spülwasser davon
+        for (const y of [610, 636]) travelWave(g, 20, 340, y, 5, 60, { ms: 1600, d: 300, w: 2 })
         for (let i = 0; i < 3; i++) {
-          const cx = 80 + i * 100
-          const cy = 460 + (i % 2) * 40
-          hatch(g, E(cx, cy, 18), 200 + i * 200, true)
-          for (let k = 0; k < 8; k++) {
-            const a = k * 45
-            soap(g, cx + Math.cos(rad(a)) * 40, cy + Math.sin(rad(a)) * 40, a + 180, 16, i * 200)
-          }
+          const m = glide(g, 120, 0, { ms: 3200, d: 900 + i * 300, loop: true })
+          const cx = 50 + i * 100
+          const cy = 450 + (i % 2) * 70
+          hatch(m, E(cx, cy, 16), 200 + i * 200, true)
+          ink(m, E(cx, cy, 16), { w: 1.4, d: 200 + i * 200, t: 200 })
+          for (let k = 0; k < 10; k++) soap(m, cx + Math.cos(rad(k * 36)) * 38, cy + Math.sin(rad(k * 36)) * 38, k * 36 + 180, 16, i * 200)
         }
-        for (const y of [580, 610]) ink(g, waveP(20, 340, y, 5, 60), { w: 2, d: 900, t: 700 })
+        for (let k = 0; k < 4; k++) flow(g, L([20, 360 + k * 60], [340, 370 + k * 60]), { n: 2, ms: 2400, d: 600 + k * 200, r: 1.6, kind: 'dash' })
       },
       virus(g) {
-        ink(g, E(120, 470, 60), { w: 2.6, t: 600 })
-        ink(g, E(120, 470, 52), { w: 1.6, d: 200, t: 600 })
-        hatch(g, E(120, 470, 30), 500)
-        for (let k = 0; k < 4; k++) soap(g, 230, 400 + k * 40, 180, 40, 800 + k * 100)
-        const broken = st(g, 'x1', '--o: 120px 470px')
-        ink(broken, E(120, 470, 76, 76, 200, 250), { w: 2.4, t: 0 })
-        ink(broken, E(120, 470, 76, 76, 290, 340), { w: 2.4, t: 0 })
-        text(g, 120, 580, 'Fetthülle', { anchor: 'middle', cls: 's', d: 900 })
+        // Hüllvirus: Lipid-Doppelschicht, Stacheln, Erbgut innen; x1: Seife reißt die Hülle auf
+        const cx = 140
+        const cy = 470
+        for (let k = 0; k < 36; k++) {
+          const a = rad(k * 10)
+          for (const [r, s] of [[78, 1], [62, -1]] as const) {
+            const hx = cx + Math.cos(a) * r
+            const hy = cy + Math.sin(a) * r
+            dot(g, hx, hy, 2.6, 100 + k * 15)
+            ink(g, L([hx, hy], [hx - Math.cos(a) * s * 7, hy - Math.sin(a) * s * 7]), { w: 0.9, d: 150 + k * 15, t: 60 })
+          }
+        }
+        for (let k = 0; k < 12; k++) {
+          const a = rad(k * 30 + 8)
+          const p0: P = [cx + Math.cos(a) * 80, cy + Math.sin(a) * 80]
+          const p1: P = [cx + Math.cos(a) * 100, cy + Math.sin(a) * 100]
+          ink(g, L(p0, p1), { w: 2, d: 600 + k * 40, t: 100 })
+          ball(g, p1[0], p1[1], 6, { d: 650 + k * 40, fill: 'hell', w: 1.6, t: 100 })
+        }
+        ink(g, smooth([[110, 450], [130, 430], [160, 450], [150, 480], [120, 490], [140, 510], [170, 500]], 4), { w: 1.8, d: 900, t: 500 })
+        for (let k = 0; k < 5; k++) {
+          const s = glide(g, -40, 0, { ms: 1200, d: 1200 + k * 150 })
+          soap(s, 310, 380 + k * 44, 180, 40, 800 + k * 100)
+        }
+        const broken = st(g, 'x1', `--o: ${cx}px ${cy}px`)
+        blank(broken, [...E(cx, cy, 108, 108, -30, 30), ...E(cx, cy, 54, 54, 30, -30)])
+        for (const a of [-30, 30]) ink(broken, L([cx + Math.cos(rad(a)) * 56, cy + Math.sin(rad(a)) * 56], [cx + Math.cos(rad(a)) * 86, cy + Math.sin(rad(a)) * 86]), { w: 2.6, t: 0 })
+        for (let k = 0; k < 3; k++) {
+          const f = glide(broken, 60, (k - 1) * 40, { ms: 1600, d: 300 })
+          hatch(f, E(cx + 96, cy + (k - 1) * 30, 12), 0, true)
+          ink(f, E(cx + 96, cy + (k - 1) * 30, 12), { w: 1.4, t: 0 })
+        }
       },
       abloesen(g) {
-        ink(g, B([30, 520], [120, 500], [240, 500], [330, 520]), { w: 3, t: 700 })
-        for (const [x, y, d] of [[100, 470, 600], [170, 430, 750], [250, 460, 900]] as const) {
-          ink(g, RR(x - 16, y - 7, 32, 14, 7), { w: 2, d, t: 200 })
-          arrow(g, L([x, y + 14], [x + 30, y + 60]), { w: 1.8, d: d + 200, t: 200, head: 7 })
+        // Hautoberfläche mit Rillen; Keime werden von Seife umhüllt und fortgespült
+        const skin: P[] = smooth([[20, 560], [60, 548], [90, 566], [130, 546], [170, 566], [210, 546], [250, 566], [290, 548], [340, 560]], 4)
+        ink(g, skin, { w: 3, t: 700 })
+        hatch(g, [...skin, [340, 650], [20, 650]], 300)
+        for (let k = 0; k < 6; k++) ink(g, E(50 + k * 52, 610, 14, 8), { w: 1.2, d: 500 + k * 40, t: 150 })
+        for (const [x, y, d] of [[90, 520, 600], [190, 500, 750], [270, 520, 900]] as const) {
+          const m = glide(g, 50, -110, { ms: 1800, d: d + 1000 })
+          bact(m, x - 18, y - 8, 0.7, d, true)
+          for (let k = 0; k < 8; k++) soap(m, x + Math.cos(rad(k * 45)) * 34, y + Math.sin(rad(k * 45)) * 30, k * 45 + 180, 12, d + 300)
         }
-        for (const y of [580, 610]) ink(g, waveP(20, 340, y, 5, 60), { w: 2, d: 1100, t: 700 })
-        text(g, 180, 380, 'abgelöst und weggespült', { anchor: 'middle', cls: 's', d: 1300 })
+        for (let k = 0; k < 3; k++) flow(g, L([20, 380 + k * 40], [340, 360 + k * 40]), { n: 2, ms: 2000, d: 800 + k * 200, r: 1.6, kind: 'dash' })
       },
       pfeffer(g) {
-        ink(g, E(180, 470, 140, 50), { w: 3, t: 800 })
+        // Teller mit Wasser, Pfeffer verteilt; Fingerspitze mit Spülmittel tupft in die Mitte → Pfeffer flieht
+        ink(g, E(180, 500, 150, 56), { w: 3, t: 800 })
+        ink(g, E(180, 504, 126, 44), { w: 1.4, d: 200, t: 800 })
+        ink(g, B([30, 500], [40, 560], [320, 560], [330, 500]), { w: 2.4, d: 300, t: 600 })
         let seed = 7
         const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
-        for (let i = 0; i < 26; i++) {
+        for (let i = 0; i < 40; i++) {
           const a = rnd() * Math.PI * 2
-          const r = 0.82 + rnd() * 0.12
-          dot(g, 180 + Math.cos(a) * 140 * r, 470 + Math.sin(a) * 50 * r, 2.6, 900 + i * 30)
+          const r = 0.15 + rnd() * 0.75
+          const x = 180 + Math.cos(a) * 120 * r
+          const y = 504 + Math.sin(a) * 40 * r
+          const m = glide(g, Math.cos(a) * 120 * (0.92 - r), Math.sin(a) * 40 * (0.92 - r), { ms: 350, d: 2300 })
+          ink(m, L([x - 2, y - 1], [x + 2, y + 1]), { w: 2.6, d: 400 + i * 15, t: 40 })
         }
-        drop(g, 180, 380, 0.7, 500)
-        arrow(g, L([180, 404], [180, 450]), { w: 2, d: 700, t: 200, head: 7 })
-        text(g, 180, 580, 'Pfeffer flieht zum Rand', { anchor: 'middle', cls: 's', d: 1500 })
+        const f = glide(g, 0, 60, { ms: 900, d: 1300 })
+        const tip: P[] = [...B([164, 330], [160, 400], [168, 434], [180, 436]), ...B([180, 436], [192, 434], [200, 400], [196, 330]).slice(1)]
+        blank(f, tip)
+        ink(f, tip, { w: 2.6, d: 900, t: 400 })
+        ink(f, B([168, 410], [174, 404], [186, 404], [192, 410]), { w: 1.2, d: 1000, t: 150 })
+        hatch(f, E(180, 438, 8, 4), 1100, true)
+        ripple(g, 180, 504, 10, 120, { n: 2, ms: 1400, d: 2300, w: 1.2, ry: 0.34 })
+        const x1 = st(g, 'x1', '--o: 180px 504px')
+        for (let k = 0; k < 8; k++) {
+          const a = rad(k * 45)
+          arrow(x1, L([180 + Math.cos(a) * 40, 504 + Math.sin(a) * 14], [180 + Math.cos(a) * 100, 504 + Math.sin(a) * 34]), { w: 1.8, t: 0, head: 6 })
+        }
       },
       haende(g) {
-        clock(g, 180, 470, 90, 0, 120)
-        text(g, 180, 620, 'mindestens 20 Sekunden', { anchor: 'middle', d: 1100 })
+        // Stoppuhr: 20 Sekunden sind ein Drittel der Runde
+        ink(g, E(180, 490, 120), { w: 3.4, t: 800 })
+        ink(g, E(180, 490, 108), { w: 1.4, d: 200, t: 800 })
+        ink(g, RR(166, 346, 28, 18, 4), { w: 2.6, d: 300, t: 200 })
+        ink(g, L([180, 364], [180, 370]), { w: 3, d: 350, t: 100 })
+        for (const a of [-45, 45]) ink(g, L([180 + Math.cos(rad(a - 90)) * 122, 490 + Math.sin(rad(a - 90)) * 122], [180 + Math.cos(rad(a - 90)) * 134, 490 + Math.sin(rad(a - 90)) * 134]), { w: 3, d: 400, t: 100 })
+        hatch(g, [[180, 490], ...E(180, 490, 100, 100, -90, 30), [180, 490]], 900)
+        for (let k = 0; k < 60; k++) {
+          const a = rad(k * 6 - 90)
+          const r0 = k % 5 ? 100 : 92
+          ink(g, L([180 + Math.cos(a) * r0, 490 + Math.sin(a) * r0], [180 + Math.cos(a) * 106, 490 + Math.sin(a) * 106]), { w: k % 5 ? 0.8 : 1.8, d: 500 + k * 8, t: 50 })
+        }
+        for (const [k, l] of [[0, '60'], [3, '15'], [6, '30'], [9, '45']] as const) {
+          const a = rad(k * 30 - 90)
+          text(g, 180 + Math.cos(a) * 76, 490 + Math.sin(a) * 76 + 6, l, { anchor: 'middle', size: 16, cls: 'halo', d: 900 })
+        }
+        const hand = spin(g, 180, 490, 20000, 1200)
+        ink(hand, L([180, 506], [180, 400]), { w: 2.4, d: 1000, t: 200 })
+        dot(g, 180, 490, 5, 1100)
       },
       alt(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.08, label: 'vor 4.000 J.', sub: 'Babylon', up: true },
-          { at: 0.9, label: 'heute', up: true },
-        ])
-        flame(g, 90, 600, 0.6, 1100)
-        ink(g, B([50, 600], [60, 640], [120, 640], [130, 600]), { w: 2.6, d: 1000, t: 400 })
+        // Tontafel mit Keilschrift, daneben ein Kessel mit Fett und Asche über dem Feuer
+        const tab: P[] = smooth([[30, 330], [150, 320], [158, 520], [36, 530], [30, 330]], 2)
+        blank(g, tab)
+        ink(g, tab, { w: 3, t: 600 })
+        for (let r = 0; r < 7; r++) {
+          ink(g, L([40, 352 + r * 26], [148, 350 + r * 26]), { w: 0.8, d: 300 + r * 60, t: 200 })
+          for (let c = 0; c < 5; c++) {
+            const x = 46 + c * 20 + ((r * 7 + c * 3) % 5)
+            const y = 342 + r * 26
+            ink(g, [[x, y], [x + 8, y + 3], [x, y + 6], [x, y]], { w: 1.4, d: 400 + r * 60 + c * 20, t: 60 })
+            if ((r + c) % 3 === 0) ink(g, L([x + 8, y + 3], [x + 14, y + 3]), { w: 1, d: 450 + r * 60, t: 40 })
+          }
+        }
+        const pot: P[] = [...B([200, 470], [196, 560], [320, 560], [316, 470])]
+        blank(g, [...pot, [200, 470]])
+        ink(g, pot, { w: 3, d: 600, t: 500 })
+        ink(g, E(258, 470, 60, 12), { w: 2.4, d: 700, t: 400 })
+        hatch(g, E(258, 472, 52, 8), 900, true)
+        for (const [a, b] of [[[190, 440], [230, 620]], [[326, 440], [286, 620]], [[258, 430], [258, 620]]] as const) ink(g, L(a as P, b as P), { w: 2, d: 300, t: 400 })
+        for (let k = 0; k < 4; k++) {
+          const fw = wobble(g, { deg: 5, ox: 230 + k * 18, oy: 620, ms: 600 + k * 80, d: 1000 })
+          flame(fw, 230 + k * 18, 620, 0.32, 900 + k * 60)
+        }
+        for (let k = 0; k < 4; k++) {
+          const b = glide(g, 0, -20, { ms: 1200, d: 1300 + k * 200, loop: true })
+          ink(b, E(230 + k * 18, 464, 4), { w: 1.2, d: 1200, t: 100 })
+        }
       },
       blase(g) {
-        ink(g, E(180, 470, 130), { w: 2.4, t: 800 })
-        ink(g, E(180, 470, 118), { w: 2.4, d: 200, t: 800 })
-        hatch(g, [...E(180, 470, 128), ...E(180, 470, 120, 120, 360, 0)], 600)
-        const lens0 = st(g, 'x1', '--o: 290px 380px')
-        blank(lens0, E(300, 360, 46))
-        ink(lens0, E(300, 360, 46), { w: 2.2, t: 0 })
-        for (let k = 0; k < 3; k++) soap(lens0, 270 + k * 30, 340, 90, 14, 0)
-        for (let k = 0; k < 3; k++) soap(lens0, 270 + k * 30, 382, 270, 14, 0)
+        // Blase; x1 Lupe auf die Haut (Seifenschicht – Wasser – Seifenschicht), x2 dünnste Stelle oben schwarz
+        bubble3(g, 150, 490, 120, 0)
+        const lens0 = st(g, 'x1', '--o: 280px 360px')
+        blank(lens0, E(280, 360, 66))
+        ink(lens0, E(280, 360, 66), { w: 2.6, t: 0 })
+        ink(lens0, L([234, 406], [196, 444]), { w: 2, t: 0 })
+        const c = clipBox(lens0, 214, 294, 132, 132)
+        for (let k = 0; k < 6; k++) soap(c, 220 + k * 24, 330, 90, 14, 0)
+        for (let k = 0; k < 6; k++) soap(c, 220 + k * 24, 392, 270, 14, 0)
+        for (let k = 0; k < 4; k++) water(c, 236 + k * 30, 361, 0.35, k * 40, 0)
+        const thin = st(g, 'f2', '')
+        hatch(thin, [...E(150, 490, 118, 118, 230, 310), ...E(150, 490, 90, 90, 310, 230)], 0, true)
       },
       farben(g) {
-        ink(g, L([60, 440], [300, 440]), { w: 2.6, t: 500 })
-        ink(g, L([60, 470], [300, 470]), { w: 2.6, t: 500 })
-        arrow(g, L([100, 330], [140, 436]), { w: 2.2, d: 600, t: 300, head: 8 })
-        arrow(g, L([142, 436], [180, 330]), { w: 2.2, d: 900, t: 300, head: 8 })
-        arrow(g, L([156, 472], [196, 330]), { w: 2.2, d: 1100, t: 300, head: 8 })
-        text(g, 180, 540, 'zwei Spiegelungen überlagern sich', { anchor: 'middle', cls: 's', d: 1300 })
+        // Dünne Schicht: ein Strahl wird an Vorder- und Rückseite gespiegelt, die Wellen überlagern sich
+        ink(g, L([30, 480], [330, 480]), { w: 2.6, t: 500 })
+        ink(g, L([30, 520], [330, 520]), { w: 2.6, t: 500 })
+        hatch(g, RR(30, 482, 300, 36, 0), 600)
+        const wav = (a: P, b: P, amp: number, n: number): P[] => {
+          const dx = b[0] - a[0]
+          const dy = b[1] - a[1]
+          const len = Math.hypot(dx, dy)
+          const out: P[] = []
+          for (let i = 0; i <= 80; i++) {
+            const t = i / 80
+            const o = Math.sin(t * n * Math.PI * 2) * amp
+            out.push([a[0] + dx * t - (dy / len) * o, a[1] + dy * t + (dx / len) * o])
+          }
+          return out
+        }
+        ink(g, wav([60, 300], [150, 478], 6, 4), { w: 2, d: 700, t: 600 })
+        ink(g, wav([152, 478], [240, 300], 6, 4), { w: 2, d: 1100, t: 600 })
+        dashes(g, L([150, 480], [172, 518]), { w: 1.4, d: 1200, dash: 3, gap: 3 })
+        ink(g, wav([174, 518], [270, 320], 6, 4.4), { w: 2, d: 1400, t: 600 })
+        bubble3(g, 300, 600, 36, 1600)
       },
       kalk(g) {
-        ink(g, B([30, 380], [60, 600], [300, 600], [330, 380]), { w: 3, t: 800 })
-        hatch(g, RR(46, 470, 268, 12, 4), 800, true)
-        text(g, 180, 520, 'Kalkseife: grauer Rand', { anchor: 'middle', cls: 's', d: 1100 })
+        // Badewanne mit grauem Rand; Lupe: ein Kalkion verklammert zwei Seifenmoleküle
+        const tub: P[] = [...B([30, 420], [40, 600], [320, 600], [330, 420])]
+        ink(g, tub, { w: 3.4, t: 800 })
+        ink(g, L([24, 420], [336, 420]), { w: 3, d: 200, t: 400 })
+        for (const x of [70, 290]) ink(g, B([x, 596], [x - 6, 616], [x + 4, 626], [x - 8, 636]), { w: 2.6, d: 600, t: 200 })
+        hatch(g, [[36, 480], [324, 480], [322, 490], [38, 490]], 900, true)
+        ink(g, waveP(40, 320, 500, 2, 30), { w: 1.4, d: 800, t: 400 })
+        blank(g, E(240, 330, 52))
+        ink(g, E(240, 330, 52), { w: 2.4, d: 1100, t: 400 })
+        ink(g, L([210, 370], [180, 476]), { w: 1.8, d: 1200, t: 200 })
+        soap(g, 228, 330, 180, 30, 1300)
+        soap(g, 252, 330, 0, 30, 1300)
+        ball(g, 240, 330, 9, { d: 1500, w: 1.6, t: 100 })
+        text(g, 240, 300, 'Ca', { anchor: 'middle', size: 14, d: 1600 })
       },
       ende(g) {
-        soap(g, 120, 480, 0, 120, 0)
+        soapBig(g, 60, 470, 260, 0)
+        for (const [x, y, r] of [[40, 380, 30], [26, 560, -60]] as const) water(g, x, y, 0.8, r, 800)
+      },
+      reiben(g) {
+        // zwei Hände Handfläche an Handfläche, reiben gegeneinander, Schaum dazwischen
+        const l = wobble(g, { dy: 14, ms: 700, d: 900 })
+        palm(l, 166, 470, -1, 0)
+        const r = wobble(g, { dy: -14, ms: 700, d: 900 })
+        palm(r, 194, 470, 1, 200)
+        for (let k = 0; k < 9; k++) {
+          const b = wobble(g, { dx: (k % 2 ? 4 : -4), dy: -6, ms: 900 + k * 80, d: 1100 })
+          const x = 170 + ((k * 23) % 40) - 10
+          const y = 380 + ((k * 41) % 200)
+          ink(b, E(x, y, 4 + (k % 3) * 3), { w: 1.2, d: 1000 + k * 60, t: 150 })
+        }
+        travelWave(g, 40, 320, 640, 4, 50, { ms: 1400, d: 1200, w: 1.6 })
+      },
+      verseifung(g) {
+        // Fettmolekül (Glycerin-Rückgrat + drei Fettsäuren) + Lauge → Glycerin + drei Seifenmoleküle
+        for (let i = 0; i < 3; i++) {
+          const y = 330 + i * 40
+          ball(g, 40, y, 7, { d: i * 100, fill: 'hell', w: 1.6, t: 100 })
+          ink(g, [[47, y], [62, y - 8], [78, y], [94, y - 8], [110, y], [126, y - 8], [142, y]], { w: 1.8, d: 200 + i * 100, t: 300 })
+        }
+        ink(g, L([40, 337], [40, 403]), { w: 2.4, d: 100, t: 200 })
+        mol(g, [[170, 360, 'O', 'hell'], [190, 360, 'H']], [[0, 1]], 0.9, 600)
+        text(g, 196, 352, '−', { size: 16, d: 700 })
+        text(g, 158, 366, '+', { anchor: 'end', size: 18, d: 650 })
+        arrow(g, L([180, 440], [180, 500]), { w: 2.6, d: 900, t: 300, head: 9 })
+        for (let i = 0; i < 3; i++) {
+          const y = 540 + i * 40
+          ball(g, 40, y, 7, { d: 1200 + i * 100, fill: 'hell', w: 1.6, t: 100 })
+          ink(g, L([47, y], [62, y]), { w: 1.4, d: 1250, t: 80 })
+          text(g, 66, y + 5, 'OH', { size: 13, d: 1300 })
+        }
+        ink(g, L([40, 547], [40, 613]), { w: 2.4, d: 1200, t: 200 })
+        for (let i = 0; i < 3; i++) {
+          soap(g, 190, 540 + i * 40, 0, 120, 1400 + i * 120)
+        }
       },
     },
     scenes: [
       { t: HOOK(476), gfx: { blasen: {} } },
       { t: T('Wasser und Öl mischen sich nicht. Schüttel sie zusammen – nach kurzer Zeit liegt das Öl wieder **obenauf**.', 64), gfx: { oel: {} } },
       { t: T('Wassermoleküle sind elektrisch ungleich geladen und halten fest zusammen. Fett ist **unpolar** – es wird einfach ausgeschlossen.', 64), gfx: { polar: {} } },
-      { t: T('Seife ist ein Vermittler. Ihr Molekül hat einen **wasserliebenden Kopf** …', 64), gfx: { molekuel: {} } },
-      { t: T('… und einen langen, **fettliebenden Schwanz**.', 64), gfx: { molekuel: { cls: 'a1' } } },
+      { t: T('Seife ist ein Vermittler. Ihr Molekül hat einen **wasserliebenden Kopf** …', 64), gfx: { molekuel: { cls: 'a1' } } },
+      { t: T('… und einen langen, **fettliebenden Schwanz**.', 64), gfx: { molekuel: { cls: 'a1 a2' } } },
       { t: T('Am Fettfleck bohren sich die Schwänze **ins Fett**. Die Köpfe bleiben draußen im Wasser.', 64), gfx: { fleck: {} } },
       { t: T('Immer mehr Seifenmoleküle umhüllen das Fett, bis es sich als Kügelchen ablöst: eine **Mizelle**.', 64), gfx: { mizelle: {} } },
       { t: T('Außen hat die Mizelle nur Köpfe. Sie ist **wasserfreundlich** – und wird einfach weggespült.', 64), gfx: { weg: {} } },
       { t: T('Dasselbe passiert mit vielen Viren: Sie haben eine **Fetthülle**. Seife reißt sie auf, das Virus zerfällt.', 64), gfx: { virus: { cls: 'a1' } } },
       { t: T('Seife tötet viele Keime gar nicht. Sie **löst sie ab** – und das Wasser spült sie fort.', 64), gfx: { abloesen: {} } },
-      { t: T('Darum zählt das **Reiben**: Hände gründlich aneinander, auch zwischen den Fingern und um die Nägel.', 64), gfx: { abloesen: {} } },
+      { t: T('Darum zählt das **Reiben**: Hände gründlich aneinander, auch zwischen den Fingern und um die Nägel.', 64), gfx: { reiben: {} } },
       { t: T('Darum ist Händewaschen mit Seife so wirksam – wenn du gründlich bist: mindestens **20 Sekunden**.', 64), gfx: { haende: {} } },
       { t: T('Seife ist uralt: Schon in Babylon kochte man vor über **4.000 Jahren** Fett mit Holzasche.', 64), gfx: { alt: {} } },
-      { t: T('Die Reaktion heißt **Verseifung**: Eine Lauge spaltet Fett in Seifenmoleküle und Glycerin.', 64), gfx: { f1: { draw: 'formel', args: [['Fett', '+', 'Lauge', '→', 'Seife', '+', 'Glycerin'], 360] } } },
+      { t: T('Die Reaktion heißt **Verseifung**: Eine Lauge spaltet Fett in Seifenmoleküle und Glycerin.', 64), gfx: { verseifung: {} } },
       { t: T('Probier es: Streu Pfeffer auf Wasser und tupf einen Tropfen Spülmittel in die Mitte. Der Pfeffer **flieht** schlagartig zum Rand.', 64), gfx: { pfeffer: {} } },
-      { t: T('Das Spülmittel schwächt die **Oberflächenspannung** in der Mitte. Die Wasserhaut am Rand zieht stärker – und reißt den Pfeffer mit.', 64), gfx: { pfeffer: {} } },
+      { t: T('Das Spülmittel schwächt die **Oberflächenspannung** in der Mitte. Die Wasserhaut am Rand zieht stärker – und reißt den Pfeffer mit.', 64), gfx: { pfeffer: { cls: 'a1' } } },
       { t: T('Seifenblasen funktionieren ähnlich: eine hauchdünne **Wasserschicht** zwischen zwei Lagen Seifenmolekülen.', 64), gfx: { blase: { cls: 'a1' } } },
       { t: T('Die bunten Farben entstehen, weil Licht an Vorder- und Rückseite der Haut **gespiegelt** wird – die beiden Wellen überlagern sich.', 64), gfx: { farben: {} } },
-      { t: T('Kurz vor dem Platzen wird die Haut so dünn, dass sie **schwarz** wirkt: nur noch wenige Millionstel Millimeter.', 64), gfx: { blase: { cls: 'a1' } } },
+      { t: T('Kurz vor dem Platzen wird die Haut so dünn, dass sie **schwarz** wirkt: nur noch wenige Millionstel Millimeter.', 64), gfx: { blase: { cls: 'a2' } } },
       { t: T('Hartes Wasser bremst Seife: Kalk bildet mit ihr unlösliche **Kalkseife** – den grauen Rand in der Badewanne.', 64), gfx: { kalk: {} } },
       { t: T('Seife ist ein Molekül mit **zwei Gesichtern**.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],
