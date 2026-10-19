@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, check, clock, cross, crowd, dashes, fig, group, hatch, hbars, ink, letter, lie, mk, question, rays, st, text, timeline, vbars, type P } from './draw'
-import { arcArrow, axes, ball, bird, box, carrow, cloud, dot, drop, earth, eyeFront, flake, flame, flow, glide, ground, heart, lens, mapRegion, pie, plot, rad, ripple, smooth, spin, sun, thermo, tree, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, brain, bubble, check, clock, cross, crowd, dashes, fig, group, hatch, hbars, ink, letter, lie, mk, question, rays, st, text, timeline, vbars, type P } from './draw'
+import { arcArrow, axes, ball, bird, cloud, dot, drop, earth, eyeFront, flake, flame, flow, glide, ground, heart, house, lens, mapRegion, pie, plot, rad, ripple, smooth, spin, sun, thermo, tree, waveP, wobble } from './kit'
 
 // Leben & Körper: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -2199,31 +2199,53 @@ export const AHA_KOERPER: Bite[] = [
     images: [],
     draw: {
       schale(g) {
+        // Petrischale mit Kolonien, die wachsen
         ink(g, E(180, 250, 150, 120), { w: 3.2, t: 800 })
         ink(g, E(180, 250, 140, 110), { w: 1.6, d: 300, t: 800 })
+        ink(g, E(180, 236, 146, 114, 200, 340), { w: 1, d: 500, t: 500 })
         let seed = 4
         const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
         for (let i = 0; i < 30; i++) {
           const a = rnd() * Math.PI * 2
           const r = Math.sqrt(rnd()) * 0.85
-          dot(g, 180 + Math.cos(a) * 130 * r, 250 + Math.sin(a) * 100 * r, 3 + rnd() * 4, 700 + i * 40)
+          const x = 180 + Math.cos(a) * 130 * r
+          const y = 250 + Math.sin(a) * 100 * r
+          const s = 3 + rnd() * 4
+          const col = mk('g', {}, g)
+          mk('animateTransform', { attributeName: 'transform', type: 'scale', from: '0.3', to: '1', dur: '3s', begin: `${0.7 + i * 0.04}s`, fill: 'freeze', additive: 'sum' }, col)
+          const w = mk('g', { transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})` }, g)
+          w.appendChild(col)
+          ball(col, 0, 0, s, { d: 700 + i * 40, fill: i % 3 ? 'hell' : 'dicht', w: 1.2, t: 0 })
         }
       },
       fleming(g) {
+        // Schale mit Schimmel; ringsum ein freier Hof, außen die Bakterienkolonien
         ink(g, E(180, 470, 130, 100), { w: 3, t: 800 })
-        const mold: P[] = [...B([80, 440], [90, 400], [140, 400], [150, 440]), ...B([150, 440], [160, 480], [100, 500], [80, 440]).slice(1)]
+        ink(g, E(180, 470, 122, 92), { w: 1.2, d: 200, t: 800 })
+        const mold: P[] = smooth([[80, 440], [96, 404], [130, 400], [152, 430], [146, 474], [110, 492], [84, 470], [80, 440]], 4)
         hatch(g, mold, 700, true)
         ink(g, mold, { w: 2.2, d: 500, t: 400 })
+        for (let k = 0; k < 8; k++) ink(g, L([116 + Math.cos(k * 0.785) * 30, 446 + Math.sin(k * 0.785) * 30], [116 + Math.cos(k * 0.785) * 40, 446 + Math.sin(k * 0.785) * 40]), { w: 1, d: 800, t: 80 })
         dashes(g, E(115, 445, 64, 58), { w: 1.4, d: 900 })
-        for (const [x, y] of [[220, 420], [250, 470], [210, 510], [270, 520], [240, 400]] as const) dot(g, x, y, 5, 1100)
-        text(g, 180, 620, 'Schimmelpilz: 1928', { anchor: 'middle', d: 1300 })
+        let seed = 6
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 18; i++) {
+          const x = 190 + rnd() * 110
+          const y = 400 + rnd() * 140
+          if (Math.hypot((x - 180) / 120, (y - 470) / 90) > 0.95) continue
+          ball(g, x, y, 3 + rnd() * 3, { d: 1100 + i * 30, w: 1.2, t: 0 })
+        }
+        text(g, 180, 620, '1928', { anchor: 'middle', size: 20, d: 1300 })
       },
       platte(g) {
         const conc = ['0', '1', '10', '100', '1000', '100', '10', '1', '0']
         ink(g, RR(30, 360, 300, 230, 12), { w: 3, t: 800 })
         for (let b = 1; b < 9; b++) ink(g, L([30 + b * 33.3, 362], [30 + b * 33.3, 588]), { w: 1.4, d: 300 + b * 60, t: 300 })
         conc.forEach((c, b) => text(g, 30 + (b + 0.5) * 33.3, 346, c, { anchor: 'middle', cls: 's', d: 600 + b * 60 }))
-        text(g, 180, 620, 'Antibiotikum: × 10 je Streifen', { anchor: 'middle', cls: 's', d: 1100 })
+        for (let b = 0; b < 9; b++) {
+          const e = Math.min(b, 8 - b)
+          if (e > 0) for (let k = 0; k < e * 3; k++) dot(g, 36 + b * 33.3 + ((k * 7) % 22), 596 + Math.floor(k / 3) * 5, 1, 900)
+        }
         let seed = 8
         const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
         const cls = ['x1', 'x3', 'x4', 'x4', 'x5']
@@ -2235,78 +2257,124 @@ export const AHA_KOERPER: Bite[] = [
         const mut = st(g, 'x2', '--o: 62px 470px')
         ball(mut, 60, 470, 7, { fill: 'dicht', t: 0 })
         ink(mut, E(60, 470, 14), { w: 2, t: 0 })
+        text(g, 180, 630, '× Antibiotikum', { anchor: 'middle', cls: 's', d: 1100 })
       },
       zufall(g) {
-        box(g, 30, 360, 140, 70, ['Mutation', '(Zufall)'], { size: 16 })
-        box(g, 190, 360, 140, 70, ['Auslese', '(Antibiotikum)'], { size: 16, d: 400 })
-        carrow(g, [170, 380], [190, 380], -30, { d: 800 })
-        carrow(g, [190, 420], [170, 420], -30, { d: 1000 })
-        text(g, 180, 520, 'Evolution im Zeitraffer', { anchor: 'middle', size: 20, d: 1300 })
+        // Kreislauf: zufällige Mutation → Auslese → wenige Überlebende vermehren sich → neue Mutation …
+        const c = [180, 470]
+        ink(g, E(c[0], c[1], 110), { w: 1.6, d: 200, t: 800 })
+        arcArrow(g, c[0], c[1], 110, -60, 20, { d: 900, t: 400 })
+        arcArrow(g, c[0], c[1], 110, 60, 140, { d: 1100, t: 400 })
+        arcArrow(g, c[0], c[1], 110, 180, 260, { d: 1300, t: 400 })
+        // Mutation (Blitz auf DNA), Auslese (Tablette), Vermehrung (Teilung)
+        ladder(g, 210, 300, 360, 16, 500, 400)
+        bolt(g, [[262, 330], [254, 346], [262, 348], [252, 364]], 800, 2.4)
+        const pill = RR(250, 540, 60, 24, 12)
+        hatch(g, RR(280, 540, 30, 24, 12), 1000, true)
+        ink(g, pill, { w: 2.2, d: 900, t: 300 })
+        bact(g, 60, 470, 0.9, 1100, true)
+        bact(g, 90, 490, 0.9, 1200, true)
       },
       sieb(g) {
-        const top: P[] = [[60, 420], [300, 420]]
-        dashes(g, L(top[0], top[1]), { w: 3, dash: 20, gap: 14 })
+        // Sieb: die meisten fallen durch, nur das widerstandsfähige bleibt
+        ink(g, B([60, 420], [100, 470], [260, 470], [300, 420]), { w: 3, t: 600 })
+        for (let k = 0; k < 9; k++) ink(g, L([90 + k * 22, 440], [92 + k * 22, 466]), { w: 1, d: 300 + k * 30, t: 80 })
         let seed = 2
         const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
-        for (let i = 0; i < 18; i++) ball(g, 70 + rnd() * 220, 330 + rnd() * 70, 6, { d: 300 + i * 30, fill: i === 7 ? 'dicht' : 'leer', w: 1.6, t: 0 })
-        ball(g, 180, 520, 8, { d: 1200, fill: 'dicht', t: 0 })
-        arrow(g, L([180, 450], [180, 500]), { w: 2.2, d: 1100, t: 300, head: 8 })
-        text(g, 180, 600, 'nur wer zufällig widersteht', { anchor: 'middle', cls: 's', d: 1400 })
+        for (let i = 0; i < 18; i++) {
+          const x = 90 + rnd() * 180
+          const y = 330 + rnd() * 70
+          if (i === 7) ball(g, 180, 446, 7, { d: 300, fill: 'dicht', w: 1.6, t: 0 })
+          else {
+            const f = glide(g, 0, 260, { ms: 1400, d: 1000 + i * 60 })
+            ball(f, x, y, 6, { d: 300 + i * 30, fill: 'leer', w: 1.6, t: 0 })
+          }
+        }
+        ink(g, L([40, 640], [320, 640]), { w: 2, d: 400, t: 400 })
       },
       plasmid(g) {
+        // zwei Bakterien legen eine Brücke, ein DNA-Ring wandert hinüber
         bact(g, 100, 470, 3)
         bact(g, 260, 470, 3, 300)
         ink(g, E(86, 470, 12), { w: 2, d: 700, t: 300 })
-        arrow(g, B([150, 420], [170, 390], [200, 390], [220, 420]), { w: 2.4, d: 1000, t: 400, head: 9 })
-        ink(g, E(246, 470, 12), { w: 2, d: 1400, t: 300 })
+        ink(g, L([160, 470], [200, 470]), { w: 2.4, d: 900, t: 300 })
+        ink(g, L([160, 478], [200, 478]), { w: 1.2, d: 900, t: 300 })
+        const r = mk('g', { opacity: 0 }, g)
+        ink(r, E(0, 0, 9), { w: 2, t: 0 })
+        mk('set', { attributeName: 'opacity', to: 1, begin: '1.2s', fill: 'freeze' }, r)
+        mk('animateMotion', { path: 'M86 470L246 470', dur: '3s', begin: '1.2s', repeatCount: 'indefinite' }, r)
         text(g, 180, 380, 'Plasmid', { anchor: 'middle', cls: 's', d: 1200 })
       },
       tierhaltung(g) {
-        pie(g, 180, 460, 110, 0.7)
-        text(g, 180, 620, 'weltweit der größere Teil: Tierhaltung', { anchor: 'middle', cls: 's', d: 1100 })
+        pie(g, 180, 430, 90, 0.7)
+        // Stall mit Kuh und Schwein
+        house(g, 40, 640, 60, 1000)
+        const pig: P[] = smooth([[140, 630], [144, 600], [180, 590], [214, 600], [222, 620], [216, 634], [140, 634]], 4)
+        blank(g, pig)
+        ink(g, pig, { w: 2, d: 1200, t: 400 })
+        ink(g, E(226, 614, 6, 5), { w: 1.6, d: 1300, t: 100 })
+        for (const x of [154, 170, 196, 208]) ink(g, L([x, 632], [x, 646]), { w: 1.8, d: 1300, t: 80 })
+        ink(g, B([140, 610], [130, 600], [134, 590], [140, 596]), { w: 1.2, d: 1400, t: 100 })
+        ground(g, 20, 340, 646, 900)
       },
       klinik(g) {
+        // Krankenhaus mit Fenstern und Kreuz; resistente Keime drumherum
         ink(g, RR(80, 380, 200, 220, 6), { w: 3, t: 800 })
         for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) ink(g, RR(98 + c * 46, 400 + r * 56, 26, 30, 3), { w: 1.8, d: 400 + (r * 4 + c) * 50, t: 200 })
+        ink(g, RR(160, 560, 40, 40, 2), { w: 2, d: 800, t: 200 })
         hatch(g, RR(166, 300, 28, 72, 3), 900, true)
         hatch(g, RR(144, 322, 72, 28, 3), 900, true)
-        bact(g, 300, 640, 1, 1100, true)
-        bact(g, 50, 640, 1, 1200, true)
+        for (const [x, y] of [[300, 620], [40, 640], [310, 420], [40, 420]] as const) {
+          const w = wobble(g, { dx: 6, dy: -4, ms: 2000 + x * 3, d: 1100 })
+          bact(w, x, y, 1, 1100, true)
+        }
       },
       tote(g) {
-        text(g, 180, 470, '1,27 Mio.', { anchor: 'middle', size: 52, d: 200 })
-        text(g, 180, 520, 'Todesfälle 2019, direkt durch resistente Keime', { anchor: 'middle', cls: 's', d: 700 })
+        // Menschenmenge als Größenordnung: jede Figur steht für viele
+        for (let r = 0; r < 5; r++) for (let c = 0; c < 12; c++) fig(g, 34 + c * 26, 400 + r * 52, 0.9, { d: (r * 12 + c) * 20 })
       },
       viren(g) {
         virus(g, 110, 470, 40)
-        cross(g, 110, 470, 3.6, 900)
+        bact(g, 110, 600, 1.6, 600, true)
         const pill = RR(210, 450, 100, 40, 20)
         hatch(g, RR(260, 450, 50, 40, 20), 700, true)
         ink(g, pill, { w: 2.6, d: 500, t: 500 })
         ink(g, L([260, 452], [260, 488]), { w: 2, d: 700, t: 200 })
-        text(g, 180, 600, 'gegen Viren wirkungslos', { anchor: 'middle', d: 1200 })
+        arrow(g, L([206, 470], [166, 470]), { w: 2, d: 900, t: 300, head: 8 })
+        cross(g, 186, 440, 0.6, 1200)
+        arrow(g, L([226, 494], [150, 590]), { w: 2, d: 1000, t: 300, head: 8 })
+        check(g, 196, 560, 0.6, 1300)
       },
       packung(g) {
+        // Blisterpackung, Tag für Tag
         ink(g, RR(70, 380, 220, 160, 10), { w: 3, t: 600 })
         for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
           const x = 110 + c * 46
           const y = 430 + r * 60
           ink(g, E(x, y, 16), { w: 2, d: 400 + (r * 4 + c) * 80, t: 200 })
           if (r * 4 + c < 5) hatch(g, E(x, y, 12), 700 + (r * 4 + c) * 80, true)
+          text(g, x, y + 32, ['Mo', 'Di', 'Mi', 'Do'][c], { anchor: 'middle', cls: 's', d: 800, size: 9 })
         }
-        text(g, 180, 600, 'wie verordnet', { anchor: 'middle', d: 1300 })
+        clock(g, 180, 610, 26, 0, 0, 1200)
       },
       neu(g) {
         timeline(g, 30, 330, 470, [
           { at: 0.05, label: '1928', sub: 'Penicillin', up: true },
           { at: 0.4, label: '1940–1960', sub: 'Goldenes Zeitalter' },
-          { at: 0.8, label: 'seit 1987', sub: 'kaum neue Klassen', up: true },
+          { at: 0.8, label: 'seit 1987', up: true },
         ])
+        for (let k = 0; k < 6; k++) {
+          const x = 60 + k * 44
+          const pill = RR(x - 16, 580, 32, 14, 7)
+          if (k < 4) hatch(g, pill, 1400 + k * 80, true)
+          ink(g, pill, { w: 1.6, d: 1300 + k * 80, t: 150 })
+        }
       },
       ende(g) {
         ink(g, E(180, 480, 120, 90), { w: 3, t: 800 })
         bact(g, 160, 470, 1.6, 500, true)
         bact(g, 220, 500, 1.2, 700, true)
+        bact(g, 120, 510, 1, 900, true)
       },
     },
     scenes: [
@@ -2344,87 +2412,120 @@ export const AHA_KOERPER: Bite[] = [
     images: [],
     draw: {
       spritze(g) {
+        // Spritze mit Skala, Kolben und Kanüle; ein Tropfen an der Spitze
         ink(g, RR(60, 220, 200, 50, 8), { w: 3.2, t: 700 })
         hatch(g, RR(64, 224, 120, 42, 6), 600)
+        ink(g, RR(184, 222, 6, 46, 2), { w: 2, d: 500, t: 200 })
         ink(g, L([260, 245], [330, 245]), { w: 2.4, d: 500, t: 300 })
+        ink(g, RR(256, 236, 10, 18, 2), { w: 1.8, d: 600, t: 150 })
         ink(g, L([20, 245], [60, 245]), { w: 4, d: 400, t: 300 })
         ink(g, L([20, 220], [20, 270]), { w: 4, d: 500, t: 200 })
-        for (let k = 1; k < 5; k++) ink(g, L([60 + k * 40, 220], [60 + k * 40, 234]), { w: 1.6, d: 600 + k * 60, t: 100 })
+        ink(g, L([60, 210], [60, 280]), { w: 3, d: 500, t: 200 })
+        for (let k = 1; k < 9; k++) ink(g, L([60 + k * 22, 220], [60 + k * 22, k % 2 ? 230 : 236]), { w: 1.4, d: 600 + k * 40, t: 100 })
+        const dr = glide(g, 0, 40, { ms: 1400, d: 1400, loop: true })
+        drop(dr, 334, 262, 0.3, 1400, true)
       },
       erstkontakt(g) {
         axes(g, 40, 600, 330, 320, { xl: 'Tage', yl: 'Erreger' })
-        plot(g, 50, 596, 270, 240, (t) => Math.sin(Math.min(1, t * 1.1) * Math.PI) * (t < 0.55 ? 1 : 1), { d: 400 })
+        plot(g, 50, 596, 270, 240, (t) => Math.sin(Math.min(1, t * 1.1) * Math.PI), { d: 400 })
         dashes(g, L([210, 600], [210, 340]), { w: 1.4, d: 1300 })
-        text(g, 216, 330, 'Abwehr bereit', { cls: 's', d: 1500 })
+        antibody(g, 220, 380, 1.2, 0, 1500)
         const k = st(g, 'f1')
-        text(k, 300, 400, 'krank', { anchor: 'middle', fade: false })
+        thermo(k, 290, 400, 60, 0.85, 0)
+        for (let i = 0; i < 7; i++) ink(g, L([50 + i * 38.5, 600], [50 + i * 38.5, 606]), { w: 1.2, d: 500, t: 60 })
       },
       antigen(g) {
         virus(g, 180, 470, 70)
-        text(g, 290, 360, 'Antigene', { anchor: 'middle', cls: 's', d: 900 })
-        arrow(g, L([270, 372], [240, 404]), { w: 2, d: 1000, t: 300, head: 8 })
+        for (const a of [-50, -10, 30]) {
+          const q: P = [180 + Math.cos(rad(a)) * 82, 470 + Math.sin(rad(a)) * 82]
+          ink(g, E(q[0], q[1], 8), { w: 2, d: 1000, t: 200 })
+        }
+        text(g, 300, 360, 'Antigene', { anchor: 'middle', cls: 's', d: 900 })
+        arrow(g, L([290, 372], [258, 404]), { w: 1.6, d: 1000, t: 300, head: 7 })
       },
       schloss(g) {
+        // B-Zellen mit verschiedenen Rezeptoren – nur eine passt zum Antigen
         const shapes = ['dreieck', 'eckig', 'rund']
         shapes.forEach((s, i) => {
           const x = 70 + i * 110
-          ball(g, x, 520, 34, { d: i * 200, fill: 'hell' })
-          const top = 520 - 34
+          ball(g, x, 540, 34, { d: i * 200, fill: 'hell' })
+          ball(g, x - 6, 546, 12, { d: i * 200 + 200, fill: 'dicht', t: 0 })
+          const top = 540 - 34
           if (s === 'dreieck') ink(g, [[x - 10, top - 2], [x, top - 16], [x + 10, top - 2]], { w: 2.4, d: 400 + i * 200, t: 200 })
           if (s === 'eckig') ink(g, [[x - 10, top - 2], [x - 10, top - 16], [x + 10, top - 16], [x + 10, top - 2]], { w: 2.4, d: 400 + i * 200, t: 200 })
           if (s === 'rund') ink(g, E(x, top - 2, 10, 12, 180, 360), { w: 2.4, d: 400 + i * 200, t: 200 })
         })
-        const key: P[] = [[170, 440], [190, 440], [190, 460], [170, 460], [170, 440]]
-        hatch(g, RR(166, 380, 28, 40, 4), 1000, true)
-        ink(g, RR(166, 380, 28, 40, 4), { w: 2, d: 900, t: 300 })
-        ink(g, L([180, 420], [180, 440]), { w: 2, d: 1000, t: 200 })
-        void key
-        check(g, 180, 610, 1, 1400)
-        text(g, 180, 350, 'Antigen', { anchor: 'middle', cls: 's', d: 1100 })
+        const key = glide(g, 0, 54, { ms: 1200, d: 1300 })
+        hatch(key, RR(166, 380, 28, 30, 4), 1000, true)
+        ink(key, RR(166, 380, 28, 30, 4), { w: 2, d: 900, t: 300 })
+        ink(key, [[170, 410], [170, 424], [190, 424], [190, 410]], { w: 2, d: 1000, t: 200 })
+        check(g, 180, 620, 1, 2400)
+        text(g, 180, 366, 'Antigen', { anchor: 'middle', cls: 's', d: 1100 })
       },
       ypsilon(g) {
         antibody(g, 180, 600, 6)
-        virus(g, 108, 360, 16, 900)
-        virus(g, 252, 360, 16, 1000)
-        text(g, 180, 646, 'Antikörper', { anchor: 'middle', d: 1200 })
+        const a = glide(g, 30, 30, { ms: 1400, d: 900 })
+        virus(a, 98, 330, 16, 900)
+        const b = glide(g, -30, 30, { ms: 1400, d: 900 })
+        virus(b, 262, 330, 16, 1000)
       },
       vermehrung(g) {
-        ball(g, 60, 470, 24, { fill: 'dicht' })
-        arrow(g, L([92, 470], [130, 470]), { w: 2.4, d: 300, t: 300, head: 9 })
-        for (let i = 0; i < 6; i++) ball(g, 160 + (i % 3) * 40, 440 + Math.floor(i / 3) * 60, 16, { d: 500 + i * 100, fill: 'dicht', t: 200 })
-        for (let i = 0; i < 5; i++) antibody(g, 300 + (i % 2) * 24, 380 + i * 46, 0.9, 20 * (i % 2 ? 1 : -1), 1200 + i * 100)
-        text(g, 180, 600, 'Antikörper', { anchor: 'middle', d: 1600 })
+        // eine passende Zelle teilt sich, ihre Nachkommen schütten Antikörper aus
+        ball(g, 50, 470, 22, { fill: 'dicht' })
+        arrow(g, L([80, 470], [116, 470]), { w: 2.2, d: 300, t: 300, head: 8 })
+        for (let i = 0; i < 6; i++) ball(g, 146 + (i % 3) * 40, 440 + Math.floor(i / 3) * 60, 16, { d: 500 + i * 100, fill: 'dicht', t: 200 })
+        for (let i = 0; i < 6; i++) {
+          const ab = glide(g, 40, (i - 2.5) * 6, { ms: 2000, d: 1200 + i * 150, loop: true })
+          antibody(ab, 270 + (i % 2) * 20, 390 + i * 40, 0.9, 20 * (i % 2 ? 1 : -1), 1200 + i * 100)
+        }
       },
       gedaechtnis(g) {
+        // Gedächtniszellen warten im Lymphknoten
+        const node: P[] = smooth([[80, 470], [90, 400], [180, 370], [270, 400], [290, 470], [270, 540], [180, 570], [90, 540], [80, 470]], 5)
+        ink(g, node, { w: 2.6, t: 800 })
+        hatch(g, node, 400)
         for (let i = 0; i < 4; i++) {
-          const x = 70 + i * 74
-          ball(g, x, 470, 26, { d: i * 200, fill: 'hell' })
-          text(g, x, 476, 'G', { anchor: 'middle', cls: 'halo', d: i * 200 + 200 })
+          const x = 110 + i * 46
+          blank(g, E(x, 470, 20))
+          ink(g, E(x, 470, 20), { w: 2, d: 600 + i * 150, t: 300 })
+          text(g, x, 476, 'G', { anchor: 'middle', d: 800 + i * 150 })
         }
-        text(g, 180, 560, 'Gedächtniszellen bleiben', { anchor: 'middle', d: 1100 })
+        clock(g, 300, 610, 22, 0, 0, 1200)
+        const h = spin(g, 300, 610, 2000, 1500)
+        ink(h, L([300, 610], [300, 594]), { w: 1.6, d: 1500, t: 100 })
       },
       zweimal(g) {
-        for (const [x0, k, n, d] of [[30, 0.45, 'erstes Mal', 0], [195, 1, 'zweites Mal', 600]] as const) {
+        for (const [x0, k, n, d] of [[30, 0.45, '1.', 0], [195, 1, '2.', 600]] as const) {
           axes(g, x0, 600, x0 + 140, 360, { d })
           plot(g, x0 + 4, 596, 126, 220, (t) => (t < 0.5 * (1 - k + 0.4) ? 0 : Math.min(1, ((t - 0.5 * (1 - k + 0.4)) / 0.3) * k)), { d: d + 300 })
-          text(g, x0 + 70, 630, n, { anchor: 'middle', cls: 's', d: d + 400 })
+          text(g, x0 + 70, 630, n, { anchor: 'middle', size: 18, d: d + 400 })
         }
         text(g, 30, 344, 'Abwehr', { cls: 's', d: 900 })
       },
       impf(g) {
+        // nur die Merkmale: Antigen-Stücke ohne den Erreger selbst
         ink(g, RR(60, 440, 160, 40, 8), { w: 3, t: 600 })
+        hatch(g, RR(64, 444, 100, 32, 6), 500)
         ink(g, L([220, 460], [280, 460]), { w: 2.4, d: 400, t: 300 })
         ink(g, L([30, 460], [60, 460]), { w: 4, d: 300, t: 300 })
         for (const [x, y] of [[100, 390], [160, 380], [300, 400]] as const) {
-          ink(g, E(x, y, 10), { w: 2, d: 800, t: 200 })
-          ink(g, [[x - 6, y - 10], [x, y - 20], [x + 6, y - 10]], { w: 2, d: 900, t: 150 })
+          const f = wobble(g, { dy: -6, ms: 2000 + x * 4, d: 900 })
+          ink(f, E(x, y, 10), { w: 2, d: 800, t: 200 })
+          ink(f, [[x - 6, y - 10], [x, y - 20], [x + 6, y - 10]], { w: 2, d: 900, t: 150 })
         }
-        text(g, 180, 560, 'nur die Merkmale, ohne Krankheit', { anchor: 'middle', cls: 's', d: 1100 })
+        virus(g, 200, 590, 20, 1000)
+        cross(g, 200, 590, 1.6, 1300)
       },
       arten(g) {
-        box(g, 40, 330, 280, 60, ['abgetöteter oder', 'abgeschwächter Erreger'], { size: 15 })
-        box(g, 40, 420, 280, 60, 'nur ein Eiweiß-Teilstück', { size: 15, d: 400 })
-        box(g, 40, 510, 280, 60, 'Bauplan dafür (mRNA)', { size: 15, d: 800, fill: true })
+        // drei Wege: ganzer, unschädlich gemachter Erreger · nur ein Eiweißstück · nur der Bauplan
+        virus(g, 70, 380, 22, 0)
+        cross(g, 70, 380, 1.2, 400)
+        ink(g, E(180, 380, 10), { w: 2, d: 500, t: 200 })
+        ink(g, [[174, 370], [180, 360], [186, 370]], { w: 2, d: 600, t: 150 })
+        ink(g, waveP(250, 320, 380, 8, 18), { w: 2.4, d: 800, t: 400 })
+        for (const x of [70, 180, 285]) arrow(g, L([x, 420], [x, 470]), { w: 1.6, d: 1100, t: 200, head: 6 })
+        cell(g, 180, 560, 140, 70, 1300, true)
+        text(g, 285, 640, 'mRNA', { anchor: 'middle', cls: 's', d: 1500 })
       },
       kuh(g) {
         const body = RR(70, 420, 180, 100, 30)
@@ -2434,52 +2535,65 @@ export const AHA_KOERPER: Bite[] = [
         ink(g, RR(240, 380, 70, 60, 20), { w: 3, d: 500, t: 500 })
         ink(g, L([250, 384], [240, 360]), { w: 2.4, d: 800, t: 150 })
         ink(g, L([300, 384], [310, 360]), { w: 2.4, d: 800, t: 150 })
+        dot(g, 262, 404, 2.6, 900)
+        ink(g, E(290, 424, 10, 6), { w: 1.6, d: 900, t: 150 })
         for (const [x, y, r] of [[120, 450, 14], [180, 480, 18], [220, 446, 10]] as const) hatch(g, E(x, y, r), 900, true)
-        text(g, 180, 640, 'lateinisch vacca: Kuh', { anchor: 'middle', d: 1100 })
+        ink(g, B([70, 440], [50, 460], [46, 500], [52, 520]), { w: 2, d: 900, t: 200 })
+        ground(g, 30, 330, 592, 400)
+        text(g, 180, 640, 'vacca', { anchor: 'middle', cls: 'it', size: 20, d: 1100 })
       },
       variolation(g) {
         ink(g, B([30, 520], [120, 480], [240, 480], [330, 500]), { w: 3, t: 700 })
         ink(g, B([30, 600], [120, 580], [240, 580], [330, 590]), { w: 3, t: 700 })
         for (let k = 0; k < 3; k++) ink(g, L([150 + k * 16, 504], [160 + k * 16, 524]), { w: 2, d: 800 + k * 100, t: 150 })
         ink(g, L([210, 380], [180, 476]), { w: 2.6, d: 1000, t: 300 })
-        text(g, 180, 360, 'Variolation: riskant', { anchor: 'middle', cls: 's', d: 1300 })
+        ink(g, L([216, 382], [186, 478]), { w: 1, d: 1000, t: 300 })
+        for (const [x, y] of [[90, 530], [260, 540]] as const) {
+          ink(g, E(x, y, 9, 7), { w: 1.6, d: 1200, t: 150 })
+          dot(g, x, y, 2, 1300)
+        }
       },
       pocken(g) {
-        text(g, 180, 460, '300 Mio.', { anchor: 'middle', size: 54, d: 200 })
-        text(g, 180, 504, 'Pocken-Tote im 20. Jahrhundert', { anchor: 'middle', cls: 's', d: 600 })
-        text(g, 180, 580, '1980: ausgerottet', { anchor: 'middle', size: 22, d: 1100 })
+        // Weltkarte: die Pocken verschwinden Region um Region (Kreuze), 1980 ist die Welt frei
+        earth(g, 180, 470, 120, 0, { lon: 20, lat: 10 })
+        for (const [x, y, d] of [[130, 420, 900], [210, 400, 1100], [190, 500, 1300], [250, 460, 1500]] as const) cross(g, x, y, 0.7, d)
       },
       herde(g) {
+        // viele geschützte Menschen, wenige ungeschützte – das Virus kommt nicht weit
         for (let r = 0; r < 6; r++) for (let c = 0; c < 7; c++) {
           const x = 50 + c * 44
           const y = 350 + r * 50
           const open = (r === 2 && c === 3) || (r === 4 && c === 1) || (r === 1 && c === 5)
           ball(g, x, y, 12, { d: (r * 7 + c) * 20, fill: open ? 'leer' : 'hell', w: 1.8, t: 0 })
+          if (!open) ink(g, E(x, y, 16, 16, 200, 340), { w: 1, d: 600 + (r * 7 + c) * 20, t: 80 })
         }
-        virus(g, 182, 450, 8, 1200)
-        text(g, 180, 660, 'Herdenschutz', { anchor: 'middle', d: 1400 })
+        const v = wobble(g, { dx: 8, dy: -6, ms: 1600, d: 1200 })
+        virus(v, 182, 425, 8, 1200)
       },
       masern(g) {
         pie(g, 180, 460, 110, 0.95)
-        text(g, 180, 620, 'Masern: rund 95 % Geimpfte nötig', { anchor: 'middle', cls: 's', d: 1100 })
+        virus(g, 300, 600, 14, 1000)
       },
       auffrischen(g) {
         timeline(g, 30, 330, 470, [
           { at: 0.05, label: 'Impfung', up: true },
-          { at: 0.5, label: '+ 10 Jahre', sub: 'Auffrischung', up: true, big: true },
+          { at: 0.5, label: '+ 10 Jahre', up: true, big: true },
           { at: 0.95, label: '+ 20', up: true },
         ])
-        text(g, 180, 580, 'Tetanus: alle zehn Jahre', { anchor: 'middle', d: 1400 })
+        plot(g, 40, 620, 290, 90, (t) => 1 - ((t * 2) % 1) * 0.7, { d: 1200, t: 1200, w: 2.2 })
+        ink(g, L([40, 620], [330, 620]), { w: 1, d: 1100, t: 400 })
       },
       armreaktion(g) {
         fig(g, 140, 620, 6)
         ink(g, E(222, 494, 14), { w: 2, d: 800, t: 300 })
-        text(g, 270, 470, 'Training läuft', { anchor: 'middle', cls: 's', d: 1000 })
+        ripple(g, 222, 494, 14, 34, { n: 2, ms: 1600, d: 1100, w: 1.2 })
+        thermo(g, 300, 400, 70, 0.6, 1000)
       },
       ende(g) {
         const sh: P[] = [[180, 370], [270, 400], [260, 520], [180, 590], [100, 520], [90, 400], [180, 370]]
         hatch(g, sh, 600)
         ink(g, sh, { w: 3.2, t: 900 })
+        antibody(g, 180, 520, 2.6, 0, 900)
       },
     },
     scenes: [
