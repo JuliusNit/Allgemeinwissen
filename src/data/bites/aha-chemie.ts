@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
 import { B, E, HOOK, L, RR, T, arrow, blank, brain, car, check, cross, dashes, fig, hatch, ink, mk, pop, rays, st, strike, text, vbars, type P } from './draw'
-import { axes, bact, ball, box, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, leaf, mapRegion, mito, mol, onion, plot, rad, rain, ripple, smooth, spin, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble } from './kit'
+import { axes, bact, ball, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, leaf, mapRegion, mito, mol, onion, plot, rad, rain, ripple, smooth, spin, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble } from './kit'
 
 // Chemie: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -54,6 +54,49 @@ function lakeBed(g: Element, d = 0): void {
     ink(w, B([x, 400], [x - 2, 400 - h / 2], [x + 3, 400 - h * 0.8], [x + 1, 400 - h]), { w: 1.6, d: d + 500, t: 300 })
     ink(w, E(x + 1, 400 - h + 12, 3, 8), { w: 1.8, d: d + 700, t: 150 })
   }
+}
+
+/** Steak von oben (flach, perspektivisch): Fettrand, Marmorierung, Kruste mit Grillstreifen; Mitte (x, y), Breite w */
+function steak(g: Element, x: number, y: number, w = 160, d = 0, crust = true): void {
+  const h = w * 0.42
+  const o: P[] = smooth([[x - w / 2, y], [x - w * 0.42, y - h * 0.45], [x - w * 0.1, y - h * 0.55], [x + w * 0.3, y - h * 0.5], [x + w / 2, y - h * 0.1], [x + w * 0.44, y + h * 0.4], [x + w * 0.05, y + h * 0.5], [x - w * 0.35, y + h * 0.42], [x - w / 2, y]], 3)
+  blank(g, o)
+  if (crust) hatch(g, o, d + 500)
+  ink(g, o, { w: 2.8, d, t: 700 })
+  const fat: P[] = smooth([[x + w * 0.3, y - h * 0.38], [x + w * 0.42, y - h * 0.08], [x + w * 0.36, y + h * 0.3]], 3)
+  ink(g, fat, { w: 1.4, d: d + 300, t: 300 })
+  for (let k = 0; k < 4; k++) ink(g, smooth([[x - w * 0.3 + k * w * 0.14, y - h * 0.2], [x - w * 0.24 + k * w * 0.14, y], [x - w * 0.3 + k * w * 0.14, y + h * 0.18]], 3), { w: 0.9, d: d + 400 + k * 60, t: 150 })
+  if (crust) for (let k = 0; k < 3; k++) {
+    const gx = x - w * 0.3 + k * w * 0.26
+    const m: P[] = [[gx, y - h * 0.4], [gx + w * 0.16, y + h * 0.38], [gx + w * 0.2, y + h * 0.36], [gx + w * 0.04, y - h * 0.42], [gx, y - h * 0.4]]
+    hatch(g, m, d + 800, true)
+  }
+  // Seitenkante (Dicke)
+  ink(g, smooth([[x - w / 2, y], [x - w * 0.48, y + h * 0.2], [x - w * 0.35, y + h * 0.62], [x + w * 0.05, y + h * 0.7], [x + w * 0.44, y + h * 0.6]], 3), { w: 2.2, d: d + 200, t: 500 })
+}
+
+/** Gusseisenpfanne in Schrägsicht, Mitte (x, y), Halbachse rx; Griff nach rechts */
+function skillet(g: Element, x: number, y: number, rx = 140, d = 0): void {
+  const ry = rx * 0.3
+  ink(g, E(x, y, rx, ry), { w: 3.2, d, t: 700 })
+  ink(g, E(x, y + 4, rx - 10, ry - 8), { w: 1.2, d: d + 200, t: 600 })
+  ink(g, B([x - rx, y], [x - rx + 6, y + ry * 1.3], [x + rx - 6, y + ry * 1.3], [x + rx, y]), { w: 2.8, d: d + 100, t: 600 })
+  const hd: P[] = [[x + rx - 4, y - 6], [x + rx + 60, y - 22], [x + rx + 66, y - 10], [x + rx + 2, y + 10]]
+  hatch(g, [...hd, hd[0]], d + 500, true)
+  ink(g, [...hd, hd[0]], { w: 2.2, d: d + 300, t: 300 })
+  ink(g, E(x + rx + 54, y - 15, 4, 3), { w: 1.2, d: d + 400, t: 80 })
+}
+
+/** Kaffeebohne: Oval mit geschwungener Mittelfurche */
+function bean(g: Element, x: number, y: number, s = 1, rot = 0, d = 0): void {
+  const R = (a: number, b: number): P => [x + (a * Math.cos(rad(rot)) - b * Math.sin(rad(rot))) * s, y + (a * Math.sin(rad(rot)) + b * Math.cos(rad(rot))) * s]
+  const o = Array.from({ length: 33 }, (_, k) => R(Math.cos(rad(k * 11.25)) * 14, Math.sin(rad(k * 11.25)) * 10))
+  blank(g, o)
+  hatch(g, o, d + 300, true)
+  ink(g, o, { w: 2, d, t: 200 })
+  const c = [R(-12, 0), R(-4, -3), R(4, 3), R(12, 0)]
+  blank(g, [...B(R(-12, -2), R(-4, -6), R(4, 1), R(12, -2)), ...B(R(12, 2), R(4, 5), R(-4, -1), R(-12, 2))])
+  ink(g, B(c[0], c[1], c[2], c[3]), { w: 1, d: d + 200, t: 100 })
 }
 
 /** Rostiger Nagel waagerecht: Kopf bei x, Spitze rechts (≈ 260·s lang), Rostflecken und raue Kanten */
@@ -2387,139 +2430,361 @@ export const AHA_CHEMIE: Bite[] = [
     images: [],
     draw: {
       pfanne(g) {
-        ink(g, B([40, 300], [60, 380], [300, 380], [320, 300]), { w: 3.2, t: 700 })
-        ink(g, L([320, 306], [350, 286]), { w: 3, d: 300, t: 200 })
-        const st0: P[] = [...B([100, 330], [110, 296], [240, 290], [260, 330]), ...L([260, 330], [100, 330]).slice(1)]
-        hatch(g, st0, 800, true)
-        ink(g, st0, { w: 2.6, d: 500, t: 500 })
-        for (const x of [130, 180, 230]) ink(g, B([x, 270], [x - 10, 250], [x + 10, 230], [x, 210]), { w: 2, d: 1100, t: 300 })
+        // Steak in der heißen Gusseisenpfanne, Fett spritzt, Dampf steigt
+        skillet(g, 160, 330, 120, 0)
+        steak(g, 160, 322, 150, 400)
+        for (let k = 0; k < 6; k++) {
+          const s = glide(g, (k - 2.5) * 8, -40, { ms: 700 + k * 90, d: 1200 + k * 150, loop: true })
+          dot(s, 110 + k * 22, 300, 2, 1100)
+        }
+        for (let i = 0; i < 3; i++) {
+          const w = wobble(g, { dx: 6, ms: 1400 + i * 300, d: 1200 })
+          ink(w, B([110 + i * 50, 280], [100 + i * 50, 240], [124 + i * 50, 210], [112 + i * 50, 160]), { w: 1.6, d: 1100 + i * 150, t: 400 })
+        }
       },
       beispiele(g) {
-        const loaf: P[] = [...B([40, 500], [40, 420], [160, 420], [160, 500]), [40, 500]]
-        hatch(g, loaf, 500, true)
-        ink(g, loaf, { w: 2.8, t: 600 })
-        ink(g, [[200, 430], [210, 520], [270, 520], [280, 430]], { w: 2.8, d: 300, t: 600 })
-        ink(g, E(240, 430, 40, 8), { w: 2.2, d: 500, t: 300 })
-        hatch(g, E(240, 430, 36, 6), 900, true)
-        text(g, 100, 560, 'Brotkruste', { anchor: 'middle', cls: 's', d: 800 })
-        text(g, 240, 560, 'Röstkaffee', { anchor: 'middle', cls: 's', d: 900 })
+        // Brotlaib mit eingeschnittener Kruste, angeschnitten; Tasse Röstkaffee mit Bohnen
+        const loaf: P[] = smooth([[30, 540], [36, 470], [80, 430], [140, 430], [178, 470], [184, 540], [30, 540]], 3)
+        blank(g, loaf)
+        hatch(g, loaf, 500)
+        ink(g, loaf, { w: 3, t: 700 })
+        for (let k = 0; k < 3; k++) ink(g, B([60 + k * 36, 450], [70 + k * 36, 444], [84 + k * 36, 446], [92 + k * 36, 456]), { w: 2.2, d: 500 + k * 80, t: 150 })
+        const cut: P[] = smooth([[184, 540], [190, 480], [180, 452]], 3)
+        ink(g, cut, { w: 1.6, d: 800, t: 200 })
+        ink(g, L([20, 544], [200, 544]), { w: 2.2, d: 300, t: 400 })
+        const cup: P[] = [...B([220, 440], [222, 520], [300, 520], [302, 440])]
+        ink(g, cup, { w: 2.8, d: 400, t: 500 })
+        ink(g, E(261, 440, 41, 9), { w: 2.2, d: 500, t: 300 })
+        hatch(g, E(261, 442, 36, 6), 900, true)
+        ink(g, B([302, 456], [326, 456], [326, 496], [298, 500]), { w: 2.4, d: 600, t: 200 })
+        ink(g, E(262, 528, 60, 10), { w: 2, d: 700, t: 300 })
+        for (let i = 0; i < 3; i++) {
+          const w = wobble(g, { dx: 4, ms: 1300 + i * 200, d: 1200 })
+          ink(w, B([240 + i * 20, 424], [232 + i * 20, 400], [250 + i * 20, 380], [242 + i * 20, 350]), { w: 1.4, d: 1000 + i * 100, t: 300 })
+        }
+        for (const [x, y, r] of [[230, 590, -20], [270, 600, 10], [310, 588, 40]] as const) bean(g, x, y, 1, r, 1100)
       },
       maillard(g) {
-        text(g, 180, 440, 'Louis-Camille Maillard', { anchor: 'middle', size: 20, d: 200 })
-        text(g, 180, 480, 'Nancy, 1912', { anchor: 'middle', cls: 's', d: 600 })
+        // Laboraufbau um 1912: Rundkolben auf Dreifuß über dem Bunsenbrenner, Lösung bräunt
+        ink(g, L([20, 630], [340, 630]), { w: 2.6, t: 500 })
+        for (const [a, b] of [[[120, 520], [100, 630]], [[240, 520], [260, 630]], [[180, 520], [180, 630]]] as const) ink(g, L(a as P, b as P), { w: 2, d: 200, t: 300 })
+        ink(g, L([110, 520], [250, 520]), { w: 2.6, d: 300, t: 300 })
+        ink(g, [[168, 630], [168, 590], [192, 590], [192, 630]], { w: 2.4, d: 400, t: 300 })
+        const fw = wobble(g, { deg: 4, ox: 180, oy: 588, ms: 600, d: 1000 })
+        flame(fw, 180, 588, 0.5, 600)
+        ink(g, [...E(180, 450, 60, 60, -60, 240)], { w: 2.8, d: 500, t: 600 })
+        ink(g, [[150, 398], [150, 330], [210, 330], [210, 398]], { w: 2.6, d: 600, t: 400 })
+        const lq: P[] = [...E(180, 450, 56, 56, -10, 190)]
+        hatch(g, [...lq, lq[0]], 1200)
+        hatch(g, [...lq, lq[0]], 2200, true)
+        ink(g, B([126, 460], [150, 466], [210, 466], [234, 460]), { w: 1.4, d: 1000, t: 300 })
+        for (let k = 0; k < 4; k++) {
+          const b = glide(g, 0, -40, { ms: 1000 + k * 120, d: 1400 + k * 200, loop: true })
+          ink(b, E(160 + k * 14, 490, 3 + (k % 2)), { w: 1.2, d: 1300, t: 80 })
+        }
+        ink(g, L([196, 340], [250, 380]), { w: 2, d: 900, t: 200 })
       },
       aromen(g) {
+        // Steakscheibe, aufsteigende Aromamoleküle (Ringe mit Stickstoff/Sauerstoff) bis zur Nase
+        steak(g, 150, 590, 200, 0)
         let seed = 5
         const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
-        for (let i = 0; i < 24; i++) {
-          const x = 50 + rnd() * 260
-          const y = 360 + rnd() * 220
-          ink(g, E(x, y, 5 + rnd() * 6), { w: 1.6, d: 200 + i * 60, t: 150 })
+        for (let i = 0; i < 12; i++) {
+          const x = 60 + rnd() * 200
+          const y = 380 + rnd() * 160
+          const r = 8 + rnd() * 6
+          const up = glide(g, 20 + rnd() * 30, -60, { ms: 2400 + rnd() * 1200, d: 600 + i * 120, loop: true })
+          const n = i % 2 ? 5 : 6
+          const p: P[] = Array.from({ length: n + 1 }, (_, j) => [x + Math.cos(rad(j * (360 / n))) * r, y + Math.sin(rad(j * (360 / n))) * r])
+          ink(up, p, { w: 1.4, d: 400 + i * 80, t: 150 })
+          if (i % 3 === 0) ink(up, L(p[0], [p[0][0] + 10, p[0][1] - 4]), { w: 1.2, d: 500 + i * 80, t: 60 })
         }
-        text(g, 180, 640, 'Hunderte neue Aromastoffe', { anchor: 'middle', d: 1600 })
+        const nose: P[] = [[360, 330], [320, 344], [306, 388], [290, 412], [304, 420], [320, 418], [330, 426], [360, 430]]
+        ink(g, smooth(nose, 3), { w: 2.6, d: 900, t: 500 })
+        ink(g, B([312, 414], [316, 408], [322, 408], [326, 414]), { w: 1.4, d: 1100, t: 100 })
       },
       grad(g) {
-        thermo(g, 90, 330, 240, 0.7)
-        dashes(g, L([110, 416], [300, 416]), { w: 1.6, d: 600 })
-        text(g, 300, 404, 'ab ≈ 140 °C: Bräunung', { anchor: 'end', cls: 's', d: 800 })
-        dashes(g, L([110, 470], [300, 470]), { w: 1.6, d: 900 })
-        text(g, 300, 494, '100 °C: Wasser kocht', { anchor: 'end', cls: 's', d: 1100 })
+        // Thermometer mit Skala; bei 100 kocht Wasser, ab 140 bräunt es; a1: nasse Oberfläche hängt bei 100 fest
+        thermo(g, 90, 320, 290, 0.72, 0)
+        const yv = (v: number) => 320 + 8 + (290 - 8) * (1 - v / 200)
+        for (let v = 0; v <= 200; v += 20) ink(g, L([110, yv(v)], [v % 100 ? 118 : 126, yv(v)]), { w: v % 100 ? 1 : 2, d: 300 + v * 2, t: 50 })
+        for (const v of [0, 100, 200]) text(g, 132, yv(v) + 5, String(v), { cls: 's', d: 500 })
+        hatch(g, RR(170, yv(200), 170, yv(140) - yv(200), 4), 900)
+        ink(g, RR(170, yv(200), 170, yv(140) - yv(200), 4), { w: 1.6, d: 800, t: 300 })
+        steak(g, 260, yv(170), 110, 1000)
+        ink(g, L([164, yv(100)], [340, yv(100)]), { w: 1.4, d: 1000, t: 400 })
+        for (let k = 0; k < 6; k++) {
+          const b = glide(g, 0, -24, { ms: 900 + k * 80, d: 1200 + k * 100, loop: true })
+          ink(b, E(190 + k * 26, yv(100) + 30, 4), { w: 1.2, d: 1100, t: 80 })
+        }
+        const wet = st(g, 'x1', `--o: 260px ${yv(100)}px`)
+        drop(wet, 300, yv(100) - 30, 0.5, 0)
+        ink(wet, L([164, yv(100)], [220, yv(100)]), { w: 4, t: 0 })
+        ripple(wet, 192, yv(100), 6, 30, { n: 2, ms: 1400, w: 1, ry: 0.4 })
       },
       topf(g) {
-        ink(g, [[70, 380], [80, 580], [280, 580], [290, 380]], { w: 3, t: 700 })
-        hatch(g, RR(84, 440, 192, 136, 4), 500)
-        for (let i = 0; i < 5; i++) ball(g, 110 + i * 36, 500 + (i % 2) * 20, 9, { d: 700 + i * 80, w: 1.6, t: 0 })
-        text(g, 180, 640, 'nass: höchstens 100 °C', { anchor: 'middle', cls: 's', d: 1100 })
+        // Kochtopf: Fleisch im sprudelnden Wasser, Dampf, Thermometer bei 100
+        ink(g, [[70, 400], [80, 600], [260, 600], [270, 400]], { w: 3, t: 700 })
+        ink(g, L([60, 400], [280, 400]), { w: 3, d: 200, t: 300 })
+        for (const k of [-1, 1]) ink(g, L([170 + k * 100, 420], [170 + k * 124, 420]), { w: 3.4, d: 300, t: 150 })
+        hatch(g, RR(84, 440, 172, 156, 4), 500)
+        for (const [x, y] of [[120, 540], [200, 520]] as const) {
+          const p: P[] = smooth([[x - 30, y], [x - 20, y - 18], [x + 20, y - 20], [x + 32, y], [x + 18, y + 18], [x - 20, y + 16], [x - 30, y]], 3)
+          blank(g, p)
+          ink(g, p, { w: 2.2, d: 700, t: 300 })
+        }
+        for (let k = 0; k < 8; k++) {
+          const b = glide(g, 0, -100, { ms: 1000 + k * 80, d: 900 + k * 100, loop: true })
+          ink(b, E(96 + k * 20, 580, 4 + (k % 3)), { w: 1.4, d: 800, t: 100 })
+        }
+        for (let k = 0; k < 4; k++) {
+          const w = wobble(g, { dx: 6, ms: 1400 + k * 200, d: 1300 })
+          ink(w, B([110 + k * 40, 390], [100 + k * 40, 360], [120 + k * 40, 340], [110 + k * 40, 300]), { w: 1.6, d: 1200 + k * 100, t: 300 })
+        }
+        thermo(g, 310, 330, 160, 0.5, 900)
       },
       kruste(g) {
-        ink(g, B([40, 520], [60, 600], [300, 600], [320, 520]), { w: 3.2, t: 700 })
-        const st0: P[] = [...B([100, 560], [110, 520], [240, 514], [260, 560]), ...L([260, 560], [100, 560]).slice(1)]
-        hatch(g, st0, 800)
-        ink(g, st0, { w: 2.6, d: 500, t: 500 })
-        hatch(g, RR(104, 554, 152, 8, 3), 1100, true)
-        for (const x of [130, 180, 230]) arrow(g, L([x, 500], [x, 440]), { w: 1.8, d: 1000, t: 300, head: 7 })
-        text(g, 180, 420, 'Wasser verdunstet → Kruste', { anchor: 'middle', cls: 's', d: 1300 })
+        // Steak im Anschnitt in der Pfanne: dunkle Kruste, graues Band, rosa Kern; Dampf entweicht oben
+        skillet(g, 160, 560, 120, 0)
+        const sl: P[] = smooth([[70, 548], [80, 470], [160, 452], [240, 470], [250, 548], [70, 548]], 3)
+        blank(g, sl)
+        ink(g, sl, { w: 2.8, d: 300, t: 600 })
+        const inner: P[] = smooth([[86, 534], [94, 482], [160, 468], [228, 482], [236, 534], [86, 534]], 3)
+        hatch(g, [...sl, ...inner.slice().reverse()], 900, true)
+        ink(g, inner, { w: 1.4, d: 700, t: 500 })
+        const core: P[] = smooth([[104, 520], [110, 494], [160, 484], [214, 494], [218, 520], [104, 520]], 3)
+        hatch(g, core, 1100)
+        ink(g, core, { w: 1, d: 900, t: 400 })
+        for (let k = 0; k < 4; k++) flow(g, L([110 + k * 34, 460], [104 + k * 34, 360]), { n: 2, ms: 1500, d: 1200 + k * 120, r: 2, kind: 'ring' })
       },
       toast(g) {
-        ink(g, RR(90, 380, 180, 180, 30), { w: 3, t: 700 })
-        hatch(g, RR(90, 380, 180, 180, 30), 600, true)
-        blank(g, RR(108, 398, 144, 144, 20))
-        ink(g, RR(108, 398, 144, 144, 20), { w: 1.6, d: 500, t: 600 })
-        text(g, 180, 476, 'innen < 100 °C', { anchor: 'middle', cls: 's', d: 1000 })
-        text(g, 180, 610, 'außen braun, innen weich', { anchor: 'middle', cls: 's', d: 1200 })
+        // Toastscheibe: dunkle Kruste und gebräunte Fläche, innen feucht; Thermometer steckt in der Mitte
+        const sl: P[] = smooth([[80, 600], [76, 440], [60, 400], [90, 360], [180, 350], [270, 360], [300, 400], [284, 440], [280, 600], [80, 600]], 3)
+        blank(g, sl)
+        hatch(g, sl, 400, true)
+        ink(g, sl, { w: 3, t: 700 })
+        const crumb: P[] = smooth([[94, 586], [92, 446], [78, 406], [100, 376], [180, 368], [260, 376], [282, 406], [268, 446], [266, 586], [94, 586]], 3)
+        blank(g, crumb)
+        hatch(g, crumb, 800)
+        ink(g, crumb, { w: 1.6, d: 500, t: 600 })
+        const inner: P[] = smooth([[124, 556], [122, 460], [112, 420], [130, 400], [180, 396], [230, 400], [248, 420], [238, 460], [236, 556], [124, 556]], 3)
+        blank(g, inner)
+        ink(g, inner, { w: 1, d: 700, t: 500 })
+        let seed = 3
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 18; i++) ink(g, E(136 + rnd() * 90, 420 + rnd() * 120, 2 + rnd() * 4, 2 + rnd() * 3), { w: 0.9, d: 900 + i * 30, t: 60 })
+        for (let k = 0; k < 4; k++) water(g, 150 + (k % 2) * 50, 450 + Math.floor(k / 2) * 60, 0.4, k * 60, 1300 + k * 80)
+        ink(g, L([180, 500], [300, 300]), { w: 2.4, d: 1400, t: 300 })
+        ink(g, E(306, 290, 12), { w: 2.2, d: 1500, t: 200 })
       },
       poren(g) {
-        const st0: P[] = [...B([70, 520], [80, 460], [280, 450], [290, 520]), ...L([290, 520], [70, 520]).slice(1)]
-        hatch(g, st0, 500)
-        ink(g, st0, { w: 2.8, t: 600 })
-        for (const [x, d] of [[110, 800], [180, 900], [250, 1000]] as const) drop(g, x, 570, 0.5, d, false)
-        text(g, 180, 400, '„Poren schließen“? Ein Mythos', { anchor: 'middle', cls: 's', d: 1200 })
+        // angebratenes Steak auf dem Teller, Saft tritt trotzdem aus
+        ink(g, E(180, 560, 150, 40), { w: 2.8, t: 600 })
+        ink(g, E(180, 560, 120, 30), { w: 1.2, d: 200, t: 600 })
+        const pool: P[] = smooth([[110, 580], [150, 570], [230, 572], [270, 586], [220, 596], [140, 594], [110, 580]], 3)
+        hatch(g, pool, 1600)
+        ink(g, pool, { w: 1.2, d: 1500, t: 300 })
+        steak(g, 180, 540, 180, 300)
+        for (let k = 0; k < 4; k++) {
+          const dr = glide(g, 0, 30, { ms: 1200, d: 1200 + k * 250, loop: true })
+          drop(dr, 110 + k * 50, 560, 0.25, 1100)
+        }
       },
       knoblauch(g) {
-        const c: P[] = [...B([180, 340], [230, 380], [260, 500], [200, 590]), ...B([200, 590], [160, 600], [110, 560], [120, 470]).slice(1), ...B([120, 470], [130, 400], [160, 370], [180, 340]).slice(1)]
-        blank(g, c)
-        hatch(g, c, 800, true)
-        ink(g, c, { w: 3, t: 900 })
-        text(g, 180, 640, 'schwarzer Knoblauch: Wochen bei ≈ 60 °C', { anchor: 'middle', cls: 's', d: 1100 })
+        // schwarzer Knoblauch: Knolle offen, Zehen tiefschwarz; Kalender mit vier Wochen
+        const P = (a: number, b: number): P => [140 + a, 500 + b]
+        const bulb = [...B(P(0, -110), P(16, -60), P(100, -40), P(96, 30)), ...B(P(96, 30), P(92, 90), P(40, 104), P(0, 104)).slice(1), ...B(P(0, 104), P(-40, 104), P(-92, 90), P(-96, 30)).slice(1), ...B(P(-96, 30), P(-100, -40), P(-16, -60), P(0, -110)).slice(1)]
+        blank(g, bulb)
+        ink(g, bulb, { w: 3, t: 800 })
+        for (const k of [-0.6, -0.2, 0.2, 0.6]) {
+          const cl: P[] = [...B(P(k * 120, -40), P(k * 120 + 30, -30), P(k * 120 + 26, 60), P(k * 110, 96)), ...B(P(k * 110, 96), P(k * 120 - 26, 60), P(k * 120 - 30, -30), P(k * 120, -40)).slice(1)]
+          hatch(g, cl, 600, true)
+          ink(g, cl, { w: 1.8, d: 400, t: 400 })
+        }
+        ink(g, RR(250, 330, 90, 96, 6), { w: 2.4, d: 700, t: 400 })
+        ink(g, L([250, 352], [340, 352]), { w: 1.4, d: 800, t: 200 })
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 7; c++) {
+          const x = 256 + c * 12
+          const y = 360 + r * 15
+          ink(g, RR(x, y, 9, 11, 1), { w: 0.8, d: 900 + (r * 7 + c) * 20, t: 40 })
+          if (r * 7 + c < 26) ink(g, L([x + 1, y + 10], [x + 8, y + 1]), { w: 1, d: 1300 + (r * 7 + c) * 40, t: 40 })
+        }
+        thermo(g, 320, 450, 100, 0.3, 1000)
       },
       tupfen(g) {
-        const st0: P[] = [...B([80, 540], [90, 490], [260, 480], [280, 540]), ...L([280, 540], [80, 540]).slice(1)]
-        ink(g, st0, { w: 2.8, t: 600 })
-        ink(g, RR(110, 420, 140, 50, 10), { w: 2.6, d: 400, t: 400 })
-        for (let k = 0; k < 4; k++) ink(g, L([130 + k * 30, 430], [140 + k * 30, 460]), { w: 1.4, d: 700 + k * 60, t: 100 })
-        text(g, 180, 600, 'trocken tupfen', { anchor: 'middle', d: 1000 })
+        // Küchenpapier tupft das Steak trocken; Wasser zieht ins Papier
+        steak(g, 180, 560, 220, 0, false)
+        const ppr = wobble(g, { dy: 8, ms: 700, d: 1000 })
+        const sheet: P[] = [[90, 470], [270, 456], [278, 500], [98, 514], [90, 470]]
+        blank(ppr, sheet)
+        ink(ppr, sheet, { w: 2.4, d: 400, t: 400 })
+        for (let k = 0; k < 6; k++) dashes(ppr, L([104 + k * 28, 472 - k * 2], [110 + k * 28, 508 - k * 2]), { w: 0.9, d: 600, dash: 2, gap: 3 })
+        for (let k = 0; k < 5; k++) {
+          const up = glide(g, 0, -30, { ms: 900, d: 1200 + k * 160, loop: true })
+          drop(up, 120 + k * 30, 540, 0.25, 1100)
+        }
+        for (const k of [0, 1]) {
+          const x = 140 + k * 70
+          ink(ppr, B([x, 466], [x - 6, 430], [x + 10, 404], [x + 24, 400]), { w: 2.2, d: 700, t: 300 })
+        }
       },
       voll(g) {
-        ink(g, B([40, 500], [60, 580], [300, 580], [320, 500]), { w: 3.2, t: 700 })
-        for (let i = 0; i < 8; i++) ink(g, E(70 + i * 30, 540 - (i % 2) * 10, 16, 10), { w: 2, d: 300 + i * 60, t: 200 })
-        for (const x of [100, 160, 220, 280]) ink(g, B([x, 490], [x - 10, 470], [x + 10, 450], [x, 430]), { w: 2, d: 900, t: 300 })
-        cross(g, 300, 380, 1, 1200)
-        text(g, 160, 640, 'zu voll: es dampft statt brät', { anchor: 'middle', cls: 's', d: 1300 })
+        // überfüllte Pfanne: Stücke liegen übereinander im eigenen Saft, Dampfwolken
+        skillet(g, 160, 560, 130, 0)
+        hatch(g, E(160, 566, 116, 26), 400)
+        for (let i = 0; i < 10; i++) {
+          const x = 70 + (i % 5) * 44
+          const y = 548 + Math.floor(i / 5) * 18 - (i % 2) * 6
+          const p: P[] = smooth([[x - 22, y], [x - 14, y - 12], [x + 14, y - 12], [x + 22, y], [x + 12, y + 10], [x - 14, y + 10], [x - 22, y]], 3)
+          blank(g, p)
+          ink(g, p, { w: 1.8, d: 300 + i * 50, t: 200 })
+        }
+        for (let k = 0; k < 6; k++) {
+          const w = wobble(g, { dx: 8, ms: 1400 + k * 150, d: 1200 })
+          ink(w, B([70 + k * 36, 520], [60 + k * 36, 470], [86 + k * 36, 440], [70 + k * 36, 380]), { w: 2, d: 1000 + k * 100, t: 300 })
+        }
+        cross(g, 310, 380, 0.9, 1600)
       },
       brezel(g) {
-        const pts: P[] = [...B([180, 600], [80, 560], [60, 420], [150, 400]), ...B([150, 400], [220, 390], [230, 470], [180, 500]).slice(1), ...B([180, 500], [130, 470], [140, 390], [210, 400]).slice(1), ...B([210, 400], [300, 420], [280, 560], [180, 600]).slice(1)]
-        ink(g, pts, { w: 6, t: 1400 })
-        text(g, 300, 640, 'Lauge: braun und knusprig', { anchor: 'end', cls: 's', d: 1400 })
+        // Laugenbrezel: dicker Bauch, dünne verschlungene Ärmchen, Salzkörner, aufgerissene Kruste
+        const P0: P[] = smooth([[180, 610], [100, 600], [50, 520], [70, 430], [140, 400], [200, 440], [180, 500], [150, 480], [160, 430], [220, 400], [290, 430], [310, 520], [260, 600], [180, 610]], 6)
+        const off = (pts: P[], o: number): P[] => pts.map((p, i) => {
+          const a = pts[Math.max(0, i - 1)]
+          const b = pts[Math.min(pts.length - 1, i + 1)]
+          const l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1
+          return [p[0] - ((b[1] - a[1]) / l) * o, p[1] + ((b[0] - a[0]) / l) * o]
+        })
+        hatch(g, [...off(P0, 9), ...off(P0, -9).reverse()], 900)
+        ink(g, off(P0, 9), { w: 2.6, t: 1400 })
+        ink(g, off(P0, -9), { w: 2.6, d: 200, t: 1400 })
+        hatch(g, smooth([[120, 600], [180, 616], [240, 600], [230, 590], [180, 598], [130, 590], [120, 600]], 2), 1300, true)
+        for (let k = 0; k < 14; k++) {
+          const t = P0[Math.floor((k / 14) * (P0.length - 1))]
+          ink(g, RR(t[0] - 3, t[1] - 3, 6, 5, 1), { w: 1.4, d: 1400 + k * 40, t: 50 })
+        }
+        ink(g, B([110, 594], [140, 604], [220, 604], [250, 594]), { w: 1.4, d: 1600, t: 300 })
       },
       karamell(g) {
-        box(g, 30, 370, 140, 90, ['Maillard:', 'Zucker + Eiweiß'], { size: 15 })
-        box(g, 190, 370, 140, 90, ['Karamell:', 'nur Zucker'], { size: 15, d: 400, fill: true })
+        // links: Zucker + Eiweiß (Steak) → Kruste; rechts: nur Zuckerwürfel schmelzen zu Karamell im Topf
+        steak(g, 90, 420, 120, 0)
+        ink(g, L([180, 320], [180, 640]), { w: 1.4, d: 200, t: 500 })
+        for (let k = 0; k < 3; k++) {
+          const x = 220 + k * 34
+          ink(g, RR(x, 340 + (k % 2) * 8, 26, 26, 3), { w: 2, d: 400 + k * 80, t: 150 })
+          for (let j = 0; j < 4; j++) dot(g, x + 6 + (j % 2) * 12, 346 + (k % 2) * 8 + Math.floor(j / 2) * 12, 1.2, 600)
+        }
+        arrow(g, L([260, 390], [260, 440]), { w: 2.2, d: 800, t: 200, head: 8 })
+        ink(g, [[200, 470], [206, 560], [314, 560], [320, 470]], { w: 2.6, d: 900, t: 400 })
+        hatch(g, RR(206, 500, 108, 56, 4), 1200, true)
+        ink(g, B([206, 500], [230, 494], [290, 506], [314, 500]), { w: 1.6, d: 1100, t: 300 })
+        for (const x of [230, 270]) {
+          const dr = glide(g, 0, 20, { ms: 1400, d: 1400 + x, loop: true })
+          drop(dr, x, 572, 0.25, 1300)
+        }
+        ink(g, L([320, 476], [348, 460]), { w: 3, d: 900, t: 150 })
+        mol(g, [[60, 560, 'N', 'hell'], [86, 548, 'C'], [112, 560, 'C']], [[0, 1], [1, 2]], 0.9, 1000)
       },
       acrylamid(g) {
+        // zwei Toasts: goldbraun vs. verkohlt
         const toast = (x: number, dense: boolean, d: number) => {
-          ink(g, RR(x, 400, 110, 120, 20), { w: 2.8, d, t: 500 })
-          hatch(g, RR(x + 6, 406, 98, 108, 16), d + 300, dense)
+          const sl: P[] = smooth([[x, 540], [x - 2, 440], [x - 12, 414], [x + 6, 390], [x + 55, 384], [x + 104, 390], [x + 122, 414], [x + 112, 440], [x + 110, 540], [x, 540]], 3)
+          blank(g, sl)
+          hatch(g, sl, d + 300, dense)
+          if (dense) hatch(g, sl, d + 600, true)
+          ink(g, sl, { w: 2.8, d, t: 500 })
+          ink(g, smooth([[x + 10, 530], [x + 8, 444], [x, 420], [x + 12, 402], [x + 55, 398], [x + 98, 402], [x + 110, 420], [x + 102, 444], [x + 100, 530], [x + 10, 530]], 3), { w: 1.2, d: d + 200, t: 500 })
         }
-        toast(40, false, 0)
+        toast(50, false, 0)
         toast(210, true, 400)
-        check(g, 95, 570, 1.2, 900)
-        cross(g, 265, 570, 1.2, 1100)
-        text(g, 180, 640, 'vergolden statt verkohlen', { anchor: 'middle', d: 1300 })
+        for (let i = 0; i < 3; i++) {
+          const w = wobble(g, { dx: 5, ms: 1200 + i * 200, d: 1200 })
+          ink(w, B([250 + i * 18, 380], [242 + i * 18, 350], [260 + i * 18, 330], [252 + i * 18, 300]), { w: 1.8, d: 1100 + i * 100, t: 300 })
+        }
+        check(g, 105, 600, 1.2, 900)
+        cross(g, 265, 600, 1.2, 1100)
       },
       gehirn(g) {
-        brain(g, 180, 450, 1.1)
-        text(g, 180, 620, 'gegart = sicher und energiereich', { anchor: 'middle', cls: 's', d: 1200 })
+        // Lagerfeuer in der Steinzeit: Fleisch am Stock über der Glut
+        ink(g, L([20, 620], [340, 620]), { w: 2.6, t: 500 })
+        for (const [a, b] of [[[120, 618], [220, 590]], [[130, 590], [230, 618]]] as const) {
+          ink(g, L(a as P, b as P), { w: 10, d: 200, t: 300 })
+          blank(g, L(a as P, b as P))
+        }
+        for (let k = 0; k < 3; k++) {
+          const fw = wobble(g, { deg: 5, ox: 150 + k * 25, oy: 600, ms: 600 + k * 80, d: 900 })
+          flame(fw, 150 + k * 25, 600, 0.6 + (k === 1 ? 0.3 : 0), 400 + k * 60)
+        }
+        for (const x of [120, 240]) ink(g, [[x - 10, 620], [x, 470], [x + 10, 620]], { w: 2.4, d: 500, t: 300 })
+        ink(g, L([100, 470], [270, 470]), { w: 2.4, d: 700, t: 300 })
+        const roast: P[] = smooth([[150, 470], [160, 448], [200, 444], [214, 470], [200, 490], [160, 490], [150, 470]], 3)
+        blank(g, roast)
+        hatch(g, roast, 1100)
+        ink(g, roast, { w: 2.2, d: 900, t: 300 })
+        fig(g, 300, 620, 4, { d: 600, arms: 'push' })
+        brain(g, 290, 370, 0.4, 1200)
+        for (let i = 0; i < 3; i++) flow(g, B([180 + i * 10, 440], [200 + i * 10, 400], [240, 380], [270, 372]), { n: 2, ms: 1600, d: 1400 + i * 150, r: 1.6, kind: 'ring' })
       },
       roesten(g) {
-        ink(g, E(120, 470, 50, 70), { w: 3, t: 700 })
-        ink(g, B([120, 404], [104, 440], [136, 500], [120, 536]), { w: 2, d: 500, t: 400 })
-        hatch(g, E(120, 470, 46, 66), 800)
-        ink(g, [[220, 400], [230, 560], [300, 560], [310, 400]], { w: 2.8, d: 500, t: 600 })
-        hatch(g, RR(226, 440, 78, 116, 4), 1100)
-        text(g, 120, 600, 'Kakao, Malz, Kaffee', { anchor: 'middle', cls: 's', d: 1300 })
+        // Kakaofrucht mit Rippen und Bohnen, Gerstenähre (Malz), Kaffeebohnen in der Rösttrommel
+        const pod: P[] = smooth([[60, 380], [100, 360], [130, 400], [140, 480], [110, 560], [76, 580], [50, 540], [40, 460], [60, 380]], 3)
+        blank(g, pod)
+        ink(g, pod, { w: 2.8, t: 600 })
+        for (let k = 0; k < 4; k++) ink(g, B([66 + k * 14, 372], [56 + k * 16, 440], [60 + k * 14, 520], [70 + k * 8, 576]), { w: 1.1, d: 300 + k * 60, t: 300 })
+        ink(g, L([100, 362], [116, 340]), { w: 2.4, d: 300, t: 100 })
+        ink(g, L([170, 620], [170, 400]), { w: 2, d: 400, t: 400 })
+        for (let k = 0; k < 6; k++) for (const s of [-1, 1]) {
+          const y = 420 + k * 24
+          ink(g, E(170 + s * 9, y, 6, 11), { w: 1.4, d: 500 + k * 60, t: 100 })
+          ink(g, L([170 + s * 9, y - 10], [170 + s * 14, y - 40]), { w: 0.8, d: 600 + k * 60, t: 80 })
+        }
+        ink(g, E(280, 520, 60), { w: 2.8, d: 600, t: 500 })
+        const dr = spin(g, 280, 520, 3000, 1000)
+        for (const [x, y, r] of [[262, 500, 20], [296, 506, -30], [270, 540, 60], [300, 544, 0], [282, 520, 100]] as const) bean(dr, x, y, 0.8, r, 900)
+        ink(g, L([280, 520], [280, 640]), { w: 2.4, d: 800, t: 200 })
+        for (let k = 0; k < 3; k++) {
+          const fw = wobble(g, { deg: 5, ox: 260 + k * 20, oy: 610, ms: 600 + k * 80, d: 1300 })
+          flame(fw, 260 + k * 20, 610, 0.25, 1200 + k * 60)
+        }
       },
       ende(g) {
-        thermo(g, 180, 380, 200, 0.7)
+        skillet(g, 160, 520, 120, 0)
+        steak(g, 160, 512, 150, 300)
+      },
+      reaktion(g) {
+        // Zuckerring + Aminosäure → braune Riesenmoleküle und flüchtige Aromastoffe
+        const hx = (x: number, y: number, r: number, d: number, o = true) => {
+          const p: P[] = Array.from({ length: 7 }, (_, k) => [x + Math.cos(rad(k * 60 + 30)) * r, y + Math.sin(rad(k * 60 + 30)) * r])
+          ink(g, p, { w: 2.2, d, t: 300 })
+          if (o) text(g, x + Math.cos(rad(-30)) * r + 4, y + Math.sin(rad(-30)) * r - 2, 'O', { size: 13, d: d + 200 })
+          for (let k = 0; k < 4; k++) {
+            const a = rad(k * 60 + 90)
+            ink(g, L([x + Math.cos(a) * r, y + Math.sin(a) * r], [x + Math.cos(a) * (r + 12), y + Math.sin(a) * (r + 12)]), { w: 1.2, d: d + 300, t: 60 })
+          }
+        }
+        hx(70, 370, 26, 0)
+        text(g, 130, 378, '+', { anchor: 'middle', size: 24, d: 300 })
+        mol(g, [[170, 370, 'N', 'hell'], [200, 352, 'C'], [230, 370, 'C'], [230, 404, 'O', 'hell'], [256, 356, 'O', 'hell'], [200, 320, 'C']], [[0, 1], [1, 2], [2, 3, true], [2, 4], [1, 5]], 1, 400)
+        arrow(g, L([180, 430], [180, 490]), { w: 2.6, d: 900, t: 300, head: 9 })
+        const mel: P[] = smooth([[60, 560], [90, 520], [150, 530], [180, 510], [210, 540], [200, 600], [140, 620], [80, 610], [60, 560]], 3)
+        hatch(g, mel, 1300, true)
+        ink(g, mel, { w: 2.4, d: 1100, t: 500 })
+        for (let k = 0; k < 3; k++) {
+          const up = glide(g, 10, -60, { ms: 2000 + k * 300, d: 1400 + k * 300, loop: true })
+          const x = 250 + k * 30
+          const y = 600 - k * 30
+          const pent: P[] = Array.from({ length: 6 }, (_, j) => [x + Math.cos(rad(j * 72 - 90)) * 12, y + Math.sin(rad(j * 72 - 90)) * 12])
+          ink(up, k % 2 ? pent : Array.from({ length: 7 }, (_, j) => [x + Math.cos(rad(j * 60 + 30)) * 12, y + Math.sin(rad(j * 60 + 30)) * 12] as P), { w: 1.6, d: 1300 + k * 100, t: 150 })
+        }
       },
     },
     scenes: [
       { t: HOOK(476), gfx: { pfanne: {} } },
       { t: T('Brotkruste, Röstkaffee, gebratenes Fleisch: Hinter diesem Duft steckt immer **dieselbe Reaktion**.', 64), gfx: { beispiele: {} } },
       { t: T('Sie heißt **Maillard-Reaktion** – nach dem französischen Chemiker Louis-Camille Maillard, der sie 1912 beschrieb.', 64), gfx: { maillard: {} } },
-      { t: T('Dabei reagieren **Zucker** mit Bausteinen von Eiweißen, den Aminosäuren.', 64), gfx: { f1: { draw: 'formel', args: [['Zucker', '+', 'Aminosäuren', '→', 'Bräune', '+', 'Aroma'], 360] } } },
+      { t: T('Dabei reagieren **Zucker** mit Bausteinen von Eiweißen, den Aminosäuren.', 64), gfx: { reaktion: {} } },
       { t: T('Es entstehen Hunderte neuer Stoffe: **röstige**, nussige, fleischige Aromen – und die braune Farbe.', 64), gfx: { aromen: {} } },
       { t: T('Richtig in Gang kommt die Reaktion aber erst ab etwa **140 Grad**.', 64), gfx: { grad: {} } },
-      { t: T('Wasser kocht bei 100 Grad. Solange ein Lebensmittel nass ist, bleibt seine Oberfläche **bei 100 Grad** stecken.', 64), gfx: { grad: {} } },
+      { t: T('Wasser kocht bei 100 Grad. Solange ein Lebensmittel nass ist, bleibt seine Oberfläche **bei 100 Grad** stecken.', 64), gfx: { grad: { cls: 'a1' } } },
       { t: T('Darum bräunt Gekochtes **nie**: Im Kochtopf wird es schlicht nicht heiß genug.', 64), gfx: { topf: {} } },
       { t: T('In der Pfanne verdunstet das Wasser an der Oberfläche. Dann steigt die Temperatur weiter – und die **Kruste** entsteht.', 64), gfx: { kruste: {} } },
       { t: T('Darum bräunt Toast außen und bleibt innen weich: Im Inneren steckt noch Wasser – dort bleibt es **unter 100 Grad**.', 64), gfx: { toast: {} } },
