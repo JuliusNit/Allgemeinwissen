@@ -1519,61 +1519,93 @@ export const AHA_KOERPER: Bite[] = [
     draw: {
       zelle(g) {
         cell(g, 180, 250, 150, 120, 0, false)
+        for (const [a, b] of [[0.5, -0.4], [0.55, 0.4], [-0.6, 0.45]] as const) mito(g, 180 + a * 150, 250 + b * 120, 0.5, 700)
         ink(g, E(170, 250, 70, 60), { w: 2.6, d: 600, t: 600 })
+        for (let k = 0; k < 10; k++) {
+          const a = rad(k * 36)
+          ink(g, E(170 + Math.cos(a) * 70, 250 + Math.sin(a) * 60, 2.4), { w: 0.8, d: 900 + k * 30, t: 60 })
+        }
         coil(g, 170, 250, 58, 900)
       },
       leiter(g) {
-        ladder(g, 30, 330, 470, 44)
-        text(g, 180, 560, 'DNA: zwei Stränge, verbunden wie eine Leiter', { anchor: 'middle', cls: 's', d: 1000 })
+        // Doppelhelix mit Zucker-Phosphat-Rückgrat und Basenpaaren, sie dreht sich langsam
+        ladder(g, 30, 330, 470, 54)
+        flow(g, L([30, 470], [330, 470]), { n: 3, ms: 3000, d: 1200, r: 2.2, kind: 'ring' })
       },
       buchstaben(g) {
-        ladder(g, 30, 330, 470, 60)
+        ladder(g, 30, 330, 470, 64)
         ;[['A', 'T'], ['G', 'C'], ['T', 'A'], ['C', 'G'], ['A', 'T']].forEach(([a, b], i) => {
           const x = 66 + i * 56
-          blank(g, RR(x - 14, 446, 28, 48, 6))
-          text(g, x, 466, a, { anchor: 'middle', size: 16, d: 900 + i * 120 })
-          text(g, x, 490, b, { anchor: 'middle', size: 16, d: 950 + i * 120 })
+          blank(g, RR(x - 14, 440, 28, 60, 6))
+          ink(g, RR(x - 14, 440, 28, 60, 6), { w: 1.2, d: 800 + i * 120, t: 200 })
+          ink(g, L([x - 10, 470], [x + 10, 470]), { w: 0.8, d: 850 + i * 120, t: 100 })
+          text(g, x, 462, a, { anchor: 'middle', size: 16, d: 900 + i * 120 })
+          text(g, x, 492, b, { anchor: 'middle', size: 16, d: 950 + i * 120 })
         })
-        text(g, 180, 580, 'A mit T, G mit C', { anchor: 'middle', d: 1600 })
+        for (const [l, x] of [['A', 60], ['T', 120], ['G', 220], ['C', 280]] as const) {
+          const shape: P[] = l === 'A' || l === 'G' ? [[x - 12, 590], [x + 12, 590], [x + 12, 610], [x + 4, 620], [x - 4, 620], [x - 12, 610], [x - 12, 590]] : [[x - 12, 590], [x + 12, 590], [x + 12, 606], [x - 12, 606], [x - 12, 590]]
+          ink(g, shape, { w: 1.6, d: 1500, t: 200 })
+          text(g, x, 646, l, { anchor: 'middle', cls: 's', d: 1600 })
+        }
+        ink(g, L([80, 600], [100, 600]), { w: 1, d: 1700, t: 100 })
+        ink(g, L([240, 600], [260, 600]), { w: 1, d: 1700, t: 100 })
       },
       buecher(g) {
-        for (let i = 0; i < 24; i++) {
-          const x = 40 + (i % 12) * 24
-          const y = 380 + Math.floor(i / 12) * 120
-          const r = RR(x, y, 20, 100, 3)
-          if (i % 3 === 0) hatch(g, r, 300 + i * 40, true)
-          ink(g, r, { w: 2, d: i * 40, t: 200 })
+        // Bücherregal: tausend dicke Bände, hier ein kleiner Ausschnitt
+        for (let r = 0; r < 3; r++) {
+          ink(g, L([30, 430 + r * 90], [330, 430 + r * 90]), { w: 2.6, d: r * 200, t: 400 })
+          for (let i = 0; i < 12; i++) {
+            const x = 36 + i * 24
+            const h = 70 + ((i * 7 + r * 3) % 4) * 4
+            const b = RR(x, 430 + r * 90 - h, 20, h, 2)
+            if ((i + r) % 3 === 0) hatch(g, b, 300 + (r * 12 + i) * 30, true)
+            ink(g, b, { w: 1.6, d: (r * 12 + i) * 30, t: 150 })
+            ink(g, L([x + 4, 430 + r * 90 - h + 12], [x + 16, 430 + r * 90 - h + 12]), { w: 0.8, d: 400 + (r * 12 + i) * 30, t: 60 })
+          }
         }
-        text(g, 180, 650, '3 Milliarden Buchstaben ≈ 1.000 Bücher', { anchor: 'middle', cls: 's', d: 1300 })
       },
       gene(g) {
-        pie(g, 180, 460, 110, 0.02)
-        text(g, 180, 620, 'nur rund 2 % sind Baupläne für Eiweiße', { anchor: 'middle', cls: 's', d: 1100 })
+        // ein Strang, auf dem nur kleine Stücke (Gene) Baupläne sind
+        ink(g, L([20, 470], [340, 470]), { w: 3, t: 800 })
+        for (const [x, w] of [[60, 8], [170, 6], [290, 7]] as const) {
+          hatch(g, RR(x, 460, w, 20, 2), 900, true)
+          ink(g, RR(x, 460, w, 20, 2), { w: 1.6, d: 900, t: 200 })
+        }
+        pie(g, 180, 590, 40, 0.02, 1100)
+        for (let k = 0; k < 8; k++) ink(g, L([30 + k * 40, 462], [36 + k * 40, 450]), { w: 0.8, d: 600, t: 80 })
       },
       laenge(g) {
         fig(g, 110, 620, 7)
         ink(g, L([250, 620], [250, 320]), { w: 3, d: 500, t: 800 })
         for (const y of [320, 620]) ink(g, L([238, y], [262, y]), { w: 2.4, d: 600, t: 200 })
-        text(g, 270, 476, '2 m', { size: 26, d: 1200 })
-        text(g, 110, 650, 'du', { anchor: 'middle', cls: 's', d: 900 })
+        for (let k = 1; k < 10; k++) ink(g, L([244, 320 + k * 30], [256, 320 + k * 30]), { w: 1, d: 700 + k * 30, t: 60 })
+        ink(g, waveP(320, 620, 290, 6, 30).map(([x, y]) => [y, x] as P), { w: 1.6, d: 900, t: 900 })
       },
       kern(g) {
-        dot(g, 180, 470, 3, 200)
-        lens(g, 180, 470, 60, 400)
-        text(g, 180, 600, 'Zellkern: 6 Mikrometer', { anchor: 'middle', d: 900 })
+        // Stecknadelkopf zum Vergleich: der Zellkern ist darauf nicht einmal als Punkt zu sehen
+        ink(g, L([40, 470], [180, 470]), { w: 3, t: 400 })
+        ball(g, 190, 470, 16, { d: 200, fill: 'hell', w: 2.4 })
+        dot(g, 196, 466, 0.8, 700)
+        lens(g, 270, 420, 50, 600)
+        blank(g, E(270, 420, 46))
+        cell(g, 270, 420, 36, 30, 900, true)
+        dashes(g, L([206, 464], [228, 440]), { w: 1, d: 800, dash: 3, gap: 3 })
       },
       tennis(g) {
         ball(g, 180, 470, 110, { fill: 'hell', w: 3.2, t: 800 })
         ink(g, B([90, 400], [150, 440], [150, 500], [90, 540]), { w: 2.4, d: 600, t: 500 })
         ink(g, B([270, 400], [210, 440], [210, 500], [270, 540]), { w: 2.4, d: 700, t: 500 })
-        text(g, 180, 640, '40 km Faden in einem Tennisball', { anchor: 'middle', d: 1100 })
+        coil(g, 180, 470, 80, 900)
+        ink(g, B([280, 470], [310, 470], [320, 520], [340, 560]), { w: 1.4, d: 1200, t: 300 })
       },
       perlen(g) {
+        // Histon-Spulen: DNA windet sich knapp zweimal um jede
         const xs = [60, 120, 180, 240, 300]
         xs.forEach((x, i) => {
           const y = 470 + (i % 2 ? 20 : -20)
           ball(g, x, y, 18, { d: i * 200, fill: 'dicht', w: 2, t: 300 })
-          ink(g, E(x, y, 25), { w: 1.8, d: 300 + i * 200, t: 400 })
+          ink(g, E(x, y, 25, 22, -60, 300), { w: 1.8, d: 300 + i * 200, t: 400 })
+          ink(g, E(x, y, 22, 25, 120, 480), { w: 1.4, d: 400 + i * 200, t: 400 })
           if (i < 4) {
             const y2 = 470 + (i % 2 ? -20 : 20)
             const dx = 60
@@ -1582,7 +1614,8 @@ export const AHA_KOERPER: Bite[] = [
             ink(g, L([x + (dx / k) * 25, y + (dy / k) * 25], [x + dx - (dx / k) * 25, y2 - (dy / k) * 25]), { w: 1.8, d: 500 + i * 200, t: 200 })
           }
         })
-        text(g, 180, 580, 'Histone als Spulen', { anchor: 'middle', d: 1300 })
+        ink(g, L([20, 450], [35, 450]), { w: 1.8, d: 200, t: 100 })
+        ink(g, L([325, 490], [340, 490]), { w: 1.8, d: 1100, t: 100 })
       },
       schleifen(g) {
         const pts: P[] = []
@@ -1594,17 +1627,27 @@ export const AHA_KOERPER: Bite[] = [
           if (r < 6) pts.push(...E(b[0], y + 20, 20, 20, r % 2 ? 270 : -90, r % 2 ? 90 : 90).slice(1))
         }
         ink(g, pts, { w: 2.2, t: 2400 })
+        for (let k = 0; k < 40; k++) {
+          const q = pts[Math.round((k / 40) * (pts.length - 1))]
+          ball(g, q[0], q[1], 3.6, { d: k * 60, fill: 'dicht', w: 1, t: 0 })
+        }
       },
       chromosom(g) {
-        for (const [x, h, d] of [[90, 150, 0], [180, 120, 300], [270, 90, 600]] as const) {
+        // X-förmige Chromosomen: zwei Schwesterchromatiden mit Einschnürung und Querbanden
+        for (const [x, h, d] of [[90, 160, 0], [180, 130, 300], [270, 100, 600]] as const) {
           for (const k of [-1, 1]) {
-            const r = RR(x + (k < 0 ? -18 : 0), 470 - h / 2, 18, h, 9)
-            blank(g, r)
-            hatch(g, r, d + 300)
-            ink(g, r, { w: 2.4, d, t: 400 })
+            const pts: P[] = [[x + k * 4, 470], ...B([x + k * 4, 470], [x + k * 22, 470 - h * 0.1], [x + k * 22, 470 - h / 2], [x + k * 12, 470 - h / 2]).slice(1), ...B([x + k * 12, 470 - h / 2], [x + k * 2, 470 - h / 2], [x + k * 2, 470 - h * 0.1], [x + k * 4, 470]).slice(1)]
+            const ptsB: P[] = pts.map(([px, py]) => [px, 940 - py] as P)
+            for (const p of [pts, ptsB]) {
+              blank(g, p)
+              hatch(g, p, d + 300)
+              ink(g, p, { w: 2.2, d, t: 400 })
+            }
+            for (let b = 1; b < 4; b++) {
+              for (const sy of [-1, 1]) ink(g, L([x + k * 4, 470 + sy * b * h * 0.12], [x + k * 18, 470 + sy * b * h * 0.12]), { w: 1.4, d: d + 600, t: 80 })
+            }
           }
         }
-        text(g, 180, 620, 'Chromosomen bei der Teilung', { anchor: 'middle', cls: 's', d: 1000 })
       },
       karyogramm(g) {
         for (let i = 0; i < 23; i++) {
@@ -1615,39 +1658,59 @@ export const AHA_KOERPER: Bite[] = [
             const r = RR(x + k * 11, y - h / 2, 9, h, 4.5)
             hatch(g, r, 300 + i * 40, true)
             ink(g, r, { w: 1.6, d: i * 40, t: 200 })
+            for (let b = 1; b < 3; b++) ink(g, L([x + k * 11, y - h / 2 + b * h / 3], [x + k * 11 + 9, y - h / 2 + b * h / 3]), { w: 0.8, d: 400 + i * 40, t: 60 })
           }
         }
-        text(g, 180, 330, '23 Paare = 46', { anchor: 'middle', d: 1200 })
+        text(g, 180, 330, '23 Paare', { anchor: 'middle', d: 1200 })
       },
       locker(g) {
+        // links aufgelockert, die Ablese-Maschine fährt den Strang entlang – rechts dicht gepackt
         ink(g, waveP(30, 160, 470, 30, 70), { w: 2.4, t: 800 })
-        text(g, 95, 560, 'locker: wird gelesen', { anchor: 'middle', cls: 's', d: 700 })
+        const reader = mk('g', { opacity: 0 }, g)
+        blank(reader, E(0, 0, 16, 12))
+        hatch(reader, E(0, 0, 16, 12), 0, true)
+        ink(reader, E(0, 0, 16, 12), { w: 1.8, t: 0 })
+        const wpath = waveP(30, 160, 470, 30, 70)
+        mk('set', { attributeName: 'opacity', to: 1, begin: '1s', fill: 'freeze' }, reader)
+        mk('animateMotion', { path: `M${wpath.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}`, dur: '4s', begin: '1s', repeatCount: 'indefinite' }, reader)
         const pts: P[] = []
         for (let i = 0; i <= 26; i++) pts.push([210 + i * 4.6, 470 + (i % 2 ? -26 : 26)])
         ink(g, pts, { w: 2, d: 500, t: 800 })
+        for (let i = 0; i < 12; i++) ball(g, 214 + i * 10, 470 + (i % 2 ? -14 : 14), 4, { d: 900 + i * 40, fill: 'dicht', w: 1, t: 0 })
         ink(g, RR(200, 430, 140, 80, 10), { w: 2.4, d: 300, t: 500 })
-        text(g, 270, 560, 'eng: weggepackt', { anchor: 'middle', cls: 's', d: 900 })
       },
       epi(g) {
-        ladder(g, 30, 330, 480, 40)
-        for (const x of [90, 180, 270]) {
-          ink(g, L([x, 460], [x, 410]), { w: 2, d: 900, t: 200 })
-          dot(g, x, 404, 7, 1100)
+        // Markierungen (kleine Fähnchen) auf der DNA bestimmen, welche Abschnitte gelesen werden
+        ladder(g, 30, 330, 500, 40)
+        for (const [x, d] of [[90, 900], [180, 1100], [270, 1300]] as const) {
+          ink(g, L([x, 480], [x, 420]), { w: 2, d, t: 200 })
+          const f: P[] = [[x, 420], [x + 26, 428], [x, 436]]
+          hatch(g, f, d + 200, true)
+          ink(g, [...f, f[0]], { w: 1.6, d: d + 100, t: 200 })
         }
-        text(g, 180, 360, 'chemische Markierungen', { anchor: 'middle', cls: 's', d: 1300 })
+        clock(g, 300, 600, 24, 0, 0, 1500)
+        sun(g, 60, 600, 12, 1600, 8)
       },
       sonne(g) {
-        earth(g, 50, 470, 26)
+        earth(g, 50, 470, 26, 0, { lon: 10, lat: 20, w: 0.8 })
         sun(g, 300, 470, 22, 300, 10)
-        arrow(g, L([86, 456], [250, 456]), { w: 2.2, d: 700, t: 500, head: 9 })
-        arrow(g, L([250, 484], [86, 484]), { w: 2.2, d: 1200, t: 500, head: 9 })
-        text(g, 170, 560, 'dutzende Male hin und zurück', { anchor: 'middle', d: 1600 })
+        for (let k = 0; k < 4; k++) {
+          const y = 440 + k * 20
+          const p = L(k % 2 ? [250, y] : [86, y], k % 2 ? [86, y] : [250, y])
+          ink(g, p, { w: 1.2, d: 700 + k * 200, t: 500 })
+          flow(g, p, { n: 2, ms: 1800, d: 1200 + k * 200, r: 1.8, kind: 'dash' })
+        }
       },
       kopie(g) {
+        // Replikation: die Doppelhelix öffnet sich wie ein Reißverschluss, an beiden Hälften entsteht ein neuer Strang
         ladder(g, 20, 160, 470, 30)
         lad(g, [160, 455], [320, 360], 26, 600)
         lad(g, [160, 485], [320, 580], 26, 800)
-        text(g, 180, 650, 'zwei identische Kopien', { anchor: 'middle', cls: 's', d: 1500 })
+        const zip = mk('g', {}, g)
+        blank(zip, E(160, 470, 14, 22))
+        hatch(zip, E(160, 470, 14, 22), 500, true)
+        ink(zip, E(160, 470, 14, 22), { w: 2, d: 400, t: 200 })
+        for (const [a, b] of [[[320, 360], [210, 425]], [[320, 580], [210, 515]]] as [P, P][]) flow(g, L(a, b), { n: 3, ms: 1400, d: 1500, r: 2 })
       },
       trisomie(g) {
         for (const [x, n] of [[90, 2], [250, 3]] as const) {
@@ -1655,10 +1718,11 @@ export const AHA_KOERPER: Bite[] = [
             const r = RR(x - (n * 14) / 2 + k * 14, 400, 10, 110, 5)
             hatch(g, r, 300, true)
             ink(g, r, { w: 2, d: k * 100, t: 300 })
+            for (let b = 1; b < 4; b++) ink(g, L([x - (n * 14) / 2 + k * 14, 400 + b * 27], [x - (n * 14) / 2 + k * 14 + 10, 400 + b * 27]), { w: 0.8, d: 400 + k * 100, t: 60 })
           }
         }
-        text(g, 90, 560, 'normal: 2', { anchor: 'middle', cls: 's', d: 700 })
-        text(g, 250, 560, 'Trisomie 21: 3', { anchor: 'middle', cls: 's', d: 800 })
+        text(g, 90, 560, '2', { anchor: 'middle', size: 22, d: 700 })
+        text(g, 250, 560, '3', { anchor: 'middle', size: 22, d: 800 })
       },
       ende(g) {
         ink(g, E(180, 520, 90), { w: 3, t: 800 })
