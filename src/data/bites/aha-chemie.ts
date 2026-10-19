@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, brain, check, clock, cross, dashes, fig, hatch, ink, st, strike, text, timeline, vbars, type P } from './draw'
-import { arcArrow, ball, box, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, mol, onion, rad, ripple, smooth, spin, sun, thermo, water, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, brain, check, clock, cross, dashes, fig, hatch, ink, mk, pop, rays, st, strike, text, timeline, vbars, type P } from './draw'
+import { arcArrow, ball, box, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, mol, onion, rad, ripple, smooth, spin, stars, sun, thermo, water, waveP, wobble } from './kit'
 
 // Chemie: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -706,110 +706,265 @@ export const AHA_CHEMIE: Bite[] = [
     images: [],
     draw: {
       kerze(g) {
-        candle(g, 180, 200, 0)
+        candle(g, 180, 190, 0)
+        ink(g, E(180, 404, 70, 12), { w: 2.6, d: 300, t: 500 })
+        ink(g, B([110, 404], [112, 418], [248, 418], [250, 404]), { w: 2.2, d: 400, t: 400 })
+        ripple(g, 180, 150, 40, 120, { n: 3, ms: 3000, d: 1200, w: 1 })
       },
       vorgang(g) {
-        flame(g, 180, 600, 2.4)
-        text(g, 300, 380, 'Gas + Sauerstoff', { anchor: 'middle', cls: 's', d: 1000 })
-        text(g, 300, 400, '→ Licht, Wärme', { anchor: 'middle', cls: 's', d: 1200 })
+        // Wachsdampf + Sauerstoff → Kohlendioxid + Wasser, dabei Licht und Wärme
+        flame(g, 180, 620, 1.9, 0)
+        ripple(g, 180, 540, 70, 150, { n: 3, ms: 2600, d: 1000, w: 1 })
+        const wax = glide(g, 40, -20, { ms: 2400, d: 1400, loop: true })
+        mol(wax, [[40, 600, 'C'], [62, 588, 'C'], [84, 600, 'C'], [106, 588, 'C']], [[0, 1], [1, 2], [2, 3]], 0.8, 600)
+        for (const [x, y, dx] of [[30, 470, 50], [320, 500, -50], [310, 600, -40]] as const) {
+          const o2 = glide(g, dx, 20, { ms: 2000, d: 1200, loop: true })
+          mol(o2, [[x, y, 'O', 'hell'], [x + 20, y, 'O', 'hell']], [[0, 1, true]], 0.8, 700)
+        }
+        for (const [x, dd] of [[130, 1600], [230, 2000]] as const) {
+          const up = glide(g, 0, -60, { ms: 2600, d: dd, loop: true })
+          mol(up, [[x - 20, 370, 'O', 'hell'], [x, 370, 'C'], [x + 20, 370, 'O', 'hell']], [[0, 1, true], [1, 2, true]], 0.8, dd - 400)
+        }
+        const w = glide(g, 0, -60, { ms: 2600, d: 1800, loop: true })
+        water(w, 180, 330, 0.7, 0, 1400)
       },
       docht(g) {
-        candle(g, 180, 400, 0, false)
-        hatch(g, E(180, 418, 22, 6), 600, true)
-        for (const [a, b] of [[[150, 470], [172, 420]], [[210, 470], [188, 420]]] as const) arrow(g, L(a as P, b as P), { w: 2, d: 700, t: 300, head: 8 })
-        text(g, 280, 470, 'Wachs schmilzt', { anchor: 'middle', cls: 's', d: 900 })
-        const v = st(g, 'x1', '--o: 180px 380px')
-        for (const x of [170, 180, 190]) ink(v, B([x, 384], [x - 6, 370], [x + 6, 356], [x, 340]), { w: 1.6, t: 0 })
-        text(v, 280, 360, 'Wachs verdampft', { anchor: 'middle', cls: 's', fade: false })
+        // Nahsicht: Wachssee um den Docht, flüssiges Wachs steigt im Docht hoch; a1: Dampf am Dochtende
+        const top = 470
+        ink(g, [[60, 650], [60, top], ...B([60, top], [120, top + 30], [240, top + 30], [300, top]).slice(1), [300, 650]], { w: 3, t: 700 })
+        const pool: P[] = [...B([110, top + 8], [140, top + 26], [220, top + 26], [250, top + 8]), ...B([250, top + 8], [220, top + 14], [140, top + 14], [110, top + 8]).slice(1)]
+        hatch(g, pool, 500, true)
+        ink(g, pool, { w: 1.6, d: 400, t: 300 })
+        const wick: P[] = [[174, top + 60], [174, top - 10], ...B([174, top - 10], [176, top - 40], [184, top - 54], [192, top - 70]).slice(1), [200, top - 64], ...B([200, top - 64], [190, top - 48], [186, top - 30], [186, top - 10]).slice(1), [186, top + 60]]
+        blank(g, wick)
+        ink(g, wick, { w: 2.4, d: 300, t: 400 })
+        for (let k = 0; k < 6; k++) ink(g, L([174, top + 50 - k * 12], [186, top + 44 - k * 12]), { w: 1, d: 500 + k * 40, t: 80 })
+        flow(g, L([180, top + 20], [180, top - 40]), { n: 3, ms: 1500, d: 900, r: 2 })
+        for (const k of [-1, 1]) flow(g, B([180 + k * 66, top + 18], [180 + k * 40, top + 22], [180 + k * 14, top + 22], [180 + k * 4, top + 12]), { n: 2, ms: 1500, d: 800, r: 1.8 })
+        dashes(g, L([60, top + 30], [300, top + 30]), { w: 0.8, d: 600, dash: 3, gap: 5 })
+        const v = st(g, 'x1', '--o: 190px 390px')
+        for (const [x, dx] of [[184, -30], [192, 0], [200, 30]] as const) flow(v, B([x, top - 56], [x + dx * 0.3, top - 90], [x + dx * 0.8, top - 120], [x + dx, top - 160]), { n: 3, ms: 1400, d: 0, r: 2, kind: 'ring' })
+        ripple(v, 192, top - 66, 6, 30, { n: 2, ms: 1600, w: 1 })
       },
       rauch(g) {
-        candle(g, 120, 420, 0, false)
-        for (let i = 0; i < 4; i++) ink(g, B([120, 404 - i * 30], [110, 390 - i * 30], [130, 380 - i * 30], [120, 374 - i * 30]), { w: 1.8, d: 300 + i * 150, t: 200 })
-        ink(g, L([200, 330], [300, 250]), { w: 3, d: 800, t: 300 })
-        flame(g, 196, 336, 0.35, 1100)
-        arrow(g, L([170, 330], [134, 390]), { w: 2, d: 1400, t: 300, head: 8 })
-        text(g, 340, 380, 'Flamme springt zurück', { anchor: 'end', cls: 's', d: 1500 })
+        // ausgeblasene Kerze, weißer Rauchfaden; ein Streichholz entzündet ihn, die Flamme läuft zum Docht
+        candle(g, 120, 440, 0, false)
+        const smoke: P[] = [[120, 432], ...B([120, 432], [104, 400], [138, 370], [124, 340]).slice(1), ...B([124, 340], [112, 310], [140, 300], [150, 280]).slice(1)]
+        const sw = wobble(g, { dx: 4, ms: 1800, d: 600 })
+        ink(sw, smoke, { w: 4, d: 300, t: 700 })
+        ink(sw, smoke.map(([x, y]): P => [x + 6, y]), { w: 1.2, d: 400, t: 700 })
+        const m = glide(g, -60, 10, { ms: 900, d: 1100 })
+        const stick: P[] = [[220, 300], [320, 240], [324, 246], [224, 306], [220, 300]]
+        blank(m, stick)
+        ink(m, stick, { w: 2, d: 800, t: 300 })
+        ball(m, 216, 304, 8, { d: 900, fill: 'dicht', w: 1.8, t: 150 })
+        flame(m, 210, 296, 0.32, 1000)
+        const j = glide(g, -24, 136, { ms: 700, d: 2200 })
+        flame(j, 148, 300, 0.24, 2100)
       },
       faraday(g) {
-        candle(g, 120, 420, 0)
-        text(g, 250, 450, 'Michael Faraday', { anchor: 'middle', d: 700 })
-        text(g, 250, 476, '1848: sechs Vorträge', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 250, 498, 'über eine Kerze', { anchor: 'middle', cls: 's', d: 1000 })
+        // Hörsaal der Royal Institution: Vortragender am Tisch mit Kerze, Kinder in gebogenen Bankreihen
+        ink(g, RR(40, 300, 280, 140, 6), { w: 1.6, t: 600 })
+        for (let k = 0; k < 4; k++) ink(g, L([60 + k * 70, 310], [60 + k * 70, 430]), { w: 0.8, d: 200 + k * 40, t: 200 })
+        ink(g, RR(100, 456, 160, 14, 3), { w: 2.6, d: 300, t: 300 })
+        for (const x of [110, 250]) ink(g, L([x, 470], [x, 520]), { w: 2.2, d: 400, t: 200 })
+        fig(g, 90, 520, 3.6, { d: 500, arms: 'push' })
+        ink(g, RR(192, 420, 16, 36, 2), { w: 2, d: 600, t: 200 })
+        flame(g, 200, 416, 0.3, 700)
+        ink(g, RR(150, 446, 30, 10, 2), { w: 1.6, d: 700, t: 100 })
+        beaker(g, 220, 456, 26, 40, 0.5, 800)
+        for (let r = 0; r < 3; r++) {
+          ink(g, B([20, 560 + r * 38], [120, 548 + r * 38], [240, 548 + r * 38], [340, 560 + r * 38]), { w: 2, d: 900 + r * 100, t: 400 })
+          for (let k = 0; k < 7 - r; k++) {
+            const x = 50 + k * (260 / (6 - r)) + (r % 2) * 10
+            const y = 542 + r * 38
+            blank(g, E(x, y, 11, 12))
+            hatch(g, E(x, y - 3, 11, 9, 180, 360), 1100 + r * 100, true)
+            ink(g, E(x, y, 11, 12), { w: 1.8, d: 1000 + r * 100 + k * 30, t: 150 })
+          }
+        }
       },
       zonen(g) {
-        flame(g, 180, 620, 2.6)
-        text(g, 290, 660, 'innen: wenig Sauerstoff', { anchor: 'middle', cls: 's', d: 900 })
-        arrow(g, L([270, 644], [200, 560]), { w: 1.8, d: 1000, t: 200, head: 7 })
-      },
-      gelb(g) {
-        flame(g, 180, 620, 2.6)
-        for (let i = 0; i < 12; i++) dot(g, 150 + (i % 4) * 20, 430 + Math.floor(i / 4) * 30, 2.4, 800 + i * 50)
-        text(g, 300, 380, 'glühender Ruß', { anchor: 'middle', cls: 's', d: 1200 })
-        text(g, 300, 400, '≈ 1.000 °C', { anchor: 'middle', cls: 's', d: 1300 })
-      },
-      aussen(g) {
-        flame(g, 180, 620, 2.6)
-        ink(g, [...B([180, 640], [60, 640], [70, 480], [180, 350]), ...B([180, 350], [290, 480], [300, 640], [180, 640]).slice(1)], { w: 1.4, d: 800, t: 900 })
-        text(g, 300, 360, 'außen bis 1.400 °C', { anchor: 'middle', cls: 's', d: 1300 })
-      },
-      blau(g) {
-        flame(g, 180, 620, 2.6)
-        hatch(g, E(180, 612, 40, 10), 900, true)
-        text(g, 300, 640, 'unten: bläulich', { anchor: 'middle', cls: 's', d: 1100 })
+        // Aufbau einer Kerzenflamme; a1 innen, a2 Leuchtzone, a3 Saum, a4 blauer Fuß
+        const cx = 180
+        const base = 600
+        ink(g, [[110, 660], [110, base + 30], ...B([110, base + 30], [150, base + 40], [210, base + 40], [250, base + 30]).slice(1), [250, 660]], { w: 3, t: 500 })
+        ink(g, B([cx - 2, base + 30], [cx - 4, base], [cx + 2, base - 30], [cx + 10, base - 50]), { w: 4, d: 300, t: 300 })
+        const P = (a: number, b: number): P => [cx + a, base + b]
+        const mantle = [...B(P(0, 10), P(-70, 10), P(-62, -120), P(0, -300)), ...B(P(0, -300), P(62, -120), P(70, 10), P(0, 10)).slice(1)]
+        const lum = [...B(P(0, 0), P(-56, 0), P(-50, -110), P(0, -270)), ...B(P(0, -270), P(50, -110), P(56, 0), P(0, 0)).slice(1)]
+        const inner = [...B(P(0, -10), P(-26, -10), P(-24, -70), P(0, -130)), ...B(P(0, -130), P(24, -70), P(26, -10), P(0, -10)).slice(1)]
+        const blue = [...B(P(-56, 0), P(-50, 14), P(50, 14), P(56, 0)), ...B(P(56, 0), P(40, -26), P(-40, -26), P(-56, 0)).slice(1)]
+        const fw = wobble(g, { deg: 2, ox: cx, oy: base, ms: 1100, d: 1200 })
+        ink(fw, mantle, { w: 1.2, d: 400, t: 800 })
+        hatch(fw, [...lum, ...inner.slice().reverse()], 900)
+        ink(fw, lum, { w: 3, d: 200, t: 800 })
+        blank(fw, inner)
+        dashes(fw, inner, { w: 1.4, d: 700, dash: 4, gap: 3 })
+        hatch(fw, blue, 1000, true)
+        ink(fw, blue, { w: 1.6, d: 900, t: 300 })
+        const a = st(g, 'x1', '--o: 180px 530px')
+        for (const k of [-1, 1]) {
+          arrow(a, L([cx + k * 130, base - 60], [cx + k * 70, base - 66]), { w: 2, t: 0, head: 7 })
+          ink(a, L([cx + k * 64, base - 74], [cx + k * 52, base - 58]), { w: 2.4, t: 0 })
+        }
+        flow(a, L([cx, base - 20], [cx, base - 120]), { n: 3, ms: 1400, r: 2, kind: 'ring' })
+        const b = st(g, 'x2', '--o: 180px 450px')
+        for (let i = 0; i < 14; i++) {
+          const y = base - 150 - (i % 7) * 14
+          const x = cx - 24 + ((i * 17) % 48)
+          const sp = mk('g', { class: 'blink', style: `--d:${i * 90}ms` }, b)
+          dot(sp, x, y, 2.6, 0)
+          for (let k = 0; k < 4; k++) ink(sp, L([x + Math.cos(rad(k * 90)) * 4, y + Math.sin(rad(k * 90)) * 4], [x + Math.cos(rad(k * 90)) * 8, y + Math.sin(rad(k * 90)) * 8]), { w: 0.9, t: 0 })
+        }
+        const c = st(g, 'x3', '--o: 180px 400px')
+        ink(c, mantle, { w: 4, t: 0 })
+        ripple(c, cx, base - 280, 10, 40, { n: 2, ms: 1600, w: 1.2 })
+        const dd = st(g, 'x4', '--o: 180px 590px')
+        ink(dd, blue, { w: 3.6, t: 0 })
+        ripple(dd, cx, base - 6, 20, 80, { n: 2, ms: 1600, w: 1.2, ry: 0.3 })
       },
       auftrieb(g) {
-        flame(g, 180, 600, 1.6)
-        for (const x of [120, 180, 240]) arrow(g, L([x, 420], [x, 340]), { w: 2.2, d: 700, t: 300, head: 8 })
-        arrow(g, B([60, 620], [80, 600], [110, 600], [140, 590]), { w: 2, d: 1000, t: 300, head: 8 })
-        arrow(g, B([300, 620], [280, 600], [250, 600], [220, 590]), { w: 2, d: 1000, t: 300, head: 8 })
-        text(g, 180, 650, 'frische Luft von unten', { anchor: 'middle', cls: 's', d: 1200 })
+        candle(g, 180, 470, 0)
+        for (const k of [-1, 0, 1]) {
+          const p = B([180 + k * 8, 380], [180 + k * 20, 340], [180 + k * 40, 310], [180 + k * 70, 290])
+          flow(g, p, { n: 3, ms: 1600, d: 700 + (k + 1) * 150, r: 2.2, kind: 'ring' })
+        }
+        for (const k of [-1, 1]) {
+          const p = B([180 + k * 160, 500], [180 + k * 110, 500], [180 + k * 40, 480], [180 + k * 10, 440])
+          dashes(g, p, { w: 1.2, d: 1000, dash: 4, gap: 4 })
+          flow(g, p, { n: 3, ms: 1800, d: 1200, r: 1.8 })
+        }
       },
       all(g) {
-        ball(g, 180, 470, 80, { fill: 'leer', w: 2.6 })
-        ball(g, 180, 470, 50, { d: 300, fill: 'hell', w: 2 })
-        ink(g, L([180, 470], [180, 560]), { w: 2.2, d: 500, t: 200 })
-        text(g, 180, 600, 'auf der ISS: kugelrund und blau', { anchor: 'middle', cls: 's', d: 900 })
+        // Bullauge der Raumstation: Kugelflamme um den Docht, ohne Auftrieb
+        ink(g, E(180, 480, 150), { w: 4, t: 900 })
+        ink(g, E(180, 480, 134), { w: 1.6, d: 200, t: 900 })
+        for (let k = 0; k < 12; k++) {
+          const a = rad(k * 30 + 15)
+          ball(g, 180 + Math.cos(a) * 142, 480 + Math.sin(a) * 142, 3.4, { d: 300 + k * 40, t: 60, w: 1.2 })
+        }
+        stars(g, 60, 360, 240, 240, 16, 400, (x, y) => Math.hypot(x - 180, y - 480) < 70 || Math.hypot(x - 180, y - 480) > 120)
+        ink(g, E(180, 480, 60), { w: 1.2, d: 700, t: 600 })
+        hatch(g, [...E(180, 480, 46), ...E(180, 480, 30).reverse()], 1100, true)
+        ink(g, E(180, 480, 46), { w: 2.4, d: 800, t: 600 })
+        ink(g, L([180, 480], [180, 610]), { w: 2.6, d: 600, t: 300 })
+        dot(g, 180, 480, 4, 900)
+        ripple(g, 180, 480, 50, 110, { n: 2, ms: 2400, d: 1300, w: 1 })
       },
       herd(g) {
-        ink(g, RR(80, 560, 200, 30, 6), { w: 3, t: 500 })
-        for (let i = 0; i < 6; i++) {
-          const x = 100 + i * 32
-          ink(g, [...B([x - 10, 556], [x - 12, 520], [x, 500], [x, 490]), ...B([x, 490], [x, 500], [x + 12, 520], [x + 10, 556]).slice(1)], { w: 2, d: 300 + i * 80, t: 300 })
+        // Gasbrenner schräg von oben: Brennerdeckel, Kranz kleiner Flammen, Topfträger, Luftansaugung
+        const cx = 180
+        const cy = 520
+        for (const k of [-1, 1]) for (const y of [0, 1]) ink(g, L([cx + k * 150, cy - 30 + y * 60], [cx + k * 60, cy - 10 + y * 20]), { w: 3, d: 200, t: 300 })
+        ink(g, E(cx, cy + 20, 80, 22), { w: 2.6, d: 300, t: 500 })
+        ink(g, E(cx, cy, 70, 18), { w: 2.6, d: 400, t: 500 })
+        hatch(g, E(cx, cy - 4, 46, 10), 600, true)
+        ink(g, E(cx, cy - 4, 46, 10), { w: 2, d: 500, t: 300 })
+        for (let k = 0; k < 14; k++) {
+          const a = rad(k * (360 / 14))
+          const x = cx + Math.cos(a) * 62
+          const y = cy + Math.sin(a) * 16
+          const fw = wobble(g, { deg: 6, ox: x, oy: y, ms: 500 + k * 30, d: 900 })
+          const f: P[] = [...B([x - 5, y], [x - 6, y - 10], [x - 2, y - 18], [x, y - 24]), ...B([x, y - 24], [x + 2, y - 18], [x + 6, y - 10], [x + 5, y]).slice(1)]
+          if (k % 2) hatch(fw, f, 900 + k * 40, true)
+          ink(fw, f, { w: 1.6, d: 700 + k * 40, t: 150 })
         }
-        arrow(g, L([30, 640], [90, 600]), { w: 2, d: 900, t: 300, head: 8 })
-        text(g, 20, 660, 'Luft vorgemischt', { cls: 's', d: 1000 })
+        ink(g, [[cx - 14, cy + 42], [cx - 14, cy + 110], [cx + 14, cy + 110], [cx + 14, cy + 42]], { w: 2.4, d: 500, t: 400 })
+        for (const k of [-1, 1]) ink(g, E(cx + k * 14, cy + 84, 3, 8), { w: 1.4, d: 700, t: 100 })
+        for (const k of [-1, 1]) flow(g, B([cx + k * 120, cy + 100], [cx + k * 70, cy + 96], [cx + k * 30, cy + 90], [cx + k * 14, cy + 84]), { n: 3, ms: 1600, d: 1200, r: 1.8 })
       },
       watt(g) {
-        candle(g, 90, 430, 0)
-        text(g, 240, 470, '≈ 80 W', { anchor: 'middle', size: 40, d: 700 })
-        text(g, 240, 510, 'Wärme', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 240, 560, 'Licht: ein winziger Teil', { anchor: 'middle', cls: 's', d: 1200 })
+        // fast die ganze Leistung geht als Wärme weg, nur ein haarfeiner Teil als Licht
+        candle(g, 100, 420, 0)
+        for (let k = 0; k < 3; k++) {
+          const w = wobble(g, { dx: 4, ms: 1400 + k * 200, d: 900 })
+          ink(w, B([60 + k * 40, 380], [50 + k * 40, 350], [70 + k * 40, 330], [60 + k * 40, 300]), { w: 1.6, d: 800 + k * 100, t: 300 })
+        }
+        ripple(g, 100, 380, 30, 90, { n: 3, ms: 2400, d: 1000, w: 1 })
+        hatch(g, [[270, 490], ...E(270, 490, 70, 70, -88, 270), [270, 490]], 1200)
+        ink(g, E(270, 490, 70), { w: 3, d: 900, t: 600 })
+        ink(g, L([270, 490], [270, 420]), { w: 2, d: 1300, t: 200 })
+        ink(g, L([270, 490], [270 + Math.cos(rad(-88)) * 70, 490 + Math.sin(rad(-88)) * 70]), { w: 2, d: 1300, t: 200 })
+        rays(g, 272, 410, 10, 24, 6, 1500)
       },
       farben(g) {
-        ;[['Kupfer', 'grün'], ['Natrium', 'gelb'], ['Strontium', 'rot']].forEach(([el, c], i) => {
-          const x = 70 + i * 110
-          flame(g, x, 560, 0.9, i * 300)
-          text(g, x, 600, el, { anchor: 'middle', d: 300 + i * 300 })
-          text(g, x, 622, c, { anchor: 'middle', cls: 's', d: 400 + i * 300 })
+        // Flammenfärbung: Drahtöse mit Salz in drei Flammen, oben Feuerwerk
+        const pat = ['dense', 'dots', 'lines'] as const
+        ;[['Cu', 70], ['Na', 180], ['Sr', 290]].forEach(([el, x], i) => {
+          const cx = x as number
+          const fw = wobble(g, { deg: 3, ox: cx, oy: 610, ms: 900 + i * 100, d: 900 })
+          const f: P[] = [...B([cx, 610], [cx - 30, 610], [cx - 26, 560], [cx, 470]), ...B([cx, 470], [cx + 26, 560], [cx + 30, 610], [cx, 610]).slice(1)]
+          blank(fw, f)
+          if (pat[i] === 'dense') hatch(fw, f, 500 + i * 300, true)
+          else if (pat[i] === 'dots') for (let k = 0; k < 14; k++) dot(fw, cx - 12 + (k % 4) * 8, 520 + Math.floor(k / 4) * 20, 1.6, 600 + i * 300 + k * 20)
+          else for (let k = 0; k < 4; k++) ink(fw, L([cx - 14 + k * 9, 600], [cx - 6 + k * 4, 500]), { w: 1, d: 600 + i * 300, t: 200 })
+          ink(fw, f, { w: 2.4, d: 300 + i * 300, t: 400 })
+          ink(g, L([cx + 30, 640], [cx + 6, 588]), { w: 1.6, d: 200 + i * 300, t: 200 })
+          ink(g, E(cx + 3, 584, 5), { w: 1.6, d: 250 + i * 300, t: 100 })
+          text(g, cx, 660, el as string, { anchor: 'middle', size: 18, d: 600 + i * 300 })
         })
+        for (let k = 0; k < 16; k++) {
+          const a = rad(k * 22.5)
+          const p = L([180 + Math.cos(a) * 20, 360 + Math.sin(a) * 20], [180 + Math.cos(a) * 70, 360 + Math.sin(a) * 70])
+          ;(k % 2 ? dashes : ink)(g, p, { w: 1.6, d: 1500 + k * 30, t: 200 })
+          dot(g, 180 + Math.cos(a) * 78, 360 + Math.sin(a) * 78, 2.4, 1800 + k * 30)
+        }
       },
       dreieck(g) {
+        // Branddreieck: oben Hitze (Thermometer), links Brennstoff (Holzscheite), rechts Sauerstoff (O₂);
+        // a1: je ein Löschweg
         ink(g, [[180, 330], [320, 580], [40, 580], [180, 330]], { w: 3.2, t: 900 })
-        text(g, 180, 316, 'Hitze', { anchor: 'middle', d: 600 })
-        text(g, 30, 610, 'Brennstoff', { d: 800 })
-        text(g, 330, 610, 'Sauerstoff', { anchor: 'end', d: 1000 })
-        flame(g, 180, 540, 0.8, 1200)
+        flame(g, 180, 540, 0.9, 400)
+        for (const [x, y] of [[40, 620], [74, 608]] as const) {
+          ink(g, RR(x, y, 64, 18, 8), { w: 2.2, d: 700, t: 300 })
+          ink(g, E(x + 60, y + 9, 5, 8), { w: 1.4, d: 800, t: 100 })
+          ink(g, E(x + 60, y + 9, 2, 4), { w: 1, d: 850, t: 80 })
+        }
+        mol(g, [[296, 616, 'O', 'hell'], [324, 616, 'O', 'hell']], [[0, 1, true]], 1, 900)
+        thermo(g, 174, 250, 46, 0.85, 1000)
+        const x = st(g, 'x1', '--o: 180px 470px')
+        const t = glide(x, 0, 20, { ms: 900, d: 0, loop: true })
+        drop(t, 230, 290, 0.6, 0)
+        hatch(x, RR(268, 560, 80, 40, 4), 0)
+        ink(x, RR(268, 560, 80, 40, 4), { w: 2, t: 0 })
+        for (const k of [-1, 1]) ink(x, L([56, 584 + k * 6], [96, 568 - k * 10]), { w: 2, t: 0 })
+        for (const k of [-1, 1]) ink(x, E(52, 588 + k * 10, 6), { w: 1.6, t: 0 })
       },
       fett(g) {
-        ink(g, B([60, 560], [80, 600], [280, 600], [300, 560]), { w: 3, t: 600 })
-        ink(g, L([300, 566], [340, 550]), { w: 3, d: 200, t: 200 })
-        flame(g, 180, 560, 1.6, 500)
-        drop(g, 100, 360, 0.8, 900, false)
-        cross(g, 100, 430, 1, 1200)
-        text(g, 180, 640, 'Fettbrand nie mit Wasser löschen', { anchor: 'middle', cls: 's', d: 1300 })
+        // Wasser in brennendes Fett: Feuerball
+        ink(g, B([60, 560], [70, 600], [290, 600], [300, 560]), { w: 3, t: 600 })
+        ink(g, E(180, 560, 120, 16), { w: 2.4, d: 100, t: 500 })
+        hatch(g, E(180, 564, 110, 10), 400, true)
+        ink(g, L([300, 566], [348, 548]), { w: 3, d: 200, t: 200 })
+        for (let k = 0; k < 5; k++) {
+          const fw = wobble(g, { deg: 4, ox: 100 + k * 40, oy: 560, ms: 600 + k * 70, d: 700 })
+          flame(fw, 100 + k * 40, 560, 0.5 + (k % 2) * 0.15, 500 + k * 60)
+        }
+        const cup: P[] = [[40, 330], [90, 300], [110, 336], [62, 368], [40, 330]]
+        ink(g, cup, { w: 2.4, d: 800, t: 300 })
+        const t = glide(g, 50, 140, { ms: 700, d: 1500 })
+        drop(t, 100, 360, 0.5, 1300)
+        const boom = pop(g, 2300, '50% 100%')
+        const tongues: P[] = []
+        for (let k = 0; k <= 10; k++) {
+          const x = 70 + k * 22
+          const h = 120 + Math.sin(k * 1.7) * 50 + (k > 2 && k < 8 ? 90 : 0)
+          tongues.push([x, 548 - (k % 2 ? h * 0.55 : h)])
+        }
+        const ball0: P[] = smooth([[64, 548], ...tongues, [296, 548], [64, 548]], 4)
+        blank(boom, ball0)
+        hatch(boom, ball0, 0)
+        ink(boom, ball0, { w: 3, t: 0 })
+        const core: P[] = smooth([[120, 548], [110, 470], [150, 420], [180, 360], [210, 420], [250, 470], [240, 548], [120, 548]], 3)
+        blank(boom, core)
+        hatch(boom, core, 0, true)
+        ink(boom, core, { w: 2, t: 0 })
+        for (let k = 0; k < 6; k++) dot(boom, 90 + k * 40, 380 - (k % 3) * 30, 3, 0)
       },
       ende(g) {
         candle(g, 180, 470, 0)
+        ripple(g, 180, 430, 40, 120, { n: 3, ms: 3000, d: 1200, w: 1 })
       },
     },
     scenes: [
@@ -819,17 +974,17 @@ export const AHA_CHEMIE: Bite[] = [
       { t: T('Am Docht **verdampft** das flüssige Wachs. Erst dieser Wachsdampf verbrennt.', 64), gfx: { docht: { cls: 'a1' } } },
       { t: T('Probier es: Blas eine Kerze aus und halte ein brennendes Streichholz in den **weißen Rauch**. Die Flamme springt zurück auf den Docht.', 64), gfx: { rauch: {} } },
       { t: T('Der Physiker Michael Faraday hielt 1848 eine berühmte Vortragsreihe für Kinder – über nichts anderes als **eine Kerze**.', 64), gfx: { faraday: {} } },
-      { t: T('Eine Flamme hat Zonen. Innen ist sie dunkel – dort gibt es zu **wenig Sauerstoff**, der Dampf kann noch nicht brennen.', 64), gfx: { zonen: {} } },
-      { t: T('Im hellen gelben Teil glühen winzige **Rußteilchen**, rund 1.000 Grad heiß. Ihr Glühen ist das Licht der Kerze.', 64), gfx: { gelb: {} } },
-      { t: T('Ganz außen, wo genug Sauerstoff ist, verbrennt alles vollständig. Dort ist die Flamme **am heißesten** – bis rund 1.400 Grad.', 64), gfx: { aussen: {} } },
-      { t: T('Unten am Docht leuchtet sie **bläulich**: Dort strahlen angeregte Moleküle, nicht glühender Ruß.', 64), gfx: { blau: {} } },
+      { t: T('Eine Flamme hat Zonen. Innen ist sie dunkel – dort gibt es zu **wenig Sauerstoff**, der Dampf kann noch nicht brennen.', 64), gfx: { zonen: { cls: 'a1' } } },
+      { t: T('Im hellen gelben Teil glühen winzige **Rußteilchen**, rund 1.000 Grad heiß. Ihr Glühen ist das Licht der Kerze.', 64), gfx: { zonen: { cls: 'a2' } } },
+      { t: T('Ganz außen, wo genug Sauerstoff ist, verbrennt alles vollständig. Dort ist die Flamme **am heißesten** – bis rund 1.400 Grad.', 64), gfx: { zonen: { cls: 'a3' } } },
+      { t: T('Unten am Docht leuchtet sie **bläulich**: Dort strahlen angeregte Moleküle, nicht glühender Ruß.', 64), gfx: { zonen: { cls: 'a4' } } },
       { t: T('Warum zeigt eine Flamme nach **oben**? Heiße Gase sind leichter als die Umgebung und steigen auf. Frische Luft strömt von unten nach.', 64), gfx: { auftrieb: {} } },
       { t: T('Im All gibt es kein Oben. Dort ist eine Kerzenflamme **kugelrund** und blau – das zeigten Versuche auf der Raumstation.', 64), gfx: { all: {} } },
       { t: T('Eine Gasflamme am Herd ist blau, weil der Brenner schon **vorher** Luft beimischt: Fast alles verbrennt, kaum Ruß entsteht.', 64), gfx: { herd: {} } },
       { t: T('Eine Kerze heizt mit rund **80 Watt** – aber nur ein winziger Bruchteil davon wird zu sichtbarem Licht.', 64), gfx: { watt: {} } },
       { t: T('Kupfer färbt Flammen grün, Natrium gelb, Strontium rot: Jedes Element leuchtet in **eigenen Farben**. So entstehen Feuerwerksfarben.', 64), gfx: { farben: {} } },
       { t: T('Damit Feuer brennt, braucht es drei Dinge: **Brennstoff, Sauerstoff und Hitze**. Fehlt eins, erlischt es.', 64), gfx: { dreieck: {} } },
-      { t: T('Darauf beruht jedes Löschen: Wasser nimmt die **Hitze**, eine Löschdecke den Sauerstoff, ein Schnitt im Docht den Brennstoff.', 64), gfx: { dreieck: {} } },
+      { t: T('Darauf beruht jedes Löschen: Wasser nimmt die **Hitze**, eine Löschdecke den Sauerstoff, ein Schnitt im Docht den Brennstoff.', 64), gfx: { dreieck: { cls: 'a1' } } },
       { t: T('Fett aber nie mit Wasser löschen: Das Wasser verdampft schlagartig und schleudert brennendes Fett hoch – eine **Stichflamme**.', 64), gfx: { fett: {} } },
       { t: T('Eine Flamme ist **brennendes Gas** – und ihr Licht glühender Ruß.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],
