@@ -1,5 +1,5 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, coin, cross, crowd, dashes, fig, group, hatch, ink, mountain, pop, question, rays, st, strike, text, timeline, vbars, type P } from './draw'
+import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, coin, cross, crowd, dashes, fig, group, hatch, ink, mk, mountain, pop, question, rays, st, star, strike, text, timeline, vbars, type P } from './draw'
 import { axes, ball, box, bullets, carrow, dot, drop, flame, flow, glide, heart, house, pie, plot, rad, ripple, smooth, spin, sun, tree, waveP, wobble } from './kit'
 
 // Wirtschaft & Geld: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
@@ -413,7 +413,7 @@ export const AHA_GELD: Bite[] = [
         for (const [x, r, d] of [[150, 14, 400], [210, 20, 700], [290, 30, 1000]] as const) {
           ink(g, L([70, 616], [x - r, 640 - r]), { w: 1.2, d, t: 200 })
           ball(g, x, 640 - r, r, { d: d + 100, fill: 'dicht', w: 2, t: 200 })
-          text(g, x, 640 - r + 6, '−', { anchor: 'middle', size: r, cls: 'halo', d: d + 300 })
+          if (r >= 20) text(g, x, 640 - r + 6, '−', { anchor: 'middle', size: r, cls: 'halo', d: d + 300 })
         }
         ink(g, L([20, 642], [340, 642]), { w: 2, d: 200, t: 400 })
       },
@@ -503,74 +503,153 @@ export const AHA_GELD: Bite[] = [
     images: [],
     draw: {
       schein(g) {
-        note(g, 30, 160, 300, '100 Billionen $', 0, 20)
+        // simbabwischer Riesenschein: lange Ziffernreihe, Balancierfelsen als Motiv, Wasserzeichen
+        blank(g, RR(20, 150, 320, 160, 8))
+        ink(g, RR(20, 150, 320, 160, 8), { w: 2.8, t: 600 })
+        ink(g, RR(30, 160, 300, 140, 4), { w: 1, d: 200, t: 500 })
+        text(g, 180, 200, '100 000 000 000 000', { anchor: 'middle', size: 18, d: 600 })
+        for (const [x, y, rx, ry] of [[80, 270, 26, 16], [84, 244, 18, 12], [78, 226, 12, 8]] as const) {
+          blank(g, E(x, y, rx, ry))
+          hatch(g, E(x, y, rx, ry), 900)
+          ink(g, E(x, y, rx, ry), { w: 1.6, d: 800, t: 200 })
+        }
+        ink(g, E(270, 254, 28, 34), { w: 1, d: 1000, t: 300 })
+        for (let k = 0; k < 4; k++) ink(g, L([140, 236 + k * 12], [230, 236 + k * 12]), { w: 0.7, d: 1100 + k * 50, t: 100 })
       },
       presse(g) {
-        ink(g, RR(80, 380, 200, 120, 10), { w: 3, t: 700 })
-        for (const x of [130, 230]) ball(g, x, 440, 30, { d: 300, w: 2.6 })
-        for (let i = 0; i < 4; i++) note(g, 120 + i * 18, 520 + i * 18, 110, i === 3 ? '€' : '', 800 + i * 150, 12)
+        // Druckmaschine: Walzen drehen sich, Scheine kommen heraus und häufen sich
+        ink(g, RR(60, 360, 220, 150, 10), { w: 3, t: 700 })
+        for (const x of [120, 220]) {
+          ink(g, E(x, 430, 34), { w: 2.6, d: 300, t: 400 })
+          const r = spin(g, x, 430, 1200, 900)
+          for (let k = 0; k < 6; k++) ink(r, L([x + Math.cos(rad(k * 60)) * 10, 430 + Math.sin(rad(k * 60)) * 10], [x + Math.cos(rad(k * 60)) * 28, 430 + Math.sin(rad(k * 60)) * 28]), { w: 1.2, d: 600, t: 80 })
+        }
+        ink(g, L([60, 470], [20, 470]), { w: 2, d: 400, t: 150 })
+        for (let i = 0; i < 4; i++) {
+          const out = glide(g, 40, 80, { ms: 1400, d: 1000 + i * 400, loop: true })
+          note(out, 270, 470, 60, '', 900 + i * 400, 10)
+        }
+        for (let i = 0; i < 5; i++) note(g, 220 + i * 6, 600 - i * 8, 80, '', 1200 + i * 100, 10)
       },
       waren(g) {
-        for (let i = 0; i < 4; i++) ink(g, RR(40 + i * 40, 520, 32, 32, 4), { w: 2.2, d: i * 100, t: 200 })
-        text(g, 100, 590, 'gleich viele Waren', { anchor: 'middle', cls: 's', d: 600 })
-        for (let i = 0; i < 12; i++) note(g, 220 + (i % 3) * 30, 380 + Math.floor(i / 3) * 40, 60, '', 400 + i * 60, 10)
-        text(g, 270, 590, 'viel mehr Geld', { anchor: 'middle', cls: 's', d: 1200 })
+        // links ein Regal mit gleich wenigen Waren, rechts ein wachsender Geldberg
+        ink(g, RR(30, 380, 130, 220, 4), { w: 2.4, t: 500 })
+        for (let k = 1; k < 3; k++) ink(g, L([30, 380 + k * 73], [160, 380 + k * 73]), { w: 1.8, d: 200, t: 200 })
+        for (let k = 0; k < 4; k++) ink(g, RR(42 + (k % 2) * 56, 400 + Math.floor(k / 2) * 73 + 10, 40, 40, 4), { w: 1.8, d: 400 + k * 80, t: 100 })
+        for (let i = 0; i < 14; i++) {
+          const p = pop(g, 600 + i * 120, '50% 100%')
+          note(p, 190 + (i % 3) * 36, 580 - Math.floor(i / 3) * 34, 70, '', 0, 10)
+        }
+        ink(g, L([20, 620], [340, 620]), { w: 2, d: 200, t: 400 })
       },
       schild(g) {
         ink(g, RR(80, 380, 200, 120, 8), { w: 3, t: 600 })
-        text(g, 180, 430, 'Brot', { anchor: 'middle', d: 300 })
+        const loaf: P[] = [...B([110, 440], [110, 410], [170, 410], [170, 440]), [110, 440]]
+        hatch(g, loaf, 400)
+        ink(g, loaf, { w: 2, d: 300, t: 300 })
         const p1 = st(g, 'h1')
-        text(p1, 180, 474, '1 Mio.', { anchor: 'middle', size: 22, d: 500 })
+        text(p1, 230, 446, '1 Mio.', { anchor: 'middle', size: 22, d: 500 })
         const p2 = st(g, 'f1', '--dl: 400ms')
-        text(p2, 180, 474, '3 Mio.', { anchor: 'middle', size: 22, fade: false })
+        text(p2, 230, 446, '3 Mio.', { anchor: 'middle', size: 22, fade: false })
+        for (let k = 0; k < 3; k++) ink(g, L([96, 470 + k * 8], [264, 470 + k * 8]), { w: 0.6, d: 600, t: 100 })
         clock(g, 180, 590, 40, 90, 180, 700)
+        const hd = spin(g, 180, 590, 2000, 1200)
+        ink(hd, L([180, 590], [180, 560]), { w: 2, d: 1100, t: 100 })
       },
       rekord(g) {
-        text(g, 180, 450, '79,6 Mrd. %', { anchor: 'middle', size: 44, d: 200 })
-        text(g, 180, 500, 'Inflation im Monat, November 2008', { anchor: 'middle', cls: 's', d: 700 })
-        text(g, 180, 560, 'Preise verdoppelten sich etwa täglich', { anchor: 'middle', cls: 's', d: 1000 })
+        // Schubkarre voller Scheine für ein einziges Brot
+        const wb: P[] = [[60, 560], [80, 600], [230, 600], [260, 560], [60, 560]]
+        ink(g, wb, { w: 2.8, t: 500 })
+        ink(g, E(150, 620, 18), { w: 2.4, d: 300, t: 200 })
+        ink(g, L([230, 590], [300, 560]), { w: 2.6, d: 400, t: 200 })
+        ink(g, L([90, 600], [80, 640]), { w: 2.2, d: 400, t: 100 })
+        for (let i = 0; i < 16; i++) note(g, 70 + (i % 4) * 40, 540 - Math.floor(i / 4) * 26 + (i % 2) * 4, 56, '', 600 + i * 80, 10)
+        const loaf: P[] = [...B([270, 420], [270, 390], [330, 390], [330, 420]), [270, 420]]
+        hatch(g, loaf, 1600)
+        ink(g, loaf, { w: 2.2, d: 1500, t: 200 })
+        carrow(g, [240, 460], [270, 430], -20, { d: 1800 })
       },
       dollar(g) {
         note(g, 40, 380, 130, 'Z$', 0, 16)
         cross(g, 105, 470, 1, 600)
         note(g, 190, 380, 130, 'US$', 400, 16)
         check(g, 255, 470, 1, 900)
-        text(g, 180, 580, '2009: eigene Währung aufgegeben', { anchor: 'middle', cls: 's', d: 1100 })
+        for (let i = 0; i < 3; i++) {
+          const f = glide(g, 0, 60, { ms: 1600, d: 1100 + i * 300, loop: true })
+          note(f, 50 + i * 30, 520, 50, '', 1000 + i * 300, 8)
+        }
       },
       berlin(g) {
-        const loaf: P[] = [...B([80, 520], [80, 430], [280, 430], [280, 520]), [80, 520]]
-        hatch(g, loaf, 600)
-        ink(g, loaf, { w: 3, t: 700 })
-        text(g, 180, 590, 'Berlin, November 1923', { anchor: 'middle', d: 800 })
-        text(g, 180, 620, 'ein Brot: über 200 Milliarden Mark', { anchor: 'middle', cls: 's', d: 1000 })
+        // 1923: ein Korb voller Geldbündel für ein einziges Brot, Kinder spielen mit Scheinstapeln
+        fig(g, 90, 620, 4, { d: 0, arms: 'push' })
+        ink(g, [[120, 540], [130, 600], [220, 600], [230, 540], [120, 540]], { w: 2.6, d: 300, t: 400 })
+        for (let i = 0; i < 9; i++) ink(g, RR(128 + (i % 3) * 32, 520 - Math.floor(i / 3) * 14, 30, 16, 2), { w: 1.4, d: 500 + i * 60, t: 80 })
+        const loaf: P[] = [...B([250, 440], [250, 410], [320, 410], [320, 440]), [250, 440]]
+        hatch(g, loaf, 1300)
+        ink(g, loaf, { w: 2.2, d: 1200, t: 200 })
+        for (let k = 0; k < 4; k++) ink(g, RR(250 + (k % 2) * 36, 620 - Math.floor(k / 2) * 18, 32, 16, 2), { w: 1.4, d: 1400 + k * 80, t: 80 })
+        fig(g, 300, 640, 1.6, { d: 1600, arms: 'up' })
       },
       ezb(g) {
-        bank(g, 180, 580, 1)
-        text(g, 180, 640, 'Auftrag: stabile Preise', { anchor: 'middle', d: 900 })
+        // EZB-Turm in Frankfurt (zwei gegeneinander gedrehte Scheiben), davor das Euro-Zeichen
+        ink(g, [[140, 640], [150, 320], [190, 312], [186, 640]], { w: 2.8, t: 700 })
+        ink(g, [[186, 640], [196, 330], [236, 340], [230, 640]], { w: 2.8, d: 200, t: 700 })
+        for (let k = 0; k < 14; k++) ink(g, L([150, 340 + k * 21], [186, 338 + k * 21]), { w: 0.6, d: 600 + k * 30, t: 80 })
+        hatch(g, [[186, 640], [196, 330], [236, 340], [230, 640]], 900)
+        text(g, 290, 600, '€', { anchor: 'middle', size: 70, d: 1200 })
+        for (let k = 0; k < 12; k++) star(g, 290 + Math.cos(rad(k * 30)) * 44, 576 + Math.sin(rad(k * 30)) * 44, 4, { d: 1300 + k * 40 })
+        ink(g, L([20, 640], [340, 640]), { w: 2.4, d: 300, t: 400 })
       },
       zwei(g) {
-        text(g, 180, 470, '≈ 2 %', { anchor: 'middle', size: 70, d: 200 })
-        text(g, 180, 520, 'Ziel der EZB pro Jahr', { anchor: 'middle', cls: 's', d: 600 })
+        // Zielscheibe: der Pfeil trifft knapp neben der Null – ein kleiner, stetiger Anstieg
+        for (let k = 4; k >= 1; k--) {
+          ink(g, E(180, 470, k * 34), { w: 2.2, d: (4 - k) * 150, t: 300 })
+          if (k === 2) hatch(g, [...E(180, 470, 68), ...E(180, 470, 34).reverse()], 800)
+        }
+        const a = glide(g, 120, -60, { ms: 900, d: 1200 })
+        ink(a, L([80, 580], [130, 548]), { w: 2.6, d: 1100, t: 150 })
+        ink(a, [[74, 572], [80, 580], [72, 586]], { w: 2, d: 1100, t: 80 })
       },
       deflation(g) {
         axes(g, 40, 600, 330, 330, { xl: 'Zeit', yl: 'Preise' })
         plot(g, 46, 596, 270, 200, (t) => 0.8 - t * 0.6, { d: 400 })
         fig(g, 250, 590, 2, { d: 900, arms: 'cross' })
-        text(g, 180, 650, 'man wartet mit Käufen', { anchor: 'middle', cls: 's', d: 1200 })
+        clock(g, 300, 400, 22, 90, 0, 1100)
+        ink(g, RR(150, 640, 60, 20, 4), { w: 1.6, d: 1200, t: 150 })
+        strike(g, [146, 636], [214, 664], 1400)
       },
       vertrauen(g) {
-        note(g, 90, 410, 180, '100 €', 0, 22)
-        text(g, 180, 560, 'Papier – wertvoll durch Vertrauen', { anchor: 'middle', cls: 's', d: 900 })
+        // ein Schein und ein Handschlag: wertvoll, weil alle ihn annehmen
+        note(g, 90, 360, 180, '€', 0, 30)
+        for (const k of [-1, 1]) ink(g, smooth([[180 + k * 120, 580], [180 + k * 70, 570], [180 + k * 20, 556], [180, 552]], 3), { w: 7, d: 700, t: 300 })
+        ink(g, E(180, 552, 22, 14), { w: 2.4, d: 1000, t: 150 })
+        heart(g, 180, 620, 0.4, 1300)
       },
       unabhaengig(g) {
-        bank(g, 110, 600, 0.7)
-        ink(g, RR(230, 470, 100, 130, 6), { w: 2.8, d: 300, t: 500 })
-        text(g, 280, 540, 'Regierung', { anchor: 'middle', cls: 's', d: 600 })
-        ink(g, L([190, 440], [190, 600]), { w: 3, d: 900, t: 400 })
-        text(g, 180, 650, 'getrennt: unabhängige Notenbank', { anchor: 'middle', cls: 's', d: 1100 })
+        // Notenbank und Regierungsgebäude mit Kuppel und Fahne – getrennt durch eine Mauer
+        bank(g, 100, 600, 0.6)
+        ink(g, RR(230, 480, 100, 120, 4), { w: 2.8, d: 300, t: 500 })
+        ink(g, E(280, 480, 30, 30, 180, 360), { w: 2.4, d: 500, t: 300 })
+        ink(g, L([280, 450], [280, 410]), { w: 1.8, d: 600, t: 150 })
+        const fl = wobble(g, { deg: 6, ox: 280, oy: 412, ms: 700, d: 900 })
+        ink(fl, [[280, 410], [306, 418], [280, 426]], { w: 1.8, d: 700, t: 150 })
+        for (let k = 0; k < 4; k++) ink(g, RR(240 + k * 22, 510, 14, 30, 2), { w: 1.2, d: 700 + k * 40, t: 80 })
+        for (let r = 0; r < 8; r++) ink(g, RR(184, 600 - (r + 1) * 22, 14 + (r % 2) * 4, 20, 1), { w: 1.4, d: 1000 + r * 60, t: 60 })
+        ink(g, L([20, 602], [340, 602]), { w: 2.4, d: 200, t: 400 })
       },
       ende(g) {
         for (let i = 0; i < 4; i++) note(g, 80 + i * 20, 430 + i * 20, 160, i === 3 ? '€' : '', i * 150, 14)
+      },
+      preise(g) {
+        // Wippe: der Geldberg wird schwerer, die Waren bleiben gleich – das Preisschild steigt
+        ink(g, [[160, 620], [180, 580], [200, 620], [160, 620]], { w: 2.4, t: 300 })
+        const wp = mk('g', { transform: 'rotate(8 180 580)' }, g)
+        ink(wp, L([40, 580], [320, 580]), { w: 3, d: 200, t: 400 })
+        for (let i = 0; i < 6; i++) note(wp, 230 + (i % 2) * 34, 556 - Math.floor(i / 2) * 22, 60, '', 400 + i * 100, 10)
+        for (let k = 0; k < 2; k++) ink(wp, RR(60 + k * 46, 536, 40, 40, 4), { w: 1.8, d: 500, t: 100 })
+        const t = glide(g, 0, -90, { ms: 2600, d: 1200, loop: true })
+        ink(t, [[90, 460], [150, 460], [166, 478], [150, 496], [90, 496], [90, 460]], { w: 2, d: 1100, t: 150 })
+        arrow(t, L([120, 490], [120, 466]), { w: 1.8, d: 1200, t: 100, head: 6 })
       },
     },
     scenes: [
@@ -578,7 +657,7 @@ export const AHA_GELD: Bite[] = [
       { t: T('Eine verlockende Idee: Der Staat braucht Geld? Dann **druckt** er eben welches!', 64), gfx: { presse: {} } },
       { t: T('Simbabwe tat genau das. Ab den 2000er-Jahren ließ die Regierung immer mehr Geld drucken, um ihre **Ausgaben** zu bezahlen.', 64), gfx: { presse: {} } },
       { t: T('Die Waren im Land wurden aber nicht mehr – die Wirtschaft schrumpfte sogar. Nur das **Geld** wurde mehr.', 64), gfx: { waren: {} } },
-      { t: T('Mehr Geld jagt dieselben Waren. Also steigen die **Preise**.', 64), gfx: { f1: { draw: 'formel', args: [['mehr Geld', '+', 'gleich viele Waren', '→', 'höhere Preise'], 360] } } },
+      { t: T('Mehr Geld jagt dieselben Waren. Also steigen die **Preise**.', 64), gfx: { preise: {} } },
       { t: T('Händler mussten ihre Preisschilder **mehrmals am Tag** ändern. Wer Lohn bekam, rannte sofort einkaufen.', 64), gfx: { schild: { cls: 'a1' } } },
       { t: T('Im November 2008 lag die Inflation bei geschätzt **79,6 Milliarden** Prozent im Monat. Preise verdoppelten sich etwa jeden Tag.', 64), gfx: { rekord: {} } },
       { t: T('Die Notenbank druckte schließlich einen Schein über **100 Billionen** Dollar. Er war bald fast nichts mehr wert.', 64), gfx: { schein: { tf: [1, 0, 260] } } },
