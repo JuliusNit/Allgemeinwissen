@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, bolt, bubble, car, check, cross, crowd, dashes, fig, group, hatch, ink, letter, mk, pop, question, rays, st, text, timeline, vbars, type P } from './draw'
-import { axes, ball, bullets, carrow, cloud, dot, drop, earth, flame, flow, glide, head, house, jet, lens, plot, rad, ripple, smooth, spin, sun, sunDisk, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, bubble, car, check, cross, crowd, dashes, fig, group, hatch, ink, letter, mk, mountain, pop, question, rays, st, text, timeline, vbars, type P } from './draw'
+import { axes, bact, ball, bullets, carrow, clipBox, cloud, dot, drop, earth, flame, flow, glide, head, house, jet, lens, plot, rad, ripple, smooth, spin, sun, sunDisk, virus, wobble } from './kit'
 
 // Denkwerkzeuge & Statistik: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -162,6 +162,57 @@ function note(g: Element, x: number, y: number, s = 1, d = 0): void {
   hatch(g, E(x, y, 9 * s, 7 * s), d + 200, true)
   ink(g, L([x + 8 * s, y - 2 * s], [x + 8 * s, y - 44 * s]), { w: 2, d: d + 200, t: 150 })
   ink(g, B([x + 8 * s, y - 44 * s], [x + 18 * s, y - 36 * s], [x + 22 * s, y - 30 * s], [x + 16 * s, y - 20 * s]), { w: 1.8, d: d + 300, t: 150 })
+}
+
+/** Reiskorn: schmales Oval, gedreht */
+function grain(g: Element, x: number, y: number, s = 1, rot = 0, d = 0): void {
+  const pts: P[] = Array.from({ length: 17 }, (_, k) => {
+    const a = rad(k * 22.5)
+    const px = Math.cos(a) * 5 * s
+    const py = Math.sin(a) * 2.4 * s
+    return [x + px * Math.cos(rad(rot)) - py * Math.sin(rad(rot)), y + px * Math.sin(rad(rot)) + py * Math.cos(rad(rot))] as P
+  })
+  blank(g, pts)
+  ink(g, pts, { w: 1.1 * Math.max(0.7, s * 0.6), d, t: 60 })
+}
+
+/** Reishaufen als Kegel mit Körnern auf der Oberfläche; Basis (x, y), Breite w */
+function ricePile(g: Element, x: number, y: number, w: number, h: number, d = 0): void {
+  const p: P[] = [[x - w / 2, y], ...B([x - w / 2, y], [x - w * 0.3, y - h * 0.6], [x - w * 0.12, y - h], [x, y - h]).slice(1), ...B([x, y - h], [x + w * 0.12, y - h], [x + w * 0.3, y - h * 0.6], [x + w / 2, y]).slice(1)]
+  blank(g, [...p, [x - w / 2, y]])
+  hatch(g, [...p.slice(p.length / 2), [x, y]], d + 400)
+  ink(g, p, { w: 2.2, d, t: 400 })
+  let seed = Math.round(x + y)
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+  const n = Math.min(40, Math.round(w / 4))
+  for (let k = 0; k < n; k++) {
+    const t = rnd()
+    const yy = y - h * (1 - Math.sqrt(rnd())) * 0.9
+    const half = (w / 2) * (1 - (y - yy) / h)
+    grain(g, x + (t - 0.5) * 2 * half * 0.85, yy, Math.max(0.6, w / 160), rnd() * 180, d + 300 + k * 15)
+  }
+}
+
+/** König: Krone, Bart, Gewand mit Hermelinkragen, Zepter */
+function king(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const robe: P[] = [P(-40, 0), P(-30, -80), P(-16, -96), P(16, -96), P(30, -80), P(40, 0), P(-40, 0)]
+  blank(g, robe)
+  hatch(g, robe, d + 500, true)
+  ink(g, robe, { w: 2.4, d, t: 500 })
+  const col: P[] = [P(-22, -96), P(22, -96), P(18, -84), P(-18, -84), P(-22, -96)]
+  blank(g, col)
+  ink(g, col, { w: 1.8, d: d + 200, t: 200 })
+  for (let k = 0; k < 4; k++) dot(g, x + (-12 + k * 8) * s, y - 90 * s, 1.4 * s, d + 300)
+  ink(g, E(x, y - 112 * s, 14 * s, 16 * s), { w: 2.2, d: d + 300, t: 300 })
+  ink(g, B(P(-12, -106), P(-10, -88), P(10, -88), P(12, -106)), { w: 1.8, d: d + 400, t: 200 })
+  hatch(g, [...B(P(-12, -106), P(-10, -88), P(10, -88), P(12, -106))], d + 500, true)
+  const crown: P[] = [P(-14, -124), P(-16, -142), P(-8, -132), P(0, -146), P(8, -132), P(16, -142), P(14, -124), P(-14, -124)]
+  blank(g, crown)
+  hatch(g, crown, d + 600)
+  ink(g, crown, { w: 2, d: d + 500, t: 200 })
+  ink(g, L(P(34, -40), P(46, -130)), { w: 2.4, d: d + 600, t: 200 })
+  ball(g, x + 46 * s, y - 134 * s, 6 * s, { d: d + 700, fill: 'dicht', w: 1.4, t: 100 })
 }
 
 export const AHA_DENKEN: Bite[] = [
@@ -1021,58 +1072,175 @@ export const AHA_DENKEN: Bite[] = [
     images: [],
     draw: {
       brett(g) {
-        ink(g, RR(60, 120, 240, 240, 4), { w: 3, t: 800 })
-        for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) if ((r + c) % 2) hatch(g, RR(60 + c * 30, 120 + r * 30, 30, 30, 0), 300 + (r * 8 + c) * 10, true)
+        // Schachbrett in Schrägsicht, darauf wachsende Reishäufchen; König und Bauer als Figuren
+        const pr = (c: number, r: number): P => {
+          const t = r / 8
+          const w = 200 + t * 120
+          return [180 - w / 2 + (c / 8) * w, 140 + t * 220]
+        }
+        for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) if ((r + c) % 2) hatch(g, [pr(c, r), pr(c + 1, r), pr(c + 1, r + 1), pr(c, r + 1)], 300 + (r * 8 + c) * 8, true)
+        ink(g, [pr(0, 0), pr(8, 0), pr(8, 8), pr(0, 8), pr(0, 0)], { w: 3, t: 800 })
+        ink(g, [pr(0, 8), [pr(0, 8)[0], pr(0, 8)[1] + 14], [pr(8, 8)[0], pr(8, 8)[1] + 14], pr(8, 8)], { w: 2.4, d: 300, t: 400 })
+        for (let k = 0; k < 6; k++) {
+          const [a, b] = [pr(k + 0.5, 7.5), pr(k + 0.6, 7.5)]
+          const n = Math.pow(2, k)
+          if (n < 8) for (let i = 0; i < n; i++) grain(g, a[0] - 6 + (i % 3) * 6, b[1] - 2 + Math.floor(i / 3) * 4, 0.8, i * 40, 1000 + k * 200 + i * 40)
+          else ricePile(g, a[0], b[1] + 6, 10 + k * 6, 6 + k * 4, 1000 + k * 200)
+        }
+        const pc = (x: number, y: number, h: number, d: number) => {
+          ink(g, E(x, y, 14, 4), { w: 2, d, t: 150 })
+          ink(g, [[x - 12, y], [x - 6, y - h * 0.6], [x - 4, y - h * 0.8], [x + 4, y - h * 0.8], [x + 6, y - h * 0.6], [x + 12, y]], { w: 2, d: d + 100, t: 200 })
+          ball(g, x, y - h * 0.9, 7, { d: d + 200, w: 1.6, t: 100 })
+        }
+        pc(130, 220, 40, 1400)
+        pc(250, 200, 34, 1500)
+        ink(g, L([130, 166], [130, 180]), { w: 2, d: 1600, t: 60 })
+        ink(g, L([124, 172], [136, 172]), { w: 2, d: 1600, t: 60 })
       },
       koenig(g) {
-        fig(g, 110, 600, 5)
-        ink(g, [[86, 430], [92, 410], [102, 424], [110, 404], [118, 424], [128, 410], [134, 430]], { w: 2.6, d: 600, t: 300 })
-        fig(g, 260, 600, 3.6, { d: 300 })
-        bubble(g, 200, 380, 130, 50, 'r', 900)
-        text(g, 265, 412, 'nur etwas Reis', { anchor: 'middle', cls: 's', d: 1100 })
+        // der König auf dem Thron, vor ihm der Erfinder mit dem Brett; Sprechblase mit einer Schale Reis
+        ink(g, RR(30, 380, 120, 220, 10), { w: 2.4, t: 500 })
+        hatch(g, RR(36, 386, 108, 30, 6), 300, true)
+        king(g, 90, 600, 1.4, 300)
+        fig(g, 250, 600, 3.6, { d: 600, arms: 'push' })
+        ink(g, [[180, 540], [220, 520], [244, 548], [204, 568], [180, 540]], { w: 2, d: 900, t: 200 })
+        hatch(g, [[190, 540], [212, 530], [226, 546], [204, 556]], 1000, true)
+        bubble(g, 220, 340, 120, 70, 'r', 1100)
+        ink(g, B([250, 380], [254, 396], [306, 396], [310, 380]), { w: 2, d: 1300, t: 200 })
+        ink(g, L([248, 380], [312, 380]), { w: 1.6, d: 1300, t: 150 })
+        ricePile(g, 280, 380, 50, 14, 1400)
       },
       reihe(g) {
+        // vier Felder mit 1, 2, 4, 8 Körnern
         for (let k = 0; k < 4; k++) {
           const x = 30 + k * 78
-          ink(g, RR(x, 420, 70, 70, 4), { w: 2.6, d: k * 300, t: 400 })
+          if (k % 2) hatch(g, RR(x, 420, 70, 70, 2), 200 + k * 300)
+          ink(g, RR(x, 420, 70, 70, 2), { w: 2.6, d: k * 300, t: 400 })
           const n = Math.pow(2, k)
-          for (let i = 0; i < n; i++) dot(g, x + 14 + (i % 4) * 14, 440 + Math.floor(i / 4) * 16, 4, k * 300 + 300 + i * 50)
-          text(g, x + 35, 520, String(n), { anchor: 'middle', d: k * 300 + 200 })
+          for (let i = 0; i < n; i++) {
+            const gx = x + 18 + (i % 3) * 17
+            const gy = 438 + Math.floor(i / 3) * 16
+            blank(g, E(gx, gy, 9, 6))
+            grain(g, gx, gy, 1.4, i * 37, k * 300 + 300 + i * 60)
+          }
         }
-        text(g, 180, 580, 'jedes Feld doppelt so viel', { anchor: 'middle', cls: 's', d: 1500 })
+        for (let k = 0; k < 3; k++) carrow(g, [70 + k * 78, 410], [104 + k * 78, 410], -20, { d: 600 + k * 300 })
       },
       verlauf(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.1, label: 'Feld 8', sub: '128 Körner', up: true },
-          { at: 0.35, label: 'Feld 16', sub: '≈ 1 kg' },
-          { at: 0.6, label: 'Feld 32', sub: '≈ 50 t', up: true },
-          { at: 0.9, label: 'Feld 64', sub: '9 Trillionen', big: true },
-        ], 0, 600)
+        // eine Handvoll – ein Sack – Lastwagen – ein Berg, höher als jedes Gebirge
+        const hand: P[] = smooth([[30, 600], [36, 580], [70, 574], [96, 584], [100, 600], [30, 600]], 3)
+        ink(g, hand, { w: 2.2, t: 400 })
+        ricePile(g, 64, 584, 40, 12, 300)
+        const sack: P[] = smooth([[110, 600], [114, 560], [124, 548], [118, 536], [140, 534], [134, 548], [150, 560], [154, 600], [110, 600]], 3)
+        blank(g, sack)
+        ink(g, sack, { w: 2.2, d: 500, t: 400 })
+        for (let k = 0; k < 2; k++) {
+          ink(g, [[170 + k * 4, 600 - k * 28], [170 + k * 4, 576 - k * 28], [226 + k * 4, 576 - k * 28], [226 + k * 4, 600 - k * 28]], { w: 1.8, d: 800 + k * 100, t: 200 })
+        }
+        car(g, 200, 616, 0.9, 900)
+        mountain(g, 240, 350, 600, [296, 320], 1100)
+        ricePile(g, 296, 600, 110, 40, 1500)
+        fig(g, 330, 600, 0.6, { d: 1600 })
+        ink(g, L([20, 602], [340, 602]), { w: 2, d: 100, t: 400 })
       },
       chips(g) {
-        for (let k = 0; k < 5; k++) {
-          const s = 24 * Math.pow(1.4, k)
-          ink(g, RR(40 + k * 62, 560 - s, s * 0.8, s, 4), { w: 2.2, d: k * 250, t: 300 })
+        // vier Chipgenerationen: gleiche Fläche, immer feinere Strukturen
+        for (let k = 0; k < 4; k++) {
+          const x = 30 + k * 80
+          ink(g, RR(x, 440, 66, 66, 4), { w: 2.4, d: k * 300, t: 300 })
+          for (let j = 0; j < 5; j++) for (const s of [-1, 1]) ink(g, L([x + 8 + j * 12.5, s < 0 ? 440 : 506], [x + 8 + j * 12.5, s < 0 ? 430 : 516]), { w: 1.2, d: k * 300 + 100, t: 40 })
+          const n = 2 + k * 2
+          for (let i = 1; i < n; i++) {
+            ink(g, L([x + 6, 446 + (i * 54) / n], [x + 60, 446 + (i * 54) / n]), { w: 0.7, d: k * 300 + 200 + i * 20, t: 60 })
+            ink(g, L([x + 6 + (i * 54) / n, 446], [x + 6 + (i * 54) / n, 500]), { w: 0.7, d: k * 300 + 200 + i * 20, t: 60 })
+          }
         }
-        text(g, 180, 620, 'Transistoren: Verdopplung alle ≈ 2 Jahre', { anchor: 'middle', cls: 's', d: 1400 })
+        arrow(g, L([40, 560], [320, 560]), { w: 2.2, d: 1400, t: 400, head: 9 })
       },
       linear(g) {
-        for (const [x0, n, f, d] of [[30, 'linear', (t: number) => t, 0], [195, 'exponentiell', (t: number) => (Math.pow(2, t * 8) - 1) / 255, 700]] as const) {
+        // links linear: immer gleich viel dazu (+1); rechts exponentiell: immer verdoppelt (×2)
+        for (const [x0, n, f, d] of [[30, '+1', (t: number) => t, 0], [195, '×2', (t: number) => (Math.pow(2, t * 8) - 1) / 255, 700]] as const) {
           axes(g, x0, 600, x0 + 140, 360, { d })
           plot(g, x0 + 4, 596, 126, 220, f, { d: d + 300 })
-          text(g, x0 + 70, 630, n, { anchor: 'middle', cls: 's', d: d + 400 })
+          ink(g, E(x0 + 70, 636, 18), { w: 1.8, d: d + 300, t: 150 })
+          text(g, x0 + 70, 642, n, { anchor: 'middle', size: 16, d: d + 400 })
         }
       },
       seerose(g) {
-        ink(g, E(180, 470, 140, 80), { w: 3, t: 800 })
-        hatch(g, [...E(180, 470, 136, 76, 90, 270), [180, 394]], 700)
-        ink(g, L([180, 392], [180, 548]), { w: 1.6, d: 700, t: 300 })
-        text(g, 110, 600, 'Tag 29: halb', { anchor: 'middle', cls: 's', d: 1000 })
-        text(g, 260, 600, 'Tag 30: voll', { anchor: 'middle', cls: 's', d: 1200 })
+        // Teich mit Seerosenblättern: links halb bedeckt, rechts ganz
+        for (const [cx, full] of [[100, false], [262, true]] as const) {
+          ink(g, E(cx, 480, 78, 120), { w: 2.8, d: full ? 400 : 0, t: 700 })
+          const n = full ? 24 : 12
+          for (let i = 0; i < n; i++) {
+            const col = i % 4
+            const row = Math.floor(i / 4)
+            const x = cx - 46 + col * 30 + (row % 2) * 12
+            const y = 380 + row * 34 + (full ? 0 : 102)
+            if (Math.hypot((x - cx) / 74, (y - 480) / 114) > 0.92) continue
+            const lp: P[] = [...E(x, y, 14, 9, 20, 340), [x, y]]
+            blank(g, lp)
+            ink(g, lp, { w: 1.4, d: (full ? 900 : 500) + i * 50, t: 100 })
+          }
+        }
       },
       ende(g) {
-        ink(g, RR(110, 400, 140, 140, 4), { w: 3, t: 700 })
-        for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) if ((r + c) % 2) hatch(g, RR(110 + c * 35, 400 + r * 35, 35, 35, 0), 300, true)
+        ink(g, RR(110, 420, 140, 140, 4), { w: 3, t: 700 })
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) if ((r + c) % 2) hatch(g, RR(110 + c * 35, 420 + r * 35, 35, 35, 0), 300, true)
+        ricePile(g, 232, 560, 90, 70, 900)
+      },
+      kilo(g) {
+        // Feld 16: ein Kilo Reis auf der Küchenwaage
+        ink(g, RR(90, 560, 180, 50, 8), { w: 2.8, t: 400 })
+        ink(g, RR(150, 574, 60, 22, 3), { w: 1.8, d: 200, t: 200 })
+        ink(g, E(180, 552, 80, 10), { w: 2.2, d: 300, t: 300 })
+        ricePile(g, 180, 548, 140, 90, 500)
+        dashes(g, L([30, 456], [330, 456]), { w: 1, d: 1200, dash: 4, gap: 4 })
+      },
+      tonnen(g) {
+        // Feld 32: zwei Kipplaster voll Reis
+        for (const [x, d] of [[90, 0], [250, 400]] as const) {
+          ink(g, [[x - 70, 560], [x + 30, 560], [x + 30, 500], [x - 70, 500], [x - 70, 560]], { w: 2.4, d, t: 400 })
+          ricePile(g, x - 20, 500, 100, 40, d + 400)
+          ink(g, [[x + 34, 560], [x + 34, 512], [x + 56, 512], [x + 68, 532], [x + 68, 560]], { w: 2.4, d: d + 200, t: 300 })
+          ink(g, L([x + 40, 520], [x + 56, 520]), { w: 1.2, d: d + 300, t: 100 })
+          for (const a of [-50, 0, 50]) {
+            blank(g, E(x + a, 566, 10))
+            ink(g, E(x + a, 566, 10), { w: 2, d: d + 400, t: 150 })
+          }
+        }
+        ink(g, L([20, 576], [340, 576]), { w: 2.2, d: 100, t: 400 })
+      },
+      berg(g) {
+        // Feld 64: ein Reisberg, gegen den der höchste Berg klein ist
+        ricePile(g, 200, 640, 300, 300, 0)
+        mountain(g, 20, 120, 640, [70, 590], 600, true)
+        ink(g, L([20, 642], [340, 642]), { w: 2.4, d: 100, t: 400 })
+        cloud(g, 90, 420, 0.5, 900)
+      },
+      doppel(g) {
+        // Säulen je Feld: jede doppelt so hoch wie die vorige – nach wenigen Feldern sprengen sie den Rahmen
+        ink(g, RR(30, 330, 300, 280, 4), { w: 2, t: 500 })
+        const c = clipBox(g, 32, 332, 296, 276)
+        for (let k = 0; k < 12; k++) {
+          const h = Math.pow(2, k) * 0.5
+          const x = 40 + k * 24
+          hatch(c, RR(x, 608 - h, 18, h, 1), 300 + k * 150, k > 8)
+          ink(c, RR(x, 608 - h, 18, h, 1), { w: 1.6, d: 200 + k * 150, t: 200 })
+        }
+        arrow(g, L([310, 400], [310, 320]), { w: 2.4, d: 2200, t: 200, head: 8 })
+      },
+      beispiele(g) {
+        // Zinseszins, Epidemie, Rechenleistung, Bakterien – als Bilder
+        for (let k = 0; k < 4; k++) for (let j = 0; j <= k; j++) {
+          ink(g, E(60, 420 - j * 8 - k * 0, 22, 6), { w: 1.6, d: k * 200 + j * 60, t: 100 })
+        }
+        for (let j = 0; j < 7; j++) ink(g, E(60, 440 - j * 9, 22, 6), { w: 1.4, d: 300 + j * 80, t: 100 })
+        virus(g, 270, 410, 30, 500)
+        for (let k = 0; k < 6; k++) virus(g, 230 + (k % 3) * 40, 470 + Math.floor(k / 3) * 30, 8, 900 + k * 80)
+        ink(g, RR(30, 540, 70, 70, 6), { w: 2.4, d: 700, t: 300 })
+        for (let k = 0; k < 6; k++) for (const s of [-1, 1]) ink(g, L([40 + k * 10, s < 0 ? 540 : 610], [40 + k * 10, s < 0 ? 530 : 620]), { w: 1.4, d: 900 + k * 30, t: 60 })
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) ink(g, RR(42 + c * 12, 552 + r * 12, 8, 8, 1), { w: 0.8, d: 1000 + (r * 4 + c) * 20, t: 40 })
+        for (let k = 0; k < 4; k++) bact(g, 200 + (k % 2) * 60, 540 + Math.floor(k / 2) * 40, 0.6, 1100 + k * 150)
       },
     },
     scenes: [
@@ -1081,14 +1249,14 @@ export const AHA_DENKEN: Bite[] = [
       { t: T('Er bittet um Reis: ein Korn auf das erste Feld, zwei auf das zweite, vier auf das dritte – **immer doppelt** so viel wie davor.', 64), gfx: { reihe: {} } },
       { t: T('Der König wundert sich über die **bescheidene** Bitte. Ein paar Säcke Reis, mehr nicht.', 64), gfx: { koenig: {} } },
       { t: T('Nach der ersten Reihe liegen auf Feld 8 gerade **128 Körner**. Kaum eine Handvoll.', 64), gfx: { verlauf: {} } },
-      { t: T('Auf Feld 16 sind es 32.768 Körner – knapp **ein Kilo** Reis.', 64), gfx: { z1: { draw: 'zahl', args: ['32.768', 'Körner auf Feld 16', 420] } } },
-      { t: T('Auf Feld 32, in der Mitte des Bretts: über **zwei Milliarden** Körner – rund 50 Tonnen.', 64), gfx: { z2: { draw: 'zahl', args: ['50 t', 'auf Feld 32', 430] } } },
-      { t: T('Auf Feld 64 schließlich: über **neun Trillionen** Körner – eine Zahl mit 19 Stellen.', 64), gfx: { z3: { draw: 'zahl', args: ['9 · 10¹⁸', 'Körner auf dem letzten Feld', 430] } } },
-      { t: T('Auf Feld n liegen 2 hoch n minus eins Körner. Alle Felder zusammen: **2 hoch 64**, minus eins.', 64), gfx: { f9: { draw: 'formel', args: [['Feld n', '→', '2 hoch (n − 1)', 'Körner'], 360] } } },
+      { t: T('Auf Feld 16 sind es 32.768 Körner – knapp **ein Kilo** Reis.', 64), gfx: { kilo: {} } },
+      { t: T('Auf Feld 32, in der Mitte des Bretts: über **zwei Milliarden** Körner – rund 50 Tonnen.', 64), gfx: { tonnen: {} } },
+      { t: T('Auf Feld 64 schließlich: über **neun Trillionen** Körner – eine Zahl mit 19 Stellen.', 64), gfx: { berg: {} } },
+      { t: T('Auf Feld n liegen 2 hoch n minus eins Körner. Alle Felder zusammen: **2 hoch 64**, minus eins.', 64), gfx: { doppel: {} } },
       { t: T('Zusammen wäre das fast **tausendmal** so viel Reis, wie die ganze Welt heute in einem Jahr erntet.', 64), gfx: { verlauf: {} } },
       { t: T('Das ist **exponentielles Wachstum**: Es kommt nicht jedes Mal gleich viel dazu, sondern alles wird vervielfacht.', 64), gfx: { linear: {} } },
       { t: T('Unser Gefühl denkt **linear**: Es schätzt, als käme immer ungefähr gleich viel hinzu.', 64), gfx: { linear: {} } },
-      { t: T('Darum unterschätzen wir Zinseszins, Epidemien oder Computerleistung: Alles verdoppelt sich in **festen Abständen**.', 64), gfx: { p1: { draw: 'punkte', args: [['Zinseszins', 'Epidemien', 'Rechenleistung', 'Bakterien'], 330] } } },
+      { t: T('Darum unterschätzen wir Zinseszins, Epidemien oder Computerleistung: Alles verdoppelt sich in **festen Abständen**.', 64), gfx: { beispiele: {} } },
       { t: T('Ein reales Beispiel: Die Zahl der Transistoren auf Computerchips hat sich jahrzehntelang etwa **alle zwei Jahre** verdoppelt.', 64), gfx: { chips: {} } },
       { t: T('Faustregel: Wächst etwas um **7 Prozent** pro Jahr, verdoppelt es sich in etwa zehn Jahren.', 64), gfx: { f1: { draw: 'formel', args: [['70', '÷', 'Wachstum in %', '≈', 'Jahre bis zur Verdopplung'], 340] } } },
       { t: T('Ein Rätsel: Seerosen verdoppeln sich jeden Tag. Nach 30 Tagen ist der Teich voll. Wann war er **halb voll**? Am Tag 29.', 64), gfx: { seerose: {} } },
