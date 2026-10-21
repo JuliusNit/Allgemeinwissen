@@ -1,13 +1,8 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, bolt, bubble, car, check, cross, crowd, dashes, fig, group, hatch, ink, letter, mk, mountain, pop, question, rays, st, text, vbars, type P } from './draw'
-import { axes, bact, ball, bullets, carrow, clipBox, cloud, dot, drop, earth, flame, flow, glide, head, house, jet, lens, moonFace, plot, rad, ripple, smooth, spin, stars, sunDisk, virus, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, brain, bubble, car, check, cross, crowd, dashes, fig, group, hatch, ink, letter, mk, mountain, pop, question, rays, st, strike, text, vbars, type P } from './draw'
+import { axes, bact, ball, carrow, clipBox, cloud, dot, dplot, drop, earth, flame, flow, glide, head, house, jet, lens, moonFace, plot, rad, ripple, smooth, spin, stars, sunDisk, virus, wobble } from './kit'
 
 // Denkwerkzeuge & Statistik: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
-
-/** Münze mit K oder Z */
-function coinKZ(g: Element, x: number, y: number, k: boolean, d = 0, r = 12): void {
-  ball(g, x, y, r, { d, fill: k ? 'hell' : 'leer', w: 1.8, t: 0 })
-}
 
 /** Roulette-Rad */
 function wheel(g: Element, cx: number, cy: number, r: number, d = 0): void {
@@ -213,6 +208,14 @@ function king(g: Element, x: number, y: number, s = 1, d = 0): void {
   ink(g, crown, { w: 2, d: d + 500, t: 200 })
   ink(g, L(P(34, -40), P(46, -130)), { w: 2.4, d: d + 600, t: 200 })
   ball(g, x + 46 * s, y - 134 * s, 6 * s, { d: d + 700, fill: 'dicht', w: 1.4, t: 100 })
+}
+
+/** Münze mit Rand: Kopf (Profil, hell schraffiert) oder Zahl (Ziffer) */
+function coinKZ(g: Element, x: number, y: number, k: boolean, d = 0, r = 12): void {
+  ball(g, x, y, r, { d, fill: k ? 'hell' : 'leer', w: 1.8, t: 0 })
+  ink(g, E(x, y, r * 0.78), { w: 0.8, d: d + 100, t: 60 })
+  if (k) ink(g, B([x + r * 0.1, y - r * 0.5], [x - r * 0.4, y - r * 0.4], [x - r * 0.3, y + r * 0.3], [x + r * 0.2, y + r * 0.5]), { w: 1.2, d: d + 150, t: 60 })
+  else ink(g, [[x - r * 0.2, y - r * 0.3], [x + r * 0.05, y - r * 0.5], [x + r * 0.05, y + r * 0.5]], { w: 1.2, d: d + 150, t: 60 })
 }
 
 export const AHA_DENKEN: Bite[] = [
@@ -1711,38 +1714,66 @@ export const AHA_DENKEN: Bite[] = [
     images: [],
     draw: {
       einsen(g) {
-        let seed = 4
-        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
-        for (let i = 0; i < 16; i++) text(g, 40 + (i % 4) * 80 + rnd() * 20, 120 + Math.floor(i / 4) * 80 + rnd() * 16, i % 3 ? '1' : String(2 + Math.floor(rnd() * 8)), { size: 22 + rnd() * 20, d: i * 80 })
+        // Zahlen aus dem Alltag: Preisschild, Hausnummer, Ortsschild, Kurstafel – auffällig oft vorne eine 1
+        const tag: P[] = [[30, 130], [110, 130], [128, 150], [110, 170], [30, 170], [30, 130]]
+        ink(g, tag, { w: 2.2, t: 300 })
+        ink(g, E(114, 150, 3), { w: 1.2, d: 200, t: 60 })
+        text(g, 70, 158, '1,49', { anchor: 'middle', size: 20, d: 300 })
+        ink(g, RR(210, 110, 70, 50, 6), { w: 2.4, d: 300, t: 300 })
+        text(g, 245, 145, '17', { anchor: 'middle', size: 26, d: 500 })
+        ink(g, RR(40, 220, 130, 60, 4), { w: 2.4, d: 600, t: 300 })
+        ink(g, RR(46, 226, 118, 48, 3), { w: 1, d: 700, t: 300 })
+        text(g, 105, 260, '12 km', { anchor: 'middle', size: 22, d: 800 })
+        ink(g, RR(200, 210, 130, 110, 4), { w: 2.4, d: 800, t: 300 })
+        for (const [y, l] of [[240, '184,2'], [270, '1.037'], [300, '96,5']] as const) text(g, 312, y, l, { anchor: 'end', size: 16, d: 1000 + y })
+        for (const [y, up] of [[234, true], [264, true], [294, false]] as const) ink(g, up ? [[214, y + 2], [220, y - 6], [226, y + 2]] : [[214, y - 6], [220, y + 2], [226, y - 6]], { w: 1.6, d: 1000 + y, t: 60 })
+        text(g, 80, 400, '1.904', { anchor: 'middle', size: 30, d: 1300 })
+        text(g, 250, 390, '3', { anchor: 'middle', size: 34, d: 1400 })
       },
       listen(g) {
-        bullets(g, 50, 380, ['Einwohnerzahlen', 'Flusslängen', 'Rechnungsbeträge', 'Börsenkurse'], { gap: 54, size: 19 })
+        // Skyline (Einwohner), Flussschleife (Länge), Kassenzettel (Beträge), Kurskurve (Börse)
+        for (let k = 0; k < 6; k++) ink(g, RR(30 + k * 20, 440 - ((k * 37) % 60) - 30, 16, ((k * 37) % 60) + 30, 1), { w: 1.6, d: k * 60, t: 150 })
+        ink(g, L([24, 440], [156, 440]), { w: 1.8, d: 400, t: 200 })
+        ink(g, smooth([[200, 340], [260, 360], [220, 400], [300, 420], [250, 440], [330, 460]], 4), { w: 3, d: 500, t: 600 })
+        const rc: P[] = [[50, 500], [140, 500], [140, 620], [130, 628], [120, 620], [110, 628], [100, 620], [90, 628], [80, 620], [70, 628], [60, 620], [50, 628], [50, 500]]
+        ink(g, rc, { w: 2, d: 800, t: 400 })
+        for (let k = 0; k < 5; k++) ink(g, L([60, 516 + k * 18], [100 + ((k * 13) % 30), 516 + k * 18]), { w: 1, d: 1000 + k * 60, t: 80 })
+        axes(g, 200, 620, 330, 500, { d: 1000 })
+        ink(g, [[206, 600], [226, 590], [240, 596], [262, 570], [280, 576], [300, 540], [320, 548]], { w: 2.2, d: 1200, t: 400 })
       },
       gleich(g) {
         vbars(g, Array.from({ length: 9 }, (_, i) => ({ label: String(i + 1), v: 11.1, fmt: () => '' })), { x: 30, base: 600, w: 26, gap: 35, h: 230, max: 32 })
-        text(g, 180, 330, 'erwartet: je ≈ 11 %', { anchor: 'middle', cls: 's', d: 1500 })
+        question(g, 180, 380, 0.6, 1400)
       },
       echt(g) {
         const v = [30.1, 17.6, 12.5, 9.7, 7.9, 6.7, 5.8, 5.1, 4.6]
-        vbars(g, v.map((x, i) => ({ label: String(i + 1), v: x, fmt: (y: number) => (i === 0 || i === 8 ? `${Math.round(y)} %` : ''), dense: i === 0 })), { x: 30, base: 600, w: 26, gap: 35, h: 230, max: 32 })
+        vbars(g, v.map((x, i) => ({ label: String(i + 1), v: x, fmt: () => '', dense: i === 0 })), { x: 30, base: 600, w: 26, gap: 35, h: 230, max: 32 })
+        dplot(g, 43, 600, 280, 230 * (30.1 / 32), (t) => Math.log10(1 + 1 / (1 + t * 8)) / Math.log10(2), 1200)
       },
       tafeln(g) {
-        for (let k = 0; k < 4; k++) {
-          const x = 60 + k * 64
-          ink(g, RR(x, 380, 54, 180, 4), { w: 2.4, d: k * 150, t: 400 })
-          if (k === 0) hatch(g, RR(x + 4, 384, 46, 172, 2), 700, true)
-          if (k === 1) hatch(g, RR(x + 4, 384, 46, 172, 2), 800)
+        // aufgeschlagene Logarithmentafel: vordere Seiten abgegriffen und verschmutzt, hintere sauber
+        const book: P[] = [[40, 600], [40, 400], [180, 380], [320, 400], [320, 600], [180, 580], [40, 600]]
+        ink(g, book, { w: 2.8, t: 700 })
+        ink(g, L([180, 380], [180, 580]), { w: 2, d: 300, t: 300 })
+        for (let k = 0; k < 9; k++) {
+          ink(g, L([54, 420 + k * 18], [166, 404 + k * 18]), { w: 0.6, d: 400 + k * 30, t: 80 })
+          ink(g, L([194, 404 + k * 18], [306, 420 + k * 18]), { w: 0.6, d: 400 + k * 30, t: 80 })
         }
-        text(g, 180, 610, 'vorne abgegriffen', { anchor: 'middle', cls: 's', d: 1000 })
+        for (const [x, y, r] of [[80, 440, 18], [130, 500, 14], [70, 540, 12], [150, 430, 10]] as const) {
+          const sm: P[] = smooth(Array.from({ length: 9 }, (_, k) => [x + Math.cos(rad(k * 45)) * r * (1 + (k % 2) * 0.3), y + Math.sin(rad(k * 45)) * r * 0.7] as P), 3)
+          hatch(g, sm, 900 + x)
+        }
+        for (let k = 0; k < 4; k++) ink(g, B([40 - k * 3, 600 + k * 4], [100, 590 + k * 4], [150, 584 + k * 3], [180, 582 + k * 3]), { w: 1, d: 700 + k * 60, t: 200 })
+        hatch(g, E(70, 468, 14, 20), 1300, true)
       },
       stadt(g) {
+        // eine wachsende Stadt: die lange Zeit mit 1 vorne ist markiert, die 8 und 9 vorne vergehen schnell
         axes(g, 40, 600, 330, 320, { xl: 'Zeit', yl: 'Einwohner' })
         plot(g, 46, 596, 270, 240, (t) => (Math.pow(10, t) - 1) / 9, { d: 400 })
-        const y2 = 596 - ((2 - 1) / 9) * 240
-        dashes(g, L([46, y2], [316, y2]), { w: 1.2, d: 1200 })
-        text(g, 320, y2 - 6, '200.000', { anchor: 'end', cls: 's', d: 1300 })
-        text(g, 46, 622, '100.000', { cls: 's', d: 1300 })
-        text(g, 140, 470, 'lange eine 1 vorne', { anchor: 'middle', cls: 's', d: 1500 })
+        const xAt = (v: number) => 46 + 270 * Math.log10(1 + 9 * v)
+        hatch(g, RR(46, 596 - 0, xAt(1 / 9) - 46, 10, 1), 1200, true)
+        hatch(g, RR(xAt(7 / 9), 596, xAt(8 / 9) - xAt(7 / 9), 10, 1), 1400)
+        for (const v of [1 / 9, 7 / 9, 8 / 9]) dashes(g, L([xAt(v), 596], [xAt(v), 596 - v * 240]), { w: 1, d: 1300, dash: 3, gap: 3 })
       },
       log(g) {
         ink(g, L([30, 470], [330, 470]), { w: 2.6, t: 600 })
@@ -1752,25 +1783,52 @@ export const AHA_DENKEN: Bite[] = [
           if (k < 10) text(g, x + (30 + Math.log10(k + 1) * 300 - x) / 2, 450, String(k), { anchor: 'middle', d: 400 + k * 60 })
         }
         hatch(g, RR(30, 486, 90.3, 20, 2), 1100, true)
-        text(g, 75, 530, '30 %', { anchor: 'middle', d: 1200 })
+        hatch(g, RR(30 + Math.log10(9) * 300, 486, 300 - Math.log10(9) * 300, 20, 2), 1300)
       },
       strasse(g) {
+        // Straße mit 19 Hausnummern
+        ink(g, L([20, 620], [340, 620]), { w: 2.6, t: 500 })
         for (let i = 0; i < 19; i++) {
-          const x = 30 + (i % 10) * 32
-          const y = 400 + Math.floor(i / 10) * 70
+          const row = Math.floor(i / 10)
+          const x = 26 + (i % 10) * 32
+          const y = 450 + row * 110
+          ink(g, [[x, y + 50], [x, y + 10], [x + 14, y], [x + 28, y + 10], [x + 28, y + 50]], { w: 1.6, d: i * 50, t: 150 })
+          ink(g, RR(x + 9, y + 30, 10, 20, 1), { w: 1, d: i * 50 + 60, t: 60 })
           const one = String(i + 1).startsWith('1')
-          ink(g, RR(x, y, 26, 40, 3), { w: 1.8, d: i * 50, t: 150 })
-          text(g, x + 13, y + 26, String(i + 1), { anchor: 'middle', cls: one ? '' : 's', d: i * 50 + 100 })
+          if (one) hatch(g, RR(x + 4, y + 12, 20, 14, 2), 900 + i * 50, true)
+          text(g, x + 14, y + 24, String(i + 1), { anchor: 'middle', size: 11, cls: one ? 'halo' : 's', d: i * 50 + 100 })
         }
-        text(g, 180, 600, '11 von 19 beginnen mit 1', { anchor: 'middle', d: 1300 })
       },
       steuer(g) {
-        for (let i = 0; i < 6; i++) ink(g, L([60, 360 + i * 30], [300, 360 + i * 30]), { w: 1.4, d: i * 80, t: 300 })
-        lens(g, 210, 450, 50, 700)
-        text(g, 180, 600, 'erfundene Zahlen: zu gleichmäßig', { anchor: 'middle', cls: 's', d: 1200 })
+        // Steuerbeleg mit Zahlenspalte; Lupe zeigt: erfundene Anfangsziffern verteilt wie gleich hohe Balken
+        ink(g, RR(40, 340, 200, 280, 4), { w: 2.4, t: 500 })
+        for (let i = 0; i < 11; i++) {
+          ink(g, L([54, 362 + i * 22], [150, 362 + i * 22]), { w: 0.8, d: 200 + i * 40, t: 100 })
+          ink(g, L([170, 362 + i * 22], [226, 362 + i * 22]), { w: 1.8, d: 300 + i * 40, t: 100 })
+        }
+        blank(g, E(260, 470, 70))
+        ink(g, E(260, 470, 70), { w: 2.8, d: 800, t: 400 })
+        ink(g, L([310, 520], [340, 560]), { w: 4, d: 900, t: 150 })
+        for (let k = 0; k < 9; k++) {
+          const h = 36 + ((k * 7) % 3) * 3
+          ink(g, RR(222 + k * 9, 500 - h, 6, h, 1), { w: 1, d: 1000 + k * 40, t: 60 })
+        }
+        dplot(g, 225, 500, 72, 70, (t) => Math.log10(1 + 1 / (1 + t * 8)) / Math.log10(2), 1500, 1.4)
       },
       ende(g) {
-        text(g, 180, 520, '1', { anchor: 'middle', size: 140, d: 200 })
+        text(g, 180, 540, '1', { anchor: 'middle', size: 140, d: 200 })
+        rays(g, 180, 490, 70, 96, 12, 700)
+      },
+      wachstum2(g) {
+        // von 1 auf 2 ist ein langer Weg, von 8 auf 9 ein kurzer
+        ink(g, L([30, 470], [330, 470]), { w: 2.6, t: 600 })
+        for (let k = 1; k <= 10; k++) {
+          const x = 30 + Math.log10(k) * 300
+          ink(g, L([x, 456], [x, 484]), { w: 2, d: 200 + k * 60, t: 100 })
+          text(g, x, 510, String(k), { anchor: 'middle', d: 300 + k * 60 })
+        }
+        carrow(g, [30, 450], [120, 450], -40, { d: 1000 })
+        carrow(g, [301, 450], [316, 450], -14, { d: 1400 })
       },
     },
     scenes: [
@@ -1782,7 +1840,7 @@ export const AHA_DENKEN: Bite[] = [
       { t: T('Die vorderen Seiten, für Zahlen mit 1 am Anfang, waren **viel abgegriffener** als die hinteren.', 64), gfx: { tafeln: {} } },
       { t: T('Warum? Denk an etwas, das **wächst** – etwa eine Stadt mit 100.000 Einwohnern.', 64), gfx: { stadt: {} } },
       { t: T('Um auf 200.000 zu kommen, muss sie sich **verdoppeln**. So lange steht vorne eine 1.', 64), gfx: { stadt: {} } },
-      { t: T('Von 800.000 auf 900.000 braucht es dagegen nur gut **12 Prozent** Wachstum. Die 8 vorne hält nur kurz.', 64), gfx: { f1: { draw: 'formel', args: [['100.000 → 200.000', '=', '+ 100 %'], 330] } } },
+      { t: T('Von 800.000 auf 900.000 braucht es dagegen nur gut **12 Prozent** Wachstum. Die 8 vorne hält nur kurz.', 64), gfx: { wachstum2: {} } },
       { t: T('Auf einer **logarithmischen** Skala, die Verdopplungen gleich lang zeigt, nimmt die 1 den größten Abschnitt ein.', 64), gfx: { log: {} } },
       { t: T('Genauer: Der Anteil der Ziffer d ist der Logarithmus von **1 plus 1 durch d**. Für die 1 ergibt das rund 30 Prozent.', 64), gfx: { f2: { draw: 'formel', args: [['Anteil der 1', '=', 'log₁₀(2)', '≈', '30 %'], 360] } } },
       { t: T('Ein Alltagsbeispiel: In einer Straße mit 19 Häusern beginnen die Nummern 1 und 10 bis 19 mit einer 1 – **elf von neunzehn**.', 64), gfx: { strasse: {} } },
@@ -1807,21 +1865,47 @@ export const AHA_DENKEN: Bite[] = [
     images: [],
     draw: {
       rad(g) {
+        // Roulettekessel mit Kugel, die im Kreis läuft
         wheel(g, 180, 260, 130)
+        ink(g, E(180, 260, 150), { w: 2, d: 300, t: 700 })
+        for (let k = 0; k < 8; k++) {
+          const a = rad(k * 45 + 22)
+          ink(g, L([180 + Math.cos(a) * 132, 260 + Math.sin(a) * 132], [180 + Math.cos(a) * 148, 260 + Math.sin(a) * 148]), { w: 1.4, d: 800 + k * 40, t: 60 })
+        }
+        const b = spin(g, 180, 260, -1400, 1200)
+        ball(b, 180, 260 - 112, 6, { d: 1100, w: 1.6, t: 60 })
+        for (let k = 0; k < 4; k++) ink(g, L([180 + Math.cos(rad(k * 90)) * 10, 260 + Math.sin(rad(k * 90)) * 10], [180 + Math.cos(rad(k * 90)) * 30, 260 + Math.sin(rad(k * 90)) * 30]), { w: 2.4, d: 900, t: 100 })
       },
       serie(g) {
-        for (let i = 0; i < 26; i++) ball(g, 36 + (i % 9) * 36, 380 + Math.floor(i / 9) * 50, 13, { d: i * 80, fill: 'dicht', t: 0, w: 1.6 })
-        text(g, 180, 560, '26-mal Schwarz', { anchor: 'middle', size: 24, d: 2200 })
+        // Anzeigetafel am Tisch: die letzten Ergebnisse – alle schwarz
+        ink(g, RR(110, 320, 140, 320, 6), { w: 2.8, t: 500 })
+        ink(g, L([180, 640], [180, 660]), { w: 3, d: 200, t: 100 })
+        for (let i = 0; i < 13; i++) {
+          for (const k of [0, 1]) {
+            const n = i * 2 + k
+            if (n >= 26) continue
+            ball(g, 150 + k * 60, 344 + i * 22, 9, { d: n * 80, fill: 'dicht', t: 0, w: 1.4 })
+          }
+        }
       },
       gedaechtnis(g) {
-        wheel(g, 180, 470, 100)
-        text(g, 180, 620, 'Schwarz: 18 von 37 Feldern', { anchor: 'middle', cls: 's', d: 1000 })
+        // Kessel, Kugel – und daneben ein durchgestrichenes Gedächtnis
+        wheel(g, 140, 480, 100)
+        const b = spin(g, 140, 480, -1600, 600)
+        ball(b, 140, 480 - 86, 5, { d: 500, w: 1.4, t: 60 })
+        brain(g, 290, 400, 0.4, 800)
+        strike(g, [250, 370], [330, 430], 1300)
       },
       folgen(g) {
-        text(g, 30, 400, 'ausgedacht', { cls: 's' })
-        'KZKZZKZKKZKZ'.split('').forEach((c, i) => coinKZ(g, 40 + i * 25, 430, c === 'K', 200 + i * 60, 10))
-        text(g, 30, 520, 'echter Zufall', { cls: 's', d: 900 })
-        'KKKKZZKZZZZZ'.split('').forEach((c, i) => coinKZ(g, 40 + i * 25, 550, c === 'K', 1100 + i * 60, 10))
+        // oben ausgedacht (Bleistift): wechselt dauernd; unten echt geworfen (Hand mit Münze): lange Serien
+        ink(g, [[30, 380], [60, 410], [64, 406], [34, 376], [30, 380]], { w: 1.8, t: 200 })
+        ink(g, [[60, 410], [66, 416], [64, 406]], { w: 1.4, d: 100, t: 80 })
+        'KZKZZKZKKZKZ'.split('').forEach((c, i) => coinKZ(g, 90 + i * 22, 400, c === 'K', 200 + i * 60, 9))
+        ink(g, smooth([[30, 540], [44, 520], [60, 526], [64, 540], [50, 552], [30, 540]], 3), { w: 1.8, d: 800, t: 200 })
+        const fc = glide(g, 0, -20, { ms: 600, d: 1000, loop: true })
+        ink(fc, E(54, 510, 6, 2), { w: 1.4, d: 900, t: 60 })
+        'KKKKZZKZZZZZ'.split('').forEach((c, i) => coinKZ(g, 90 + i * 22, 540, c === 'K', 1100 + i * 60, 9))
+        for (const [a, b] of [[0, 3], [7, 11]] as const) ink(g, RR(90 + a * 22 - 13, 526, (b - a) * 22 + 26, 28, 12), { w: 1.4, d: 1900, t: 200 })
       },
       lauf(g) {
         for (let i = 0; i < 40; i++) {
@@ -1829,34 +1913,68 @@ export const AHA_DENKEN: Bite[] = [
           coinKZ(g, 30 + (i % 10) * 33, 380 + Math.floor(i / 10) * 50, run || i % 3 === 0, i * 40, 11)
         }
         ink(g, RR(30 + 4 * 33 - 16, 430 - 16, 6 * 33, 32, 14), { w: 2, d: 1800, t: 400 })
-        text(g, 180, 600, 'Serien gehören zum Zufall', { anchor: 'middle', cls: 's', d: 2000 })
       },
       korb(g) {
-        ink(g, E(240, 380, 40, 10), { w: 2.6, t: 500 })
-        ink(g, [[200, 380], [214, 440], [266, 440], [280, 380]], { w: 1.8, d: 300, t: 400 })
-        fig(g, 90, 620, 4, { arms: 'up', d: 400 })
-        ball(g, 170, 340, 14, { d: 800, t: 300 })
-        text(g, 180, 660, '„heiße Hand“: kleiner echter Effekt', { anchor: 'middle', cls: 's', d: 1200 })
+        // Wurf auf den Korb: Brett, Ring mit Netz, Flugbahn
+        ink(g, RR(250, 330, 80, 60, 3), { w: 2.4, t: 400 })
+        ink(g, RR(276, 350, 28, 20, 2), { w: 1.4, d: 200, t: 150 })
+        ink(g, L([330, 360], [340, 360]), { w: 2.4, d: 200, t: 100 })
+        ink(g, E(260, 396, 24, 6), { w: 2.4, d: 300, t: 200 })
+        for (let k = 0; k < 5; k++) ink(g, L([240 + k * 10, 400], [246 + k * 7, 434]), { w: 0.8, d: 400 + k * 40, t: 80 })
+        ink(g, L([246, 434], [274, 434]), { w: 0.8, d: 600, t: 80 })
+        fig(g, 90, 630, 4, { arms: 'up', d: 400 })
+        dashes(g, B([110, 480], [150, 340], [220, 330], [252, 390]), { w: 1.2, d: 900, dash: 4, gap: 4 })
+        const bl = glide(g, 140, -80, { ms: 1400, d: 1200, loop: true })
+        ball(bl, 112, 470, 12, { d: 1000, w: 2, t: 100 })
+        ink(bl, L([100, 470], [124, 470]), { w: 1, d: 1100, t: 60 })
+        for (const k of [0, 1, 2]) check(g, 60 + k * 40, 360, 0.4, 1600 + k * 150)
       },
       null0(g) {
-        wheel(g, 180, 460, 100)
-        text(g, 180, 620, 'die grüne Null: 2,7 % Vorteil fürs Casino', { anchor: 'middle', cls: 's', d: 1100 })
+        // Kessel mit hervorgehobenem Null-Fach; der Croupier zieht die Jetons zur Bank
+        wheel(g, 150, 470, 100)
+        const a0 = rad(-90)
+        const a1 = rad(-70)
+        const pocket: P[] = [[150 + Math.cos(a0) * 72, 470 + Math.sin(a0) * 72], [150 + Math.cos(a0) * 100, 470 + Math.sin(a0) * 100], [150 + Math.cos(a1) * 100, 470 + Math.sin(a1) * 100], [150 + Math.cos(a1) * 72, 470 + Math.sin(a1) * 72]]
+        blank(g, pocket)
+        ink(g, [...pocket, pocket[0]], { w: 2.4, d: 900, t: 200 })
+        ripple(g, (pocket[0][0] + pocket[2][0]) / 2, (pocket[0][1] + pocket[2][1]) / 2, 6, 30, { n: 2, ms: 1600, d: 1100, w: 1 })
+        const ch = glide(g, 60, 0, { ms: 1400, d: 1300, loop: true })
+        for (let k = 0; k < 4; k++) {
+          ink(ch, E(270, 600 - k * 8, 20, 6), { w: 1.6, d: 1200, t: 100 })
+          ink(ch, L([250, 600 - k * 8], [250, 606 - k * 8]), { w: 1.2, d: 1200, t: 40 })
+          ink(ch, L([290, 600 - k * 8], [290, 606 - k * 8]), { w: 1.2, d: 1200, t: 40 })
+        }
       },
       gross(g) {
         axes(g, 40, 600, 330, 320, { xl: 'Würfe', yl: 'Anteil Kopf' })
         dashes(g, L([46, 460], [320, 460]), { w: 1.2, d: 300 })
         plot(g, 46, 600, 270, 280, (t) => 0.5 + 0.35 * Math.exp(-t * 6) * Math.cos(t * 30), { d: 600 })
-        text(g, 320, 450, '50 %', { anchor: 'end', cls: 's', d: 1500 })
       },
       lotto(g) {
+        // Lostrommel mit Kugeln, daneben die Zahlen der letzten Woche – sie haben dieselbe Chance
+        ink(g, E(110, 460, 80), { w: 2.8, t: 600 })
+        const dr = spin(g, 110, 460, 3000, 800)
+        for (let k = 0; k < 14; k++) ball(dr, 110 + Math.cos(rad(k * 50)) * (30 + (k % 3) * 14), 460 + Math.sin(rad(k * 50)) * (30 + (k % 3) * 14), 9, { d: 600 + k * 40, w: 1.4, t: 60 })
+        ink(g, [[110, 540], [90, 600], [130, 600], [110, 540]], { w: 2.4, d: 300, t: 300 })
         for (let i = 0; i < 6; i++) {
-          ball(g, 50 + i * 52, 470, 20, { d: i * 150, w: 2.4, t: 200 })
-          text(g, 50 + i * 52, 477, String([3, 11, 17, 24, 38, 42][i]), { anchor: 'middle', cls: 's', d: i * 150 + 100 })
+          ball(g, 230 + (i % 2) * 52, 380 + Math.floor(i / 2) * 60, 20, { d: 1000 + i * 150, w: 2.4, t: 200 })
+          text(g, 230 + (i % 2) * 52, 387 + Math.floor(i / 2) * 60, String([3, 11, 17, 24, 38, 42][i]), { anchor: 'middle', cls: 's', d: i * 150 + 1100 })
         }
-        text(g, 180, 560, 'letzte Woche gezogen – gleiche Chance', { anchor: 'middle', cls: 's', d: 1200 })
       },
       ende(g) {
         wheel(g, 180, 490, 90)
+        const b = spin(g, 180, 490, -1600, 500)
+        ball(b, 180, 490 - 78, 5, { d: 400, w: 1.4, t: 60 })
+      },
+      selten(g) {
+        // ein einziger markierter Punkt unter sehr vielen – und der nächste Wurf ist trotzdem wieder fast halb-halb
+        dotgrid(g, 30, 330, 40, 26, 7.7, 1.8)
+        ball(g, 184, 425, 6, { d: 1500, fill: 'dicht', w: 1.6, t: 60 })
+        ripple(g, 184, 425, 6, 30, { n: 2, ms: 1600, d: 1700, w: 1 })
+        for (const k of [0, 1]) {
+          ink(g, E(150 + k * 60, 560 + 60, 18), { w: 2, d: 1800 + k * 100, t: 150 })
+          if (k) hatch(g, E(210, 620, 16), 1900, true)
+        }
       },
     },
     scenes: [
@@ -1866,7 +1984,7 @@ export const AHA_DENKEN: Bite[] = [
       { t: T('Es kam Schwarz. Wieder und wieder – insgesamt **26-mal** in Folge. Die Spieler verloren Millionen Francs.', 64), gfx: { serie: {} } },
       { t: T('Ihr Denkfehler heißt **Spielerfehlschluss**: der Glaube, Zufall gleiche sich auf kurze Sicht aus.', 64), gfx: { gedaechtnis: {} } },
       { t: T('Die Kugel hat **kein Gedächtnis**. Jeder Wurf ist neu – die Chance auf Schwarz bleibt bei knapp 50 Prozent.', 64), gfx: { gedaechtnis: {} } },
-      { t: T('Eine Serie von 26 gleichen Farben ist extrem selten: etwa **1 zu 68 Millionen**. Der 27. Wurf ist trotzdem wieder fast fifty-fifty.', 64), gfx: { z1: { draw: 'zahl', args: ['1 : 68 Mio.', 'für 26-mal dieselbe Farbe', 430] } } },
+      { t: T('Eine Serie von 26 gleichen Farben ist extrem selten: etwa **1 zu 68 Millionen**. Der 27. Wurf ist trotzdem wieder fast fifty-fifty.', 64), gfx: { selten: {} } },
       { t: T('Unser Gehirn erwartet, dass Zufall **abwechslungsreich** aussieht. Ausgedachte Folgen wechseln darum viel zu oft.', 64), gfx: { folgen: {} } },
       { t: T('Echte Zufallsfolgen haben lange Serien: Bei 100 Münzwürfen kommt fast immer eine Serie von **mindestens fünf** gleichen vor.', 64), gfx: { lauf: {} } },
       { t: T('Lehrer können so oft erkennen, ob Schüler ihre Münzwürfe **wirklich geworfen** oder erfunden haben.', 64), gfx: { folgen: {} } },
