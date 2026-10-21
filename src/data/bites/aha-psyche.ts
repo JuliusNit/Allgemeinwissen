@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, car, check, clock, cross, crowd, dashes, eye, fig, hatch, ink, lie, mk, pop, question, rays, st, star, strike, text, timeline, vbars, type P } from './draw'
-import { LAND, axes, ball, box, bullets, coastPts, dot, flow, glide, heart, house, pie, plot, rad, ripple, smooth, spin, sun, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, brain, bubble, car, check, clock, cross, crowd, dashes, eye, fig, hatch, ink, lie, mk, pop, question, rays, st, star, strike, text, timeline, vbars, type P } from './draw'
+import { LAND, axes, bact, ball, bullets, carrow, cell, coastPts, dot, flow, glide, head, heart, house, moonFace, pie, plot, rad, ripple, smooth, spin, sun, sunDisk, waveP, wobble } from './kit'
 
 // Psychologie: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -118,6 +118,27 @@ function capuchin(g: Element, x: number, y: number, s = 1, d = 0): void {
   }
   ink(g, B(P(-6, -90), P(-2, -86), P(2, -86), P(6, -90)), { w: 1.4, d: d + 800, t: 80 })
   for (const k of [-1, 1]) ink(g, B(P(k * 20, -60), P(k * 34, -44), P(k * 30, -24), P(k * 16, -20)), { w: 2.2, d: d + 500, t: 200 })
+}
+
+/** Kapsel waagerecht, Mitte (x, y), Länge l: zwei Hälften, rechte schraffiert, Glanzlicht */
+function capsule(g: Element, x: number, y: number, l = 120, d = 0, rot = 0): void {
+  const h = l * 0.38
+  const grp = rot ? mk('g', { transform: `rotate(${rot} ${x} ${y})` }, g) : g
+  const o = RR(x - l / 2, y - h / 2, l, h, h / 2)
+  blank(grp, o)
+  hatch(grp, RR(x, y - h / 2 + 2, l / 2 - 2, h - 4, h / 2 - 2), d + 500, true)
+  ink(grp, o, { w: Math.max(1.4, l / 50), d, t: 400 })
+  ink(grp, L([x, y - h / 2 + 2], [x, y + h / 2 - 2]), { w: Math.max(1, l / 80), d: d + 300, t: 150 })
+  ink(grp, B([x - l * 0.38, y - h * 0.25], [x - l * 0.3, y - h * 0.34], [x - l * 0.16, y - h * 0.34], [x - l * 0.08, y - h * 0.3]), { w: Math.max(0.8, l / 120), d: d + 400, t: 100 })
+}
+
+/** Gehirn von der Seite mit schraffiertem Bereich (Größe r) */
+function scanBrain(g: Element, x: number, y: number, r: number, d = 0): void {
+  brain(g, x, y, 0.7, d)
+  if (r > 0) {
+    hatch(g, E(x + 6, y - 10, r, r * 0.8), d + 800, true)
+    ink(g, E(x + 6, y - 10, r, r * 0.8), { w: 1.4, d: d + 700, t: 200 })
+  }
 }
 
 export const AHA_PSYCHE: Bite[] = [
@@ -703,110 +724,219 @@ export const AHA_PSYCHE: Bite[] = [
     images: [],
     draw: {
       pille(g) {
-        const p = RR(90, 220, 180, 70, 35)
-        ink(g, p, { w: 3.2, t: 700 })
-        hatch(g, RR(180, 222, 88, 66, 32), 600, true)
-        ink(g, L([180, 222], [180, 288]), { w: 2.2, d: 500, t: 200 })
+        // Kapsel, Blisterstreifen und ein Glas Wasser
+        capsule(g, 160, 170, 180, 0, -12)
+        const bl = RR(40, 270, 200, 90, 8)
+        ink(g, bl, { w: 2.2, d: 400, t: 400 })
+        for (let k = 0; k < 4; k++) for (let r = 0; r < 2; r++) {
+          ink(g, RR(54 + k * 46, 282 + r * 40, 36, 28, 13), { w: 1.6, d: 600 + (k * 2 + r) * 60, t: 100 })
+          if (k === 3 && r === 1) dashes(g, RR(54 + k * 46, 282 + r * 40, 36, 28, 13), { w: 1, d: 1200, dash: 3, gap: 3 })
+        }
+        ink(g, [[270, 260], [276, 380], [324, 380], [330, 260]], { w: 2.4, d: 700, t: 300 })
+        ink(g, waveP(274, 326, 290, 1.6, 14), { w: 1.2, d: 900, t: 200 })
+        hatch(g, [[274, 292], [326, 292], [324, 376], [276, 376]], 1000)
       },
       schein(g) {
-        const p = RR(90, 440, 180, 70, 35)
-        ink(g, p, { w: 3.2, t: 700 })
-        ink(g, L([180, 442], [180, 508]), { w: 2.2, d: 500, t: 200 })
-        text(g, 180, 580, 'kein Wirkstoff', { anchor: 'middle', size: 20, d: 900 })
+        // aufgebrochene Kapsel: drinnen nur weißes Pulver, daneben Zuckerwürfel
+        capsule(g, 120, 470, 140, 0, -20)
+        const half: P[] = RR(200, 452, 70, 46, 22)
+        ink(g, half, { w: 2.4, d: 400, t: 300 })
+        for (let k = 0; k < 18; k++) dot(g, 220 + (k * 13) % 50, 520 + Math.floor(k / 6) * 8, 1.6, 700 + k * 30)
+        for (const [x, y] of [[80, 590], [120, 584]] as const) {
+          ink(g, RR(x, y, 30, 30, 3), { w: 2, d: 1100, t: 150 })
+          ink(g, [[x, y], [x + 8, y - 8], [x + 38, y - 8], [x + 30, y]], { w: 1.4, d: 1200, t: 100 })
+          ink(g, [[x + 38, y - 8], [x + 38, y + 22], [x + 30, y + 30]], { w: 1.4, d: 1200, t: 100 })
+          for (let k = 0; k < 4; k++) dot(g, x + 6 + (k % 2) * 14, y + 8 + Math.floor(k / 2) * 12, 1.2, 1300)
+        }
       },
       besser(g) {
-        bullets(g, 60, 380, ['Schmerzen', 'Übelkeit', 'Erschöpfung', 'Schlafprobleme'], { gap: 50, size: 19 })
+        // Kopfschmerz, Übelkeit, Erschöpfung, Schlafprobleme – als Bilder
+        head(g, 90, 420, 0.6, 0, { squint: true, neck: false })
+        bolt(g, [[40, 330], [52, 350], [44, 352], [58, 374]], 500, 2)
+        ink(g, smooth([[220, 360], [260, 340], [300, 360], [300, 420], [260, 440], [220, 420], [220, 360]], 3), { w: 2.4, d: 300, t: 400 })
+        ink(g, waveP(230, 290, 392, 6, 20), { w: 1.6, d: 600, t: 300 })
+        ink(g, RR(50, 540, 80, 40, 6), { w: 2.4, d: 700, t: 300 })
+        ink(g, RR(130, 552, 8, 16, 2), { w: 2, d: 800, t: 100 })
+        hatch(g, RR(56, 546, 16, 28, 2), 900, true)
+        ink(g, RR(220, 560, 100, 30, 6), { w: 2.4, d: 900, t: 300 })
+        ink(g, RR(224, 548, 30, 16, 6), { w: 1.6, d: 1000, t: 150 })
+        for (const x of [224, 316]) ink(g, L([x, 590], [x, 606]), { w: 2, d: 1000, t: 60 })
+        moonFace(g, 300, 510, 14, 1100)
       },
       erwartung(g) {
-        brain(g, 180, 440, 1.1)
-        arrow(g, L([180, 520], [180, 600]), { w: 2.6, d: 1000, t: 300, head: 9 })
-        text(g, 180, 630, 'eigene Botenstoffe', { anchor: 'middle', cls: 's', d: 1200 })
+        // das Gehirn erwartet Linderung und schüttet eigene Botenstoffe aus, die durch den Körper fließen
+        brain(g, 180, 410, 1.1)
+        capsule(g, 70, 340, 50, 300)
+        carrow(g, [96, 340], [130, 370], -20, { d: 600 })
+        ink(g, L([180, 470], [180, 640]), { w: 6, d: 700, t: 400 })
+        blank(g, L([180, 470], [180, 640]))
+        for (let k = 0; k < 3; k++) flow(g, B([170 + k * 10, 470], [140 + k * 30, 540], [120 + k * 40, 600], [100 + k * 50, 640]), { n: 3, ms: 1800, d: 1000 + k * 200, r: 2.2 })
       },
       naloxon(g) {
-        box(g, 30, 380, 140, 70, 'Placebo', { size: 18 })
-        arrow(g, L([100, 456], [100, 520]), { w: 2.4, d: 400, t: 300, head: 9 })
-        box(g, 30, 530, 140, 60, 'Endorphine', { size: 16, d: 600 })
-        box(g, 190, 380, 140, 70, ['+ Gegenmittel', 'zu Morphin'], { size: 15, d: 900, fill: true })
-        cross(g, 260, 560, 1.2, 1300)
+        // links: Placebo → Endorphine docken an, der Schmerzblitz wird klein; rechts: mit Gegenmittel sind die Andockstellen blockiert
+        for (const [x, block] of [[90, false], [270, true]] as const) {
+          capsule(g, x, 350, 60, block ? 300 : 0)
+          arrow(g, L([x, 370], [x, 410]), { w: 1.8, d: 500, t: 150, head: 6 })
+          ink(g, L([x - 60, 470], [x + 60, 470]), { w: 2.4, d: 600, t: 300 })
+          for (let k = 0; k < 4; k++) {
+            const cx = x - 45 + k * 30
+            ink(g, [[cx - 8, 470], [cx - 8, 460], [cx + 8, 460], [cx + 8, 470]], { w: 1.6, d: 700 + k * 50, t: 80 })
+            if (block) {
+              ink(g, RR(cx - 6, 448, 12, 12, 2), { w: 1.4, d: 1000 + k * 80, t: 80 })
+              hatch(g, RR(cx - 6, 448, 12, 12, 2), 1100 + k * 80, true)
+            } else {
+              const f = glide(g, 0, 30, { ms: 900, d: 900 + k * 120 })
+              ball(f, cx, 422, 5, { d: 800, fill: 'hell', w: 1.2, t: 60 })
+            }
+          }
+          bolt(g, block ? [[x - 10, 520], [x + 6, 560], [x - 6, 562], [x + 12, 610]] : [[x - 4, 540], [x + 2, 556], [x - 2, 558], [x + 4, 574]], 1300, block ? 3.4 : 1.6)
+        }
+        const sy: P[] = [[220, 330], [300, 316], [304, 330], [224, 344], [220, 330]]
+        ink(g, sy, { w: 2, d: 600, t: 200 })
+        ink(g, L([304, 322], [330, 318]), { w: 1.4, d: 700, t: 80 })
       },
       groesse(g) {
-        ink(g, RR(50, 470, 60, 26, 13), { w: 2.4, t: 400 })
-        ink(g, RR(150, 450, 100, 46, 23), { w: 2.8, d: 300, t: 500 })
-        ink(g, L([270, 420], [330, 520]), { w: 3, d: 600, t: 300 })
-        ink(g, RR(260, 400, 30, 60, 4), { w: 2.4, d: 700, t: 300 })
-        text(g, 180, 580, 'groß, Spritze, auffällig: oft stärker', { anchor: 'middle', cls: 's', d: 1000 })
+        // kleine Tablette, große Kapsel, Spritze – auffälliger wirkt oft stärker
+        ink(g, E(70, 490, 22, 12), { w: 2, t: 300 })
+        ink(g, L([52, 490], [88, 490]), { w: 1, d: 200, t: 100 })
+        capsule(g, 180, 490, 110, 300)
+        const sy = mk('g', { transform: 'rotate(-30 300 480)' }, g)
+        ink(sy, RR(270, 470, 70, 20, 3), { w: 2.4, d: 600, t: 300 })
+        hatch(sy, RR(280, 474, 40, 12, 2), 800)
+        ink(sy, L([340, 480], [366, 480]), { w: 1.4, d: 700, t: 100 })
+        ink(sy, L([256, 480], [270, 480]), { w: 2.4, d: 700, t: 100 })
+        ink(sy, L([256, 468], [256, 492]), { w: 2.4, d: 700, t: 100 })
+        for (const [x, r] of [[70, 20], [180, 36], [300, 50]] as const) ripple(g, x, 590, 4, r, { n: 2, ms: 1600, d: 1200, w: 1, ry: 0.4 })
       },
       preis(g) {
-        for (const [x, n, d] of [[100, '2,50 €', 0], [260, '10 Cent', 400]] as const) {
-          ink(g, RR(x - 60, 420, 120, 50, 25), { w: 2.8, d, t: 500 })
-          text(g, x, 520, n, { anchor: 'middle', size: 20, d: d + 300 })
+        // zwei gleiche Pillen: an der einen hängt ein Schild mit vielen Münzen, an der anderen mit einer
+        for (const [x, n, d] of [[100, 5, 0], [260, 1, 400]] as const) {
+          capsule(g, x, 440, 100, d)
+          ink(g, L([x + 30, 452], [x + 40, 500]), { w: 1, d: d + 300, t: 100 })
+          const tag: P[] = [[x + 10, 500], [x + 70, 500], [x + 80, 520], [x + 70, 540], [x + 10, 540], [x + 10, 500]]
+          ink(g, tag, { w: 2, d: d + 400, t: 200 })
+          for (let k = 0; k < n; k++) ink(g, E(x + 34, 532 - k * 5, 12, 4), { w: 1.4, d: d + 600 + k * 80, t: 80 })
         }
-        text(g, 180, 600, 'teuer wirkt besser', { anchor: 'middle', cls: 's', d: 1000 })
+        check(g, 100, 600, 0.8, 1300)
       },
       offen(g) {
+        // Pillendose mit ehrlichem Etikett, daneben die Kapseln
         ink(g, RR(100, 380, 160, 220, 14), { w: 3, t: 700 })
-        text(g, 180, 440, 'PLACEBO', { anchor: 'middle', size: 22, d: 500 })
-        text(g, 180, 470, 'ohne Wirkstoff', { anchor: 'middle', cls: 's', d: 700 })
-        for (let i = 0; i < 4; i++) ink(g, E(140 + i * 27, 540, 10, 6), { w: 2, d: 900 + i * 80, t: 200 })
+        ink(g, RR(94, 350, 172, 36, 6), { w: 2.6, d: 200, t: 300 })
+        for (let k = 0; k < 8; k++) ink(g, L([104 + k * 20, 352], [104 + k * 20, 384]), { w: 1, d: 300 + k * 30, t: 60 })
+        ink(g, RR(116, 420, 128, 90, 4), { w: 1.6, d: 400, t: 300 })
+        text(g, 180, 472, 'PLACEBO', { anchor: 'middle', size: 22, d: 500 })
+        for (let i = 0; i < 4; i++) capsule(g, 70 + i * 70, 640, 44, 900 + i * 80, i * 20 - 30)
       },
       studien(g) {
-        vbars(g, [
-          { label: 'ohne Pille', v: 3, fmt: () => '' },
-          { label: 'offenes Placebo', v: 5, fmt: () => 'besser', dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 220 })
-        text(g, 180, 330, 'Reizdarm, Rückenschmerz', { anchor: 'middle', cls: 's', d: 1200 })
+        // zwei Gruppen: ohne Pille und mit offenem Placebo; die Balken zeigen, wie viel besser es ihnen ging
+        for (const [x, pill, h] of [[100, false, 80], [260, true, 150]] as const) {
+          crowd(g, x - 50, 640, 4, 32, 1.4, pill ? 400 : 0, 60)
+          const r = RR(x - 30, 560 - h, 60, h, 3)
+          hatch(g, r, 900 + (pill ? 300 : 0), pill)
+          ink(g, r, { w: 2.2, d: 800 + (pill ? 300 : 0), t: 300 })
+          if (pill) capsule(g, x, 380, 50, 1300)
+          else {
+            ink(g, smooth([[x - 20, 390], [x - 10, 372], [x + 10, 372], [x + 20, 390], [x + 10, 400], [x - 10, 400], [x - 20, 390]], 3), { w: 1.8, d: 1000, t: 200 })
+            cross(g, x, 386, 0.4, 1200)
+          }
+        }
+        ink(g, L([30, 562], [330, 562]), { w: 2, d: 600, t: 300 })
       },
       ritual(g) {
-        ink(g, [[110, 400], [120, 560], [240, 560], [250, 400]], { w: 3, t: 700 })
-        ink(g, RR(130, 340, 40, 18, 9), { w: 2.4, d: 500, t: 300 })
+        // morgens zur gleichen Zeit: Glas Wasser, Kapsel, Uhr
+        ink(g, [[110, 420], [120, 580], [240, 580], [250, 420]], { w: 3, t: 700 })
+        ink(g, waveP(116, 244, 460, 2, 24), { w: 1.6, d: 400, t: 300 })
+        hatch(g, [[116, 464], [244, 464], [240, 576], [120, 576]], 600)
+        capsule(g, 160, 380, 60, 500, 20)
         clock(g, 300, 380, 30, 240, 0, 700)
-        text(g, 180, 620, 'Ritual: sich um sich kümmern', { anchor: 'middle', cls: 's', d: 1100 })
+        sunDisk(g, 300, 470, 14, 900)
+        ink(g, L([30, 582], [330, 582]), { w: 2, d: 200, t: 400 })
       },
       scan(g) {
-        brain(g, 100, 470, 0.6)
-        hatch(g, E(100, 460, 24), 800, true)
-        brain(g, 260, 470, 0.6, 300)
-        ink(g, E(260, 460, 12), { w: 2, d: 900, t: 200 })
-        text(g, 100, 560, 'ohne Placebo', { anchor: 'middle', cls: 's', d: 1000 })
-        text(g, 260, 560, 'mit Placebo', { anchor: 'middle', cls: 's', d: 1100 })
-        text(g, 180, 610, 'Schmerzareale weniger aktiv', { anchor: 'middle', cls: 's', d: 1300 })
+        // Hirnscan ohne (links) und mit Placebo (rechts): das Schmerzareal ist rechts kleiner
+        scanBrain(g, 100, 470, 30, 0)
+        scanBrain(g, 260, 470, 12, 300)
+        capsule(g, 260, 360, 50, 900)
+        ink(g, RR(30, 390, 140, 170, 8), { w: 1.4, d: 100, t: 400 })
+        ink(g, RR(190, 390, 140, 170, 8), { w: 1.4, d: 200, t: 400 })
       },
       knie(g) {
-        ink(g, B([100, 340], [120, 400], [150, 440], [170, 470]), { w: 3.2, t: 500 })
-        ink(g, B([170, 470], [190, 520], [200, 560], [210, 620]), { w: 3.2, d: 300, t: 500 })
-        ink(g, B([150, 330], [168, 390], [196, 430], [216, 470]), { w: 3.2, t: 500 })
-        ink(g, B([216, 470], [236, 520], [246, 560], [256, 620]), { w: 3.2, d: 300, t: 500 })
-        for (const [x, y] of [[230, 450], [160, 500]] as const) ink(g, L([x - 8, y], [x + 8, y]), { w: 2.2, d: 900, t: 100 })
-        text(g, 290, 400, 'Schein-OP', { anchor: 'middle', d: 1100 })
+        // Kniegelenk von vorn: Oberschenkelknochen, Kniescheibe, Schienbein; zwei kleine Einstichstellen
+        const fem: P[] = smooth([[150, 300], [148, 420], [130, 450], [140, 476], [180, 470], [220, 476], [230, 450], [212, 420], [210, 300]], 3)
+        ink(g, fem, { w: 2.8, t: 700 })
+        const tib: P[] = smooth([[132, 640], [140, 520], [130, 496], [180, 490], [230, 496], [220, 520], [228, 640]], 3)
+        ink(g, tib, { w: 2.8, d: 300, t: 700 })
+        ink(g, E(180, 456, 22, 26), { w: 2.4, d: 600, t: 300 })
+        hatch(g, E(180, 456, 20, 24), 800)
+        for (const k of [-1, 1]) ink(g, B([180 + k * 30, 470], [180 + k * 40, 480], [180 + k * 40, 490], [180 + k * 30, 494]), { w: 1.4, d: 800, t: 150 })
+        ink(g, smooth([[100, 300], [96, 420], [90, 480], [96, 560], [100, 640]], 3), { w: 1.6, d: 400, t: 500 })
+        ink(g, smooth([[260, 300], [264, 420], [270, 480], [264, 560], [260, 640]], 3), { w: 1.6, d: 400, t: 500 })
+        for (const [x, y] of [[108, 500], [252, 500]] as const) {
+          ink(g, L([x - 6, y - 6], [x + 6, y + 6]), { w: 2, d: 1100, t: 60 })
+          ink(g, L([x - 6, y + 6], [x + 6, y - 6]), { w: 2, d: 1150, t: 60 })
+        }
+        const sc = wobble(g, { dx: 6, ms: 1600, d: 1300 })
+        ink(sc, L([300, 470], [254, 498]), { w: 3, d: 1200, t: 200 })
+        ink(sc, RR(296, 456, 40, 18, 4), { w: 2, d: 1300, t: 150 })
       },
       nocebo(g) {
-        const p = RR(90, 440, 180, 70, 35)
-        ink(g, p, { w: 3.2, t: 700 })
-        text(g, 180, 380, 'Nocebo', { anchor: 'middle', size: 26, d: 500 })
-        text(g, 180, 580, 'erwartete Nebenwirkungen kommen eher', { anchor: 'middle', cls: 's', d: 900 })
+        // Beipackzettel mit langer Liste und Warndreieck – wer ihn liest, fühlt sich schwindelig
+        ink(g, RR(30, 340, 150, 260, 4), { w: 2.4, t: 500 })
+        for (let k = 0; k < 14; k++) ink(g, L([44, 364 + k * 16], [96 + ((k * 17) % 70), 364 + k * 16]), { w: 0.9, d: 200 + k * 40, t: 80 })
+        ink(g, [[140, 380], [164, 420], [116, 420], [140, 380]], { w: 2.2, d: 800, t: 200 })
+        ink(g, L([140, 394], [140, 408]), { w: 2, d: 900, t: 60 })
+        dot(g, 140, 414, 1.6, 950)
+        head(g, 270, 470, 0.7, 600, { squint: true, neck: true })
+        const sp = spin(g, 270, 380, 2000, 1200)
+        ink(sp, Array.from({ length: 30 }, (_, i) => [270 + Math.cos(i * 0.5) * (2 + i * 0.6), 380 + Math.sin(i * 0.5) * (2 + i * 0.6) * 0.5] as P), { w: 1.4, d: 1100, t: 200 })
       },
       grenzen(g) {
-        box(g, 30, 380, 140, 90, ['Beschwerden', 'erleben'], { size: 16 })
-        check(g, 100, 520, 1, 600)
-        box(g, 190, 380, 140, 90, ['Infektion,', 'Tumor'], { size: 16, d: 400, fill: true })
-        cross(g, 260, 520, 1, 900)
+        // links: wie Schmerz erlebt wird, ändert sich (Blitz wird kleiner); rechts: Bakterien und Tumorzellen bleiben
+        head(g, 90, 440, 0.6, 0, { neck: false })
+        bolt(g, [[40, 360], [48, 374], [42, 376], [50, 390]], 500, 1.4)
+        check(g, 90, 580, 0.9, 900)
+        for (let k = 0; k < 4; k++) bact(g, 220 + (k % 2) * 50, 390 + Math.floor(k / 2) * 40, 0.6, 400 + k * 100, true)
+        cell(g, 260, 500, 34, 26, 800)
+        cross(g, 260, 580, 0.9, 1100)
+        ink(g, L([180, 340], [180, 620]), { w: 1, d: 200, t: 400 })
       },
       doppelblind(g) {
-        fig(g, 90, 600, 4)
-        fig(g, 270, 600, 4, { d: 200 })
-        for (const x of [90, 270]) ink(g, RR(x - 22, 470, 44, 12, 4), { w: 2.4, d: 700, t: 200 })
-        text(g, 180, 400, 'weder Patient noch Ärztin wissen es', { anchor: 'middle', cls: 's', d: 1000 })
+        // Patientin und Ärztin tragen beide eine Augenbinde; zwei gleiche Dosen mit Code-Buchstaben
+        for (const [x, d] of [[90, 0], [270, 200]] as const) {
+          fig(g, x, 640, 4, { d })
+          hatch(g, RR(x - 16, 500, 32, 8, 3), d + 600, true)
+          ink(g, RR(x - 16, 500, 32, 8, 3), { w: 1.6, d: d + 500, t: 100 })
+        }
+        for (const [x, l, d] of [[150, 'A', 800], [210, 'B', 900]] as const) {
+          ink(g, RR(x - 18, 360, 36, 56, 6), { w: 2.2, d, t: 200 })
+          ink(g, RR(x - 20, 350, 40, 12, 3), { w: 1.8, d: d + 100, t: 100 })
+          text(g, x, 396, l, { anchor: 'middle', size: 18, d: d + 200 })
+        }
       },
       verdeckt(g) {
-        vbars(g, [
-          { label: 'heimlich gegeben', v: 3, fmt: () => '' },
-          { label: 'angekündigt', v: 5.5, fmt: () => 'mehr Linderung', dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 220 })
-        text(g, 180, 330, 'gleiches Schmerzmittel', { anchor: 'middle', cls: 's', d: 1200 })
+        // gleiche Infusion: links läuft sie heimlich aus der Pumpe hinter dem Vorhang, rechts kündigt die Ärztin sie an
+        for (const [x, told, h] of [[100, false, 70], [260, true, 140]] as const) {
+          ink(g, L([x - 30, 340], [x - 30, 460]), { w: 1.8, d: told ? 300 : 0, t: 200 })
+          ink(g, RR(x - 44, 340, 28, 40, 6), { w: 2, d: told ? 400 : 100, t: 200 })
+          const dr = glide(g, 0, 50, { ms: 900, d: 1000, loop: true })
+          dot(dr, x - 30, 390, 1.6, 900)
+          const r = RR(x - 10, 620 - h, 50, h, 3)
+          hatch(g, r, 1200 + (told ? 200 : 0), told)
+          ink(g, r, { w: 2, d: 1100 + (told ? 200 : 0), t: 200 })
+          if (!told) {
+            hatch(g, [[x - 60, 330], [x - 10, 330], [x - 16, 470], [x - 60, 470]], 600)
+            ink(g, [[x - 60, 330], [x - 10, 330], [x - 16, 470]], { w: 1.4, d: 500, t: 200 })
+          } else {
+            fig(g, x + 70, 480, 1.8, { d: 600, arms: 'push' })
+            bubble(g, x + 20, 340, 70, 40, 'r', 800)
+            capsule(g, x + 55, 360, 30, 1000)
+          }
+        }
+        ink(g, L([30, 622], [330, 622]), { w: 2, d: 300, t: 400 })
       },
       ende(g) {
-        ink(g, RR(110, 460, 140, 56, 28), { w: 3, t: 600 })
-        ink(g, L([180, 462], [180, 514]), { w: 2, d: 400, t: 200 })
+        capsule(g, 180, 490, 160, 0, -10)
       },
     },
     scenes: [
