@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
 import { B, E, HOOK, L, RR, T, arrow, blank, bolt, brain, bubble, car, check, clock, cross, crowd, dashes, eye, fig, hatch, ink, lie, mk, pop, question, rays, st, star, strike, text, timeline, vbars, type P } from './draw'
-import { LAND, axes, bact, ball, bullets, carrow, cell, coastPts, dot, flow, glide, head, heart, house, moonFace, pie, plot, rad, ripple, smooth, spin, sun, sunDisk, waveP, wobble } from './kit'
+import { LAND, axes, bact, ball, bullets, carrow, cell, cloud, coastPts, dot, drop, flow, glide, head, heart, house, moonFace, pie, plot, rad, ripple, smooth, spin, sun, sunDisk, travelWave, waveP, wobble } from './kit'
 
 // Psychologie: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -972,98 +972,167 @@ export const AHA_PSYCHE: Bite[] = [
     images: [],
     draw: {
       menge(g) {
-        crowd(g, 40, 300, 9, 35, 1.6, 0, 80)
-        lie(g, 120, 400, 2, 'curl', 900)
+        // Straße bei Nacht: Laterne, Häuser, eine Menge steht um eine liegende Person
+        for (const [x, w, h] of [[20, 80, 160], [110, 70, 200], [190, 90, 150], [290, 60, 180]] as const) {
+          ink(g, [[x, 300], [x, 300 - h], [x + w, 300 - h], [x + w, 300]], { w: 1.8, t: 500 })
+          for (let r = 0; r < Math.floor(h / 40); r++) for (let c = 0; c < Math.floor(w / 24); c++) {
+            const win = RR(x + 8 + c * 24, 300 - h + 12 + r * 40, 12, 18, 1)
+            if ((r + c + x) % 3 === 0) hatch(g, win, 400 + r * 40, true)
+            ink(g, win, { w: 0.8, d: 300 + r * 40, t: 60 })
+          }
+        }
+        ink(g, L([20, 420], [340, 420]), { w: 2.6, d: 200, t: 500 })
+        ink(g, L([320, 420], [320, 260]), { w: 2.4, d: 400, t: 300 })
+        ink(g, B([320, 260], [320, 246], [306, 240], [296, 246]), { w: 2, d: 500, t: 150 })
+        ripple(g, 296, 256, 6, 40, { n: 2, ms: 2400, d: 1200, w: 0.8, ry: 0.6 })
+        crowd(g, 40, 410, 9, 30, 1.6, 600, 80)
+        lie(g, 120, 400, 2, 'curl', 1400)
       },
       zeitung(g) {
-        ink(g, RR(60, 340, 240, 280, 6), { w: 3, t: 700 })
-        text(g, 180, 380, '38 sahen zu', { anchor: 'middle', size: 24, d: 500 })
-        for (let i = 0; i < 6; i++) ink(g, L([80, 420 + i * 28], [280, 420 + i * 28]), { w: 1.4, d: 700 + i * 80, t: 300 })
-        text(g, 180, 660, 'New York Times, 1964', { anchor: 'middle', cls: 's', d: 1100 })
+        // Titelseite: Kopfzeile, Balkenüberschrift, Foto eines Hauses, Spalten
+        ink(g, RR(60, 330, 240, 300, 4), { w: 3, t: 700 })
+        hatch(g, RR(70, 340, 220, 28, 2), 300, true)
+        ink(g, L([70, 374], [290, 374]), { w: 1.4, d: 400, t: 300 })
+        for (let k = 0; k < 2; k++) ink(g, RR(74, 384 + k * 22, 212, 14, 2), { w: 2.4, d: 500 + k * 100, t: 200 })
+        ink(g, RR(74, 434, 110, 90, 2), { w: 1.8, d: 700, t: 300 })
+        house(g, 96, 520, 50, 900)
+        for (let k = 0; k < 9; k++) ink(g, L([196, 440 + k * 10], [286, 440 + k * 10]), { w: 0.8, d: 800 + k * 40, t: 80 })
+        for (let k = 0; k < 8; k++) ink(g, L([74, 540 + k * 10], [286, 540 + k * 10]), { w: 0.8, d: 1100 + k * 40, t: 80 })
       },
       uebertrieben(g) {
-        ink(g, RR(60, 340, 240, 280, 6), { w: 3, t: 400 })
-        text(g, 180, 380, '38 sahen zu', { anchor: 'middle', size: 24, d: 200 })
-        const stamp = RR(150, 480, 140, 50, 8)
-        blank(g, stamp)
-        hatch(g, stamp, 900)
-        ink(g, stamp, { w: 3, d: 700, t: 400 })
-        text(g, 220, 512, 'übertrieben', { anchor: 'middle', cls: 'halo', d: 1000 })
+        // dieselbe Titelseite mit großem Fragezeichen-Stempel
+        ink(g, RR(60, 330, 240, 300, 4), { w: 3, t: 400 })
+        hatch(g, RR(70, 340, 220, 28, 2), 200, true)
+        for (let k = 0; k < 2; k++) ink(g, RR(74, 384 + k * 22, 212, 14, 2), { w: 2.4, d: 300 + k * 100, t: 200 })
+        for (let k = 0; k < 12; k++) ink(g, L([74, 440 + k * 14], [286, 440 + k * 14]), { w: 0.8, d: 400 + k * 30, t: 80 })
+        const sp = pop(g, 1000, '50% 50%')
+        const stamp = mk('g', { transform: 'rotate(-14 220 510)' }, sp)
+        blank(stamp, RR(150, 470, 140, 80, 10))
+        ink(stamp, RR(150, 470, 140, 80, 10), { w: 3.4, t: 0 })
+        ink(stamp, RR(158, 478, 124, 64, 6), { w: 1.4, t: 0 })
+        question(stamp, 220, 516, 0.7, 0)
       },
       versuch(g) {
-        ink(g, RR(40, 380, 120, 150, 10), { w: 2.8, t: 600 })
-        fig(g, 100, 500, 2.4, { d: 300 })
-        ink(g, RR(200, 380, 120, 150, 10), { w: 2.8, d: 200, t: 600 })
-        ink(g, RR(236, 420, 48, 30, 6), { w: 2, d: 500, t: 300 })
-        for (let i = 0; i < 3; i++) ink(g, E(260, 470, 12 + i * 10, 12 + i * 10, -40, 40), { w: 1.6, d: 800 + i * 150, t: 200 })
-        text(g, 180, 590, 'Notfall über die Gegensprechanlage', { anchor: 'middle', cls: 's', d: 1100 })
+        // Kabine mit Gegensprechanlage und Kopfhörern; aus dem Lautsprecher kommen Hilferufe
+        ink(g, RR(30, 360, 180, 230, 6), { w: 2.8, t: 600 })
+        fig(g, 100, 580, 3, { d: 300 })
+        ink(g, E(100, 464, 14, 16, 180, 360), { w: 2, d: 600, t: 150 })
+        for (const k of [-1, 1]) ink(g, RR(100 + k * 14 - 4, 462, 8, 12, 3), { w: 1.6, d: 700, t: 100 })
+        ink(g, RR(150, 470, 44, 34, 4), { w: 2, d: 800, t: 200 })
+        for (let k = 0; k < 3; k++) ink(g, L([158, 480 + k * 8], [186, 480 + k * 8]), { w: 0.8, d: 900, t: 60 })
+        ink(g, L([210, 486], [250, 486]), { w: 1.4, d: 900, t: 100 })
+        for (let i = 0; i < 3; i++) ink(g, E(250, 486, 14 + i * 14, 14 + i * 14, -40, 40), { w: 1.8, d: 1100 + i * 150, t: 200 })
+        bolt(g, [[300, 440], [290, 470], [304, 470], [292, 500]], 1500, 2.2)
       },
       zahlen(g) {
-        vbars(g, [
-          { label: 'allein', v: 85, fmt: (v) => `${Math.round(v)} %` },
-          { label: 'mit 4 anderen', v: 31, fmt: (v) => `${Math.round(v)} %`, dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 250 })
-        text(g, 180, 320, 'holten schnell Hilfe', { anchor: 'middle', cls: 's', d: 1200 })
+        // allein: ein hoher Balken; mit vier anderen: ein niedriger
+        for (const [x, n, h, d] of [[110, 1, 210, 0], [260, 5, 76, 400]] as const) {
+          for (let k = 0; k < n; k++) fig(g, x - (n - 1) * 12 + k * 24, 340 + 80, 1.6, { d: d + k * 60 })
+          const r = RR(x - 35, 620 - h, 70, h, 3)
+          hatch(g, r, d + 800, n > 1)
+          ink(g, r, { w: 2.4, d: d + 700, t: 300 })
+        }
+        ink(g, L([40, 622], [330, 622]), { w: 2.4, d: 200, t: 400 })
       },
       verteilt(g) {
+        // jeder schaut zum Nachbarn: die Verantwortung wandert im Kreis
         crowd(g, 50, 600, 6, 52, 2.6, 0, 100)
-        for (let i = 0; i < 6; i++) bubble(g, 30 + i * 52, 430 + (i % 2) * 40, 44, 30, 'l', 600 + i * 100)
-        text(g, 180, 380, '„Jemand anderes macht das schon.“', { anchor: 'middle', cls: 'it', d: 1300 })
+        for (let i = 0; i < 5; i++) carrow(g, [62 + i * 52, 470], [94 + i * 52, 470], -24, { d: 700 + i * 120 })
+        carrow(g, [310, 450], [50, 450], 60, { d: 1400 })
+        lie(g, 120, 640, 1.6, 'curl', 900)
       },
       ruhig(g) {
-        crowd(g, 50, 600, 6, 52, 2.6, 0, 100)
-        for (let i = 0; i < 6; i++) ink(g, L([50 + i * 52 - 8, 600 - 27 * 2.6], [50 + i * 52 + 8, 600 - 27 * 2.6]), { w: 1.6, d: 800, t: 100 })
-        text(g, 180, 400, 'alle ruhig → kein Notfall?', { anchor: 'middle', cls: 's', d: 1100 })
+        // Rauch dringt ins Wartezimmer – alle bleiben sitzen, weil die anderen ruhig bleiben
+        ink(g, RR(30, 330, 300, 300, 4), { w: 2.6, t: 600 })
+        ink(g, RR(250, 350, 50, 20, 2), { w: 1.8, d: 300, t: 150 })
+        for (let k = 0; k < 4; k++) ink(g, L([256, 352 + k * 5], [294, 352 + k * 5]), { w: 0.8, d: 400, t: 60 })
+        for (let k = 0; k < 4; k++) {
+          const w = wobble(g, { dx: -10, dy: 6, ms: 2400 + k * 300, d: 900 })
+          cloud(w, 250 - k * 50, 400 + k * 14, 0.4 + k * 0.08, 700 + k * 200, k > 1)
+        }
+        ink(g, L([40, 560], [320, 560]), { w: 2.2, d: 300, t: 300 })
+        crowd(g, 70, 560, 5, 50, 2.2, 600, 100)
       },
       blamieren(g) {
-        fig(g, 180, 600, 5)
-        question(g, 270, 420, 0.8, 600)
-        text(g, 180, 650, 'Angst, falschzuliegen', { anchor: 'middle', cls: 's', d: 1000 })
+        // jemand zögert: halber Schritt nach vorn, Schweißtropfen, Fragezeichen
+        fig(g, 140, 620, 5, { arms: 'push' })
+        question(g, 230, 400, 0.8, 600)
+        const dr = glide(g, 0, 20, { ms: 1200, d: 900, loop: true })
+        drop(dr, 170, 440, 0.3, 800, false)
+        crowd(g, 230, 620, 3, 36, 2.2, 500, 80)
+        for (let k = 0; k < 3; k++) eye(g, 230 + k * 36, 540, 0.25, 900 + k * 80)
       },
       videos(g) {
+        // Überwachungskamera, darunter zehn Videobilder; in neun greift jemand ein
+        ink(g, RR(130, 310, 70, 30, 6), { w: 2.4, t: 300 })
+        ink(g, E(206, 325, 8, 12), { w: 2, d: 200, t: 100 })
+        ink(g, L([140, 310], [130, 296]), { w: 2, d: 300, t: 100 })
         for (let i = 0; i < 10; i++) {
-          const x = 46 + (i % 5) * 60
-          const y = 380 + Math.floor(i / 5) * 100
-          ink(g, RR(x - 22, y - 30, 44, 60, 6), { w: 2, d: i * 80, t: 200 })
-          if (i < 9) check(g, x, y, 0.6, 900 + i * 60)
+          const x = 46 + (i % 5) * 64
+          const y = 420 + Math.floor(i / 5) * 110
+          ink(g, RR(x - 26, y - 34, 52, 68, 4), { w: 2, d: 400 + i * 80, t: 200 })
+          fig(g, x - 8, y + 26, 1.1, { d: 600 + i * 80 })
+          fig(g, x + 10, y + 26, 1.1, { d: 650 + i * 80, arms: i < 9 ? 'push' : 'down' })
+          if (i < 9) check(g, x + 14, y - 22, 0.35, 1400 + i * 60)
         }
-        text(g, 180, 620, 'in 9 von 10 Konflikten griff jemand ein', { anchor: 'middle', cls: 's', d: 1600 })
       },
       chat(g) {
-        for (let i = 0; i < 4; i++) bubble(g, i % 2 ? 150 : 40, 340 + i * 70, 170, 46, i % 2 ? 'r' : 'l', i * 200)
-        text(g, 125, 372, 'Weiß jemand …?', { anchor: 'middle', cls: 's', d: 300 })
-        text(g, 180, 650, 'große Gruppe: seltener eine Antwort', { anchor: 'middle', cls: 's', d: 1100 })
+        // Gruppenchat mit vielen Mitgliedern: eine Frage, darunter nur die Lesebestätigungen
+        ink(g, RR(80, 320, 200, 320, 22), { w: 2.8, t: 600 })
+        for (let k = 0; k < 12; k++) ink(g, E(100 + (k % 6) * 32, 350 + Math.floor(k / 6) * 26, 9), { w: 1.4, d: 300 + k * 40, t: 80 })
+        bubble(g, 94, 420, 140, 50, 'l', 800)
+        question(g, 160, 456, 0.5, 1000)
+        for (let k = 0; k < 2; k++) ink(g, [[200 + k * 8, 486], [204 + k * 8, 492], [212 + k * 8, 480]], { w: 1.4, d: 1200, t: 60 })
+        for (let k = 0; k < 3; k++) {
+          const p = mk('g', { class: 'blink', style: `--d:${1400 + k * 200}ms` }, g)
+          dot(p, 160 + k * 16, 560, 3, 1400)
+        }
       },
       freunde(g) {
-        crowd(g, 60, 600, 4, 50, 2.6, 0, 100)
-        lie(g, 240, 580, 1.6, 'curl', 500)
-        text(g, 180, 400, 'Freunde, klare Gefahr: mehr Hilfe', { anchor: 'middle', cls: 's', d: 1000 })
+        // Freunde helfen gemeinsam: einer stützt, einer telefoniert, einer bringt eine Decke
+        lie(g, 160, 600, 1.8, 'back', 0)
+        fig(g, 140, 600, 2.6, { d: 300, arms: 'push' })
+        fig(g, 250, 620, 2.6, { d: 500, arms: 'up' })
+        ink(g, RR(262, 520, 10, 18, 2), { w: 1.6, d: 900, t: 100 })
+        fig(g, 70, 620, 2.6, { d: 700, arms: 'push' })
+        hatch(g, [[80, 560], [120, 556], [126, 586], [84, 590]], 1100)
+        for (let k = 0; k < 3; k++) heart(g, 120 + k * 60, 420, 0.3, 1300 + k * 100)
       },
       kurs(g) {
-        const cr = RR(150, 380, 60, 180, 6)
+        // Erste-Hilfe-Kreuz und ein Telefon mit Tastenfeld
+        const cr = RR(70, 380, 60, 180, 6)
         hatch(g, cr, 400, true)
         ink(g, cr, { w: 2.8, t: 500 })
-        const cr2 = RR(90, 440, 180, 60, 6)
-        blank(g, RR(152, 442, 56, 56, 2))
-        hatch(g, cr2, 400, true)
-        ink(g, [[150, 440], [90, 440], [90, 500], [150, 500]], { w: 2.8, d: 200, t: 300 })
-        ink(g, [[210, 440], [270, 440], [270, 500], [210, 500]], { w: 2.8, d: 200, t: 300 })
-        text(g, 180, 620, 'Notruf 112 · Erste Hilfe', { anchor: 'middle', d: 900 })
+        hatch(g, RR(10, 440, 180, 60, 6), 400, true)
+        ink(g, [[70, 440], [10, 440], [10, 500], [70, 500]], { w: 2.8, d: 200, t: 300 })
+        ink(g, [[130, 440], [190, 440], [190, 500], [130, 500]], { w: 2.8, d: 200, t: 300 })
+        ink(g, RR(230, 380, 90, 180, 14), { w: 2.8, d: 500, t: 400 })
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) ink(g, E(252 + c * 23, 440 + r * 26, 8), { w: 1.4, d: 800 + (r * 3 + c) * 30, t: 60 })
+        ink(g, RR(244, 396, 62, 28, 3), { w: 1.4, d: 700, t: 150 })
       },
       ansprechen(g) {
-        fig(g, 80, 600, 3.6)
-        crowd(g, 200, 600, 4, 40, 2.4, 300, 80)
-        arrow(g, L([110, 470], [236, 520]), { w: 2.6, d: 900, t: 400, head: 9 })
-        bubble(g, 30, 360, 200, 60, 'l', 1100)
-        text(g, 130, 396, '„Sie, mit der roten Jacke!“', { anchor: 'middle', cls: 's', d: 1300 })
+        // die Helferin zeigt auf eine bestimmte Person (dunkle Jacke): „Sie, rufen Sie den Notruf!“
+        fig(g, 70, 620, 3.6, { arms: 'push' })
+        crowd(g, 190, 620, 4, 40, 2.4, 300, 80)
+        const target = 190 + 2 * 40
+        hatch(g, RR(target - 9, 556, 18, 28, 3), 900, true)
+        ink(g, RR(target - 9, 556, 18, 28, 3), { w: 1.6, d: 900, t: 100 })
+        arrow(g, B([110, 500], [160, 470], [220, 470], [target - 6, 530]), { w: 2.6, d: 1000, t: 400, head: 9 })
+        ripple(g, target, 520, 10, 40, { n: 2, ms: 1600, d: 1400, w: 1 })
+        ink(g, RR(target + 14, 470, 14, 24, 3), { w: 1.6, d: 1600, t: 100 })
       },
       anfangen(g) {
-        fig(g, 80, 600, 3.6, { arms: 'up' })
-        crowd(g, 180, 600, 4, 40, 2.4, 600, 150)
-        text(g, 180, 420, 'einer fängt an – andere folgen', { anchor: 'middle', cls: 's', d: 1300 })
+        // eine kniet sich zur liegenden Person – die anderen kommen nach
+        lie(g, 140, 620, 1.8, 'back', 0)
+        fig(g, 110, 620, 2.4, { d: 300, arms: 'push' })
+        for (let k = 0; k < 4; k++) {
+          const f = glide(g, -30, 0, { ms: 1400, d: 1000 + k * 300 })
+          fig(f, 230 + k * 32, 620, 2.4, { d: 500 + k * 150 })
+        }
       },
       ende(g) {
         fig(g, 180, 580, 5, { arms: 'up' })
+        rays(g, 180, 380, 40, 60, 10, 600)
       },
     },
     scenes: [
@@ -1100,88 +1169,164 @@ export const AHA_PSYCHE: Bite[] = [
     images: [],
     draw: {
       linien(g) {
-        stroke(g, 70, 360, 150, 'X')
-        stroke(g, 190, 360, 100, 'A', 300)
-        stroke(g, 250, 360, 150, 'B', 500)
-        stroke(g, 310, 360, 190, 'C', 700)
+        // zwei Tafeln auf einer Staffelei: links die Vergleichslinie, rechts drei Linien zur Auswahl
+        for (const [x, w] of [[30, 90], [150, 180]] as const) ink(g, RR(x, 140, w, 240, 4), { w: 2.6, t: 500 })
+        for (const [a, b] of [[[60, 380], [48, 430]], [[100, 380], [112, 430]], [[200, 380], [188, 430]], [[300, 380], [312, 430]]] as const) ink(g, L(a as P, b as P), { w: 2.4, d: 200, t: 200 })
+        stroke(g, 75, 350, 150, 'X', 300)
+        stroke(g, 190, 350, 100, 'A', 500)
+        stroke(g, 240, 350, 150, 'B', 700)
+        stroke(g, 290, 350, 190, 'C', 900)
       },
       aufgabe(g) {
-        stroke(g, 70, 600, 150, 'X')
-        stroke(g, 190, 600, 100, 'A', 300)
-        stroke(g, 250, 600, 150, 'B', 500)
-        stroke(g, 310, 600, 190, 'C', 700)
+        for (const [x, w] of [[30, 90], [150, 180]] as const) ink(g, RR(x, 380, w, 250, 4), { w: 2.6, t: 500 })
+        stroke(g, 75, 590, 150, 'X', 300)
+        stroke(g, 190, 590, 100, 'A', 500)
+        stroke(g, 240, 590, 150, 'B', 700)
+        stroke(g, 290, 590, 190, 'C', 900)
       },
       allein(g) {
-        fig(g, 90, 600, 4)
-        text(g, 230, 470, '„B“', { anchor: 'middle', size: 40, d: 500 })
-        check(g, 230, 540, 1.2, 900)
-        text(g, 180, 650, 'allein: fast immer richtig', { anchor: 'middle', cls: 's', d: 1100 })
+        // allein im Raum: die Antwort ist klar
+        fig(g, 90, 620, 4.4)
+        bubble(g, 150, 380, 110, 80, 'l', 400)
+        text(g, 205, 434, 'B', { anchor: 'middle', size: 34, d: 600 })
+        check(g, 290, 520, 1.2, 900)
       },
       gruppe(g) {
-        crowd(g, 30, 600, 7, 40, 2.4, 0, 100)
-        fig(g, 310, 600, 2.4, { d: 800 })
-        for (let i = 0; i < 7; i++) text(g, 30 + i * 40, 500, 'A', { anchor: 'middle', d: 900 + i * 120 })
-        text(g, 310, 500, '?', { anchor: 'middle', size: 20, d: 1900 })
+        // Tisch mit acht Personen: sieben Eingeweihte sagen „A“, die echte Versuchsperson (vorletzte) zögert
+        ink(g, RR(20, 590, 320, 14, 3), { w: 2.6, t: 500 })
+        for (const x of [40, 320]) ink(g, L([x, 604], [x, 650]), { w: 2.4, d: 200, t: 200 })
+        for (let i = 0; i < 8; i++) {
+          const x = 30 + i * 43
+          const real = i === 6
+          fig(g, x, 590, 2.6, { d: i * 100, arms: real ? 'cross' : 'down' })
+          if (real) {
+            hatch(g, RR(x - 7, 528, 14, 20, 3), 900, true)
+            question(g, x, 470, 0.5, 2000)
+          } else {
+            bubble(g, x - 16, 440, 32, 28, 'l', 900 + i * 150)
+            text(g, x, 461, 'A', { anchor: 'middle', size: 14, d: 1000 + i * 150 })
+          }
+        }
+        stroke(g, 290, 400, 70, '', 400)
+        stroke(g, 320, 400, 100, '', 500)
       },
       drittel(g) {
         pie(g, 180, 460, 110, 0.33)
-        text(g, 180, 620, 'ein Drittel der Antworten: falsche Mehrheit', { anchor: 'middle', cls: 's', d: 1100 })
+        for (let k = 0; k < 3; k++) fig(g, 130 + k * 50, 640, 1.6, { d: 900 + k * 100 })
+        hatch(g, RR(124, 590, 12, 14, 3), 1300, true)
       },
       dreiviertel(g) {
         pie(g, 180, 460, 110, 0.75)
-        text(g, 180, 620, 'drei Viertel gaben mindestens einmal nach', { anchor: 'middle', cls: 's', d: 1100 })
+        for (let k = 0; k < 4; k++) {
+          fig(g, 105 + k * 50, 640, 1.6, { d: 900 + k * 100 })
+          if (k < 3) hatch(g, RR(99 + k * 50, 590, 12, 14, 3), 1300 + k * 100, true)
+        }
       },
       zweifel(g) {
-        eye(g, 120, 470, 1.4)
-        question(g, 260, 500, 1.2, 600)
+        // Blick auf die Tafel: verschwimmt die Linie? – Zweifel am eigenen Auge
+        ink(g, RR(200, 360, 120, 200, 4), { w: 2.4, t: 400 })
+        stroke(g, 230, 520, 100, '', 300)
+        const w = wobble(g, { dx: 4, ms: 700, d: 900 })
+        stroke(w, 260, 520, 150, '', 400)
+        stroke(g, 290, 520, 190, '', 500)
+        eye(g, 90, 460, 1.4, 600)
+        question(g, 120, 600, 0.8, 1200)
       },
       verbuendet(g) {
-        crowd(g, 30, 600, 6, 40, 2.4, 0, 100)
-        fig(g, 270, 600, 2.4, { d: 700 })
-        fig(g, 310, 600, 2.4, { d: 800 })
-        for (let i = 0; i < 6; i++) text(g, 30 + i * 40, 500, 'A', { anchor: 'middle', d: 900 + i * 80 })
-        text(g, 270, 500, 'B', { anchor: 'middle', d: 1500 })
-        text(g, 310, 500, 'B', { anchor: 'middle', d: 1700 })
+        // sechs sagen „A“, aber einer sagt „B“ – und die Versuchsperson auch
+        crowd(g, 30, 620, 6, 40, 2.4, 0, 100)
+        for (let i = 0; i < 6; i++) {
+          bubble(g, 14 + i * 40, 460, 32, 28, 'l', 700 + i * 80)
+          text(g, 30 + i * 40, 481, 'A', { anchor: 'middle', size: 14, d: 800 + i * 80 })
+        }
+        for (const [x, d] of [[270, 1300], [314, 1700]] as const) {
+          fig(g, x, 620, 2.4, { d: d - 600 })
+          bubble(g, x - 16, 450, 32, 28, 'l', d)
+          text(g, x, 471, 'B', { anchor: 'middle', size: 14, d: d + 100 })
+        }
+        hatch(g, RR(264, 556, 12, 20, 3), 1400)
+        carrow(g, [276, 440], [306, 440], -20, { d: 1900 })
       },
       schreiben(g) {
-        ink(g, RR(100, 380, 160, 200, 6), { w: 3, t: 700 })
-        for (let i = 0; i < 4; i++) ink(g, L([120, 420 + i * 36], [240, 420 + i * 36]), { w: 1.4, d: 400 + i * 80, t: 300 })
-        text(g, 180, 540, 'B', { anchor: 'middle', size: 34, d: 900 })
-        text(g, 180, 630, 'geheim: kaum Anpassung', { anchor: 'middle', cls: 's', d: 1100 })
+        // geheime Antwort: Zettel, Bleistift, sichtgeschützt
+        ink(g, [[100, 380], [260, 370], [270, 580], [110, 590], [100, 380]], { w: 3, t: 700 })
+        for (let i = 0; i < 3; i++) ink(g, L([124, 414 + i * 30], [240, 408 + i * 30]), { w: 1, d: 400 + i * 80, t: 200 })
+        text(g, 184, 540, 'B', { anchor: 'middle', size: 40, d: 900 })
+        const pc = wobble(g, { deg: 6, ox: 260, oy: 520, ms: 600, d: 1200 })
+        ink(pc, [[230, 540], [320, 440], [328, 448], [238, 548], [230, 540]], { w: 2, d: 1100, t: 200 })
+        ink(pc, [[230, 540], [226, 552], [238, 548]], { w: 1.6, d: 1200, t: 80 })
+        hatch(g, [[30, 360], [70, 340], [70, 620], [30, 640]], 300)
+        ink(g, [[30, 360], [70, 340], [70, 620], [30, 640], [30, 360]], { w: 2, d: 200, t: 300 })
       },
       drei(g) {
-        vbars(g, [
-          { label: '1 Person', v: 3, fmt: () => 'kaum' },
-          { label: '3 Personen', v: 32, fmt: () => 'voll' },
-          { label: '15 Personen', v: 31, fmt: () => 'nicht mehr', dense: true },
-        ], { x: 40, base: 590, w: 70, gap: 110, h: 230 })
-        text(g, 180, 320, 'Druck der einstimmigen Gruppe', { anchor: 'middle', cls: 's', d: 1300 })
+        // Anpassung je Größe der einstimmigen Gruppe: steigt bis drei steil an, dann kaum noch
+        axes(g, 40, 600, 330, 330, {})
+        const pts: P[] = [[50, 596], [80, 560], [110, 450], [140, 420], [200, 414], [320, 418]]
+        ink(g, smooth(pts, 4), { w: 3, d: 400, t: 900 })
+        for (const [x, n] of [[50, 1], [110, 3], [320, 15]] as const) {
+          for (let k = 0; k < n; k++) dot(g, x - (Math.min(n, 5) - 1) * 4 + (k % 5) * 8, 620 + Math.floor(k / 5) * 8, 2.4, 800 + k * 30)
+          dashes(g, L([x, 596], [x, pts.find((p) => p[0] === x)![1]]), { w: 1, d: 1300, dash: 3, gap: 3 })
+        }
       },
       likes(g) {
-        for (let i = 0; i < 5; i++) {
-          heart(g, 60 + i * 60, 470, 0.7, i * 200)
+        // ein Beitrag: ein früher Daumen nach oben, danach kommen immer mehr dazu
+        ink(g, RR(60, 340, 240, 200, 12), { w: 2.6, t: 500 })
+        for (let k = 0; k < 4; k++) ink(g, L([80, 380 + k * 20], [240 - (k % 2) * 40, 380 + k * 20]), { w: 1, d: 300 + k * 60, t: 100 })
+        for (let i = 0; i < 6; i++) {
+          const x = 80 + i * 36
+          const dd = 800 + i * 250
+          const th = pop(g, dd, '50% 100%')
+          ink(th, [[x, 520], [x, 500], [x + 6, 494], [x + 10, 480], [x + 14, 484], [x + 12, 496], [x + 22, 496], [x + 22, 520], [x, 520]], { w: 1.6, t: 0 })
+          if (i === 0) hatch(th, [[x, 520], [x, 500], [x + 22, 500], [x + 22, 520]], 0, true)
         }
-        text(g, 180, 580, 'ein frühes Like zieht weitere nach', { anchor: 'middle', cls: 's', d: 1200 })
+        arrow(g, L([80, 570], [300, 570]), { w: 2, d: 2000, t: 300, head: 8 })
       },
       kulturen(g) {
-        vbars(g, [
-          { label: 'individualistisch', v: 25, fmt: () => 'weniger' },
-          { label: 'kollektivistisch', v: 37, fmt: () => 'mehr', dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 230 })
-        text(g, 180, 320, 'Anpassung im Schnitt', { anchor: 'middle', cls: 's', d: 1200 })
+        // links Einzelne mit Abstand, rechts eine eng verbundene Gemeinschaft; darunter, wie stark sie sich anpassten
+        for (let k = 0; k < 4; k++) fig(g, 40 + k * 34 + (k % 2) * 6, 470 - (k % 2) * 16, 1.8, { d: k * 100 })
+        for (let k = 0; k < 4; k++) fig(g, 210 + k * 26, 470, 1.8, { d: 400 + k * 100, arms: 'push' })
+        ink(g, L([214, 430], [296, 430]), { w: 1.4, d: 900, t: 200 })
+        for (const [x, h, d] of [[90, 90, 1000], [250, 140, 1200]] as const) {
+          const r = RR(x - 30, 620 - h, 60, h, 3)
+          hatch(g, r, d + 100, h > 100)
+          ink(g, r, { w: 2.2, d, t: 200 })
+        }
+        ink(g, L([30, 622], [330, 622]), { w: 2, d: 300, t: 400 })
       },
       kinder(g) {
-        crowd(g, 40, 600, 3, 40, 2.2, 0, 100)
-        fig(g, 260, 600, 1.6, { d: 500 })
-        text(g, 180, 440, 'Vierjährige folgen der Mehrheit', { anchor: 'middle', cls: 's', d: 900 })
+        // drei Erwachsene zeigen auf die falsche Linie; ein Kind schließt sich an
+        ink(g, RR(250, 330, 90, 150, 4), { w: 2.2, t: 400 })
+        stroke(g, 270, 450, 60, '', 200)
+        stroke(g, 300, 450, 100, '', 300)
+        stroke(g, 325, 450, 80, '', 400)
+        crowd(g, 40, 620, 3, 44, 2.4, 500, 100)
+        fig(g, 200, 620, 1.4, { d: 900, arms: 'up' })
+        for (const [x, y] of [[40, 540], [84, 540], [128, 540], [200, 580]] as const) arrow(g, L([x + 6, y], [296, 360]), { w: 1, d: 1100 + x * 3, t: 200, head: 5 })
       },
       gut(g) {
-        crowd(g, 60, 600, 6, 48, 2.6, 0, 100)
-        text(g, 180, 420, 'Regeln lernen, gemeinsam handeln', { anchor: 'middle', cls: 's', d: 900 })
+        // ein Ruderboot: alle ziehen im selben Takt
+        travelWave(g, 20, 340, 560, 4, 50, { ms: 2400, w: 2 })
+        const boat: P[] = [[40, 540], [320, 540], [290, 572], [70, 572], [40, 540]]
+        blank(g, boat)
+        ink(g, boat, { w: 2.8, d: 200, t: 500 })
+        for (let k = 0; k < 5; k++) {
+          const x = 80 + k * 50
+          fig(g, x, 540, 1.6, { d: 400 + k * 100, arms: 'push' })
+          const o = wobble(g, { deg: 14, ox: x + 10, oy: 520, ms: 1400, d: 1000 })
+          ink(o, L([x + 10, 520], [x + 40, 590]), { w: 1.8, d: 700 + k * 100, t: 150 })
+        }
       },
       ende(g) {
         crowd(g, 50, 600, 5, 50, 2.6, 0, 100)
         fig(g, 310, 600, 2.6, { d: 600, arms: 'up' })
+        rays(g, 310, 460, 20, 34, 8, 1000)
+      },
+      trend(g) {
+        // Anpassung in den USA über die Jahrzehnte: sinkt
+        axes(g, 40, 600, 330, 330, {})
+        for (const [x, l] of [[60, '1950'], [300, '1990']] as const) text(g, x, 626, l, { anchor: 'middle', cls: 's', d: 300 })
+        ink(g, smooth([[60, 380], [120, 420], [180, 470], [240, 500], [300, 520]], 3), { w: 3, d: 500, t: 900 })
+        for (const [x, y] of [[60, 380], [140, 432], [220, 488], [300, 520]] as const) dot(g, x, y, 4, 1000 + x * 2)
       },
     },
     scenes: [
@@ -1199,7 +1344,7 @@ export const AHA_PSYCHE: Bite[] = [
       { t: T('Die Gruppengröße zählt: Schon **drei** einstimmige Gegenüber reichten für den vollen Effekt – mehr brachte kaum noch etwas.', 64), gfx: { drei: {} } },
       { t: T('Heute zeigt sich das bei Likes und Bewertungen: In einem Versuch zog ein früh gesetztes **positives** Votum weitere positive nach.', 64), gfx: { likes: {} } },
       { t: T('Der Versuch wurde weltweit wiederholt. In Kulturen, die die **Gemeinschaft** betonen, passten sich Menschen im Schnitt stärker an.', 64), gfx: { kulturen: {} } },
-      { t: T('In den USA nahm die Anpassung seit den 1950er-Jahren **ab** – die Zeiten prägen mit.', 64), gfx: { kulturen: {} } },
+      { t: T('In den USA nahm die Anpassung seit den 1950er-Jahren **ab** – die Zeiten prägen mit.', 64), gfx: { trend: {} } },
       { t: T('Schon **Vierjährige** schließen sich in Versuchen einer Mehrheit an – auch wenn sie es eigentlich besser wissen.', 64), gfx: { kinder: {} } },
       { t: T('Konformität ist nicht nur schlecht: Sie hilft, Regeln zu lernen und **gemeinsam** zu handeln.', 64), gfx: { gut: {} } },
       { t: T('Aber wenn du Zweifel hast: Sprich sie aus. Vielleicht bist du der **Verbündete**, auf den andere warten.', 64), gfx: { verbuendet: {} } },
