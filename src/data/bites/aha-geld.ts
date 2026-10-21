@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, bubble, check, clock, coin, cross, crowd, dashes, eye, fig, group, hatch, ink, mk, mountain, pop, question, rays, st, star, strike, text, timeline, vbars, type P } from './draw'
-import { axes, ball, box, carrow, cloud, dot, drop, flame, flow, glide, heart, house, pie, plot, rad, ripple, smooth, spin, sun, sunDisk, travelWave, tree, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bubble, car, check, clock, coin, cross, crowd, dashes, eye, fig, group, hatch, ink, mk, mountain, pop, question, rays, st, star, strike, text, type P } from './draw'
+import { axes, ball, box, carrow, cloud, dot, drop, flame, flow, glide, heart, house, mapRegion, pie, plot, rad, ripple, smooth, spin, sunDisk, travelWave, tree, waveP, wobble } from './kit'
 
 // Wirtschaft & Geld: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -35,13 +35,6 @@ function diamond(g: Element, cx: number, cy: number, s = 1, d = 0): void {
   ink(g, [P(-30, -44), P(-14, -20), P(0, 50)], { w: 1.4, d: d + 500, t: 200 })
   ink(g, [P(30, -44), P(14, -20), P(0, 50)], { w: 1.4, d: d + 500, t: 200 })
   hatch(g, [P(-14, -20), P(14, -20), P(0, 50)], d + 700)
-}
-
-/** Land als Kreis mit Namen */
-function earthMini(g: Element, cx: number, cy: number, label: string, d = 0): void {
-  ink(g, E(cx, cy, 40), { w: 2.8, d, t: 500 })
-  hatch(g, E(cx - 6, cy + 4, 18, 22), d + 300)
-  text(g, cx, cy + 64, label, { anchor: 'middle', cls: 's', d: d + 400 })
 }
 
 /** Glühbirne / LED, Mitte des Glases */
@@ -154,6 +147,56 @@ function beach(g: Element, y: number, d = 0, n = 12): void {
     ink(g, RR(x - 8, y - 4, 16, 8, 2), { w: 1.2, d: d + 400 + i * 40, t: 60 })
     dot(g, x + 4, y, 2.6, d + 500 + i * 40)
   }
+}
+
+/** Stoffballen (aufgerollt) */
+function cloth(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  ink(g, E(x - 20 * s, y, 8 * s, 16 * s), { w: 1.8, d, t: 150 })
+  ink(g, E(x - 20 * s, y, 3 * s, 6 * s), { w: 1, d: d + 100, t: 80 })
+  ink(g, [P(-20, -16), P(20, -16), ...E(x + 20 * s, y, 8 * s, 16 * s, -90, 90).slice(1), P(-20, 16)], { w: 1.8, d: d + 100, t: 200 })
+  hatch(g, [P(-20, -16), P(20, -16), P(20, 16), P(-20, 16)], d + 300)
+  ink(g, B(P(20, 16), P(28, 24), P(30, 32), P(26, 40)), { w: 1.4, d: d + 300, t: 100 })
+}
+
+/** Weinflasche */
+function bottle(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const o: P[] = [P(-4, -40), P(-4, -26), ...B(P(-4, -26), P(-12, -20), P(-12, -14), P(-12, -8)).slice(1), P(-12, 20), P(12, 20), P(12, -8), ...B(P(12, -8), P(12, -14), P(12, -20), P(4, -26)).slice(1), P(4, -40), P(-4, -40)]
+  blank(g, o)
+  ink(g, o, { w: 1.8, d, t: 200 })
+  hatch(g, [P(-12, -4), P(12, -4), P(12, 20), P(-12, 20)], d + 200, true)
+  blank(g, RR(x - 9 * s, y - 2 * s, 18 * s, 12 * s, 1))
+  ink(g, RR(x - 9 * s, y - 2 * s, 18 * s, 12 * s, 1), { w: 1, d: d + 300, t: 60 })
+}
+
+/** Chirurgin mit Haube, Mundschutz und Skalpell */
+function surgeon(g: Element, x: number, y: number, s = 1, d = 0): void {
+  fig(g, x, y, s * 3.2, { d, arms: 'push' })
+  const hy = y - 30 * s * 3.2
+  hatch(g, E(x, hy - 4 * s, 10 * s, 6 * s, 180, 360), d + 400, true)
+  ink(g, E(x, hy - 4 * s, 10 * s, 6 * s, 180, 360), { w: 1.4, d: d + 300, t: 100 })
+  ink(g, RR(x - 7 * s, hy + 2 * s, 14 * s, 8 * s, 2), { w: 1.4, d: d + 400, t: 100 })
+}
+
+/** Dampfmaschine: Kessel mit Feuerloch, Zylinder mit Kolbenstange, Schwungrad (dreht), Schornstein mit Rauch; Boden y */
+function steamEngine(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const w = Math.max(1, 2.8 * s)
+  ink(g, RR(x - 80 * s, y - 90 * s, 120 * s, 80 * s, 30 * s), { w, d, t: 600 })
+  for (let k = 0; k < 4; k++) ink(g, L(P(-64 + k * 28, -90), P(-64 + k * 28, -10)), { w: w * 0.4, d: d + 300, t: 150 })
+  ink(g, RR(x - 50 * s, y - 40 * s, 30 * s, 24 * s, 3), { w: w * 0.7, d: d + 300, t: 150 })
+  flame(g, x - 35 * s, y - 18 * s, 0.14 * s, d + 600)
+  ink(g, RR(x - 60 * s, y - 150 * s, 20 * s, 60 * s, 2), { w: w * 0.8, d: d + 200, t: 300 })
+  const sm = wobble(g, { dx: 10 * s, dy: -6 * s, ms: 1800, d: d + 900 })
+  cloud(sm, x - 40 * s, y - 166 * s, 0.3 * s, d + 800, true)
+  ink(g, RR(x + 40 * s, y - 70 * s, 50 * s, 26 * s, 3), { w: w * 0.8, d: d + 400, t: 200 })
+  const pist = wobble(g, { dx: 12 * s, ms: 800, d: d + 1000 })
+  ink(pist, L(P(90, -57), P(110, -57)), { w: w, d: d + 500, t: 100 })
+  ink(g, E(x + 130 * s, y - 50 * s, 40 * s), { w, d: d + 500, t: 400 })
+  const fw = spin(g, x + 130 * s, y - 50 * s, 1600, d + 1000)
+  for (let k = 0; k < 6; k++) ink(fw, L(P(130, -50), [x + 130 * s + Math.cos(rad(k * 60)) * 38 * s, y - 50 * s + Math.sin(rad(k * 60)) * 38 * s]), { w: w * 0.5, d: d + 700, t: 80 })
+  ink(g, L(P(130, -10), P(130, 0)), { w, d: d + 600, t: 60 })
 }
 
 export const AHA_GELD: Bite[] = [
@@ -1088,74 +1131,146 @@ export const AHA_GELD: Bite[] = [
     images: [],
     draw: {
       tausch(g) {
+        // Markt: Stoffballen gegen Weinflasche, zwei Händler tauschen
         fig(g, 70, 400, 3.4)
         fig(g, 290, 400, 3.4, { d: 200 })
-        ink(g, RR(130, 230, 40, 40, 4), { w: 2.6, d: 500, t: 300 })
-        ink(g, E(210, 250, 20), { w: 2.6, d: 600, t: 300 })
-        carrow(g, [150, 290], [210, 290], 30, { d: 900 })
-        carrow(g, [210, 210], [150, 210], 30, { d: 1100 })
+        ink(g, RR(110, 330, 140, 12, 3), { w: 2.4, d: 300, t: 300 })
+        for (const x of [120, 240]) ink(g, L([x, 342], [x, 400]), { w: 2, d: 400, t: 150 })
+        cloth(g, 150, 300, 1, 500)
+        bottle(g, 214, 306, 1.1, 600)
+        carrow(g, [150, 260], [210, 250], -30, { d: 900 })
+        carrow(g, [210, 220], [150, 230], -30, { d: 1100 })
+        ink(g, L([20, 402], [340, 402]), { w: 2, d: 200, t: 400 })
       },
       chirurgin(g) {
-        fig(g, 90, 600, 4)
-        fig(g, 270, 600, 3.4, { d: 200 })
-        text(g, 90, 640, 'Chirurgin', { anchor: 'middle', cls: 's', d: 500 })
-        text(g, 270, 640, 'Assistent', { anchor: 'middle', cls: 's', d: 600 })
-        text(g, 90, 420, 'operiert besser', { anchor: 'middle', cls: 's', d: 800 })
-        text(g, 90, 440, 'tippt schneller', { anchor: 'middle', cls: 's', d: 900 })
+        // links die Chirurgin am OP-Tisch unter der Lampe, rechts der Assistent an der Schreibmaschine
+        surgeon(g, 90, 600, 1, 0)
+        ink(g, RR(30, 540, 120, 14, 3), { w: 2.2, d: 400, t: 200 })
+        ink(g, E(90, 400, 40, 10), { w: 2, d: 500, t: 200 })
+        ink(g, L([90, 360], [90, 390]), { w: 1.6, d: 500, t: 100 })
+        for (let k = 0; k < 3; k++) ink(g, L([70 + k * 20, 410], [60 + k * 30, 520]), { w: 0.8, d: 700, t: 200 })
+        fig(g, 270, 600, 3, { d: 300, arms: 'push' })
+        ink(g, RR(210, 540, 120, 12, 2), { w: 2.2, d: 600, t: 200 })
+        ink(g, [[230, 540], [236, 516], [304, 516], [310, 540]], { w: 2, d: 700, t: 200 })
+        ink(g, RR(244, 496, 52, 20, 2), { w: 1.4, d: 800, t: 150 })
+        for (let k = 0; k < 6; k++) dot(g, 240 + k * 12, 530, 1.6, 900 + k * 30)
       },
       stunde(g) {
-        clock(g, 180, 430, 60, 0, 0)
-        box(g, 30, 530, 130, 60, 'Bericht tippen', { size: 15, d: 500 })
-        text(g, 180, 566, 'oder', { anchor: 'middle', cls: 's', d: 700 })
-        box(g, 200, 530, 130, 60, 'operieren', { size: 15, fill: true, d: 800 })
+        // eine Stunde: entweder Schreibmaschine oder OP-Besteck
+        clock(g, 180, 420, 60, 0, 0)
+        const hd = spin(g, 180, 420, 3000, 600)
+        ink(hd, L([180, 420], [180, 372]), { w: 2.4, d: 500, t: 100 })
+        ink(g, [[40, 610], [50, 576], [140, 576], [150, 610], [40, 610]], { w: 2.2, d: 700, t: 300 })
+        ink(g, RR(60, 552, 70, 24, 2), { w: 1.6, d: 800, t: 150 })
+        for (let k = 0; k < 6; k++) dot(g, 60 + k * 14, 596, 1.6, 900 + k * 30)
+        text(g, 180, 600, '?', { anchor: 'middle', size: 30, d: 1100 })
+        ink(g, RR(210, 594, 120, 16, 3), { w: 2, d: 1000, t: 200 })
+        ink(g, [[230, 588], [290, 580], [296, 584], [236, 592]], { w: 1.6, d: 1200, t: 150 })
+        ink(g, [[296, 584], [312, 578], [308, 586]], { w: 1.4, d: 1300, t: 80 })
+        for (const k of [-1, 1]) carrow(g, [180 + k * 40, 480], [180 + k * 90, 560], k * 20, { d: 900 })
       },
       verteilung(g) {
-        box(g, 30, 380, 140, 90, ['Chirurgin:', 'operiert'], { size: 16, fill: true })
-        box(g, 190, 380, 140, 90, ['Assistent:', 'tippt'], { size: 16, d: 300 })
-        text(g, 180, 540, 'zusammen schaffen beide mehr', { anchor: 'middle', d: 900 })
+        // beide gleichzeitig: sie operiert, er tippt – darunter wachsen zwei Leistungsbalken
+        surgeon(g, 80, 520, 0.8, 0)
+        ink(g, RR(30, 470, 100, 10, 2), { w: 2, d: 300, t: 200 })
+        fig(g, 270, 520, 2.4, { d: 200, arms: 'push' })
+        ink(g, [[220, 470], [226, 452], [304, 452], [310, 470]], { w: 1.8, d: 500, t: 200 })
+        ink(g, L([30, 640], [330, 640]), { w: 2, d: 600, t: 300 })
+        for (const [x, h, d] of [[80, 80, 900], [270, 70, 1100]] as const) {
+          const gr = group(g, 'grow-y', `--d:${d}ms`)
+          hatch(gr, RR(x - 25, 640 - h, 50, h, 2), d, x < 100)
+          ink(gr, RR(x - 25, 640 - h, 50, h, 2), { w: 1.8, d, t: 0 })
+        }
+        text(g, 175, 610, '+', { anchor: 'middle', size: 30, d: 1300 })
       },
       ricardo(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.3, label: '1817', sub: 'David Ricardo', up: true }])
+        // Schreibstube um 1817: Stehpult, Federkiel, aufgeschlagenes Buch mit einer kleinen Tabelle
+        ink(g, [[80, 640], [100, 520], [260, 500], [280, 640]], { w: 2.6, t: 600 })
+        ink(g, [[90, 520], [270, 496]], { w: 2.6, d: 200, t: 300 })
+        const pg: P[] = [[110, 500], [180, 490], [250, 482], [250, 400], [180, 410], [110, 418], [110, 500]]
+        blank(g, pg)
+        ink(g, pg, { w: 2, d: 400, t: 400 })
+        ink(g, L([180, 410], [180, 490]), { w: 1.4, d: 500, t: 150 })
+        for (let r = 0; r < 3; r++) ink(g, L([190, 424 + r * 20], [244, 418 + r * 20]), { w: 0.8, d: 600 + r * 60, t: 80 })
+        ink(g, L([216, 418], [216, 480]), { w: 0.8, d: 700, t: 80 })
+        for (let r = 0; r < 4; r++) ink(g, L([118, 430 + r * 16], [172, 424 + r * 16]), { w: 0.8, d: 800 + r * 60, t: 80 })
+        const q = wobble(g, { deg: 6, ox: 250, oy: 470, ms: 900, d: 1100 })
+        ink(q, L([240, 476], [300, 340]), { w: 1.6, d: 1000, t: 200 })
+        ink(q, smooth([[300, 340], [290, 370], [276, 410], [264, 446]], 3), { w: 1.2, d: 1100, t: 200 })
       },
       tabelle(g) {
+        // Arbeitsstunden je Einheit; Zeilen: England, Portugal (als Kartenausschnitte), Spalten: Tuch, Wein
+        cloth(g, 155, 320, 0.7, 100)
+        bottle(g, 265, 324, 0.8, 200)
+        mapRegion(g, 22, 352, 60, 52, -7, 2, 50, 56, 300)
+        mapRegion(g, 22, 422, 60, 52, -10, -5, 36.5, 42.5, 400)
         const cell = (x: number, y: number, t: string, d: number, fill = false) => box(g, x, y, 100, 56, t, { size: 15, d, fill })
-        text(g, 155, 330, 'Tuch', { anchor: 'middle', cls: 's', d: 100 })
-        text(g, 265, 330, 'Wein', { anchor: 'middle', cls: 's', d: 200 })
-        text(g, 52, 384, 'England', { anchor: 'middle', cls: 's', d: 300 })
-        text(g, 52, 454, 'Portugal', { anchor: 'middle', cls: 's', d: 400 })
         cell(105, 350, '100 h', 500, true)
         cell(215, 350, '120 h', 600)
         cell(105, 420, '90 h', 700)
         cell(215, 420, '80 h', 800, true)
-        text(g, 180, 540, 'Arbeitsstunden pro Einheit', { anchor: 'middle', cls: 's', d: 1000 })
       },
       handel(g) {
-        earthMini(g, 90, 470, 'England')
-        earthMini(g, 270, 470, 'Portugal')
-        carrow(g, [130, 430], [230, 430], 30, { d: 800 })
-        carrow(g, [230, 510], [130, 510], 30, { d: 1000 })
-        text(g, 180, 396, 'Tuch', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 180, 556, 'Wein', { anchor: 'middle', cls: 's', d: 1100 })
+        // Atlantikküste: ein Schiff bringt Tuch nach Süden, eines Wein nach Norden
+        const pr = mapRegion(g, 30, 320, 300, 320, -14, 6, 35, 59, 0)
+        const lon = pr(-4, 51)
+        const lis = pr(-9.2, 38.7)
+        dot(g, lon[0], lon[1], 4, 900)
+        dot(g, lis[0], lis[1], 4, 1000)
+        const sea1 = B([lon[0] - 20, lon[1] + 10], [lon[0] - 90, lon[1] + 60], [lis[0] - 60, lis[1] - 60], [lis[0] - 10, lis[1] - 4])
+        dashes(g, sea1, { w: 1.2, d: 1100, dash: 4, gap: 4 })
+        for (const [dd, back] of [[1300, false], [2300, true]] as const) {
+          const m = mk('g', {}, g)
+          mk('animateMotion', { dur: '4s', begin: `${dd / 1000}s`, repeatCount: 'indefinite', keyPoints: back ? '1;0' : '0;1', keyTimes: '0;1', calcMode: 'linear', path: `M${sea1.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join('L')}` }, m)
+          ink(m, [[-12, -2], [12, -2], [8, 6], [-8, 6], [-12, -2]], { w: 1.6, d: dd, t: 100 })
+          ink(m, L([0, -2], [0, -18]), { w: 1.2, d: dd, t: 60 })
+          if (back) hatch(m, [[-6, -16], [6, -6], [-6, -6]], dd, true)
+          else ink(m, [[2, -16], [10, -6], [2, -6]], { w: 1, d: dd, t: 60 })
+        }
       },
       verlierer(g) {
-        ink(g, [[60, 560], [60, 420], [80, 420], [80, 480], [120, 450], [120, 480], [160, 450], [160, 480], [200, 450], [200, 560], [60, 560]], { w: 2.8, t: 700 })
-        for (const x of [100, 140, 180]) ink(g, RR(x - 10, 510, 20, 24, 3), { w: 1.8, d: 500, t: 200 })
-        fig(g, 270, 560, 2.6, { d: 700, arms: 'cross' })
-        text(g, 180, 620, 'manche Branchen schrumpfen', { anchor: 'middle', cls: 's', d: 1000 })
+        // stillgelegte Fabrik mit vernagelten Fenstern, davor ein Arbeiter mit verschränkten Armen
+        const f: P[] = [[40, 600], [40, 420], [70, 420], [70, 480], [110, 450], [110, 480], [150, 450], [150, 480], [190, 450], [190, 600], [40, 600]]
+        ink(g, f, { w: 2.8, t: 700 })
+        for (const x of [80, 120, 160]) {
+          ink(g, RR(x - 12, 520, 24, 30, 2), { w: 1.8, d: 500, t: 150 })
+          ink(g, L([x - 14, 526], [x + 14, 546]), { w: 2.4, d: 800, t: 80 })
+          ink(g, L([x - 14, 546], [x + 14, 526]), { w: 2.4, d: 850, t: 80 })
+        }
+        ink(g, L([50, 420], [50, 360]), { w: 2.4, d: 300, t: 150 })
+        fig(g, 270, 600, 3, { d: 700, arms: 'cross' })
+        ink(g, L([20, 602], [340, 602]), { w: 2.2, d: 200, t: 400 })
       },
       zitat(g) {
-        text(g, 180, 440, '„wahr und nicht trivial“', { anchor: 'middle', cls: 'it', size: 24, d: 200 })
-        text(g, 180, 490, 'Paul Samuelson', { anchor: 'middle', cls: 's', d: 700 })
+        // Hörsaal: Professor an der Tafel mit einer kleinen Tabelle und einem Haken
+        ink(g, RR(40, 340, 280, 160, 4), { w: 2.8, t: 600 })
+        hatch(g, RR(46, 346, 268, 148, 2), 300, true)
+        for (let r = 0; r < 3; r++) blank(g, L([70, 380 + r * 34], [240, 380 + r * 34]))
+        for (let r = 0; r < 3; r++) ink(g, L([70, 380 + r * 34], [240, 380 + r * 34]), { w: 1, d: 600 + r * 60, t: 100 })
+        ink(g, L([150, 366], [150, 460]), { w: 1, d: 700, t: 100 })
+        fig(g, 280, 620, 3.4, { d: 800, arms: 'up' })
+        check(g, 280, 420, 0.6, 1300)
       },
       wg(g) {
-        house(g, 120, 600, 120, 0)
-        text(g, 180, 380, 'jeder macht, was ihn am wenigsten kostet', { anchor: 'middle', cls: 's', d: 800 })
+        // WG im Querschnitt: eine kocht, einer saugt, eine kauft ein
+        ink(g, [[60, 640], [60, 420], [180, 340], [300, 420], [300, 640]], { w: 2.8, t: 600 })
+        ink(g, L([60, 530], [300, 530]), { w: 2, d: 300, t: 300 })
+        ink(g, L([180, 530], [180, 640]), { w: 2, d: 300, t: 300 })
+        fig(g, 110, 528, 2, { d: 500, arms: 'push' })
+        ink(g, RR(130, 494, 30, 14, 3), { w: 1.6, d: 600, t: 100 })
+        for (let k = 0; k < 2; k++) ink(g, B([140 + k * 8, 490], [136 + k * 8, 480], [144 + k * 8, 470], [140 + k * 8, 460]), { w: 1, d: 700, t: 100 })
+        fig(g, 230, 638, 2, { d: 800, arms: 'push' })
+        ink(g, [[248, 600], [270, 636], [290, 636]], { w: 2, d: 900, t: 150 })
+        fig(g, 110, 638, 2, { d: 1000 })
+        ink(g, [[126, 620], [146, 620], [142, 636], [130, 636], [126, 620]], { w: 1.6, d: 1100, t: 100 })
       },
       ende(g) {
         fig(g, 110, 600, 3.4)
         fig(g, 250, 600, 3.4, { d: 200 })
-        carrow(g, [140, 500], [220, 500], 26, { d: 600 })
-        carrow(g, [220, 450], [140, 450], 26, { d: 800 })
+        cloth(g, 180, 470, 0.7, 500)
+        bottle(g, 180, 410, 0.8, 600)
+        carrow(g, [140, 500], [220, 500], 26, { d: 900 })
+        carrow(g, [220, 440], [140, 440], 26, { d: 1100 })
       },
     },
     scenes: [
@@ -1192,82 +1307,146 @@ export const AHA_GELD: Bite[] = [
     images: [],
     draw: {
       dampf(g) {
-        ink(g, RR(80, 260, 160, 100, 10), { w: 3, t: 700 })
-        ink(g, RR(240, 280, 50, 60, 4), { w: 2.6, d: 300, t: 400 })
-        ink(g, RR(110, 200, 30, 60, 3), { w: 2.6, d: 400, t: 300 })
-        for (const x of [116, 130]) ink(g, B([x, 196], [x - 8, 180], [x + 8, 160], [x, 140]), { w: 2, d: 900, t: 300 })
-        for (const x of [120, 200]) ball(g, x, 386, 22, { d: 600, t: 300 })
-        flame(g, 160, 350, 0.4, 1000)
+        // Dampfmaschine: Kessel mit Feuerung, Kolbenzylinder, Schwungrad, Schornstein mit Rauch, Kohlehaufen
+        steamEngine(g, 170, 380, 1, 0)
+        for (let i = 0; i < 6; i++) ink(g, E(60 + (i % 3) * 14, 384 - Math.floor(i / 3) * 10, 8, 5), { w: 1.4, d: 1200 + i * 40, t: 60 })
+        ink(g, L([20, 392], [340, 392]), { w: 2.4, d: 200, t: 400 })
       },
       jevons(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.4, label: '1865', sub: '„The Coal Question“', up: true }])
+        // Schreibtisch 1865: Buch mit Verbrauchskurve, Kohlebrocken, Öllampe
+        ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
+        const pg: P[] = [[60, 480], [180, 470], [300, 480], [300, 580], [180, 570], [60, 580], [60, 480]]
+        blank(g, pg)
+        ink(g, pg, { w: 2.2, d: 200, t: 400 })
+        ink(g, L([180, 470], [180, 570]), { w: 1.4, d: 300, t: 150 })
+        plot(g, 196, 556, 92, 70, (t) => Math.pow(t, 1.8), { d: 600, t: 500, w: 2 })
+        for (let k = 0; k < 5; k++) ink(g, L([72, 496 + k * 14], [168, 490 + k * 14]), { w: 0.8, d: 700 + k * 40, t: 80 })
+        for (const [x, y, r] of [[60, 590, 12], [84, 594, 9]] as const) {
+          const p: P[] = Array.from({ length: 7 }, (_, k) => [x + Math.cos(rad(k * 60 + 10)) * r, y - 6 + Math.sin(rad(k * 60 + 10)) * r * 0.7] as P)
+          hatch(g, p, 1000, true)
+          ink(g, p, { w: 1.4, d: 900, t: 100 })
+        }
+        ink(g, [[290, 600], [282, 560], [310, 560], [302, 600]], { w: 1.8, d: 1000, t: 200 })
+        flame(g, 296, 556, 0.2, 1200)
       },
       sparsam(g) {
-        vbars(g, [
-          { label: 'alte Maschine', v: 4, fmt: () => 'viel Kohle' },
-          { label: 'Watts Maschine', v: 1.3, fmt: () => 'viel weniger', dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 220 })
+        // links die alte Maschine mit großem Kohleberg, rechts Watts Maschine mit kleinem
+        steamEngine(g, 80, 540, 0.55, 0)
+        steamEngine(g, 240, 540, 0.55, 300)
+        for (const [x, n, d] of [[70, 14, 800], [230, 4, 1000]] as const) for (let i = 0; i < n; i++) {
+          const row = Math.floor(i / 5)
+          ink(g, E(x - 30 + (i % 5) * 14 + row * 6, 610 - row * 9, 7, 4), { w: 1.2, d: d + i * 30, t: 50 })
+        }
+        ink(g, L([20, 620], [340, 620]), { w: 2, d: 200, t: 400 })
       },
       verbrauch(g) {
-        axes(g, 40, 600, 330, 330, { xl: 'Jahre', yl: 'Kohle in England' })
+        axes(g, 40, 600, 330, 330, { xl: 'Jahre', yl: 'Kohle' })
         plot(g, 46, 596, 270, 240, (t) => Math.pow(t, 1.6), { d: 400 })
-        text(g, 230, 560, 'stieg trotzdem', { anchor: 'middle', cls: 's', d: 1400 })
+        for (let i = 0; i < 4; i++) {
+          const t = 0.2 + i * 0.25
+          const x = 46 + t * 270
+          const y = 596 - Math.pow(t, 1.6) * 240
+          ink(g, E(x, y + 12, 6, 4), { w: 1.2, d: 1200 + i * 150, t: 60 })
+        }
       },
       fabriken(g) {
-        ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
+        // billige Dampfkraft überall: Fabriken mit Schloten, eine Dampflok fährt vorbei
+        ink(g, L([20, 560], [340, 560]), { w: 3, t: 500 })
         for (let i = 0; i < 4; i++) {
           const x = 30 + i * 80
-          ink(g, [[x, 600], [x, 460], [x + 12, 460], [x + 12, 512], [x + 24, 500], [x + 24, 520], [x + 42, 500], [x + 42, 520], [x + 60, 500], [x + 60, 600]], { w: 2.4, d: 200 + i * 200, t: 400 })
-          ink(g, B([x + 6, 452], [x - 2, 440], [x + 14, 428], [x + 6, 414]), { w: 1.8, d: 600 + i * 200, t: 300 })
+          ink(g, [[x, 560], [x, 420], [x + 12, 420], [x + 12, 472], [x + 24, 460], [x + 24, 480], [x + 42, 460], [x + 42, 480], [x + 60, 460], [x + 60, 560]], { w: 2.4, d: 200 + i * 200, t: 400 })
+          const w = wobble(g, { dx: 8, dy: -4, ms: 1800 + i * 200, d: 900 })
+          cloud(w, x + 10, 400, 0.22, 600 + i * 200, true)
         }
-        text(g, 180, 385, 'billige Dampfkraft: überall', { anchor: 'middle', cls: 's', d: 1200 })
+        ink(g, L([20, 620], [340, 620]), { w: 2, d: 300, t: 400 })
+        for (let k = 0; k < 10; k++) ink(g, L([24 + k * 32, 616], [40 + k * 32, 624]), { w: 1, d: 400, t: 40 })
+        const lo = glide(g, 160, 0, { ms: 5000, d: 1000, loop: true })
+        ink(lo, RR(20, 580, 70, 30, 4), { w: 2.2, d: 900, t: 200 })
+        ink(lo, RR(70, 566, 18, 16, 2), { w: 1.8, d: 950, t: 100 })
+        ink(lo, RR(28, 566, 10, 16, 2), { w: 1.6, d: 950, t: 100 })
+        for (const x of [36, 74]) ink(lo, E(x, 612, 7), { w: 1.8, d: 1000, t: 100 })
       },
       led(g) {
-        bulb(g, 90, 470, 1.2)
-        text(g, 90, 560, 'sparsam', { anchor: 'middle', cls: 's', d: 700 })
-        house(g, 200, 600, 110, 400)
-        for (const [x, y] of [[214, 520], [286, 520], [250, 470]] as const) rays(g, x, y, 6, 14, 8, 1000)
-        text(g, 255, 640, 'mehr beleuchtet', { anchor: 'middle', cls: 's', d: 1200 })
+        // eine sparsame LED – und ein Haus, dessen Fassade, Garten und Werbetafel nun alle leuchten
+        bulb(g, 70, 400, 1.2)
+        house(g, 150, 620, 120, 400)
+        for (const [x, y] of [[176, 540], [244, 540], [210, 480]] as const) rays(g, x, y, 6, 14, 8, 1000)
+        ink(g, RR(290, 470, 56, 40, 3), { w: 2, d: 800, t: 200 })
+        ink(g, L([318, 510], [318, 620]), { w: 1.8, d: 900, t: 150 })
+        rays(g, 318, 490, 32, 44, 10, 1300)
+        for (const x of [40, 110]) {
+          ink(g, L([x, 620], [x, 560]), { w: 1.6, d: 1100, t: 150 })
+          rays(g, x, 556, 4, 12, 6, 1400)
+        }
+        ink(g, L([20, 622], [340, 622]), { w: 2, d: 200, t: 400 })
       },
       auto(g) {
-        const car = (x: number, s: number, d: number) => {
-          const P = (a: number, b: number): P => [x + a * s, 560 + b * s]
-          ink(g, [P(-40, -8), P(-40, -24), P(-20, -26), P(-10, -42), P(18, -42), P(30, -26), P(42, -24), P(42, -8), P(-40, -8)], { w: 2.4, d, t: 500 })
-          for (const k of [-22, 24]) ball(g, x + k * s, 556, 7 * s, { d: d + 200, t: 200, w: 2 })
-        }
-        car(90, 1, 0)
-        arrow(g, L([150, 530], [190, 530]), { w: 2.4, d: 500, t: 300, head: 9 })
-        car(260, 1.6, 700)
-        text(g, 180, 620, 'sparsamer – aber größer und mehr gefahren', { anchor: 'middle', cls: 's', d: 1100 })
+        // sparsamer Motor – dafür ein größeres Auto und ein viel längerer Weg
+        car(g, 90, 520, 1.2, 0)
+        arrow(g, L([150, 500], [190, 500]), { w: 2.4, d: 500, t: 300, head: 9 })
+        car(g, 260, 520, 1.8, 700)
+        ink(g, L([20, 600], [340, 600]), { w: 2.2, d: 300, t: 400 })
+        for (let k = 0; k < 8; k++) ink(g, L([30 + k * 40, 600], [30 + k * 40, 590]), { w: 1.4, d: 1100 + k * 60, t: 50 })
       },
       computer(g) {
-        ink(g, RR(80, 380, 200, 130, 10), { w: 3, t: 600 })
-        ink(g, RR(96, 396, 168, 98, 6), { w: 2, d: 300, t: 500 })
-        ink(g, L([150, 510], [130, 560]), { w: 2.6, d: 400, t: 200 })
-        ink(g, L([210, 510], [230, 560]), { w: 2.6, d: 400, t: 200 })
-        for (let i = 0; i < 5; i++) ink(g, L([110, 410 + i * 16], [110 + 40 + i * 24, 410 + i * 16]), { w: 1.4, d: 700 + i * 80, t: 200 })
-        text(g, 180, 610, 'schnellere Chips, schwerere Software', { anchor: 'middle', cls: 's', d: 1100 })
+        // schnellerer Chip – doch die Software wächst zu einem Stapel von Fenstern
+        ink(g, RR(60, 360, 200, 130, 10), { w: 3, t: 600 })
+        ink(g, RR(76, 376, 168, 98, 6), { w: 2, d: 300, t: 500 })
+        ink(g, L([130, 490], [110, 540]), { w: 2.6, d: 400, t: 200 })
+        ink(g, L([190, 490], [210, 540]), { w: 2.6, d: 400, t: 200 })
+        for (let i = 0; i < 5; i++) {
+          const p = pop(g, 800 + i * 200, '50% 50%')
+          ink(p, RR(90 + i * 12, 390 + i * 12, 90, 60, 3), { w: 1.4, t: 0 })
+          blank(p, RR(91 + i * 12, 391 + i * 12, 88, 58, 3))
+          ink(p, RR(90 + i * 12, 390 + i * 12, 90, 60, 3), { w: 1.4, t: 0 })
+          hatch(p, RR(90 + i * 12, 390 + i * 12, 90, 8, 2), 0, true)
+        }
+        ink(g, RR(270, 560, 60, 60, 4), { w: 2.2, d: 600, t: 300 })
+        for (let k = 0; k < 4; k++) for (const s of [-1, 1]) ink(g, L([280 + k * 13, s < 0 ? 560 : 620], [280 + k * 13, s < 0 ? 552 : 628]), { w: 1.2, d: 700, t: 40 })
+        rays(g, 300, 590, 40, 52, 8, 900)
       },
       anteil(g) {
-        vbars(g, [
-          { label: 'gespart', v: 100, fmt: () => '100' },
-          { label: 'durch Mehrnutzung weg', v: 30, fmt: () => 'oft ein Teil', dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 120, h: 240 })
+        // ein Eimer Ersparnis – durch ein Loch rinnt ein Teil wieder hinaus (Rebound)
+        ink(g, [[100, 380], [116, 560], [244, 560], [260, 380]], { w: 3, t: 600 })
+        ink(g, E(180, 380, 80, 14), { w: 2.2, d: 200, t: 300 })
+        hatch(g, [[106, 420], [254, 420], [244, 556], [116, 556]], 500)
+        ink(g, B([110, 420], [140, 414], [220, 426], [254, 420]), { w: 1.4, d: 400, t: 300 })
+        ink(g, E(200, 540, 5, 4), { w: 1.6, d: 800, t: 60 })
+        for (let k = 0; k < 4; k++) {
+          const dr = glide(g, 10, 70, { ms: 1000, d: 1000 + k * 250, loop: true })
+          drop(dr, 206, 560, 0.3, 900)
+        }
+        hatch(g, E(220, 630, 40, 8), 1400, true)
       },
       preis(g) {
-        box(g, 40, 380, 280, 80, 'Effizienz + CO₂-Preis', { size: 20, fill: true })
-        text(g, 180, 540, 'Sparsamkeit plus Grenzen', { anchor: 'middle', d: 800 })
+        // Effizienz plus Grenze: sparsame Lampe, dazu eine Wolke mit Preisschild und eine Schranke davor
+        bulb(g, 70, 420, 1.1)
+        const w = wobble(g, { dx: 6, ms: 2400, d: 600 })
+        cloud(w, 220, 420, 0.9, 400, true)
+        ink(g, L([240, 420], [280, 470]), { w: 1, d: 800, t: 100 })
+        ink(g, [[270, 470], [320, 470], [332, 484], [320, 498], [270, 498], [270, 470]], { w: 2, d: 900, t: 150 })
+        ink(g, L([300, 494], [300, 476]), { w: 1.6, d: 1000, t: 60 })
+        ink(g, RR(40, 560, 280, 16, 4), { w: 2.4, d: 1100, t: 300 })
+        for (let k = 0; k < 7; k++) if (k % 2) hatch(g, RR(40 + k * 40, 560, 40, 16, 0), 1200, true)
+        ink(g, L([40, 576], [40, 630]), { w: 2.4, d: 1200, t: 100 })
       },
       pendeln(g) {
-        house(g, 40, 600, 60, 0)
-        ink(g, RR(260, 500, 70, 100, 4), { w: 2.6, d: 200, t: 400 })
-        ink(g, L([110, 600], [250, 600]), { w: 2.4, d: 400, t: 600 })
-        clock(g, 180, 440, 40, 0, 0, 700)
-        text(g, 180, 520, '≈ 1 Stunde', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 180, 650, 'schneller unterwegs → weiter weg wohnen', { anchor: 'middle', cls: 's', d: 1200 })
+        // früher: kurzer Weg zu Fuß; heute: langer Weg mit der Bahn – beide Male dieselbe Uhrzeit-Spanne
+        for (const [y, long, d] of [[420, false, 0], [580, true, 600]] as const) {
+          house(g, 30, y, 40, d)
+          const end = long ? 300 : 140
+          ink(g, RR(end, y - 50, 40, 50, 3), { w: 2.2, d: d + 200, t: 200 })
+          ink(g, L([76, y], [end - 6, y]), { w: 1.6, d: d + 300, t: 400 })
+          const mv = glide(g, end - 100, 0, { ms: long ? 2000 : 2000, d: d + 800, loop: true })
+          if (long) ink(mv, RR(80, y - 20, 40, 18, 4), { w: 1.8, d: d + 700, t: 100 })
+          else fig(mv, 90, y, 0.9, { d: d + 700 })
+          clock(g, 180, y - 90, 22, 300, 0, d + 400)
+          hatch(g, [[180, y - 90], ...E(180, y - 90, 20, 20, -90, 270), [180, y - 90]], d + 600)
+        }
       },
       ende(g) {
         flame(g, 180, 600, 1.4)
+        ripple(g, 180, 540, 40, 110, { n: 2, ms: 2400, d: 900, w: 1 })
       },
     },
     scenes: [
@@ -1304,72 +1483,156 @@ export const AHA_GELD: Bite[] = [
     images: [],
     draw: {
       beide(g) {
-        diamond(g, 250, 230, 1.4)
-        drop(g, 100, 230, 2.2, 500)
+        // Wasserglas und Diamant nebeneinander
+        ink(g, [[60, 200], [70, 380], [140, 380], [150, 200]], { w: 2.8, t: 600 })
+        ink(g, waveP(64, 146, 250, 2, 20), { w: 1.6, d: 300, t: 300 })
+        hatch(g, [[64, 254], [146, 254], [140, 376], [70, 376]], 500)
+        diamond(g, 260, 260, 1.4, 600)
+        rays(g, 260, 250, 70, 86, 10, 1300)
       },
       smith(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.3, label: '1776', sub: 'Adam Smith', up: true }])
+        // Waage: der Diamant drückt seine Schale tiefer als die Wasserflasche – dabei ist Wasser lebenswichtig
+        ink(g, L([180, 380], [180, 620]), { w: 3.4, t: 400 })
+        ink(g, L([120, 622], [240, 622]), { w: 3, d: 100, t: 300 })
+        const t = rad(-10)
+        const L0: P = [180 - Math.cos(t) * 120, 380 - Math.sin(t) * 120]
+        const R0: P = [180 + Math.cos(t) * 120, 380 + Math.sin(t) * 120]
+        ink(g, L(L0, R0), { w: 3.4, d: 200, t: 400 })
+        ink(g, E(180, 380, 7), { w: 2.4, d: 250, t: 150 })
+        for (const p of [L0, R0]) {
+          ink(g, [[p[0] - 40, p[1] + 90], p, [p[0] + 40, p[1] + 90]], { w: 1.6, d: 400, t: 300 })
+          ink(g, B([p[0] - 46, p[1] + 90], [p[0] - 30, p[1] + 108], [p[0] + 30, p[1] + 108], [p[0] + 46, p[1] + 90]), { w: 2.6, d: 600, t: 300 })
+        }
+        diamond(g, L0[0], L0[1] + 70, 0.4, 900)
+        const bx = R0[0]
+        const by = R0[1] + 88
+        ink(g, [[bx - 10, by - 40], [bx - 6, by - 64], [bx + 6, by - 64], [bx + 10, by - 40], [bx + 12, by], [bx - 12, by], [bx - 10, by - 40]], { w: 2, d: 1000, t: 200 })
+        hatch(g, [[bx - 11, by - 26], [bx + 11, by - 26], [bx + 12, by], [bx - 12, by]], 1100)
+        heart(g, bx, by - 90, 0.3, 1300)
       },
       liter(g) {
-        vbars(g, [
-          { label: '1. Liter', v: 100, fmt: () => 'Leben' },
-          { label: '10. Liter', v: 40, fmt: () => 'Durst' },
-          { label: '100. Liter', v: 4, fmt: () => 'Bad', dense: true },
-        ], { x: 40, base: 590, w: 70, gap: 110, h: 230 })
-        text(g, 180, 320, 'Nutzen des nächsten Liters', { anchor: 'middle', cls: 's', d: 1300 })
+        // erstes Glas (Leben), zehntes (Durst), hundertstes (Badewanne) – der Wert des nächsten Liters fällt
+        for (const [x, d] of [[60, 0], [170, 300]] as const) {
+          ink(g, [[x - 26, 340], [x - 20, 420], [x + 20, 420], [x + 26, 340]], { w: 2.2, d, t: 300 })
+          hatch(g, [[x - 24, 360], [x + 24, 360], [x + 20, 418], [x - 20, 418]], d + 200)
+        }
+        heart(g, 60, 320, 0.3, 300)
+        ink(g, waveP(150, 190, 320, 3, 10), { w: 1.4, d: 500, t: 150 })
+        ink(g, B([240, 400], [244, 430], [326, 430], [330, 400]), { w: 2.4, d: 600, t: 300 })
+        ink(g, L([236, 400], [334, 400]), { w: 2, d: 700, t: 200 })
+        for (const x of [252, 318]) ink(g, L([x, 430], [x - 4, 440]), { w: 1.6, d: 800, t: 60 })
+        ink(g, L([30, 600], [330, 600]), { w: 2, d: 800, t: 300 })
+        for (const [x, h, d] of [[60, 160, 1000], [170, 70, 1200], [285, 10, 1400]] as const) {
+          const r = RR(x - 26, 600 - h, 52, h, 3)
+          hatch(g, r, d + 100, x < 100)
+          ink(g, r, { w: 2, d, t: 200 })
+        }
       },
       reichlich(g) {
-        for (let i = 0; i < 9; i++) drop(g, 50 + (i % 5) * 64, 420 + Math.floor(i / 5) * 90, 0.9, i * 80, false)
-        text(g, 180, 640, 'reichlich da: der nächste Liter ist billig', { anchor: 'middle', cls: 's', d: 1000 })
+        // aufgedrehter Wasserhahn, darunter viele Tropfen und Pfützen
+        ink(g, [[60, 340], [160, 340], [160, 370], [176, 370], [176, 400]], { w: 4, t: 400 })
+        ink(g, E(110, 330, 14, 6), { w: 2, d: 200, t: 150 })
+        for (let k = 0; k < 6; k++) {
+          const dr = glide(g, 0, 200, { ms: 900, d: 600 + k * 150, loop: true })
+          drop(dr, 176, 410, 0.4, 500)
+        }
+        for (let i = 0; i < 9; i++) drop(g, 60 + (i % 5) * 60, 560 + Math.floor(i / 5) * 50, 0.7, 900 + i * 80, false)
+        ink(g, E(176, 630, 60, 10), { w: 1.6, d: 900, t: 200 })
       },
       knapp(g) {
-        diamond(g, 180, 470, 1.4)
-        text(g, 180, 600, 'knapp: jeder einzelne zählt', { anchor: 'middle', cls: 's', d: 900 })
+        // ein einzelner Diamant im Gestein, die Lore steht leer
+        ink(g, smooth([[20, 640], [40, 420], [160, 380], [280, 400], [340, 460], [340, 640]], 3), { w: 2.6, t: 700 })
+        hatch(g, [...smooth([[20, 640], [40, 420], [160, 380], [280, 400], [340, 460], [340, 640]], 3), [20, 640]], 300, true)
+        blank(g, E(180, 500, 50))
+        diamond(g, 180, 500, 0.8, 600)
+        ripple(g, 180, 500, 30, 80, { n: 2, ms: 2000, d: 1200, w: 1 })
+        ink(g, [[230, 620], [240, 590], [300, 590], [310, 620], [230, 620]], { w: 2, d: 900, t: 200 })
+        for (const x of [246, 294]) ink(g, E(x, 626, 6), { w: 1.6, d: 1000, t: 80 })
       },
       wueste(g) {
-        sun(g, 280, 350, 30)
+        sunDisk(g, 280, 350, 30, 0)
         ink(g, B([20, 600], [100, 560], [200, 590], [340, 560]), { w: 3, t: 700 })
-        fig(g, 110, 580, 2.6, { d: 400 })
+        fig(g, 110, 580, 2.6, { d: 400, arms: 'push' })
+        diamond(g, 60, 480, 0.4, 700)
+        cross(g, 60, 480, 0.5, 1100)
         drop(g, 200, 480, 1, 900)
-        text(g, 180, 650, 'in der Wüste: Wasser vor Diamant', { anchor: 'middle', cls: 's', d: 1200 })
+        check(g, 200, 420, 0.6, 1300)
       },
       drei(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.1, label: 'Jevons', up: true },
-          { at: 0.45, label: '1871', sub: 'Menger', big: true },
-          { at: 0.8, label: 'Walras', up: true },
-        ])
+        // drei Gelehrte an drei Schreibtischen, fast gleichzeitig – Manchester, Wien, Lausanne
+        for (let i = 0; i < 3; i++) {
+          const x = 70 + i * 110
+          fig(g, x - 20, 600, 2.6, { d: i * 300 })
+          ink(g, RR(x - 4, 540, 50, 8, 2), { w: 1.8, d: i * 300 + 200, t: 150 })
+          ink(g, L([x + 40, 548], [x + 40, 600]), { w: 1.6, d: i * 300 + 300, t: 100 })
+          ink(g, [[x + 4, 536], [x + 24, 530], [x + 44, 536]], { w: 1.4, d: i * 300 + 400, t: 100 })
+          bulb(g, x + 20, 470, 0.5, 1200 + i * 150)
+        }
+        ink(g, L([20, 602], [340, 602]), { w: 2, d: 200, t: 400 })
       },
       pizza(g) {
+        // sechs Stücke Pizza; daneben schwindet die Freude von Stück zu Stück
         for (let i = 0; i < 6; i++) {
           const a0 = i * 60
-          const p: P[] = [[180, 470], ...E(180, 470, 100, 100, a0 + 2, a0 + 58), [180, 470]]
+          const p: P[] = [[180, 450], ...E(180, 450, 100, 100, a0 + 2, a0 + 58), [180, 450]]
           if (i < 5) hatch(g, p, 400 + i * 80)
           ink(g, p, { w: 2.2, d: i * 80, t: 300 })
+          for (let k = 0; k < 2; k++) dot(g, 180 + Math.cos(rad(a0 + 20 + k * 20)) * (50 + k * 14), 450 + Math.sin(rad(a0 + 20 + k * 20)) * (50 + k * 14), 4, 700 + i * 60)
         }
-        text(g, 180, 620, 'das erste Stück: großartig – das sechste: na ja', { anchor: 'middle', cls: 's', d: 1000 })
+        for (let i = 0; i < 6; i++) {
+          const x = 40 + i * 56
+          ink(g, E(x, 610, 16), { w: 1.6, d: 1000 + i * 100, t: 100 })
+          const c = 8 - i * 3
+          ink(g, B([x - 8, 614], [x - 4, 614 + c * 0.5], [x + 4, 614 + c * 0.5], [x + 8, 614]), { w: 1.4, d: 1050 + i * 100, t: 60 })
+          for (const k of [-1, 1]) dot(g, x + k * 5, 605, 1.4, 1050 + i * 100)
+        }
       },
       rabatt(g) {
-        for (let i = 0; i < 4; i++) ink(g, RR(50 + i * 70, 420, 50, 70, 6), { w: 2.4, d: i * 150, t: 300 })
-        text(g, 180, 560, 'Mengenrabatt', { anchor: 'middle', size: 20, d: 900 })
+        // vier Packungen, das Preisschild wird von Packung zu Packung kleiner
+        for (let i = 0; i < 4; i++) {
+          const x = 50 + i * 70
+          ink(g, RR(x, 440, 50, 80, 6), { w: 2.4, d: i * 150, t: 300 })
+          ink(g, L([x, 456], [x + 50, 456]), { w: 1.2, d: i * 150 + 100, t: 100 })
+          const h = 40 - i * 8
+          ink(g, [[x + 6, 420 - h], [x + 40, 420 - h], [x + 48, 420 - h / 2], [x + 40, 420], [x + 6, 420], [x + 6, 420 - h]], { w: 1.8, d: 700 + i * 150, t: 150 })
+        }
+        arrow(g, L([60, 560], [300, 560]), { w: 2, d: 1400, t: 300, head: 8 })
       },
       debeers(g) {
-        diamond(g, 120, 470, 1)
-        ink(g, RR(210, 400, 100, 130, 8), { w: 2.8, d: 300, t: 500 })
-        text(g, 260, 470, 'Lager', { anchor: 'middle', cls: 's', d: 700 })
-        text(g, 180, 600, 'Angebot künstlich knapp gehalten', { anchor: 'middle', cls: 's', d: 1000 })
+        // Tresorlager voller Diamanten, nur ein einziger kommt durch die Klappe in den Laden
+        ink(g, RR(40, 380, 160, 220, 6), { w: 3, t: 600 })
+        for (let k = 0; k < 4; k++) ink(g, L([40, 420 + k * 46], [200, 420 + k * 46]), { w: 1.6, d: 300 + k * 60, t: 200 })
+        for (let i = 0; i < 12; i++) diamond(g, 62 + (i % 4) * 38, 408 + Math.floor(i / 4) * 46, 0.18, 600 + i * 50)
+        ink(g, E(120, 620, 14), { w: 2, d: 900, t: 150 })
+        const dm = glide(g, 160, 0, { ms: 1800, d: 1500, loop: true })
+        diamond(dm, 120, 620, 0.2, 1400)
+        ink(g, RR(250, 560, 90, 80, 4), { w: 2.4, d: 1000, t: 300 })
       },
       werbung(g) {
-        ink(g, E(180, 480, 60), { w: 3.6, t: 700 })
-        diamond(g, 180, 400, 0.5, 600)
-        text(g, 180, 600, '1947: „A Diamond Is Forever“', { anchor: 'middle', cls: 'it', size: 18, d: 1000 })
+        // Anzeige mit Verlobungsring: Ring, funkelnder Stein, Herz
+        ink(g, RR(60, 330, 240, 300, 4), { w: 2.4, t: 500 })
+        ink(g, E(180, 520, 60), { w: 3.6, d: 300, t: 700 })
+        ink(g, E(180, 520, 50), { w: 1.4, d: 400, t: 600 })
+        diamond(g, 180, 440, 0.5, 600)
+        rays(g, 180, 430, 30, 46, 8, 1100)
+        heart(g, 270, 380, 0.3, 1300)
       },
       labor(g) {
-        diamond(g, 100, 470, 0.9)
-        text(g, 180, 476, '=', { anchor: 'middle', size: 30, d: 500 })
-        diamond(g, 260, 470, 0.9, 600)
-        text(g, 100, 570, 'Mine', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 260, 570, 'Labor: viel billiger', { anchor: 'middle', cls: 's', d: 1000 })
+        // links aus der Mine (Spitzhacke, Stollen), rechts aus dem Reaktor (Kolben, Kammer) – derselbe Stein
+        ink(g, B([30, 600], [30, 480], [150, 480], [150, 600]), { w: 2.6, t: 500 })
+        hatch(g, [...B([30, 600], [30, 480], [150, 480], [150, 600]), [30, 600]], 300, true)
+        blank(g, E(90, 540, 34))
+        diamond(g, 90, 540, 0.45, 600)
+        ink(g, L([40, 440], [100, 380]), { w: 2.4, d: 700, t: 150 })
+        ink(g, B([84, 372], [100, 380], [112, 392], [120, 408]), { w: 2.4, d: 800, t: 150 })
+        text(g, 180, 546, '=', { anchor: 'middle', size: 30, d: 900 })
+        ink(g, RR(220, 470, 110, 130, 10), { w: 2.6, d: 1000, t: 400 })
+        ink(g, E(275, 535, 30), { w: 1.6, d: 1100, t: 200 })
+        diamond(g, 275, 540, 0.45, 1200)
+        for (let k = 0; k < 3; k++) {
+          const b = glide(g, 0, -40, { ms: 1400, d: 1300 + k * 300, loop: true })
+          ink(b, E(240 + k * 20, 470, 4), { w: 1, d: 1300, t: 60 })
+        }
       },
       ende(g) {
         drop(g, 120, 490, 1.6)
