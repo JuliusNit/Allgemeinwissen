@@ -1,5 +1,5 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, type P } from './draw'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, type P } from './draw'
 import { LAND, arcArrow, ball, bird, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, flow, geo, glide, house, jet, mapRegion, mol, moonFace, rad, rain, ripple, rotPole, smooth, spin, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
 
 // Erde & Wetter: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
@@ -217,6 +217,32 @@ const SA_FIT: [number, number, number] = [-30.6, 44, 57]
 const NA_FIT: [number, number, number] = [-18, 66, 72]
 const AN_FIT: [number, number, number] = [90, 0, -25]
 const AU_FIT: [number, number, number] = [60, -80, 40]
+
+/** Afrikanischer Elefant von der Seite, Kopf rechts: Rücken, Ohr, Rüssel, Stoßzahn, vier Beine, Schwanz; y = Boden, Höhe ≈ 70·s */
+function elephant(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const body: P[] = smooth([P(-40, -30), P(-36, -58), P(-10, -70), P(24, -66), P(40, -60), P(52, -64), P(62, -56), P(64, -40), P(62, -24), P(60, -8), P(66, 0), P(58, -2), P(54, -20), P(48, -30), P(42, -24), P(40, 0), P(30, 0), P(30, -20), P(-10, -20), P(-12, 0), P(-22, 0), P(-26, -22), P(-34, 0), P(-42, 0), P(-40, -30)], 2)
+  blank(g, body)
+  hatch(g, body, d + 500)
+  ink(g, body, { w: 2 * Math.min(1.2, Math.max(0.6, s)), d, t: 600 })
+  const ear: P[] = smooth([P(38, -58), P(30, -56), P(26, -40), P(32, -26), P(42, -30), P(44, -46), P(38, -58)], 3)
+  blank(g, ear)
+  ink(g, ear, { w: 1.4 * Math.max(0.6, s), d: d + 300, t: 300 })
+  ink(g, B(P(54, -36), P(58, -34), P(66, -34), P(70, -40)), { w: 1.6 * Math.max(0.6, s), d: d + 400, t: 150 })
+  dot(g, x + 52 * s, y - 50 * s, 1.4 * Math.max(0.6, s), d + 450)
+  ink(g, B(P(-40, -50), P(-46, -44), P(-46, -34), P(-44, -26)), { w: 1.2, d: d + 400, t: 100 })
+}
+
+/** Tankwagen von der Seite, Front rechts; y = Boden */
+function tanker(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  ink(g, RR(x - 40 * s, y - 30 * s, 62 * s, 22 * s, 10 * s), { w: 1.8, d, t: 300 })
+  ink(g, [P(24, -8), P(24, -30), P(36, -30), P(42, -18), P(42, -8), P(-42, -8)], { w: 1.8, d: d + 100, t: 300 })
+  for (const a of [-28, 8, 32]) {
+    blank(g, E(x + a * s, y - 6 * s, 5 * s))
+    ink(g, E(x + a * s, y - 6 * s, 5 * s), { w: 1.6, d: d + 200, t: 100 })
+  }
+}
 
 export const AHA_ERDE: Bite[] = [
   {
@@ -1606,68 +1632,163 @@ export const AHA_ERDE: Bite[] = [
     images: [],
     draw: {
       wolke(g) {
-        cloud(g, 180, 300, 2)
+        // große Haufenwolke über der Landschaft, Haus und Bäume zum Größenvergleich
+        sunDisk(g, 300, 110, 22, 0)
+        const w = glide(g, 20, 0, { ms: 8000, d: 600, loop: true })
+        cloud(w, 170, 300, 2, 200)
+        ink(g, smooth([[20, 420], [90, 410], [180, 418], [260, 406], [340, 414]], 3), { w: 2.4, d: 300, t: 600 })
+        house(g, 230, 410, 22, 700)
+        for (const x of [80, 110, 300]) tree(g, x, 414, 0.3, 800)
       },
       wuerfel(g) {
-        dashes(g, RR(80, 370, 200, 200, 2), { w: 1.6, d: 600 })
-        cloud(g, 180, 520, 2.2)
-        text(g, 180, 610, 'etwa 1 km³', { anchor: 'middle', cls: 's', d: 900 })
+        // die Wolke in einem gedachten Würfel von einem Kilometer Kantenlänge; Häuser darunter
+        const [x, y, s, o] = [70, 380, 200, 50]
+        dashes(g, RR(x, y, s, s, 0), { w: 1.4, d: 600, dash: 6, gap: 5 })
+        dashes(g, [[x, y], [x + o, y - o], [x + s + o, y - o], [x + s, y]], { w: 1.4, d: 700, dash: 6, gap: 5 })
+        dashes(g, [[x + s + o, y - o], [x + s + o, y + s - o], [x + s, y + s]], { w: 1.4, d: 800, dash: 6, gap: 5 })
+        cloud(g, 190, 540, 1.8, 200)
+        ink(g, L([20, 600], [340, 600]), { w: 2.2, d: 300, t: 400 })
+        for (let k = 0; k < 5; k++) house(g, 80 + k * 44, 600, 14, 900 + k * 60)
+        for (const [a, b] of [[[x, y + s + 20], [x + s, y + s + 20]], [[x + s, y + s + 20], [x, y + s + 20]]] as const) arrow(g, L(a as P, b as P), { w: 1.6, d: 1300, t: 300, head: 7 })
       },
       gramm(g) {
-        ink(g, RR(110, 380, 140, 140, 4), { w: 2.6, t: 500 })
-        text(g, 180, 560, '1 m³ Wolke', { anchor: 'middle', cls: 's', d: 400 })
-        for (let i = 0; i < 6; i++) dot(g, 130 + (i % 3) * 50, 420 + Math.floor(i / 3) * 50, 3, 600 + i * 80)
-        text(g, 180, 600, 'etwa 0,5 g Wasser', { anchor: 'middle', d: 1000 })
+        // ein Kubikmeter Wolkenluft (Drahtwürfel) mit ein paar Tröpfchen – zusammen nur ein Teelöffel-Rest Wasser
+        const [x, y, s, o] = [50, 420, 150, 40]
+        ink(g, RR(x, y, s, s, 2), { w: 2.4, t: 500 })
+        ink(g, [[x, y], [x + o, y - o], [x + s + o, y - o], [x + s, y]], { w: 2, d: 200, t: 400 })
+        ink(g, [[x + s + o, y - o], [x + s + o, y + s - o], [x + s, y + s]], { w: 2, d: 300, t: 400 })
+        for (let i = 0; i < 12; i++) {
+          const w = wobble(g, { dx: 3, dy: 3, ms: 700 + i * 50, d: 900 })
+          dot(w, x + 20 + ((i * 37) % 120), y + 20 + ((i * 53) % 120), 1.8, 500 + i * 40)
+        }
+        const sp: P[] = smooth([[260, 560], [280, 548], [310, 550], [320, 562], [306, 574], [276, 574], [260, 560]], 3)
+        blank(g, sp)
+        ink(g, sp, { w: 2.2, d: 900, t: 300 })
+        ink(g, L([262, 562], [212, 600]), { w: 2.6, d: 1000, t: 200 })
+        hatch(g, E(290, 562, 10, 4), 1300, true)
+        arrow(g, B([210, 470], [240, 480], [260, 510], [276, 540]), { w: 1.8, d: 1200, t: 300, head: 7 })
       },
       rechnung(g) {
-        text(g, 180, 450, '500 Tonnen', { anchor: 'middle', size: 46, d: 200 })
-        text(g, 180, 495, 'Wasser in einer kleinen Haufenwolke', { anchor: 'middle', cls: 's', d: 600 })
+        // Würfel aus 1000 × 1000 × 1000 Teilwürfeln; das Wasser darin füllt rund zwanzig Tankwagen
+        const [x, y, s, o, n] = [40, 380, 150, 50, 10]
+        ink(g, RR(x, y, s, s, 2), { w: 2.4, t: 500 })
+        ink(g, [[x, y], [x + o, y - o], [x + s + o, y - o], [x + s, y]], { w: 2, d: 100, t: 400 })
+        ink(g, [[x + s + o, y - o], [x + s + o, y + s - o], [x + s, y + s]], { w: 2, d: 150, t: 400 })
+        for (let k = 1; k < n; k++) {
+          ink(g, L([x + (s * k) / n, y], [x + (s * k) / n, y + s]), { w: 0.6, d: 300 + k * 20, t: 150 })
+          ink(g, L([x, y + (s * k) / n], [x + s, y + (s * k) / n]), { w: 0.6, d: 300 + k * 20, t: 150 })
+          ink(g, L([x + (s * k) / n, y], [x + (s * k) / n + o, y - o]), { w: 0.6, d: 500 + k * 20, t: 100 })
+          ink(g, L([x + s, y + (s * k) / n], [x + s + o, y + (s * k) / n - o]), { w: 0.6, d: 500 + k * 20, t: 100 })
+        }
+        for (let i = 0; i < 20; i++) tanker(g, 40 + (i % 5) * 64, 590 + Math.floor(i / 5) * 18 - 10, 0.55, 1000 + i * 60)
       },
       elefanten(g) {
-        for (let i = 0; i < 10; i++) elephant(g, 50 + (i % 5) * 64, 440 + Math.floor(i / 5) * 90, 0.55, i * 80)
-        text(g, 180, 640, 'so schwer wie rund 100 Elefanten', { anchor: 'middle', cls: 's', d: 1000 })
+        // Elefantenherde unter der Wolke – gleich schwer wie das Wasser darin
+        cloud(g, 180, 400, 1.7, 0)
+        dashes(g, L([180, 410], [180, 470]), { w: 1, d: 600, dash: 3, gap: 4 })
+        ink(g, L([20, 640], [340, 640]), { w: 2.2, d: 300, t: 400 })
+        for (let i = 0; i < 18; i++) {
+          const row = Math.floor(i / 6)
+          elephant(g, 50 + (i % 6) * 52 + row * 12, 540 + row * 48, 0.55, 600 + i * 60)
+        }
       },
       troepfchen(g) {
-        ball(g, 110, 470, 6, { fill: 'dicht' })
-        text(g, 110, 510, 'Wolkentröpfchen', { anchor: 'middle', cls: 's', d: 300 })
-        text(g, 110, 534, '≈ 0,01 mm', { anchor: 'middle', cls: 's', d: 400 })
-        drop(g, 260, 460, 1.5, 500)
-        text(g, 260, 534, 'Regentropfen ≈ 2 mm', { anchor: 'middle', cls: 's', d: 800 })
+        // Lupe in die Wolke: winzige Tröpfchen; daneben ein Regentropfen im gleichen Maßstab
+        cloud(g, 110, 400, 0.9, 0)
+        blank(g, E(110, 520, 70))
+        ink(g, E(110, 520, 70), { w: 2.6, d: 300, t: 400 })
+        ink(g, L([110, 400], [110, 450]), { w: 1.6, d: 400, t: 150 })
+        let seed = 6
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 40; i++) {
+          const a = rnd() * Math.PI * 2
+          const r = rnd() * 60
+          const w = wobble(g, { dx: 3, dy: 3, ms: 600 + rnd() * 600, d: 900 })
+          dot(w, 110 + Math.cos(a) * r, 520 + Math.sin(a) * r, 1.6, 500 + i * 15)
+        }
+        drop(g, 270, 500, 2.6, 800)
+        ink(g, L([210, 620], [330, 620]), { w: 1.4, d: 1200, t: 300 })
+        for (const x of [230, 310]) ink(g, L([x, 612], [x, 628]), { w: 1.4, d: 1300, t: 80 })
       },
       langsam(g) {
-        ball(g, 180, 380, 8, { fill: 'dicht' })
-        arrow(g, L([180, 400], [180, 440]), { w: 2, d: 400, t: 600, head: 8 })
-        text(g, 180, 480, 'fällt etwa 1 cm pro Sekunde', { anchor: 'middle', cls: 's', d: 700 })
-        for (const x of [90, 270]) arrow(g, L([x, 620], [x, 540]), { w: 2.6, d: 900, t: 400, head: 10 })
-        text(g, 180, 600, 'Aufwind', { anchor: 'middle', d: 1100 })
+        // Tröpfchen schwebt: Schwerkraft gegen Luftwiderstand; darunter warme Luft, die aufsteigt
+        ball(g, 180, 380, 10, { fill: 'dicht', w: 2 })
+        arrow(g, L([180, 394], [180, 440]), { w: 2.4, d: 400, t: 300, head: 8 })
+        arrow(g, L([180, 366], [180, 320]), { w: 2.4, d: 600, t: 300, head: 8 })
+        const f = glide(g, 0, 20, { ms: 4000, d: 900, loop: true })
+        dot(f, 180, 380, 1, 0)
+        ink(g, smooth([[20, 640], [100, 630], [200, 636], [340, 628]], 3), { w: 2.4, d: 300, t: 500 })
+        sunDisk(g, 310, 330, 20, 500)
+        for (const x of [70, 290]) {
+          const p: P[] = Array.from({ length: 30 }, (_, i) => [x + Math.sin(i / 3) * 14, 630 - i * 6] as P)
+          dashes(g, p, { w: 1, d: 700, dash: 3, gap: 4 })
+          flow(g, p, { n: 3, ms: 2200, d: 900, r: 2, kind: 'ring' })
+        }
       },
       luft(g) {
-        hbars(g, [
-          { label: 'Luft', v: 1000, fmt: () => '≈ 1 Mio. t', dense: true },
-          { label: 'Wasser', v: 0.5, fmt: () => '≈ 500 t' },
-        ], { x: 110, y: 400, w: 170, h: 40, gap: 80, max: 1000 })
-        text(g, 180, 590, 'in einem Kubikkilometer Wolke', { anchor: 'middle', cls: 's', d: 1200 })
+        // Balkenwaage: die Luft der Wolke wiegt viel mehr als ihr Wasser
+        ink(g, L([180, 620], [180, 430]), { w: 3, t: 400 })
+        ink(g, [[140, 620], [220, 620]], { w: 3, t: 300 })
+        const tilt = -14
+        const L0: P = [180 - Math.cos(rad(tilt)) * 120, 430 - Math.sin(rad(tilt)) * 120]
+        const R0: P = [180 + Math.cos(rad(tilt)) * 120, 430 + Math.sin(rad(tilt)) * 120]
+        ink(g, L(L0, R0), { w: 3, d: 300, t: 400 })
+        dot(g, 180, 430, 5, 400)
+        for (const [p, big] of [[L0, true], [R0, false]] as const) {
+          ink(g, [[p[0] - 30, p[1] + 70], p, [p[0] + 30, p[1] + 70]], { w: 1.4, d: 500, t: 300 })
+          ink(g, B([p[0] - 40, p[1] + 70], [p[0] - 30, p[1] + 84], [p[0] + 30, p[1] + 84], [p[0] + 40, p[1] + 70]), { w: 2.4, d: 600, t: 300 })
+          if (big) {
+            const blk: P[] = RR(p[0] - 36, p[1] - 10, 72, 78, 4)
+            hatch(g, blk, 900)
+            ink(g, blk, { w: 2, d: 800, t: 300 })
+            for (let k = 0; k < 8; k++) ink(g, E(p[0] - 22 + (k % 4) * 14, p[1] + 10 + Math.floor(k / 4) * 30, 4, 3), { w: 1, d: 1000 + k * 30, t: 60 })
+          } else drop(g, p[0], p[1] + 56, 0.4, 900)
+        }
       },
       regen(g) {
-        cloud(g, 180, 420, 1.6, 0, true)
-        for (let i = 0; i < 6; i++) drop(g, 90 + i * 36, 480 + (i % 2) * 40, 0.6, 600 + i * 80, false)
-        text(g, 180, 620, 'eine Million Tröpfchen → ein Tropfen', { anchor: 'middle', cls: 's', d: 1200 })
+        // Tröpfchen stoßen zusammen und wachsen zu einem Tropfen, der fällt
+        cloud(g, 180, 420, 1.8, 0, true)
+        for (let i = 0; i < 6; i++) {
+          const m = glide(g, (2.5 - i) * 10, 10, { ms: 1400, d: 900 + i * 100 })
+          dot(m, 150 + i * 12, 440, 2, 800)
+        }
+        const big = glide(g, 0, 180, { ms: 1400, d: 2400, loop: true })
+        drop(big, 180, 470, 0.6, 2200)
+        rain(g, 90, 460, 180, 160, { n: 10, d: 1400, ms: 800 })
+        ink(g, L([20, 640], [340, 640]), { w: 2.2, d: 300, t: 400 })
       },
       gewitter(g) {
-        const c: P[] = [...B([60, 580], [40, 520], [80, 480], [110, 470]), ...B([110, 470], [100, 380], [160, 330], [200, 360]).slice(1), ...B([200, 360], [240, 320], [300, 360], [290, 440]).slice(1), ...B([290, 440], [330, 470], [330, 560], [300, 580]).slice(1), [60, 580]]
-        blank(g, c)
-        hatch(g, c, 600, true)
+        // Gewitterturm mit Amboss bis an die Tropopause, Blitz, Regenschauer; Flugzeug zum Größenvergleich
+        const c: P[] = smooth([[60, 590], [70, 540], [100, 520], [110, 460], [130, 410], [140, 360], [100, 340], [60, 330], [90, 318], [180, 312], [300, 316], [340, 330], [280, 340], [220, 360], [230, 420], [250, 470], [280, 510], [300, 560], [300, 590]], 3)
+        blank(g, [...c, [60, 590]])
+        hatch(g, [...c, [60, 590]], 600)
+        hatch(g, [[70, 590], [300, 590], [280, 520], [100, 520]], 800, true)
         ink(g, c, { w: 3, t: 900 })
-        text(g, 180, 640, 'Gewitterwolke: Millionen Tonnen', { anchor: 'middle', cls: 's', d: 1200 })
+        ink(g, L([60, 590], [300, 590]), { w: 2.4, d: 300, t: 400 })
+        for (let k = 0; k < 4; k++) ink(g, E(150 + k * 20, 470 - k * 30, 22, 14, 200, 330), { w: 1.1, d: 600 + k * 60, t: 200 })
+        bolt(g, [[200, 594], [184, 620], [200, 624], [180, 656]], 1400, 3)
+        rain(g, 90, 596, 90, 56, { n: 8, d: 1000, ms: 600 })
+        jet(g, 300, 470, 0.18, 1200)
       },
       weiss(g) {
-        cloud(g, 110, 480, 1, 0)
-        text(g, 110, 520, 'dünn: weiß', { anchor: 'middle', cls: 's', d: 400 })
-        cloud(g, 260, 480, 1, 300, true)
-        text(g, 260, 520, 'dick: grau', { anchor: 'middle', cls: 's', d: 700 })
+        // links dünne Wolke: das Sonnenlicht geht hindurch; rechts dicke Wolke: kaum Licht kommt unten an
+        sunDisk(g, 180, 330, 22, 0)
+        for (const [x, dense, n] of [[90, false, 6], [270, true, 1]] as const) {
+          cloud(g, x, 470, dense ? 1.1 : 0.9, 300, dense)
+          if (dense) hatch(g, RR(x - 70, 470, 140, 20, 6), 700, true)
+          for (let k = 0; k < n; k++) {
+            const xx = x - 40 + k * 16 + (n === 1 ? 40 : 0)
+            arrow(g, L([xx, 490], [xx - 4, 600]), { w: 1.6, d: 900 + k * 60, t: 300, head: 6 })
+          }
+          for (let k = 0; k < 3; k++) ink(g, L([180 + (x - 180) * 0.2 + k * 6, 352], [x - 20 + k * 20, 410]), { w: 1, d: 500, t: 200 })
+        }
+        ink(g, L([20, 620], [340, 620]), { w: 2.2, d: 400, t: 400 })
+        fig(g, 90, 620, 1.6, { d: 800 })
+        fig(g, 270, 620, 1.6, { d: 900 })
       },
       ende(g) {
-        cloud(g, 180, 520, 1.8)
+        const w = glide(g, 20, 0, { ms: 8000, d: 600, loop: true })
+        cloud(w, 180, 520, 1.8, 0)
       },
     },
     scenes: [
@@ -1938,11 +2059,3 @@ function ammoniteFish(g: Element, x: number, y: number, d: number): void {
   ink(g, [...B([x, y], [x + 6, y - 6], [x + 16, y - 6], [x + 20, y]), ...B([x + 20, y], [x + 16, y + 6], [x + 6, y + 6], [x, y]).slice(1), [x - 6, y - 5], [x - 6, y + 5], [x, y]], { w: 1.6, d, t: 200 })
 }
 
-/** Elefant (klein, Füße auf y) */
-function elephant(g: Element, x: number, y: number, s = 1, d = 0): void {
-  const P = (a: number, b: number): P => [x + a * s, y + b * s]
-  const body: P[] = [...B(P(-40, -20), P(-40, -70), P(30, -70), P(30, -30)), ...B(P(30, -30), P(44, -40), P(54, -20), P(50, 0)).slice(1), ...L(P(50, 0), P(42, 0)).slice(1), ...B(P(42, 0), P(42, -14), P(36, -18), P(30, -18)).slice(1), ...L(P(30, -18), P(30, 0)).slice(1), ...L(P(30, 0), P(16, 0)).slice(1), ...L(P(16, 0), P(16, -16)).slice(1), ...L(P(16, -16), P(-24, -16)).slice(1), ...L(P(-24, -16), P(-24, 0)).slice(1), ...L(P(-24, 0), P(-38, 0)).slice(1), ...L(P(-38, 0), P(-40, -20)).slice(1)]
-  blank(g, body)
-  ink(g, body, { w: 2, d, t: 500 })
-  ink(g, E(x + 18 * s, y - 50 * s, 10 * s, 14 * s), { w: 1.6, d: d + 300, t: 200 })
-}

@@ -30,17 +30,21 @@ export function sun(g: Element, cx: number, cy: number, r: number, d = 0, n = 12
 
 /** Wolke (geschlossen, weiß gefüllt), Mitte cx, Unterkante y */
 export function cloud(g: Element, cx: number, y: number, s = 1, d = 0, dense = false): P[] {
+  // Haufenwolke: blumenkohlartige Quellungen oben, flache Basis, Schattenband unten, innere Wölbungen
   const P = (a: number, b: number): P => [cx + a * s, y + b * s]
-  const c: P[] = [
-    ...B(P(-50, 0), P(-70, 0), P(-70, -26), P(-46, -28)),
-    ...B(P(-46, -28), P(-44, -54), P(-10, -60), P(0, -40)).slice(1),
-    ...B(P(0, -40), P(10, -64), P(50, -60), P(46, -30)).slice(1),
-    ...B(P(46, -30), P(70, -30), P(72, 0), P(50, 0)).slice(1),
-    ...L(P(50, 0), P(-50, 0)).slice(1),
-  ]
+  const bumps: [number, number, number][] = [[-56, -12, 16], [-40, -30, 18], [-16, -44, 22], [12, -50, 20], [36, -36, 18], [56, -16, 16]]
+  const c: P[] = [P(-66, 0)]
+  bumps.forEach(([bx, by, r], i) => {
+    const a0 = i === 0 ? 180 : 200
+    const a1 = i === bumps.length - 1 ? 360 : 340
+    c.push(...E(cx + bx * s, y + by * s, r * s, r * s * 0.9, a0, a1))
+  })
+  c.push(P(70, 0), P(-66, 0))
   blank(g, c)
   if (dense) hatch(g, c, d + 400, true)
+  else hatch(g, [P(-64, -2), P(68, -2), P(60, -10), ...E(cx, y - 10 * s, 60 * s, 4 * s, 0, 180).slice(1), P(-64, -2)], d + 500)
   ink(g, c, { w: 2.6, d, t: 700 })
+  if (s >= 0.6) for (const [bx, by, r] of [[-30, -16, 12], [4, -26, 14], [34, -14, 11]] as const) ink(g, E(cx + bx * s, y + by * s, r * s, r * s * 0.8, 200, 320), { w: 1.1, d: d + 400, t: 300 })
   return c
 }
 
