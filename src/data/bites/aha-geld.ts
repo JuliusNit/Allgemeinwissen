@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, coin, cross, crowd, dashes, fig, group, hatch, ink, mk, mountain, pop, question, rays, st, star, strike, text, timeline, vbars, type P } from './draw'
-import { axes, ball, box, bullets, carrow, dot, drop, flame, flow, glide, heart, house, pie, plot, rad, ripple, smooth, spin, sun, tree, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bubble, check, clock, coin, cross, crowd, dashes, eye, fig, group, hatch, ink, mk, mountain, pop, question, rays, st, star, strike, text, timeline, vbars, type P } from './draw'
+import { axes, ball, box, carrow, cloud, dot, drop, flame, flow, glide, heart, house, pie, plot, rad, ripple, smooth, spin, sun, travelWave, tree, waveP, wobble } from './kit'
 
 // Wirtschaft & Geld: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -23,24 +23,6 @@ function stack(g: Element, cx: number, y: number, n: number, d = 0, w = 50): voi
     ink(g, L([cx + w / 2, yy - 5], [cx + w / 2, yy - 13]), { w: 2, d: d + i * 40, t: 50 })
   }
   ink(g, E(cx, y - n * 10 - 3, w / 2, 8), { w: 2, d: d + n * 40, t: 200 })
-}
-
-/** Schaf, Füße auf y */
-function sheep(g: Element, x: number, y: number, s = 1, d = 0): void {
-  const P = (a: number, b: number): P => [x + a * s, y + b * s]
-  for (const k of [-12, 12]) ink(g, L(P(k, -10), P(k, 0)), { w: 2, d: d + 200, t: 100 })
-  const body: P[] = []
-  for (let i = 0; i <= 10; i++) {
-    const a = rad(180 + i * 18)
-    const r = 22 + (i % 2) * 4
-    body.push(P(Math.cos(a) * r, -16 + Math.sin(a) * r * 0.6))
-  }
-  body.push(...B(P(22, -16), P(20, -4), P(-20, -4), P(-22, -16)).slice(1))
-  blank(g, body)
-  ink(g, body, { w: 2.2, d, t: 400 })
-  blank(g, E(x + 26 * s, y - 22 * s, 7 * s, 6 * s))
-  hatch(g, E(x + 26 * s, y - 22 * s, 7 * s, 6 * s), d + 300, true)
-  ink(g, E(x + 26 * s, y - 22 * s, 7 * s, 6 * s), { w: 2, d: d + 200, t: 200 })
 }
 
 /** Eisstand mit Schirm, Boden bei y */
@@ -111,6 +93,50 @@ function piggy(g: Element, x: number, y: number, s = 1, d = 0): void {
   for (const a of [-26, -8, 12, 28]) ink(g, L(P(a, -10), P(a, 0)), { w: 2 * Math.max(0.6, s), d: d + 300, t: 60 })
   dot(g, x + 30 * s, y - 44 * s, 1.6 * s, d + 400)
   ink(g, B(P(-40, -30), P(-50, -34), P(-54, -24), P(-46, -24)), { w: 1.2, d: d + 400, t: 80 })
+}
+
+/** Schaf von der Seite, Kopf rechts: Wollkörper aus Locken, dunkler Kopf mit Ohr, vier Beine; Füße auf y */
+function sheep(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  for (const k of [-14, -6, 8, 16]) ink(g, L(P(k, -12), P(k + (k % 2 ? 1 : -1), 0)), { w: 2 * Math.max(0.7, s), d: d + 200, t: 100 })
+  const body: P[] = []
+  for (let i = 0; i <= 16; i++) {
+    const a = rad(i * 22.5)
+    const r = 1 + (i % 2) * 0.12
+    body.push(P(Math.cos(a) * 24 * r, -20 + Math.sin(a) * 12 * r))
+  }
+  blank(g, body)
+  ink(g, body, { w: 2 * Math.max(0.7, s), d, t: 400 })
+  if (s >= 0.8) for (let k = 0; k < 5; k++) ink(g, E(x + (-14 + k * 7) * s, y - (20 + (k % 2) * 4) * s, 3 * s, 2.5 * s, 200, 470), { w: 0.8, d: d + 300 + k * 40, t: 60 })
+  const hd: P[] = smooth([P(20, -26), P(30, -32), P(40, -26), P(40, -18), P(30, -16), P(22, -20), P(20, -26)], 3)
+  blank(g, hd)
+  hatch(g, hd, d + 400, true)
+  ink(g, hd, { w: 1.8 * Math.max(0.7, s), d: d + 300, t: 200 })
+  ink(g, E(x + 24 * s, y - 30 * s, 5 * s, 2.4 * s), { w: 1.2, d: d + 400, t: 80 })
+}
+
+/** Grasbüschel */
+function tuft(g: Element, x: number, y: number, s = 1, d = 0): void {
+  for (const a of [-30, -10, 10, 30]) ink(g, B([x, y], [x + a * 0.1 * s, y - 6 * s], [x + a * 0.3 * s, y - 12 * s], [x + a * 0.4 * s, y - 14 * s]), { w: 1.2, d, t: 80 })
+}
+
+/** Fischkutter von der Seite, Bug rechts, mit Ausleger und Netz; Wasserlinie y */
+function trawler(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const hull: P[] = [P(-50, -16), P(46, -16), P(56, -26), P(44, 0), P(-40, 0), P(-50, -16)]
+  blank(g, hull)
+  hatch(g, [P(-46, -6), P(50, -6), P(44, 0), P(-40, 0)], d + 300, true)
+  ink(g, hull, { w: 2.2, d, t: 300 })
+  ink(g, RR(x - 30 * s, y - 36 * s, 26 * s, 20 * s, 2), { w: 1.8, d: d + 200, t: 200 })
+  ink(g, L(P(10, -16), P(10, -60)), { w: 1.8, d: d + 300, t: 150 })
+  ink(g, L(P(10, -58), P(-44, -20)), { w: 1, d: d + 400, t: 150 })
+  ink(g, L(P(-44, -20), P(-60, 30)), { w: 1, d: d + 500, t: 200 })
+}
+
+/** kleiner Fisch, Kopf rechts */
+function ammFish(g: Element, x: number, y: number, d = 0): void {
+  ink(g, [...B([x, y], [x + 6, y - 6], [x + 16, y - 6], [x + 20, y]), ...B([x + 20, y], [x + 16, y + 6], [x + 6, y + 6], [x, y]).slice(1), [x - 6, y - 5], [x - 6, y + 5], [x, y]], { w: 1.6, d, t: 200 })
+  dot(g, x + 15, y - 1, 1.2, d + 100)
 }
 
 export const AHA_GELD: Bite[] = [
@@ -413,7 +439,6 @@ export const AHA_GELD: Bite[] = [
         for (const [x, r, d] of [[150, 14, 400], [210, 20, 700], [290, 30, 1000]] as const) {
           ink(g, L([70, 616], [x - r, 640 - r]), { w: 1.2, d, t: 200 })
           ball(g, x, 640 - r, r, { d: d + 100, fill: 'dicht', w: 2, t: 200 })
-          if (r >= 20) text(g, x, 640 - r + 6, '−', { anchor: 'middle', size: r, cls: 'halo', d: d + 300 })
         }
         ink(g, L([20, 642], [340, 642]), { w: 2, d: 200, t: 400 })
       },
@@ -685,75 +710,181 @@ export const AHA_GELD: Bite[] = [
     images: [],
     draw: {
       weide(g) {
+        // Gemeindeweide mit Zaun, Baum und grasenden Schafen
         ink(g, B([20, 400], [120, 380], [240, 390], [340, 380]), { w: 3, t: 700 })
-        for (const [x, y, d] of [[70, 360, 300], [160, 340, 500], [250, 370, 700], [110, 250, 900], [220, 230, 1100]] as const) sheep(g, x, y, 1.1, d)
+        for (let k = 0; k < 8; k++) {
+          ink(g, L([24 + k * 44, 400 - (k % 3) * 4], [24 + k * 44, 360 - (k % 3) * 4]), { w: 2, d: 300 + k * 40, t: 100 })
+        }
+        ink(g, B([24, 372], [120, 364], [240, 370], [332, 360]), { w: 1.4, d: 600, t: 400 })
+        tree(g, 300, 384, 0.5, 400)
+        for (let k = 0; k < 12; k++) tuft(g, 30 + k * 27, 392 - (k % 3) * 4, 1, 700 + k * 30)
+        for (const [x, y, d] of [[70, 340, 900], [160, 330, 1100], [250, 350, 1300], [110, 250, 1500], [220, 240, 1700]] as const) {
+          const w = wobble(g, { dx: 3, ms: 2400 + x * 5, d: 1800 })
+          sheep(w, x, y, 1.1, d)
+        }
       },
       dorf(g) {
-        ink(g, B([20, 600], [120, 580], [240, 590], [340, 580]), { w: 3, t: 700 })
+        // vier Höfe rund um die gemeinsame Weide in der Mitte
         for (let i = 0; i < 4; i++) house(g, 30 + i * 80, 400, 50, i * 150)
-        text(g, 180, 640, 'die Weide gehört allen', { anchor: 'middle', cls: 's', d: 900 })
-        for (let i = 0; i < 4; i++) sheep(g, 60 + i * 70, 560, 0.9, 900 + i * 100)
+        ink(g, E(180, 540, 150, 60), { w: 2.4, d: 600, t: 700 })
+        for (let k = 0; k < 14; k++) tuft(g, 50 + (k % 7) * 40, 520 + Math.floor(k / 7) * 34, 1, 800 + k * 30)
+        for (let i = 0; i < 4; i++) {
+          sheep(g, 70 + i * 70, 560 - (i % 2) * 24, 0.8, 1100 + i * 100)
+          dashes(g, L([55 + i * 80, 410], [70 + i * 70, 520]), { w: 1, d: 1300 + i * 80, dash: 3, gap: 4 })
+        }
       },
       gewinn(g) {
+        // ein Schaf mehr: Wolle und Milch für den Besitzer – das Gras teilen sich alle
         sheep(g, 90, 500, 1.6)
-        text(g, 90, 560, 'Gewinn: ganz meiner', { anchor: 'middle', cls: 's', d: 600 })
-        ink(g, B([200, 500], [240, 490], [290, 495], [330, 490]), { w: 2.4, d: 300, t: 500 })
-        for (let i = 0; i < 6; i++) ink(g, L([210 + i * 20, 498], [212 + i * 20, 486]), { w: 1.4, d: 700 + i * 50, t: 80 })
-        text(g, 265, 560, 'Kosten: auf alle verteilt', { anchor: 'middle', cls: 's', d: 900 })
+        ink(g, smooth([[40, 560], [60, 540], [90, 546], [110, 534], [130, 560]], 3), { w: 2, d: 400, t: 200 })
+        coin(g, 140, 420, 16, '€', 700)
+        carrow(g, [110, 450], [130, 430], -20, { d: 900 })
+        ink(g, B([200, 560], [240, 550], [290, 555], [330, 550]), { w: 2.4, d: 300, t: 500 })
+        for (let i = 0; i < 6; i++) {
+          const t = mk('g', { class: 'h1' }, g)
+          tuft(t, 210 + i * 22, 556, 1.2, 700 + i * 50)
+        }
+        for (let i = 0; i < 4; i++) sheep(g, 214 + i * 34, 520, 0.5, 1000 + i * 100)
       },
       mehr(g) {
+        // immer mehr Schafe, immer weniger Gras
         ink(g, B([20, 600], [120, 580], [240, 590], [340, 580]), { w: 3, t: 700 })
-        for (let i = 0; i < 12; i++) sheep(g, 40 + (i % 6) * 54, 480 + Math.floor(i / 6) * 60, 0.8, i * 120)
+        for (let k = 0; k < 4; k++) tuft(g, 60 + k * 80, 594, 1, 500)
+        for (let i = 0; i < 12; i++) {
+          const p = pop(g, 600 + i * 180, '50% 100%')
+          sheep(p, 40 + (i % 6) * 54, 480 + Math.floor(i / 6) * 60, 0.8, 0)
+        }
       },
       kahl(g) {
+        // kahle, rissige Erde, magere Schafe stehen herum
         ink(g, B([20, 600], [120, 580], [240, 590], [340, 580]), { w: 3, t: 700 })
-        for (let i = 0; i < 4; i++) dashes(g, L([40 + i * 80, 570], [80 + i * 80, 566]), { w: 1.4, d: 500 })
-        for (let i = 0; i < 3; i++) sheep(g, 90 + i * 90, 520, 0.9, 700 + i * 100)
-        text(g, 180, 400, 'kahl – alle verlieren', { anchor: 'middle', d: 1100 })
+        hatch(g, [...B([20, 600], [120, 580], [240, 590], [340, 580]), [340, 640], [20, 640]], 300)
+        for (let k = 0; k < 6; k++) ink(g, [[40 + k * 50, 600], [50 + k * 50, 612], [44 + k * 50, 624], [56 + k * 50, 636]], { w: 1.2, d: 500 + k * 60, t: 100 })
+        for (let i = 0; i < 3; i++) sheep(g, 90 + i * 90, 570, 0.9, 700 + i * 100)
+        for (let k = 0; k < 3; k++) {
+          const w = wobble(g, { dx: 10, dy: -4, ms: 2400 + k * 300, d: 1200 })
+          cloud(w, 80 + k * 100, 420 + (k % 2) * 30, 0.3, 1100 + k * 100, true)
+        }
       },
       hardin(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.4, label: '1968', sub: 'Garrett Hardin, Science', up: true }])
+        // Schreibtisch mit Lampe: ein Aufsatz, darauf die Skizze einer Weide mit Schafen
+        ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
+        for (const x of [40, 320]) ink(g, L([x, 600], [x, 650]), { w: 2.6, d: 200, t: 200 })
+        const pg: P[] = [[60, 450], [240, 440], [246, 590], [66, 596], [60, 450]]
+        blank(g, pg)
+        ink(g, pg, { w: 2, d: 300, t: 400 })
+        for (let k = 0; k < 3; k++) ink(g, L([76, 466 + k * 14], [226, 460 + k * 14]), { w: 0.8, d: 500 + k * 60, t: 100 })
+        ink(g, E(156, 550, 70, 24), { w: 1.4, d: 800, t: 300 })
+        for (let i = 0; i < 4; i++) sheep(g, 110 + i * 30, 560, 0.4, 1000 + i * 100)
+        ink(g, [[270, 600], [270, 430], [310, 390]], { w: 2.4, d: 600, t: 400 })
+        ink(g, [[290, 370], [340, 390], [322, 420], [290, 370]], { w: 2.2, d: 800, t: 200 })
+        hatch(g, [[290, 370], [340, 390], [322, 420]], 900, true)
       },
       meer(g) {
-        for (const [y, d] of [[380, 0], [420, 100]] as const) ink(g, waveP(20, 340, y, 6, 60, y / 30), { w: 2.2, d, t: 700 })
-        ink(g, [[100, 380], [120, 340], [200, 340], [230, 380]], { w: 2.6, d: 300, t: 400 })
-        for (let i = 0; i < 4; i++) dashes(g, L([110 + i * 36, 400], [110 + i * 36, 560]), { w: 1.2, d: 600 })
-        const fish = (x: number, y: number, d: number) => ink(g, [...B([x, y], [x + 10, y - 10], [x + 26, y - 10], [x + 34, y]), ...B([x + 34, y], [x + 26, y + 10], [x + 10, y + 10], [x, y]).slice(1), [x - 8, y - 8], [x - 8, y + 8], [x, y]], { w: 1.8, d, t: 200 })
-        fish(60, 600, 1000)
-        fish(250, 620, 1100)
-        text(g, 180, 660, 'Überfischung', { anchor: 'middle', cls: 's', d: 1200 })
+        // Kutter schleppen dichte Netze durch ein immer leereres Meer
+        for (const [y, d] of [[380, 0], [420, 100]] as const) travelWave(g, 20, 340, y, 5, 60, { ms: 2600 + y, d, w: 2 })
+        trawler(g, 120, 382, 1.2, 300)
+        trawler(g, 290, 380, 0.8, 500)
+        const net: P[] = [[48, 418], [20, 520], [60, 600], [110, 560], [48, 418]]
+        ink(g, net, { w: 1.4, d: 800, t: 300 })
+        for (let k = 0; k < 6; k++) ink(g, L([30 + k * 12, 460 + k * 10], [80 + k * 4, 440 + k * 22]), { w: 0.6, d: 900, t: 100 })
+        for (let k = 0; k < 6; k++) ammFish(g, 40 + (k % 3) * 20, 520 + Math.floor(k / 3) * 30, 1000 + k * 60)
+        for (const [x, y, dd] of [[220, 560, 1200], [290, 610, 1400]] as const) {
+          const f = glide(g, -40, 0, { ms: 3000, d: dd, loop: true })
+          ammFish(f, x, y, dd)
+        }
       },
       kabeljau(g) {
+        // Kabeljaubestand vor Neufundland: Absturz und keine Erholung
         axes(g, 40, 600, 330, 330, { xl: 'Jahre', yl: 'Bestand' })
         plot(g, 46, 596, 270, 240, (t) => (t < 0.55 ? 0.9 - t * 0.6 : t < 0.65 ? 0.57 - (t - 0.55) * 5 : 0.07), { d: 400 })
-        text(g, 46 + 0.6 * 270, 380, '1992', { anchor: 'middle', d: 1300 })
+        dashes(g, L([46 + 0.6 * 270, 596], [46 + 0.6 * 270, 370]), { w: 1, d: 1300, dash: 3, gap: 3 })
+        const cod: P[] = smooth([[230, 380], [250, 364], [290, 362], [314, 374], [300, 388], [254, 392], [230, 380]], 3)
+        blank(g, cod)
+        ink(g, cod, { w: 2, d: 1500, t: 300 })
+        ink(g, [[230, 380], [216, 368], [218, 392], [230, 380]], { w: 1.6, d: 1600, t: 100 })
+        dot(g, 304, 372, 1.6, 1700)
+        ink(g, B([300, 386], [304, 396], [302, 400], [298, 404]), { w: 1, d: 1700, t: 60 })
       },
       ostrom(g) {
-        text(g, 180, 430, 'Elinor Ostrom', { anchor: 'middle', size: 30, d: 200 })
-        text(g, 180, 470, 'Wirtschafts-Nobelpreis 2009', { anchor: 'middle', cls: 's', d: 600 })
-        text(g, 180, 495, 'als erste Frau', { anchor: 'middle', cls: 's', d: 800 })
+        // Medaille mit Lorbeer; eine Forscherin mit Notizbuch zwischen Dorfleuten am runden Tisch
+        ball(g, 180, 380, 50, { fill: 'hell', w: 3, t: 500 })
+        ink(g, E(180, 380, 40), { w: 1.2, d: 300, t: 400 })
+        for (const k of [-1, 1]) for (let j = 0; j < 5; j++) {
+          const a = rad(90 + k * (40 + j * 22))
+          ink(g, E(180 + Math.cos(a) * 30, 380 + Math.sin(a) * 30, 3, 6), { w: 1, d: 500 + j * 40, t: 60 })
+        }
+        ink(g, smooth([[172, 362], [186, 360], [192, 372], [188, 392], [176, 396]], 3), { w: 1.6, d: 700, t: 200 })
+        ink(g, E(180, 600, 100, 22), { w: 2.4, d: 800, t: 400 })
+        crowd(g, 80, 590, 6, 40, 1.8, 1000, 80)
+        ink(g, RR(196, 540, 16, 20, 2), { w: 1.4, d: 1400, t: 100 })
       },
       alm(g) {
+        // Schweizer Alm: Berge, Hütte, Kühe mit Glocken
         mountain(g, 30, 330, 560, [180, 360])
-        for (let i = 0; i < 3; i++) sheep(g, 110 + i * 60, 600, 0.8, 900 + i * 100)
+        mountain(g, 200, 340, 560, [290, 420], 300)
         ink(g, L([20, 604], [340, 604]), { w: 2.6, d: 300, t: 500 })
-        text(g, 180, 650, 'Almen in der Schweiz: seit Jahrhunderten', { anchor: 'middle', cls: 's', d: 1300 })
+        house(g, 40, 600, 60, 600)
+        for (const [x, d] of [[170, 900], [250, 1100]] as const) {
+          const body: P[] = smooth([[x - 30, 580], [x - 26, 556], [x + 20, 554], [x + 26, 566], [x + 22, 584], [x - 30, 584], [x - 30, 580]], 3)
+          blank(g, body)
+          ink(g, body, { w: 2, d, t: 300 })
+          for (const k of [-24, -14, 10, 20]) ink(g, L([x + k, 584], [x + k, 600]), { w: 1.8, d: d + 100, t: 60 })
+          ink(g, E(x + 34, 566, 10, 8), { w: 1.8, d: d + 200, t: 100 })
+          hatch(g, E(x - 6, 568, 10, 8), d + 300, true)
+          const bl = wobble(g, { deg: 12, ox: x + 34, oy: 576, ms: 600, d: d + 500 })
+          ink(bl, [[x + 30, 576], [x + 28, 588], [x + 40, 588], [x + 38, 576]], { w: 1.4, d: d + 400, t: 80 })
+        }
       },
       regeln(g) {
-        bullets(g, 40, 360, ['klare Grenzen', 'gemeinsame Regeln', 'gegenseitige Kontrolle', 'Strafen, die steigen', 'Nutzer reden mit'], { gap: 48, size: 18 })
+        // klare Grenzen (Zaun), eigene Regeln (Buch), Kontrolle (Augen), steigende Strafen (Münzen), Mitreden (Sprechblasen)
+        for (let k = 0; k < 4; k++) ink(g, L([40 + k * 18, 400], [40 + k * 18, 360]), { w: 2, t: 100 })
+        ink(g, L([34, 372], [100, 372]), { w: 1.4, d: 200, t: 100 })
+        ink(g, [[150, 360], [190, 352], [230, 360], [230, 410], [190, 402], [150, 410], [150, 360]], { w: 2.2, d: 300, t: 300 })
+        ink(g, L([190, 352], [190, 402]), { w: 1.4, d: 400, t: 100 })
+        eye(g, 290, 380, 0.4, 500)
+        for (let k = 0; k < 3; k++) stack(g, 70 + k * 46, 560, 1 + k * 2, 800 + k * 150, 28)
+        arrow(g, L([60, 590], [180, 590]), { w: 1.6, d: 1300, t: 200, head: 6 })
+        for (const [x, y, side] of [[220, 500, 'l'], [270, 540, 'r']] as const) bubble(g, x, y, 60, 36, side, 1200)
+        crowd(g, 220, 640, 3, 30, 1.6, 1400, 80)
       },
       werkzeuge(g) {
-        bullets(g, 40, 380, ['Fangquoten', 'Emissionshandel', 'Parkgebühren', 'Wasserrechte'], { gap: 50, size: 19 })
+        // Fangquote (Netz mit Plakette), Emissionshandel (Schornstein mit Zertifikat), Parkuhr, Wasserzähler
+        ink(g, [[40, 360], [120, 360], [100, 430], [60, 430], [40, 360]], { w: 1.8, t: 300 })
+        for (let k = 0; k < 4; k++) ink(g, L([46 + k * 18, 364], [62 + k * 10, 428]), { w: 0.6, d: 200, t: 100 })
+        ink(g, RR(110, 400, 26, 16, 3), { w: 1.6, d: 400, t: 100 })
+        ink(g, [[200, 430], [200, 380], [230, 380], [230, 350], [250, 350], [250, 430]], { w: 2, d: 500, t: 300 })
+        const w = wobble(g, { dx: 8, dy: -4, ms: 2000, d: 900 })
+        cloud(w, 270, 330, 0.3, 700, true)
+        ink(g, [[290, 400], [330, 400], [330, 440], [290, 440], [290, 400]], { w: 1.6, d: 800, t: 150 })
+        for (let k = 0; k < 2; k++) ink(g, L([296, 412 + k * 10], [324, 412 + k * 10]), { w: 0.8, d: 900, t: 60 })
+        ink(g, L([90, 640], [90, 540]), { w: 2.4, d: 1000, t: 200 })
+        ink(g, RR(70, 500, 40, 50, 10), { w: 2.2, d: 1100, t: 200 })
+        ink(g, E(90, 522, 10), { w: 1.4, d: 1200, t: 100 })
+        ink(g, [[220, 560], [260, 560], [260, 580], [300, 580]], { w: 3, d: 1100, t: 200 })
+        ink(g, E(240, 540, 18), { w: 2, d: 1200, t: 150 })
+        const hd = spin(g, 240, 540, 3000, 1400)
+        ink(hd, L([240, 540], [240, 526]), { w: 1.4, d: 1300, t: 60 })
+        const dr = glide(g, 0, 40, { ms: 900, d: 1400, loop: true })
+        drop(dr, 300, 594, 0.25, 1300)
       },
       kueche(g) {
-        ink(g, RR(60, 460, 240, 30, 4), { w: 3, t: 600 })
-        for (let i = 0; i < 5; i++) ink(g, E(100 + i * 40, 440 - (i % 2) * 14, 18, 6), { w: 2, d: 400 + i * 100, t: 200 })
-        question(g, 180, 380, 0.8, 1000)
-        text(g, 180, 560, 'die WG-Küche', { anchor: 'middle', cls: 's', d: 1200 })
+        // WG-Spüle: der Stapel schmutziges Geschirr wächst
+        ink(g, RR(40, 480, 280, 30, 4), { w: 3, t: 600 })
+        ink(g, [[120, 480], [130, 540], [230, 540], [240, 480]], { w: 2.4, d: 200, t: 300 })
+        ink(g, [[300, 480], [300, 430], [270, 430], [270, 444]], { w: 2.4, d: 300, t: 200 })
+        for (let i = 0; i < 6; i++) {
+          const p = pop(g, 400 + i * 200, '50% 100%')
+          ink(p, E(180 + (i % 2) * 6, 470 - i * 10, 46 - i * 3, 7), { w: 2, t: 0 })
+          if (i % 2) ink(p, [[150 + i * 4, 466 - i * 10], [160 + i * 4, 456 - i * 10]], { w: 1, t: 0 })
+        }
+        crowd(g, 50, 640, 4, 30, 1.6, 900, 80)
+        question(g, 270, 380, 0.7, 1600)
       },
       ende(g) {
         for (let i = 0; i < 3; i++) sheep(g, 100 + i * 80, 560, 1.1, i * 200)
         ink(g, L([40, 564], [320, 564]), { w: 2.6, t: 500 })
+        for (let k = 0; k < 8; k++) tuft(g, 50 + k * 36, 562, 1, 600 + k * 40)
       },
     },
     scenes: [
