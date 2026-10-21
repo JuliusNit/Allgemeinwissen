@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
 import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, type P } from './draw'
-import { LAND, arcArrow, ball, bird, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, flow, geo, glide, house, jet, mapRegion, mol, moonFace, rad, rain, ripple, smooth, spin, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
+import { LAND, arcArrow, ball, bird, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, flow, geo, glide, house, jet, mapRegion, mol, moonFace, rad, rain, ripple, rotPole, smooth, spin, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
 
 // Erde & Wetter: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -198,6 +198,25 @@ function shelf(g: Element, d = 0): P[] {
   hatch(g, [...bed, [340, 650], [20, 650]], d + 300, true)
   return bed
 }
+
+/** Landmasse in flacher Karte um (cx, cy) zeichnen; rot = Euler-Drehung [Pol-Länge, Pol-Breite, Winkel] */
+function land(g: Element, li: number, cx: number, cy: number, k: number, d = 0, o: { rot?: [number, number, number]; dense?: boolean; lon0?: number; lat0?: number } = {}): P[] {
+  const lon0 = o.lon0 ?? 0
+  const lat0 = o.lat0 ?? 0
+  const pts = coastPts(li, (lon, lat) => {
+    const [a, b] = o.rot ? rotPole(lon, lat, ...o.rot) : [lon, lat]
+    return [cx + (a - lon0) * k * Math.cos(rad(lat0)), cy - (b - lat0) * k]
+  }, 1)
+  blank(g, pts)
+  hatch(g, pts, d + 400, o.dense)
+  ink(g, pts, { w: 2.2, d, t: 800, p: 0.3 })
+  return pts
+}
+
+const SA_FIT: [number, number, number] = [-30.6, 44, 57]
+const NA_FIT: [number, number, number] = [-18, 66, 72]
+const AN_FIT: [number, number, number] = [90, 0, -25]
+const AU_FIT: [number, number, number] = [60, -80, 40]
 
 export const AHA_ERDE: Bite[] = [
   {
@@ -1386,80 +1405,170 @@ export const AHA_ERDE: Bite[] = [
     images: [],
     draw: {
       puzzle(g) {
-        samerika(g, 130, 260, 0.8)
-        afrika(g, 230, 260, 0.8, 300)
+        // echte Küstenlinien: Südamerika und Afrika, dazwischen der Atlantik
+        land(g, LAND.suedamerika, 180, 260, 2.4, 0, { lon0: -15, lat0: -10 })
+        land(g, LAND.afrika, 180, 260, 2.4, 300, { lon0: -15, lat0: -10 })
+        for (let k = 0; k < 4; k++) ink(g, waveP(120 + k * 6, 160 + k * 6, 200 + k * 50, 2, 14, k), { w: 1, d: 900 + k * 80, t: 200 })
       },
       nah(g) {
-        const a = st(g, 'm1', '--m1: translateX(46px); transition-duration: 2s; --dl: 400ms')
-        samerika(a, 134, 470, 0.8)
-        const b = st(g, 'm1', '--m1: translateX(-46px); transition-duration: 2s; --dl: 400ms')
-        afrika(b, 226, 470, 0.8, 200)
+        // Südamerika gleitet über die Kugel an Afrika heran und schließt den Atlantik (a1)
+        land(g, LAND.afrika, 180, 470, 2.4, 0, { lon0: -15, lat0: -10 })
+        const a = st(g, 'h1', '')
+        land(a, LAND.suedamerika, 180, 470, 2.4, 200, { lon0: -15, lat0: -10 })
+        const b = st(g, 'f1', '')
+        land(b, LAND.suedamerika, 180, 470, 2.4, 0, { lon0: -15, lat0: -10, rot: SA_FIT, dense: true })
+        const x2 = st(g, 'x2', '--o: 160px 500px')
+        for (let k = 0; k < 4; k++) ink(x2, L([120 + k * 14, 470 + k * 16], [200 + k * 14, 476 + k * 16]), { w: 2.4, t: 0 })
       },
       wegener(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.4, label: '1912', sub: 'Alfred Wegener', up: true }])
+        // Weltkarte auf Papier, Kontinente ausgeschnitten, Schere – die Idee, sie zusammenzuschieben
+        ink(g, RR(30, 340, 300, 230, 4), { w: 2.4, t: 600 })
+        for (let k = 1; k < 4; k++) ink(g, L([30, 340 + k * 57], [330, 340 + k * 57]), { w: 0.6, d: 200, t: 300 })
+        const sa = land(g, LAND.suedamerika, 140, 450, 1.7, 400, { lon0: -15, lat0: -10 })
+        dashes(g, sa, { w: 1, d: 900, dash: 4, gap: 3 })
+        const m = glide(g, 30, -6, { ms: 1600, d: 1600 })
+        land(m, LAND.afrika, 160, 450, 1.7, 600, { lon0: -15, lat0: -10 })
+        const sc = wobble(g, { deg: 8, ox: 280, oy: 600, ms: 600, d: 1200 })
+        for (const k of [-1, 1]) {
+          ink(sc, L([280, 600], [230, 600 + k * 14]), { w: 2.2, d: 1000, t: 200 })
+          ink(sc, E(296, 600 + k * 12, 10, 7), { w: 2, d: 1100, t: 150 })
+        }
+        dot(sc, 280, 600, 2.4, 1200)
       },
       fossil(g) {
-        samerika(g, 130, 470, 0.8)
-        afrika(g, 230, 470, 0.8, 200)
-        for (const [x, y] of [[82, 454], [286, 454]] as const) {
-          blank(g, E(x, y, 16))
-          ammonite(g, x, y, 14, 900)
-        }
-        text(g, 180, 650, 'dieselben Fossilien auf beiden Seiten', { anchor: 'middle', cls: 's', d: 1300 })
+        // zusammengeschoben: der Lebensraum des Mesosaurus zieht sich über beide Kontinente; x1 Gletscherspuren
+        land(g, LAND.afrika, 160, 470, 2.4, 0, { lon0: -15, lat0: -10 })
+        land(g, LAND.suedamerika, 160, 470, 2.4, 200, { lon0: -15, lat0: -10, rot: SA_FIT })
+        const band: P[] = smooth([[110, 560], [150, 540], [190, 548], [230, 560], [220, 590], [180, 586], [130, 592], [110, 560]], 3)
+        hatch(g, band, 1000, true)
+        ink(g, band, { w: 1.6, d: 900, t: 300 })
+        const mz = mk('g', { transform: 'translate(-166 -40)' }, glide(g, 0, -6, { ms: 1200, d: 1400, loop: true }))
+        const body: P[] = smooth([[220, 380], [250, 372], [290, 376], [320, 386], [290, 392], [250, 392], [220, 380]], 3)
+        blank(mz, body)
+        ink(mz, body, { w: 2, d: 1300, t: 300 })
+        ink(mz, B([220, 380], [204, 378], [190, 380], [178, 384]), { w: 1.6, d: 1400, t: 150 })
+        ink(mz, B([320, 386], [334, 392], [344, 400], [350, 404]), { w: 1.4, d: 1400, t: 150 })
+        for (const x of [240, 290]) ink(mz, [[x, 392], [x - 4, 404], [x + 2, 406]], { w: 1.4, d: 1500, t: 100 })
+        for (let k = 0; k < 6; k++) ink(mz, L([184 + k * 2.5, 382], [184 + k * 2.5, 386]), { w: 0.8, d: 1600, t: 40 })
+        const x1 = st(g, 'x1', '--o: 160px 600px')
+        for (const [a, b] of [[[120, 620], [150, 580]], [[170, 620], [180, 578]], [[220, 620], [200, 584]]] as const) arrow(x1, L(a as P, b as P), { w: 2, t: 0, head: 6 })
+        flake(x1, 300, 600, 12, 0)
       },
       spott(g) {
-        fig(g, 180, 600, 4)
-        question(g, 180, 400, 0.9, 700)
-        text(g, 180, 650, 'Welche Kraft schiebt Kontinente?', { anchor: 'middle', cls: 's', d: 1000 })
+        // Vortrag vor skeptischen Fachleuten: Karte an der Tafel, verschränkte Arme
+        ink(g, RR(30, 330, 170, 120, 4), { w: 2.4, t: 500 })
+        land(g, LAND.afrika, 130, 400, 1, 300, { lon0: -15, lat0: -10 })
+        land(g, LAND.suedamerika, 130, 400, 1, 400, { lon0: -15, lat0: -10, rot: SA_FIT })
+        fig(g, 230, 600, 4, { d: 600, arms: 'push' })
+        for (const [x, d] of [[90, 900], [150, 1000], [300, 1100]] as const) fig(g, x, 640, 2.6, { d, arms: 'cross' })
+        question(g, 300, 440, 0.6, 1500)
       },
       gronland(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.2, label: '1912', sub: 'Idee', up: true },
-          { at: 0.45, label: '1930', sub: 'Tod in Grönland' },
-          { at: 0.8, label: '1960er', sub: 'Beweis', big: true },
-        ])
+        // Grönländisches Inlandeis im Sturm: Zelt, Schlitten, Schneetreiben
+        ink(g, smooth([[20, 560], [100, 520], [200, 500], [340, 470]], 3), { w: 2.6, t: 700 })
+        const tent: P[] = [[120, 516], [160, 456], [210, 506], [120, 516]]
+        blank(g, tent)
+        hatch(g, tent, 700)
+        ink(g, tent, { w: 2.4, d: 400, t: 400 })
+        ink(g, [[230, 500], [300, 486], [304, 476], [234, 490], [230, 500]], { w: 2, d: 600, t: 300 })
+        for (const x of [244, 286]) ink(g, L([x, 494], [x + 2, 504]), { w: 1.6, d: 700, t: 80 })
+        ink(g, B([300, 486], [312, 484], [316, 476], [312, 470]), { w: 1.8, d: 700, t: 100 })
+        for (let i = 0; i < 18; i++) {
+          const fl = glide(g, -80, 40, { ms: 1400 + (i % 5) * 200, d: (i * 130) % 1200, loop: true })
+          flake(fl, 60 + ((i * 47) % 300), 330 + ((i * 29) % 160), 4 + (i % 3), 0)
+        }
       },
       ruecken(g) {
-        ink(g, L([20, 560], [340, 560]), { w: 1, t: 300 })
-        ink(g, [[20, 520], [150, 520], [170, 480], [190, 480], [210, 520], [340, 520]], { w: 2.8, d: 200, t: 700 })
-        for (const k of [-1, 1]) arrow(g, L([180 + k * 40, 600], [180 + k * 140, 600]), { w: 2.6, d: 900, t: 500, head: 10 })
-        for (let i = 0; i < 6; i++) {
-          const dx = 20 + i * 22
+        // Mittelozeanischer Rücken im Schnitt: Magma steigt auf, symmetrische Magnetstreifen, Platten driften auseinander
+        travelWave(g, 20, 340, 380, 2, 50, { ms: 3000, w: 1.6 })
+        const top: P[] = [[20, 520], [150, 512], [170, 480], [190, 480], [210, 512], [340, 520]]
+        ink(g, top, { w: 2.8, d: 200, t: 700 })
+        for (let i = 0; i < 7; i++) {
+          const dx = 10 + i * 22
           for (const k of [-1, 1]) {
             const x = 180 + k * dx
-            if (i % 2 === 0) hatch(g, [[x, 524], [x + k * 18, 524], [x + k * 18, 556], [x, 556], [x, 524]], 1200 + i * 80, true)
+            const p: P[] = [[x, 516 - (i === 0 ? 20 : 0)], [x + k * 22, 516], [x + k * 22, 556], [x, 556], [x, 516 - (i === 0 ? 20 : 0)]]
+            if (i % 2 === 0) hatch(g, p, 900 + i * 100, true)
+            ink(g, L([x + k * 22, 516], [x + k * 22, 556]), { w: 0.9, d: 900 + i * 100, t: 100 })
           }
         }
-        for (const k of [-1, 1]) arcArrow(g, 180 + k * 40, 660, 40, k < 0 ? -30 : 210, k < 0 ? -150 : 330, { d: 1400 })
-        text(g, 180, 440, 'neuer Meeresboden', { anchor: 'middle', cls: 's', d: 1000 })
+        ink(g, L([20, 556], [340, 556]), { w: 2, d: 300, t: 500 })
+        flow(g, L([180, 640], [180, 484]), { n: 4, ms: 1600, d: 900, r: 2.6 })
+        for (const k of [-1, 1]) {
+          arrow(g, L([180 + k * 40, 600], [180 + k * 140, 600]), { w: 2.6, d: 1200, t: 500, head: 10 })
+          arcArrow(g, 180 + k * 80, 630, 50, k < 0 ? -10 : 190, k < 0 ? -170 : 350, { d: 1400 })
+        }
       },
       tempo(g) {
-        text(g, 180, 450, '2–5 cm', { anchor: 'middle', size: 54, d: 200 })
-        text(g, 180, 495, 'pro Jahr – so schnell wachsen Fingernägel', { anchor: 'middle', cls: 's', d: 600 })
+        // Fingerkuppe mit Nagel am Lineal: der Nagel wächst ein Stück – so weit wandert eine Platte im Jahr
+        ink(g, RR(40, 560, 280, 40, 3), { w: 2.4, t: 500 })
+        for (let k = 0; k <= 56; k++) ink(g, L([50 + k * 4.8, 560], [50 + k * 4.8, k % 10 ? 568 : 576]), { w: k % 10 ? 0.8 : 1.4, d: 300 + k * 10, t: 30 })
+        for (const [k, l] of [[0, '0'], [10, '1'], [20, '2'], [30, '3'], [40, '4'], [50, '5']] as const) text(g, 50 + k * 4.8, 592, l, { anchor: 'middle', size: 12, d: 600 })
+        const finger: P[] = smooth([[20, 470], [140, 466], [186, 476], [196, 500], [186, 524], [140, 532], [20, 530]], 3)
+        blank(g, finger)
+        ink(g, finger, { w: 2.6, d: 400, t: 600 })
+        for (let k = 0; k < 3; k++) ink(g, B([60 + k * 20, 480], [64 + k * 20, 496], [60 + k * 20, 510], [64 + k * 20, 522]), { w: 0.9, d: 700, t: 150 })
+        const nail = glide(g, 24, 0, { ms: 3000, d: 1200 })
+        const n: P[] = smooth([[130, 474], [180, 474], [194, 488], [194, 512], [180, 524], [130, 524]], 3)
+        blank(nail, [...n, [130, 474]])
+        hatch(nail, [[184, 476], [194, 488], [194, 512], [184, 522]], 1000)
+        ink(nail, n, { w: 1.8, d: 900, t: 400 })
+        ink(nail, B([182, 476], [190, 488], [190, 512], [182, 522]), { w: 1.2, d: 1000, t: 200 })
+        dashes(g, L([194, 460], [194, 556]), { w: 1, d: 1300, dash: 3, gap: 3 })
+        dashes(g, L([218, 460], [218, 556]), { w: 1, d: 4200, dash: 3, gap: 3 })
       },
       pangaea(g) {
-        blob(g, 180, 470, 120, 100, 2)
-        text(g, 180, 620, 'Pangaea: vor rund 300 bis 200 Mio. Jahren', { anchor: 'middle', cls: 's', d: 1000 })
-      },
-      zerfall(g) {
-        blob(g, 100, 450, 60, 70, 2)
-        blob(g, 250, 420, 80, 50, 4, 200)
-        blob(g, 230, 560, 60, 40, 5, 400)
-        text(g, 180, 650, 'ab rund 200 Mio. Jahren: zerbrochen', { anchor: 'middle', cls: 's', d: 1000 })
-      },
-      zukunft(g) {
-        blob(g, 180, 470, 110, 90, 6)
-        question(g, 180, 470, 0.7, 900)
-        text(g, 180, 620, 'in rund 250 Mio. Jahren', { anchor: 'middle', cls: 's', d: 1000 })
+        // Superkontinent um 200 Mio. Jahre (vereinfacht): Kontinente mit Euler-Drehungen an Afrika gelegt;
+        // a1: sie driften auseinander; a2: wieder zusammen, Fragezeichen für den künftigen Superkontinent
+        const c = clipBox(g, 10, 300, 340, 360)
+        const at = { lon0: 10, lat0: 0 }
+        const part = (cls: string, m: string) => st(c, cls, `--m1: ${m}; transition-duration: 3s`)
+        land(c, LAND.afrika, 180, 470, 1.25, 0, at)
+        land(c, LAND.eurasien, 180, 470, 1.25, 200, at)
+        land(part('m1', 'translate(-46px, 26px) rotate(8deg)'), LAND.suedamerika, 180, 470, 1.25, 300, { ...at, rot: SA_FIT })
+        const na = part('m1', 'translate(-60px, -14px) rotate(-6deg)')
+        land(na, LAND.nordamerika, 180, 470, 1.25, 400, { ...at, rot: NA_FIT })
+        land(na, LAND.groenland, 180, 470, 1.25, 500, { ...at, rot: NA_FIT })
+        land(part('m1', 'translate(10px, 40px)'), LAND.antarktis, 180, 470, 1.25, 600, { ...at, rot: AN_FIT })
+        land(part('m1', 'translate(50px, 30px) rotate(20deg)'), LAND.australien, 180, 470, 1.25, 700, { ...at, rot: AU_FIT })
+        const q = st(g, 'x2', '--o: 290px 360px')
+        question(q, 300, 380, 0.7, 0)
       },
       gps(g) {
-        globe(g, 180, 470, 90)
-        for (const [x, y] of [[140, 430], [220, 500], [200, 420]] as const) dot(g, x, y, 5, 1200)
-        text(g, 180, 620, 'GPS misst die Drift heute direkt', { anchor: 'middle', cls: 's', d: 1400 })
+        // GPS-Satellit über der Erde, Messstationen in Nordamerika und Europa entfernen sich
+        earth(g, 180, 500, 120, 0, { lon: -40, lat: 35, grid: true })
+        const pr = geo(180, 500, 120, -40, 35)
+        const na = pr(-75, 40).p
+        const eu = pr(5, 50).p
+        for (const [p, k] of [[na, -1], [eu, 1]] as const) {
+          dot(g, p[0], p[1], 5, 900)
+          arrow(g, L(p, [p[0] + k * 34, p[1] + 4]), { w: 2.2, d: 1200, t: 300, head: 7 })
+        }
+        const sat = wobble(g, { dx: 20, ms: 4000, d: 600 })
+        ink(sat, RR(170, 320, 20, 16, 3), { w: 2, d: 600, t: 200 })
+        for (const k of [-1, 1]) {
+          ink(sat, RR(180 + k * 26 - 10, 322, 20, 12, 1), { w: 1.4, d: 700, t: 150 })
+          hatch(sat, RR(180 + k * 26 - 10, 322, 20, 12, 1), 800, true)
+        }
+        for (const p of [na, eu]) dashes(g, L([180, 340], p), { w: 1, d: 1000, dash: 4, gap: 4 })
       },
       ende(g) {
-        samerika(g, 177, 470, 0.8)
-        afrika(g, 183, 470, 0.8, 200)
+        land(g, LAND.afrika, 180, 470, 2.4, 0, { lon0: -15, lat0: -10 })
+        land(g, LAND.suedamerika, 180, 470, 2.4, 200, { lon0: -15, lat0: -10, rot: SA_FIT })
+      },
+      sonar(g) {
+        // Forschungsschiff der 1960er: Echolot-Impulse, Magnetometer im Schlepp, darunter der Rücken
+        travelWave(g, 20, 340, 380, 3, 50, { ms: 2600, w: 2.2 })
+        freighter(g, 120, 378, 0.6, 200)
+        dashes(g, B([180, 380], [240, 390], [280, 396], [320, 394]), { w: 1, d: 600, dash: 3, gap: 3 })
+        ink(g, RR(316, 388, 16, 10, 4), { w: 1.6, d: 700, t: 100 })
+        const bed: P[] = smooth([[20, 620], [100, 610], [150, 580], [180, 550], [210, 580], [260, 610], [340, 620]], 3)
+        ink(g, bed, { w: 2.6, d: 400, t: 600 })
+        hatch(g, [...bed, [340, 650], [20, 650]], 600, true)
+        for (let k = 0; k < 3; k++) {
+          const p = glide(g, 0, 160, { ms: 1600, d: 900 + k * 500, loop: true })
+          ink(p, E(120, 392, 20, 6, 0, 180), { w: 1.2, d: 800, t: 80 })
+        }
       },
     },
     scenes: [
@@ -1470,18 +1579,18 @@ export const AHA_ERDE: Bite[] = [
       { t: T('Er sammelte Belege: Auf beiden Seiten des Atlantiks finden sich **dieselben Fossilien** – etwa ein kleines Süßwasser-Reptil, der Mesosaurus.', 64), gfx: { fossil: {} } },
       { t: T('Das Tier konnte unmöglich über einen Ozean schwimmen. Also lagen die Länder einst **direkt nebeneinander**.', 64), gfx: { fossil: {} } },
       { t: T('Auch Gesteinsschichten und Gebirge setzen sich auf der anderen Seite **nahtlos fort**.', 64), gfx: { nah: { cls: 'a1' } } },
-      { t: T('Und in Afrika und Indien fand man Spuren uralter **Gletscher** – in heute tropischen Gegenden.', 64), gfx: { fossil: {} } },
+      { t: T('Und in Afrika und Indien fand man Spuren uralter **Gletscher** – in heute tropischen Gegenden.', 64), gfx: { fossil: { cls: 'a1' } } },
       { t: T('Die meisten Geologen lachten trotzdem. Wegener konnte nicht erklären, **welche Kraft** ganze Kontinente bewegt.', 64), gfx: { spott: {} } },
       { t: T('Er starb 1930 auf einer Expedition in Grönland – ohne dass seine Idee **anerkannt** war.', 64), gfx: { gronland: {} } },
-      { t: T('Erst in den 1960er-Jahren kam der Beweis – vom **Meeresboden**.', 64), gfx: { gronland: {} } },
+      { t: T('Erst in den 1960er-Jahren kam der Beweis – vom **Meeresboden**.', 64), gfx: { sonar: {} } },
       { t: T('Mitten im Atlantik zieht sich ein Gebirge, der **Mittelatlantische Rücken**. Dort quillt heißes Gestein auf und bildet neuen Meeresboden.', 64), gfx: { ruecken: {} } },
       { t: T('Der Boden wächst nach beiden Seiten und schiebt die Kontinente auseinander. Magnetische Streifen im Gestein zeigen das **wie Jahresringe**.', 64), gfx: { ruecken: {} } },
       { t: T('Aus Wegeners Idee wurde die **Plattentektonik**: Die Erdkruste besteht aus Platten, die auf dem zähen Erdmantel treiben.', 64), gfx: { ruecken: {} } },
       { t: T('Sie bewegen sich etwa **2 bis 5 Zentimeter** im Jahr – ungefähr so schnell, wie deine Fingernägel wachsen.', 64), gfx: { tempo: {} } },
       { t: T('Vor rund 300 Millionen Jahren bildeten fast alle Landmassen einen Superkontinent: **Pangaea**, „ganze Erde“.', 64), gfx: { pangaea: {} } },
-      { t: T('Vor etwa 200 Millionen Jahren begann er **auseinanderzubrechen**. Der Atlantik öffnete sich – und wird bis heute breiter.', 64), gfx: { zerfall: {} } },
+      { t: T('Vor etwa 200 Millionen Jahren begann er **auseinanderzubrechen**. Der Atlantik öffnete sich – und wird bis heute breiter.', 64), gfx: { pangaea: { cls: 'a1' } } },
       { t: T('Heute misst **GPS** die Drift direkt: Europa und Nordamerika entfernen sich jedes Jahr um ein paar Zentimeter.', 64), gfx: { gps: {} } },
-      { t: T('In vielleicht 250 Millionen Jahren könnten die Kontinente wieder zu einem **neuen Superkontinent** verschmelzen.', 64), gfx: { zukunft: {} } },
+      { t: T('In vielleicht 250 Millionen Jahren könnten die Kontinente wieder zu einem **neuen Superkontinent** verschmelzen.', 64), gfx: { pangaea: { cls: 'a2' } } },
       { t: T('Die Kontinente **wandern** – immer noch.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],
     summary: ['Wegener (1912): Passende Küsten, gleiche Fossilien und Gesteine zeigen wandernde Kontinente.', 'Belegt in den 1960ern durch Meeresboden-Spreizung am Mittelatlantischen Rücken → Plattentektonik.', 'Platten bewegen sich 2–5 cm/Jahr; Pangaea zerbrach ab ~200 Mio. Jahren.'],
@@ -1827,49 +1936,6 @@ export const AHA_ERDE: Bite[] = [
 /** Kleine Fische auf dem trockenen Grund (Tsunami-Rückzug) */
 function ammoniteFish(g: Element, x: number, y: number, d: number): void {
   ink(g, [...B([x, y], [x + 6, y - 6], [x + 16, y - 6], [x + 20, y]), ...B([x + 20, y], [x + 16, y + 6], [x + 6, y + 6], [x, y]).slice(1), [x - 6, y - 5], [x - 6, y + 5], [x, y]], { w: 1.6, d, t: 200 })
-}
-
-/** Gemeinsame Küste Südamerika/Afrika (oberer Teil), relativ zur Mitte, von Nord nach Süd */
-const COAST: [P, P, P, P][] = [
-  [[0, -130], [-50, -100], [-50, -60], [-20, -40]],
-  [[-20, -40], [20, -20], [40, 0], [10, 40]],
-]
-
-function coast(cx: number, cy: number, k: number, segs: [P, P, P, P][]): P[] {
-  const out: P[] = []
-  for (const [i, sg] of segs.entries()) {
-    const p = sg.map(([a, b]) => [cx + a * k, cy + b * k] as P) as [P, P, P, P]
-    out.push(...B(...p).slice(i ? 1 : 0))
-  }
-  return out
-}
-
-/** Südamerika; cx = x der Küste, die zu Afrika passt */
-function samerika(g: Element, cx: number, cy: number, k: number, d = 0): void {
-  const p = coast(cx, cy, k, [
-    ...COAST,
-    [[10, 40], [-10, 80], [-20, 110], [-30, 150]],
-    [[-30, 150], [-40, 170], [-56, 160], [-66, 110]],
-    [[-66, 110], [-100, 30], [-120, -60], [-80, -110]],
-    [[-80, -110], [-60, -130], [-30, -136], [0, -130]],
-  ])
-  blank(g, p)
-  hatch(g, p, d + 400)
-  ink(g, p, { w: 2.6, d, t: 800 })
-}
-
-/** Afrika; cx = x der Küste, die zu Südamerika passt */
-function afrika(g: Element, cx: number, cy: number, k: number, d = 0): void {
-  const p = coast(cx, cy, k, [
-    ...COAST,
-    [[10, 40], [20, 90], [30, 140], [44, 160]],
-    [[44, 160], [60, 150], [80, 100], [90, 60]],
-    [[90, 60], [110, 20], [120, -40], [100, -90]],
-    [[100, -90], [80, -140], [30, -150], [0, -130]],
-  ])
-  blank(g, p)
-  hatch(g, p, d + 400, true)
-  ink(g, p, { w: 2.6, d, t: 800 })
 }
 
 /** Elefant (klein, Füße auf y) */

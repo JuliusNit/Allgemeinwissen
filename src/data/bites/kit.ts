@@ -1072,3 +1072,15 @@ export function coastPts(i: number, pr: (lon: number, lat: number) => P, step = 
   }
   return pts
 }
+
+/** Drehung eines Punkts (Länge, Breite) auf der Kugel um einen Euler-Pol (plon, plat) um ang Grad */
+export function rotPole(lon: number, lat: number, plon: number, plat: number, ang: number): [number, number] {
+  const v = [Math.cos(rad(lat)) * Math.cos(rad(lon)), Math.cos(rad(lat)) * Math.sin(rad(lon)), Math.sin(rad(lat))]
+  const k = [Math.cos(rad(plat)) * Math.cos(rad(plon)), Math.cos(rad(plat)) * Math.sin(rad(plon)), Math.sin(rad(plat))]
+  const c = Math.cos(rad(ang))
+  const s = Math.sin(rad(ang))
+  const kv = k[0] * v[0] + k[1] * v[1] + k[2] * v[2]
+  const cr = [k[1] * v[2] - k[2] * v[1], k[2] * v[0] - k[0] * v[2], k[0] * v[1] - k[1] * v[0]]
+  const r = v.map((x, i) => x * c + cr[i] * s + k[i] * kv * (1 - c))
+  return [(Math.atan2(r[1], r[0]) * 180) / Math.PI, (Math.asin(Math.max(-1, Math.min(1, r[2]))) * 180) / Math.PI]
+}
