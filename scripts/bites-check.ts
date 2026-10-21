@@ -14,11 +14,11 @@ export interface Issue {
 type R = { x: number; y: number; w: number; h: number }
 
 const finish = (root: ParentNode & { getAnimations?: Element['getAnimations'] }) => {
-  for (const a of document.getAnimations()) {
+  const list = root instanceof Element ? root.getAnimations({ subtree: true }) : document.getAnimations()
+  for (const a of list) {
     const t = a.effect?.getComputedTiming()
     if (t && Number.isFinite(Number(t.endTime))) a.finish()
   }
-  void root
 }
 
 /** Sichtbarkeit inkl. Vorfahren (Zustandsklassen blenden über opacity/scale aus) */

@@ -1,23 +1,8 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, bubble, check, cross, crowd, dashes, fig, hatch, ink, mk, pop, question, st, text, timeline, vbars, type P } from './draw'
-import { axes, ball, box, bullets, carrow, dot, earth, flame, house, lens, plot, rad, ripple, smooth, sun, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, bubble, car, check, cross, crowd, dashes, fig, group, hatch, ink, letter, mk, pop, question, rays, st, text, timeline, vbars, type P } from './draw'
+import { axes, ball, bullets, carrow, cloud, dot, drop, earth, flame, flow, glide, head, house, jet, lens, plot, rad, ripple, smooth, spin, sun, sunDisk, wobble } from './kit'
 
 // Denkwerkzeuge & Statistik: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
-
-/** Bomber von oben, Nase nach oben, Mitte (cx, cy) */
-function bomber(g: Element, cx: number, cy: number, s = 1, d = 0): void {
-  const P = (a: number, b: number): P => [cx + a * s, cy + b * s]
-  const wing: P[] = [P(-150, 0), P(-14, -24), P(14, -24), P(150, 0), P(150, 16), P(14, 10), P(-14, 10), P(-150, 16), P(-150, 0)]
-  blank(g, wing)
-  ink(g, wing, { w: 2.6, d, t: 800 })
-  const tail: P[] = [P(-50, 120), P(-10, 110), P(10, 110), P(50, 120), P(50, 132), P(-50, 132), P(-50, 120)]
-  blank(g, tail)
-  ink(g, tail, { w: 2.4, d: d + 300, t: 400 })
-  const body = RR(cx - 16 * s, cy - 110 * s, 32 * s, 250 * s, 16 * s)
-  blank(g, body)
-  ink(g, body, { w: 2.8, d: d + 100, t: 700 })
-  for (const x of [-100, -55, 55, 100]) ink(g, RR(cx + x * s - 8 * s, cy - 34 * s, 16 * s, 30 * s, 6 * s), { w: 2, d: d + 600, t: 200 })
-}
 
 /** Münze mit K oder Z */
 function coinKZ(g: Element, x: number, y: number, k: boolean, d = 0, r = 12): void {
@@ -113,6 +98,70 @@ function dayGrid(g: Element, n: number, d = 0): void {
     const full = k <= (n % 25 || 25) ? rows : rows - 1
     ink(g, L([30 + k * 12, 330], [30 + k * 12, 330 + full * 18], 60), { w: 0.8, d: d + 200 + k * 20, t: 150 })
   }
+}
+
+/** Schnelltest-Kassette: Probenmulde, Ablesefenster mit Kontroll- und Testlinie; pos = Testlinie sichtbar */
+function cassette(g: Element, x: number, y: number, s = 1, d = 0, pos = true): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const body = RR(x - 90 * s, y - 32 * s, 180 * s, 64 * s, 18 * s)
+  blank(g, body)
+  ink(g, body, { w: 2.8 * Math.min(1, s), d, t: 600 })
+  ink(g, RR(x - 84 * s, y - 26 * s, 168 * s, 52 * s, 14 * s), { w: 1, d: d + 200, t: 500 })
+  ink(g, E(x - 56 * s, y, 13 * s), { w: 2, d: d + 300, t: 200 })
+  ink(g, E(x - 56 * s, y, 7 * s), { w: 1.2, d: d + 350, t: 150 })
+  const win = RR(x - 10 * s, y - 14 * s, 76 * s, 28 * s, 5 * s)
+  ink(g, win, { w: 2, d: d + 400, t: 300 })
+  hatch(g, RR(x - 8 * s, y - 12 * s, 72 * s, 24 * s, 4 * s), d + 500)
+  for (const [a, on] of [[20, true], [42, pos]] as const) if (on) ink(g, L(P(a, -12), P(a, 12)), { w: 4 * s, d: d + 900 + a * 10, t: 200 })
+  if (s >= 1) text(g, x + 20 * s, y - 20 * s, 'C', { anchor: 'middle', size: 11 * s, d: d + 600 })
+  if (s >= 1) text(g, x + 42 * s, y - 20 * s, 'T', { anchor: 'middle', size: 11 * s, d: d + 600 })
+}
+
+/** 10 × 10 Punkte, die ersten k (Index-Reihenfolge nach seed) markiert */
+function hundred(g: Element, x: number, y: number, k: number, d = 0, ring = false): void {
+  for (let i = 0; i < 100; i++) {
+    const cx = x + (i % 10) * 12
+    const cy = y + Math.floor(i / 10) * 12
+    if (i < k) {
+      if (ring) ink(g, E(cx, cy, 4.6), { w: 1.4, d: d + 600 + i * 8, t: 60 })
+      else dot(g, cx, cy, 4, d + 600 + i * 8)
+    } else dot(g, cx, cy, 1.8, d + i * 4)
+  }
+}
+
+/** Viermotoriger Bomber von oben, Nase oben, Mitte (cx, cy): Rumpf mit Glaskanzel, Flügel mit Motoren und Propellern, Leitwerk */
+function bomber(g: Element, cx: number, cy: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [cx + a * s, cy + b * s]
+  const wing: P[] = [P(-150, 4), P(-140, -6), P(-16, -26), P(16, -26), P(140, -6), P(150, 4), P(146, 14), P(16, 12), P(-16, 12), P(-146, 14), P(-150, 4)]
+  blank(g, wing)
+  hatch(g, [P(-146, 8), P(-16, 4), P(16, 4), P(146, 8), P(146, 14), P(16, 12), P(-16, 12), P(-146, 14)], d + 600)
+  ink(g, wing, { w: 2.6 * Math.min(1.2, s), d, t: 800 })
+  const tail: P[] = [P(-56, 122), P(-12, 106), P(12, 106), P(56, 122), P(54, 134), P(-54, 134), P(-56, 122)]
+  blank(g, tail)
+  ink(g, tail, { w: 2.2, d: d + 300, t: 400 })
+  const body: P[] = smooth([P(0, -112), P(14, -96), P(16, -40), P(14, 80), P(6, 140), P(0, 146), P(-6, 140), P(-14, 80), P(-16, -40), P(-14, -96), P(0, -112)], 3)
+  blank(g, body)
+  ink(g, body, { w: 2.8 * Math.min(1.2, s), d: d + 100, t: 700 })
+  ink(g, E(cx, cy - 98 * s, 9 * s, 12 * s), { w: 1.4, d: d + 300, t: 150 })
+  for (let k = 0; k < 3; k++) ink(g, L(P(-8 + k * 8, -108), P(-8 + k * 8, -88)), { w: 0.8, d: d + 350, t: 60 })
+  ink(g, E(cx, cy - 64 * s, 8 * s, 6 * s), { w: 1.4, d: d + 400, t: 100 })
+  ink(g, E(cx, cy + 30 * s, 7 * s), { w: 1.4, d: d + 400, t: 100 })
+  for (const x of [-100, -55, 55, 100]) {
+    const nac = RR(cx + x * s - 8 * s, cy - 40 * s, 16 * s, 40 * s, 6 * s)
+    blank(g, nac)
+    hatch(g, nac, d + 700, true)
+    ink(g, nac, { w: 2, d: d + 600, t: 200 })
+    const pr = spin(g, cx + x * s, cy - 42 * s, 300, d + 1000)
+    ink(pr, L([cx + x * s - 18 * s, cy - 42 * s], [cx + x * s + 18 * s, cy - 42 * s]), { w: 2, d: d + 800, t: 100 })
+  }
+}
+
+/** Notenzeichen (Achtelnote), opacity für verblasste */
+function note(g: Element, x: number, y: number, s = 1, d = 0): void {
+  ink(g, E(x, y, 9 * s, 7 * s), { w: 2.2, d, t: 200 })
+  hatch(g, E(x, y, 9 * s, 7 * s), d + 200, true)
+  ink(g, L([x + 8 * s, y - 2 * s], [x + 8 * s, y - 44 * s]), { w: 2, d: d + 200, t: 150 })
+  ink(g, B([x + 8 * s, y - 44 * s], [x + 18 * s, y - 36 * s], [x + 22 * s, y - 30 * s], [x + 16 * s, y - 20 * s]), { w: 1.8, d: d + 300, t: 150 })
 }
 
 export const AHA_DENKEN: Bite[] = [
@@ -362,82 +411,157 @@ export const AHA_DENKEN: Bite[] = [
     images: [],
     draw: {
       test(g) {
-        ink(g, RR(90, 200, 180, 70, 16), { w: 3, t: 700 })
-        ink(g, RR(150, 216, 70, 38, 6), { w: 2.2, d: 300, t: 400 })
-        for (const x of [172, 196]) ink(g, L([x, 222], [x, 248]), { w: 3, d: 800, t: 200 })
-        ink(g, E(120, 235, 10), { w: 2, d: 500, t: 200 })
+        // Schnelltest: Tropfen fällt in die Mulde, die Flüssigkeit läuft, Kontroll- und Testlinie erscheinen
+        cassette(g, 180, 330, 1.4, 0, true)
+        const pip: P[] = [[96, 150], [104, 150], [104, 230], [100, 250], [96, 230], [96, 150]]
+        ink(g, pip, { w: 2, d: 300, t: 300 })
+        ink(g, E(100, 140, 10, 14), { w: 2.2, d: 400, t: 200 })
+        hatch(g, E(100, 140, 9, 12), 500, true)
+        const dr = glide(g, 0, 50, { ms: 700, d: 900 })
+        drop(dr, 101, 258, 0.3, 800)
+        flow(g, L([102, 330], [254, 330]), { n: 4, ms: 1600, d: 1300, r: 1.6 })
       },
       menge(g) {
+        // 1000 Menschen als Punkte; x1 der eine Kranke, x2 rund zehn Fehlalarme
         dotgrid(g, 30, 340, 40, 25, 7.7, 2.2)
-        text(g, 180, 560, '1.000 Menschen', { anchor: 'middle', d: 1300 })
-        const sick = st(g, 'x1', '--o: 180px 420px')
+        const sick = st(g, 'x1', '--o: 184px 425px')
         ball(sick, 184, 425, 6, { fill: 'dicht', t: 0, w: 1.6 })
-        text(sick, 180, 600, '1 krank', { anchor: 'middle', fade: false })
+        ripple(sick, 184, 425, 6, 24, { n: 2, ms: 1600, w: 1 })
         const fa = st(g, 'x2', '--o: 180px 420px')
         ;[[61, 371], [130, 348], [253, 394], [299, 456], [92, 463], [200, 494], [315, 348], [146, 509], [38, 417], [269, 517]].forEach(([x, y]) => ink(fa, E(x, y, 6), { w: 1.8, t: 0 }))
-        text(fa, 180, 630, 'rund 10 Fehlalarme', { anchor: 'middle', fade: false })
       },
       genau(g) {
-        box(g, 30, 360, 140, 90, ['erkennt Kranke', '99 %'], { size: 16 })
-        box(g, 190, 360, 140, 90, ['Fehlalarm', 'bei 1 %'], { size: 16, d: 400 })
+        // links 100 Kranke: 99 erkannt; rechts 100 Gesunde: 1 Fehlalarm
+        hundred(g, 36, 380, 99, 0)
+        hundred(g, 206, 380, 1, 400, true)
+        fig(g, 90, 360, 1.4, { d: 200 })
+        fig(g, 260, 360, 1.4, { d: 500 })
+        cassette(g, 90, 540 + 60, 0.6, 1600, true)
+        cassette(g, 260, 540 + 60, 0.6, 1800, true)
       },
       gefuehl(g) {
-        text(g, 180, 470, '99 %?', { anchor: 'middle', size: 70, d: 200 })
-        question(g, 300, 400, 0.7, 700)
+        // jemand hält den positiven Test und grübelt
+        head(g, 180, 420, 1.1, 0, { neck: true })
+        cassette(g, 180, 600, 0.9, 600, true)
+        for (const k of [-1, 1]) ink(g, B([180 + k * 110, 560], [180 + k * 100, 580], [180 + k * 86, 596], [180 + k * 80, 600]), { w: 2.6, d: 800, t: 200 })
+        bubble(g, 260, 300, 80, 60, 'l', 900)
+        question(g, 300, 336, 0.6, 1200)
       },
       ergebnis(g) {
-        vbars(g, [
-          { label: 'echt krank', v: 1, fmt: () => '1' },
-          { label: 'Fehlalarm', v: 10, fmt: () => '≈ 10', dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 250 })
-        text(g, 180, 320, 'positiv getestet: ≈ 11', { anchor: 'middle', d: 1300 })
+        // elf positiv Getestete: einer ist krank, zehn sind gesund
+        for (let i = 0; i < 11; i++) {
+          const x = 30 + i * 30
+          fig(g, x, 600, 2, { d: i * 80 })
+          if (i === 5) hatch(g, RR(x - 6, 560, 12, 18, 3), 900, true)
+          ink(g, RR(x - 10, 440, 20, 30, 3), { w: 1.4, d: 600 + i * 60, t: 100 })
+          ink(g, L([x - 3, 446], [x - 3, 464]), { w: 2, d: 900 + i * 60, t: 60 })
+          ink(g, L([x + 4, 446], [x + 4, 464]), { w: 2, d: 1000 + i * 60, t: 60 })
+        }
+        const p = pop(g, 1600, '50% 50%')
+        ink(p, E(180, 560, 18, 52), { w: 2.2, t: 0 })
       },
       haeufiger(g) {
-        vbars(g, [
-          { label: 'echt krank', v: 100, fmt: () => '100' },
-          { label: 'Fehlalarm', v: 9, fmt: () => '≈ 9', dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 250 })
-        text(g, 180, 320, 'Krankheit bei 1 von 10', { anchor: 'middle', d: 1300 })
+        // jede zehnte Person krank: 40 dunkle Punkte unter 400, nur 4 Fehlalarme dazwischen
+        for (let i = 0; i < 400; i++) dot(g, 36 + (i % 20) * 15.4, 340 + Math.floor(i / 20) * 15, i % 10 === 3 ? 4.6 : 2.2, Math.floor(i / 20) * 40 + (i % 10 === 3 ? 800 : 0))
+        const fa = pop(g, 2000, '50% 50%')
+        ;[[2, 1], [15, 6], [8, 12], [17, 17]].forEach(([c, r]) => ink(fa, E(36 + c * 15.4, 340 + r * 15, 6.5), { w: 1.6, t: 0 }))
       },
       bayes(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.2, label: '1763', sub: 'Thomas Bayes', up: true },
-          { at: 0.85, label: 'heute', sub: 'Medizin, KI, Spamfilter', up: true },
-        ])
+        // Bayes' Gedankenexperiment: Kugeln rollen auf einen Tisch, aus ihrer Lage schließt man auf die erste
+        ink(g, RR(40, 380, 280, 180, 6), { w: 3, t: 700 })
+        ink(g, RR(52, 392, 256, 156, 4), { w: 1.2, d: 200, t: 600 })
+        dashes(g, L([170, 392], [170, 548]), { w: 1.4, d: 800, dash: 5, gap: 4 })
+        ball(g, 170, 470, 9, { d: 900, fill: 'dicht', w: 1.6, t: 100 })
+        for (const [x, y, dd] of [[90, 420, 1200], [130, 510, 1400], [230, 430, 1600], [280, 520, 1800], [110, 460, 2000]] as const) {
+          const b = glide(g, 0, -30, { ms: 600, d: dd })
+          ball(b, x, y + 30, 6, { d: dd - 100, w: 1.4, t: 60 })
+        }
+        const pg: P[] = [[60, 590], [300, 586], [304, 650], [64, 652], [60, 590]]
+        blank(g, pg)
+        ink(g, pg, { w: 1.8, d: 600, t: 300 })
+        for (let k = 0; k < 3; k++) ink(g, Array.from({ length: 26 }, (_, i) => [74 + i * 8.6, 604 + k * 14 + Math.sin(i * 1.3 + k) * 1.6] as P), { w: 0.8, d: 800 + k * 100, t: 200 })
+        const q = wobble(g, { deg: 4, ox: 300, oy: 610, ms: 900, d: 1000 })
+        ink(q, L([300, 610], [340, 520]), { w: 1.6, d: 900, t: 200 })
+        ink(q, smooth([[340, 520], [330, 548], [316, 580], [304, 606]], 3), { w: 1.2, d: 1000, t: 200 })
       },
       aerzte(g) {
+        // acht Ärztinnen und Ärzte mit einem Blatt voller Prozentangaben – die meisten liegen daneben
+        ink(g, RR(110, 330, 140, 90, 4), { w: 2, t: 400 })
+        for (let k = 0; k < 4; k++) text(g, 140 + (k % 2) * 70, 366 + Math.floor(k / 2) * 34, '%', { anchor: 'middle', size: 22, d: 300 + k * 100 })
         crowd(g, 40, 560, 8, 40, 2.2, 0, 100)
         for (let i = 0; i < 8; i++) {
-          if (i < 2) check(g, 40 + i * 40, 600, 0.6, 1000 + i * 80)
-          else cross(g, 40 + i * 40, 600, 0.6, 1000 + i * 80)
+          if (i < 2) check(g, 40 + i * 40, 610, 0.6, 1000 + i * 80)
+          else cross(g, 40 + i * 40, 610, 0.6, 1000 + i * 80)
         }
-        text(g, 180, 400, 'mit Prozenten: viele falsch', { anchor: 'middle', cls: 's', d: 900 })
       },
       haeufig(g) {
+        // dieselben mit einem Blatt voller Punkte („1 von 1.000“) – die meisten treffen
+        ink(g, RR(110, 330, 140, 90, 4), { w: 2, t: 400 })
+        for (let i = 0; i < 60; i++) dot(g, 122 + (i % 12) * 10, 346 + Math.floor(i / 12) * 12, i === 27 ? 3.4 : 1.6, 300 + i * 6)
         crowd(g, 40, 560, 8, 40, 2.2, 0, 100)
         for (let i = 0; i < 8; i++) {
-          if (i < 6) check(g, 40 + i * 40, 600, 0.6, 1000 + i * 80)
-          else cross(g, 40 + i * 40, 600, 0.6, 1000 + i * 80)
+          if (i < 6) check(g, 40 + i * 40, 610, 0.6, 1000 + i * 80)
+          else cross(g, 40 + i * 40, 610, 0.6, 1000 + i * 80)
         }
-        text(g, 180, 400, 'mit Häufigkeiten: meist richtig', { anchor: 'middle', cls: 's', d: 900 })
       },
       zweiter(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.05, label: 'vorher', sub: '0,1 %', up: true },
-          { at: 0.45, label: '1. Test +', sub: '≈ 9 %', up: true },
-          { at: 0.9, label: '2. Test +', sub: '≈ 90 %', up: true, big: true },
-        ])
+        // zwei Tests nacheinander, daneben ein Balken, der in zwei Stufen steigt
+        cassette(g, 120, 380, 0.8, 0, true)
+        cassette(g, 120, 520, 0.8, 1200, true)
+        ink(g, RR(270, 330, 40, 290, 6), { w: 2.4, d: 300, t: 500 })
+        for (const [frac, dd] of [[0.02, 400], [0.12, 900], [0.9, 2000]] as const) {
+          const gr = group(g, 'grow-y', `--d:${dd}ms;transform-origin:290px 616px`)
+          hatch(gr, RR(274, 616 - 282 * frac, 32, 282 * frac, 3), dd, true)
+        }
+        arrow(g, L([210, 380], [262, 560]), { w: 1.6, d: 900, t: 300, head: 7 })
+        arrow(g, L([210, 520], [262, 380]), { w: 1.6, d: 2000, t: 300, head: 7 })
       },
       selten(g) {
-        for (const [x, n, d] of [[70, 'Screening', 0], [180, 'Gesichter', 300], [290, 'Spam', 600]] as const) {
-          ball(g, x, 470, 40, { d, w: 2.6 })
-          text(g, x, 540, n, { anchor: 'middle', cls: 's', d: d + 200 })
-        }
-        text(g, 180, 610, 'seltenes Ereignis → viele Fehlalarme', { anchor: 'middle', cls: 's', d: 1100 })
+        // Kamera mit Gesichtserkennung über einer Menge, ein Brief mit Spam-Fähnchen, ein Alarmlicht
+        ink(g, RR(30, 340, 80, 50, 6), { w: 2.4, t: 400 })
+        ink(g, E(70, 365, 16), { w: 2, d: 200, t: 200 })
+        ink(g, E(70, 365, 7), { w: 1.4, d: 300, t: 100 })
+        crowd(g, 140, 400, 6, 32, 1.5, 400, 60)
+        for (const [x, dd] of [[172, 900], [268, 1000]] as const) dashes(g, RR(x - 10, 342, 20, 24, 2), { w: 1.4, d: dd, dash: 3, gap: 2 })
+        letter(g, 60, 500, 100, 800)
+        const fl = wobble(g, { deg: 8, ox: 170, oy: 540, ms: 600, d: 1200 })
+        ink(fl, L([170, 560], [170, 500]), { w: 2, d: 1100, t: 150 })
+        ink(fl, [[170, 500], [200, 510], [170, 520]], { w: 1.8, d: 1200, t: 150 })
+        hatch(fl, [[170, 500], [200, 510], [170, 520]], 1300, true)
+        ink(g, [[250, 600], [250, 540], ...B([250, 540], [250, 500], [310, 500], [310, 540]).slice(1), [310, 600], [250, 600]], { w: 2.4, d: 1000, t: 400 })
+        ink(g, RR(240, 600, 80, 14, 3), { w: 2.2, d: 1100, t: 200 })
+        rays(g, 280, 520, 44, 60, 8, 1400)
       },
       ende(g) {
-        ink(g, RR(110, 440, 140, 60, 14), { w: 3, t: 700 })
-        for (const x of [170, 190]) ink(g, L([x, 456], [x, 484]), { w: 3, d: 600, t: 200 })
+        cassette(g, 180, 470, 1.4, 0, true)
+      },
+      anteil(g) {
+        // einer von elf: ein schmales Stück
+        ink(g, E(180, 470, 120), { w: 3, t: 700 })
+        for (let k = 0; k < 11; k++) {
+          const a = rad(-90 + k * (360 / 11))
+          ink(g, L([180, 470], [180 + Math.cos(a) * 120, 470 + Math.sin(a) * 120]), { w: 1, d: 300 + k * 50, t: 100 })
+        }
+        hatch(g, [[180, 470], ...E(180, 470, 118, 118, -90, -90 + 360 / 11), [180, 470]], 1000, true)
+      },
+      fragen(g) {
+        // drei Fragen als Bilder: wie häufig (Punktefeld), wie oft Fehlalarm (Glocke), wie viele echt (Sieb)
+        for (let i = 0; i < 49; i++) dot(g, 40 + (i % 7) * 12, 360 + Math.floor(i / 7) * 12, i === 24 ? 3.6 : 1.6, i * 10)
+        const bell = wobble(g, { deg: 10, ox: 180, oy: 350, ms: 300, d: 1000 })
+        ink(bell, [[152, 430], ...B([152, 430], [156, 380], [204, 380], [208, 430]).slice(1), [152, 430]], { w: 2.4, d: 600, t: 400 })
+        ink(bell, L([140, 432], [220, 432]), { w: 2.2, d: 700, t: 200 })
+        dot(bell, 180, 440, 5, 800)
+        ink(g, L([180, 380], [180, 360]), { w: 1.8, d: 600, t: 100 })
+        ink(g, [[250, 360], [330, 360], [300, 420], [280, 420], [250, 360]], { w: 2.4, d: 900, t: 400 })
+        for (let k = 0; k < 6; k++) dot(g, 262 + k * 11, 350, 2.6, 1100 + k * 40)
+        const f = glide(g, 0, 70, { ms: 1200, d: 1600, loop: true })
+        dot(f, 290, 430, 3.4, 1500)
+        for (const x of [90, 180, 290]) ink(g, L([x, 470], [x, 520]), { w: 1, d: 1200, t: 100 })
+        for (let k = 0; k < 3; k++) {
+          const x = 90 + k * 100
+          ink(g, E(x, 560, 26), { w: 2.2, d: 1400 + k * 200, t: 200 })
+          text(g, x, 568, String(k + 1), { anchor: 'middle', size: 20, d: 1500 + k * 200 })
+        }
       },
     },
     scenes: [
@@ -448,7 +572,7 @@ export const AHA_DENKEN: Bite[] = [
       { t: T('Rechnen wir mit 1.000 Menschen. Einer ist krank – und der Test findet ihn **fast sicher**.', 64), gfx: { menge: { cls: 'a1' } } },
       { t: T('Von den 999 Gesunden schlägt der Test bei 1 Prozent falsch an. Das sind rund **10 Menschen**.', 64), gfx: { menge: { cls: 'a1 a2' } } },
       { t: T('Positiv getestet sind also etwa **11 Menschen** – aber nur einer davon ist wirklich krank.', 64), gfx: { ergebnis: {} } },
-      { t: T('Deine Chance, krank zu sein, liegt damit bei rund **1 zu 11** – etwa 9 Prozent.', 64), gfx: { f1: { draw: 'formel', args: [['1 Kranker', '÷', '11 Positive', '≈', '9 %'], 360] } } },
+      { t: T('Deine Chance, krank zu sein, liegt damit bei rund **1 zu 11** – etwa 9 Prozent.', 64), gfx: { anteil: {} } },
       { t: T('Der Grund: Die Krankheit ist so selten, dass die Fehlalarme die echten Fälle **zahlenmäßig erdrücken**.', 64), gfx: { ergebnis: {} } },
       { t: T('Das nennt man die **Basisrate**: Wie häufig etwas überhaupt ist, bestimmt mit, was ein Testergebnis bedeutet.', 64), gfx: { menge: { cls: 'a1 a2' } } },
       { t: T('Umgekehrt gilt: Bei einer **häufigen** Krankheit – sagen wir jede zehnte Person – ist ein positiver Test sehr verlässlich.', 64), gfx: { haeufiger: {} } },
@@ -458,7 +582,7 @@ export const AHA_DENKEN: Bite[] = [
       { t: T('Darum testet man nach einem positiven Ergebnis **ein zweites Mal**. Die neue Ausgangslage sind jetzt 9 Prozent, nicht 0,1.', 64), gfx: { zweiter: {} } },
       { t: T('Ist auch der zweite, unabhängige Test positiv, steigt die Wahrscheinlichkeit auf rund **90 Prozent**.', 64), gfx: { zweiter: {} } },
       { t: T('Dasselbe gilt für Gesichtserkennung oder Spamfilter: Bei **seltenen** Ereignissen sind viele Alarme falsch.', 64), gfx: { selten: {} } },
-      { t: T('Drei Fragen helfen bei jedem Test: Wie **häufig** ist es? Wie oft schlägt er falsch an? Wie viele Positive sind echt?', 64), gfx: { p1: { draw: 'punkte', args: [['Wie häufig ist es?', 'Wie oft Fehlalarm?', 'Wie viele Positive sind echt?'], 330] } } },
+      { t: T('Drei Fragen helfen bei jedem Test: Wie **häufig** ist es? Wie oft schlägt er falsch an? Wie viele Positive sind echt?', 64), gfx: { fragen: {} } },
       { t: T('Ein Test ist nur so gut wie die **Basisrate**, auf die er trifft.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],
     summary: ['Bei einer Krankheit 1 : 1.000 und 1 % Fehlalarmen sind ~10 von 11 Positiven gesund.', 'Die Basisrate entscheidet, was ein Testergebnis bedeutet (Satz von Bayes).', 'Natürliche Häufigkeiten statt Prozente machen die Rechnung leicht.'],
@@ -474,8 +598,18 @@ export const AHA_DENKEN: Bite[] = [
     images: [],
     draw: {
       flieger(g) {
-        bomber(g, 180, 230, 1)
-        for (const [x, y] of [[-110, 6], [-70, 2], [90, 4], [130, 8], [0, 40], [-4, 90], [6, -60], [30, 120]] as const) dot(g, 180 + x, 230 + y, 3.5, 1000 + x * 2)
+        // durchlöcherter Bomber auf dem Heimflug zwischen Wolken und Flakwölkchen
+        cloud(g, 60, 120, 0.6, 0)
+        cloud(g, 310, 380, 0.6, 200)
+        const pl = wobble(g, { dy: 4, deg: 1, ox: 180, oy: 240, ms: 2600, d: 1200 })
+        bomber(pl, 180, 240, 1, 300)
+        for (const [x, y] of [[-110, 6], [-70, 2], [90, 4], [130, 8], [0, 40], [-4, 90], [6, -60], [30, 120], [-36, 122]] as const) dot(pl, 180 + x, 240 + y, 3.2, 1200 + x * 2)
+        for (const [x, y, dd] of [[60, 340, 1400], [300, 120, 1700], [280, 300, 2000]] as const) {
+          const p = pop(g, dd, '50% 50%')
+          const pf: P[] = smooth(Array.from({ length: 9 }, (_, k) => [x + Math.cos(rad(k * 45)) * (14 + (k % 2) * 5), y + Math.sin(rad(k * 45)) * (12 + (k % 2) * 4)] as P), 3)
+          hatch(p, pf, 0, true)
+          ink(p, pf, { w: 1.6, t: 0 })
+        }
       },
       loecher(g) {
         bomber(g, 180, 470, 1)
@@ -488,91 +622,168 @@ export const AHA_DENKEN: Bite[] = [
         hatch(real, RR(166, 360, 28, 50, 12), 0, true)
       },
       wald(g) {
-        text(g, 180, 430, 'Abraham Wald', { anchor: 'middle', size: 30, d: 200 })
-        text(g, 180, 470, 'Statistiker, New York, 1943', { anchor: 'middle', cls: 's', d: 600 })
-        question(g, 180, 560, 0.8, 1000)
+        // Schreibtisch mit Lampe: Skizze eines Bombers mit Trefferpunkten, Formeln, Bleistift
+        ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
+        for (const x of [40, 320]) ink(g, L([x, 600], [x, 650]), { w: 2.6, d: 200, t: 200 })
+        const pg: P[] = [[60, 470], [230, 462], [236, 594], [64, 598], [60, 470]]
+        blank(g, pg)
+        ink(g, pg, { w: 2, d: 300, t: 400 })
+        bomber(g, 120, 530, 0.3, 500)
+        for (const [x, y] of [[100, 530], [140, 532], [118, 556], [122, 500]] as const) dot(g, x, y, 1.6, 1100)
+        for (let k = 0; k < 4; k++) ink(g, Array.from({ length: 10 }, (_, i) => [170 + i * 5.6, 490 + k * 22 + Math.sin(i * 1.7 + k) * 2] as P), { w: 0.9, d: 1200 + k * 100, t: 150 })
+        ink(g, [[260, 600], [260, 420], [300, 380]], { w: 2.4, d: 600, t: 400 })
+        ink(g, [[280, 360], [330, 380], [312, 410], [280, 360]], { w: 2.2, d: 800, t: 200 })
+        hatch(g, [[280, 360], [330, 380], [312, 410], [280, 360]], 900, true)
+        for (let k = 0; k < 3; k++) ink(g, L([306 + k * 6, 404], [250 + k * 20, 470]), { w: 0.8, d: 1100, t: 200 })
+        ink(g, L([200, 600], [244, 560]), { w: 3, d: 1400, t: 150 })
+        question(g, 110, 400, 0.6, 1700)
       },
       fehlt(g) {
-        bomber(g, 180, 430, 0.8)
-        for (const x of [-80, 80]) ball(g, 180 + x, 404, 8, { d: 1000, fill: 'dicht', t: 0 })
-        arrow(g, B([180, 560], [200, 590], [230, 610], [280, 640]), { w: 2.4, d: 1300, t: 500, head: 9 })
-        text(g, 100, 610, 'kam nie zurück', { anchor: 'middle', d: 1500 })
+        // Treffer im Motor: das Flugzeug zieht eine Rauchfahne und stürzt ab – es kommt nie zurück
+        const m = glide(g, 60, 150, { ms: 4000, d: 1000 })
+        const r = mk('g', { transform: 'rotate(30 180 420)' }, m)
+        bomber(r, 180, 420, 0.6, 0)
+        for (let k = 0; k < 5; k++) {
+          const w = wobble(g, { dx: 4, dy: -3, ms: 900 + k * 120, d: 1200 })
+          const x = 120 - k * 20
+          const y = 380 - k * 22
+          const pf: P[] = smooth(Array.from({ length: 9 }, (_, j) => [x + Math.cos(rad(j * 45)) * (10 + k * 3), y + Math.sin(rad(j * 45)) * (8 + k * 2)] as P), 3)
+          hatch(w, pf, 900 + k * 120, k < 2)
+          ink(w, pf, { w: 1.4, d: 800 + k * 120, t: 150 })
+        }
+        flame(g, 140, 400, 0.4, 700)
+        ink(g, L([20, 640], [340, 640]), { w: 2.2, d: 200, t: 400 })
       },
       filter(g) {
-        ink(g, [[60, 360], [300, 360], [200, 480], [200, 560], [160, 560], [160, 480], [60, 360]], { w: 3, t: 900 })
-        for (let i = 0; i < 9; i++) dot(g, 80 + i * 25, 330, 5, 300 + i * 50)
-        dot(g, 180, 600, 5, 1200)
-        dot(g, 180, 630, 5, 1350)
-        text(g, 290, 600, 'nur sie siehst du', { anchor: 'middle', cls: 's', d: 1500 })
+        // Trichter als Filter: viele Flugzeuge starten, nur wenige kommen unten heraus
+        ink(g, [[50, 360], [310, 360], [200, 480], [200, 560], [160, 560], [160, 480], [50, 360]], { w: 3, t: 900 })
+        for (let i = 0; i < 10; i++) {
+          const f = glide(g, (180 - (60 + i * 24)) * 0.5, 80, { ms: 2200, d: 400 + i * 150, loop: true })
+          bomber(f, 60 + i * 24, 320, 0.08, 200 + i * 50)
+        }
+        for (const [x, y] of [[90, 400], [270, 400], [130, 440], [230, 440], [180, 420]] as const) cross(g, x, y, 0.4, 1400 + x * 2)
+        for (let k = 0; k < 2; k++) {
+          const f = glide(g, 0, 50, { ms: 2200, d: 1600 + k * 800, loop: true })
+          bomber(f, 180, 580, 0.08, 1500)
+        }
       },
       haeuser(g) {
+        // zwei alte Häuser stehen noch; dazwischen die gestrichelten Umrisse abgerissener, davor Schutt
         ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
-        house(g, 40, 598, 70, 200)
-        house(g, 240, 598, 70, 400)
-        for (const x of [130, 175]) dashes(g, [[x, 598], [x, 550], [x + 30, 530], [x + 60, 550], [x + 60, 598]], { w: 1.4, d: 800 })
-        text(g, 180, 650, 'die schlechten sind abgerissen', { anchor: 'middle', cls: 's', d: 1300 })
+        house(g, 30, 598, 80, 200)
+        house(g, 250, 598, 80, 400)
+        for (const x of [120, 186]) dashes(g, [[x, 598], [x, 530], [x + 30, 506], [x + 58, 530], [x + 58, 598]], { w: 1.4, d: 800, dash: 5, gap: 4 })
+        const rub: P[] = [[124, 598], [140, 584], [160, 590], [184, 578], [210, 588], [236, 598]]
+        hatch(g, [...rub, [124, 598]], 1300, true)
+        ink(g, rub, { w: 1.8, d: 1200, t: 300 })
+        for (const x of [60, 290]) for (let k = 0; k < 3; k++) ink(g, L([x - 14 + k * 14, 598 - 56], [x - 14 + k * 14, 598 - 50]), { w: 1, d: 900, t: 50 })
       },
       erfolg(g) {
-        fig(g, 70, 600, 4)
-        ink(g, RR(40, 420, 60, 20, 4), { w: 2.4, d: 400, t: 300 })
+        // einer steht auf einem Stapel Geld; hinter ihm verblassen die vielen, die es genauso versucht haben
         for (let i = 0; i < 18; i++) {
-          const f = st(g, '', `opacity: 0.35`)
-          fig(f, 150 + (i % 6) * 32, 520 + Math.floor(i / 6) * 50, 1.2, { d: 700 + i * 40 })
+          const f = st(g, '', 'opacity: 0.3')
+          fig(f, 160 + (i % 6) * 32, 520 + Math.floor(i / 6) * 50, 1.2, { d: 700 + i * 40 })
         }
-        text(g, 230, 400, 'die vielen anderen', { anchor: 'middle', cls: 's', d: 1400 })
+        for (let k = 0; k < 5; k++) {
+          ink(g, RR(30, 600 - k * 14, 90, 12, 2), { w: 1.8, d: 200 + k * 60, t: 150 })
+          ink(g, E(75, 606 - k * 14, 4), { w: 1, d: 300 + k * 60, t: 60 })
+        }
+        fig(g, 75, 530, 3, { d: 600, arms: 'up' })
+        rays(g, 75, 420, 16, 34, 8, 1200)
       },
       fonds(g) {
-        vbars(g, [
-          { label: 'noch da', v: 5, fmt: () => 'gut' },
-          { label: 'geschlossen', v: 1.5, fmt: () => 'unsichtbar', dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 220 })
+        // viele Fondsverläufe: die schlechten brechen ab (gestrichelt, Kreuz), nur die überlebenden laufen weiter
+        axes(g, 40, 620, 330, 330, {})
+        let seed = 9
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let k = 0; k < 9; k++) {
+          const dead = k % 3 !== 0
+          const end = dead ? 0.3 + rnd() * 0.4 : 1
+          const pts: P[] = []
+          let y = 520 + (rnd() - 0.5) * 30
+          for (let i = 0; i <= 40 * end; i++) {
+            y += (rnd() - (dead ? 0.42 : 0.62)) * 10
+            pts.push([46 + i * 7, Math.max(340, Math.min(610, y))])
+          }
+          if (dead) {
+            dashes(g, pts, { w: 1, d: 300 + k * 120, dash: 3, gap: 3 })
+            const last = pts[pts.length - 1]
+            cross(g, last[0], last[1], 0.25, 1200 + k * 100)
+          } else ink(g, pts, { w: 2.4, d: 300 + k * 120, t: 800 })
+        }
       },
       katze(g) {
+        // Hochhaus, eine Katze fällt mit gespreizten Beinen; daneben die Tierklinik
         ink(g, RR(230, 300, 90, 330, 4), { w: 2.6, t: 700 })
         for (let r = 0; r < 6; r++) for (let c = 0; c < 2; c++) ink(g, RR(244 + c * 36, 318 + r * 50, 24, 30, 3), { w: 1.6, d: 300 + (r * 2 + c) * 40, t: 150 })
-        const c = E(100, 460, 34, 22)
-        hatch(g, c, 900)
-        ink(g, c, { w: 2.6, d: 600, t: 400 })
-        ink(g, E(130, 440, 14), { w: 2.4, d: 800, t: 300 })
-        text(g, 110, 560, 'Tierklinik sieht', { anchor: 'middle', cls: 's', d: 1100 })
-        text(g, 110, 580, 'nur die Überlebenden', { anchor: 'middle', cls: 's', d: 1200 })
+        const cf = glide(g, -10, 120, { ms: 2000, d: 900, loop: true })
+        const body: P[] = smooth([[170, 370], [190, 362], [214, 366], [220, 374], [200, 382], [176, 380], [170, 370]], 3)
+        blank(cf, body)
+        hatch(cf, body, 800)
+        ink(cf, body, { w: 2, d: 700, t: 200 })
+        ink(cf, E(222, 368, 7), { w: 1.8, d: 800, t: 100 })
+        for (const [a, b] of [[[176, 378], [164, 392]], [[186, 380], [184, 396]], [[204, 380], [210, 396]], [[214, 376], [228, 388]], [[170, 370], [150, 356]]] as const) ink(cf, L(a as P, b as P), { w: 1.6, d: 900, t: 80 })
+        ink(g, L([20, 630], [340, 630]), { w: 2.4, d: 200, t: 400 })
+        const vet: P[] = [[30, 630], [30, 560], [80, 530], [130, 560], [130, 630]]
+        ink(g, vet, { w: 2.4, d: 500, t: 400 })
+        for (const [a, b] of [[[74, 572], [86, 572]], [[80, 566], [80, 578]]] as const) ink(g, L(a as P, b as P), { w: 3, d: 900, t: 80 })
+        ink(g, RR(62, 594, 36, 36, 2), { w: 1.8, d: 800, t: 150 })
       },
       musik(g) {
-        for (const [x, y, d] of [[60, 420, 0], [130, 400, 200]] as const) {
-          ink(g, E(x, y + 40, 12, 9), { w: 2.6, d, t: 300 })
-          hatch(g, E(x, y + 40, 12, 9), d + 200, true)
-          ink(g, L([x + 11, y + 38], [x + 11, y - 20]), { w: 2.4, d: d + 200, t: 200 })
+        // Grammofon spielt die bekannten Hits, daneben verblassen die vielen vergessenen Lieder
+        ink(g, RR(30, 540, 120, 40, 4), { w: 2.6, t: 400 })
+        ink(g, E(90, 538, 50, 8), { w: 2, d: 200, t: 300 })
+        const rec = spin(g, 90, 536, 2000, 600)
+        ink(rec, E(90, 536, 40, 6, 0, 300), { w: 1, d: 500, t: 200 })
+        ink(g, [[140, 536], [140, 470], [120, 440]], { w: 2.2, d: 400, t: 300 })
+        ink(g, [...B([120, 440], [100, 410], [80, 350], [40, 330]), ...B([40, 330], [100, 330], [150, 360], [130, 440]).slice(1)], { w: 2.6, d: 500, t: 400 })
+        for (const [x, y, dd] of [[70, 300, 900], [120, 280, 1100]] as const) {
+          const n = glide(g, 20, -30, { ms: 2400, d: dd, loop: true })
+          note(n, x, y, 1, dd - 100)
         }
-        for (let i = 0; i < 6; i++) {
-          const f = st(g, '', 'opacity: 0.3')
-          ink(f, E(200 + (i % 3) * 40, 470 + Math.floor(i / 3) * 60, 10, 7), { w: 2, d: 600 + i * 80, t: 200 })
+        for (let i = 0; i < 9; i++) {
+          const f = st(g, '', 'opacity: 0.28')
+          note(f, 210 + (i % 3) * 44, 400 + Math.floor(i / 3) * 80, 0.8, 600 + i * 80)
         }
-        text(g, 180, 620, 'die vergessenen Lieder', { anchor: 'middle', cls: 's', d: 1300 })
       },
       studien(g) {
-        for (let i = 0; i < 10; i++) {
-          const x = 40 + (i % 5) * 60
-          const y = 360 + Math.floor(i / 5) * 90
-          const pub = i % 4 === 0
-          ink(g, RR(x, y, 44, 60, 4), { w: pub ? 2.6 : 1.4, d: i * 60, t: 200 })
-          if (pub) hatch(g, RR(x + 4, y + 4, 36, 52, 2), 600 + i * 60, true)
+        // oben im Regal die veröffentlichten, auffälligen Studien; unten die Schublade mit den vielen ohne Effekt
+        ink(g, L([40, 440], [320, 440]), { w: 2.6, t: 400 })
+        for (let i = 0; i < 3; i++) {
+          ink(g, RR(70 + i * 80, 340, 56, 96, 3), { w: 2.4, d: 200 + i * 100, t: 300 })
+          hatch(g, RR(74 + i * 80, 344, 48, 22, 2), 600 + i * 100, true)
+          plot(g, 76 + i * 80, 420, 44, 40, (t) => t * t, { d: 800 + i * 100, t: 300, w: 1.6 })
         }
-        text(g, 180, 600, 'spektakulär → veröffentlicht', { anchor: 'middle', cls: 's', d: 1200 })
+        ink(g, RR(40, 480, 280, 150, 6), { w: 2.8, d: 400, t: 500 })
+        const dr = glide(g, 0, 20, { ms: 900, d: 1000 })
+        ink(dr, RR(54, 500, 252, 120, 4), { w: 2.2, d: 600, t: 400 })
+        ink(dr, RR(150, 520, 60, 10, 4), { w: 2, d: 700, t: 150 })
+        for (let k = 0; k < 14; k++) ink(dr, L([66 + k * 17, 540], [66 + k * 17, 610]), { w: 1.2, d: 900 + k * 30, t: 80 })
       },
       startups(g) {
-        for (let i = 0; i < 10; i++) {
-          const f = st(g, '', i === 0 ? '' : 'opacity: 0.3')
-          fig(f, 40 + i * 31, 600, 1.8, { d: i * 60 })
+        // einer im Rampenlicht mit Mikrofonen; neun gescheiterte im Dunkeln
+        for (let i = 0; i < 9; i++) {
+          const f = st(g, '', 'opacity: 0.3')
+          fig(f, 150 + (i % 5) * 38, 600 - Math.floor(i / 5) * 10, 1.8, { d: i * 60 })
         }
-        text(g, 40, 520, 'in den Nachrichten', { cls: 's', d: 800 })
-        text(g, 220, 520, 'die anderen neun', { anchor: 'middle', cls: 's', d: 1000 })
+        const beam: P[] = [[60, 300], [90, 300], [130, 600], [20, 600]]
+        hatch(g, beam, 400)
+        ink(g, L([60, 300], [20, 600]), { w: 1, d: 300, t: 300 })
+        ink(g, L([90, 300], [130, 600]), { w: 1, d: 300, t: 300 })
+        fig(g, 75, 600, 2.4, { d: 600, arms: 'up' })
+        for (const [x, a] of [[110, -30], [130, -50]] as const) {
+          ink(g, L([x, 540], [x + Math.cos(rad(a + 180)) * 30, 540 + Math.sin(rad(a + 180)) * 30]), { w: 1.6, d: 900, t: 150 })
+          ink(g, E(x - Math.cos(rad(a)) * 32, 540 - Math.sin(rad(a)) * 32, 4, 6), { w: 1.6, d: 1000, t: 100 })
+        }
       },
       frage(g) {
-        question(g, 180, 470, 2)
-        text(g, 180, 600, 'Was sehe ich nicht?', { anchor: 'middle', size: 22, d: 900 })
+        // Lupe über einer leeren, gestrichelten Fläche: das, was fehlt
+        for (let i = 0; i < 12; i++) if (![5, 6, 9].includes(i)) bomber(g, 60 + (i % 4) * 80, 360 + Math.floor(i / 4) * 90, 0.12, i * 60)
+        for (const i of [5, 6, 9]) dashes(g, E(60 + (i % 4) * 80, 360 + Math.floor(i / 4) * 90, 22), { w: 1.4, d: 900, dash: 4, gap: 4 })
+        lens(g, 180, 450, 60, 1200)
       },
       ende(g) {
-        bomber(g, 180, 500, 0.8)
+        bomber(g, 180, 500, 0.9, 0)
       },
     },
     scenes: [
@@ -609,90 +820,171 @@ export const AHA_DENKEN: Bite[] = [
     images: [],
     draw: {
       spitze(g) {
+        // Leistungskurve mit Rekordspitze (Pokal) – danach geht es zurück Richtung Durchschnitt
         axes(g, 30, 420, 330, 100)
-        const pts: P[] = [[40, 330], [80, 300], [120, 320], [160, 290], [200, 150], [240, 300], [280, 320], [320, 310]]
-        ink(g, pts, { w: 3, d: 500, t: 1200 })
-        dot(g, 200, 150, 6, 1300)
-        dashes(g, L([40, 310], [320, 310]), { w: 1.2, d: 1500 })
+        dashes(g, L([40, 320], [320, 320]), { w: 1.2, d: 300, dash: 5, gap: 4 })
+        const pts: P[] = [[40, 330], [70, 310], [100, 336], [130, 300], [160, 324], [190, 160], [220, 300], [250, 330], [280, 316], [320, 326]]
+        ink(g, pts, { w: 3, d: 500, t: 1400 })
+        pts.forEach(([x, y], i) => dot(g, x, y, i === 5 ? 6 : 3, 500 + i * 140))
+        const cup: P[] = [[176, 112], [204, 112], ...B([204, 112], [204, 132], [196, 140], [190, 142]).slice(1), [190, 148], [198, 154], [182, 154], [190, 148], [190, 142], ...B([190, 142], [184, 140], [176, 132], [176, 112]).slice(1)]
+        ink(g, cup, { w: 2, d: 1400, t: 300 })
+        for (const k of [-1, 1]) ink(g, B([190 + k * 14, 116], [190 + k * 24, 116], [190 + k * 24, 130], [190 + k * 12, 132]), { w: 1.4, d: 1500, t: 150 })
+        rays(g, 190, 130, 28, 40, 8, 1600)
+        arrow(g, B([200, 172], [214, 220], [222, 260], [222, 290]), { w: 2, d: 1800, t: 300, head: 7 })
       },
       lob(g) {
-        fig(g, 90, 600, 3)
-        bubble(g, 30, 360, 130, 60, 'l', 400)
-        text(g, 95, 398, 'Super!', { anchor: 'middle', d: 600 })
-        arrow(g, L([200, 420], [290, 520]), { w: 3, d: 900, t: 400, head: 10 })
-        text(g, 270, 420, 'danach schlechter', { anchor: 'middle', cls: 's', d: 1100 })
+        // Fluglehrer lobt nach der Traumlandung (Daumen hoch), die nächste Landung ist holpriger
+        ink(g, L([20, 600], [340, 600]), { w: 2.6, t: 400 })
+        dashes(g, L([40, 612], [320, 612]), { w: 2, d: 200, dash: 14, gap: 10 })
+        fig(g, 70, 598, 3, { d: 300 })
+        fig(g, 140, 598, 2.6, { d: 400 })
+        bubble(g, 20, 350, 110, 70, 'l', 600)
+        ink(g, [[60, 396], [60, 380], [66, 366], [72, 370], [70, 380], [86, 380], [88, 396], [60, 396]], { w: 2, d: 900, t: 300 })
+        ink(g, B([190, 420], [240, 470], [260, 520], [270, 560]), { w: 1.4, d: 1100, t: 400 })
+        ink(g, [[270, 560], [280, 590], [290, 572], [300, 598], [310, 586], [330, 598]], { w: 2.2, d: 1400, t: 400 })
+        jet(g, 190, 410, 0.22, 1000)
       },
       tadel(g) {
-        fig(g, 90, 600, 3)
-        bubble(g, 30, 360, 130, 60, 'l', 400)
-        text(g, 95, 398, 'Mies!', { anchor: 'middle', d: 600 })
-        arrow(g, L([200, 520], [290, 420]), { w: 3, d: 900, t: 400, head: 10 })
-        text(g, 270, 560, 'danach besser', { anchor: 'middle', cls: 's', d: 1100 })
+        // nach der missglückten Landung schimpft der Lehrer (Zackenblase), die nächste Landung ist glatter
+        ink(g, L([20, 600], [340, 600]), { w: 2.6, t: 400 })
+        dashes(g, L([40, 612], [320, 612]), { w: 2, d: 200, dash: 14, gap: 10 })
+        fig(g, 70, 598, 3, { d: 300, arms: 'up' })
+        fig(g, 140, 598, 2.6, { d: 400 })
+        const zb: P[] = Array.from({ length: 25 }, (_, k) => {
+          const a = rad(k * 15)
+          const r = k % 2 ? 46 : 58
+          return [76 + Math.cos(a) * r, 390 + Math.sin(a) * r * 0.6] as P
+        })
+        ink(g, zb, { w: 2.2, d: 600, t: 400 })
+        bolt(g, [[70, 370], [60, 392], [76, 392], [64, 414]], 900, 2.4)
+        ink(g, B([190, 420], [250, 470], [290, 540], [330, 596]), { w: 2, d: 1100, t: 500 })
+        jet(g, 190, 410, 0.22, 1000)
+        check(g, 300, 520, 0.6, 1600)
       },
       streuung(g) {
-        axes(g, 30, 620, 330, 320, { xl: 'Versuche', yl: 'Leistung' })
+        // Versuche schwanken um den Durchschnitt: ein Glückstreffer (Sonne) und ein Pechtag (Gewitterwolke)
+        axes(g, 30, 620, 330, 320, {})
         dashes(g, L([40, 470], [320, 470]), { w: 1.4, d: 400 })
         let seed = 5
         const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
         const ys: number[] = []
         for (let i = 0; i < 18; i++) ys.push(470 + (rnd() - 0.5) * 120)
         ys[6] = 350
+        ys[7] = 470 - (rnd() - 0.5) * 30
         ys[12] = 590
+        ys[13] = 476
         ys.forEach((y, i) => dot(g, 50 + i * 15.5, y, i === 6 || i === 12 ? 6 : 3.5, 600 + i * 60))
-        text(g, 133, 340, 'Glück', { anchor: 'middle', cls: 's', d: 1700 })
-        text(g, 236, 612, 'Pech', { anchor: 'middle', cls: 's', d: 1800 })
+        sunDisk(g, 143, 344, 10, 1700)
+        cloud(g, 236, 600, 0.3, 1800, true)
+        carrow(g, [148, 356], [158, 460], -20, { d: 2000 })
+        carrow(g, [242, 578], [256, 482], 20, { d: 2200 })
       },
       cover(g) {
-        ink(g, RR(110, 330, 140, 190, 6), { w: 3, t: 700 })
-        fig(g, 180, 500, 3.6, { d: 400, arms: 'up' })
-        text(g, 180, 356, 'TITEL', { anchor: 'middle', d: 800 })
-        arrow(g, L([260, 540], [310, 610]), { w: 2.6, d: 1100, t: 400, head: 9 })
-        text(g, 180, 640, 'nächste Saison schwächer', { anchor: 'middle', cls: 's', d: 1300 })
+        // Titelblatt mit Sportler, danach knickt die Saisonkurve ein
+        ink(g, RR(40, 330, 150, 210, 6), { w: 3, t: 700 })
+        hatch(g, RR(46, 336, 138, 24, 3), 300, true)
+        fig(g, 115, 510, 4.2, { d: 400, arms: 'up' })
+        for (let k = 0; k < 8; k++) ink(g, L([150 + k * 4, 508], [150 + k * 4, 530]), { w: k % 3 ? 1 : 2, d: 900 + k * 20, t: 50 })
+        for (let k = 0; k < 2; k++) ink(g, L([54, 380 + k * 12], [100, 380 + k * 12]), { w: 2, d: 800 + k * 60, t: 100 })
+        axes(g, 210, 600, 340, 380, {})
+        ink(g, [[216, 420], [240, 430], [264, 470], [290, 500], [320, 510]], { w: 2.6, d: 1100, t: 600 })
+        dot(g, 216, 420, 5, 1100)
       },
       arzt(g) {
+        // Beschwerden schwanken; zum Arzt geht man am Gipfel – danach sinken sie ohnehin
         axes(g, 30, 600, 330, 320, { xl: 'Zeit', yl: 'Beschwerden' })
-        plot(g, 36, 596, 280, 240, (t) => 0.4 + 0.5 * Math.exp(-Math.pow((t - 0.3) / 0.12, 2)), { d: 400 })
-        dot(g, 36 + 0.3 * 280, 596 - 0.9 * 240, 6, 1300)
-        text(g, 36 + 0.3 * 280 + 12, 596 - 0.9 * 240 - 8, 'Arztbesuch', { cls: 's', d: 1400 })
+        plot(g, 36, 596, 280, 240, (t) => 0.4 + 0.5 * Math.exp(-Math.pow((t - 0.3) / 0.12, 2)) + 0.05 * Math.sin(t * 30), { d: 400 })
+        const x = 36 + 0.3 * 280
+        const y = 596 - 0.93 * 240
+        ink(g, RR(x - 12, y - 40, 24, 24, 3), { w: 2, d: 1300, t: 150 })
+        for (const [a, b] of [[[x - 7, y - 28], [x + 7, y - 28]], [[x, y - 35], [x, y - 21]]] as const) ink(g, L(a as P, b as P), { w: 3, d: 1400, t: 80 })
+        dot(g, x, y, 5, 1300)
       },
       kontrolle(g) {
-        vbars(g, [
-          { label: 'Mittel', v: 6, fmt: () => 'besser' },
-          { label: 'Kontrolle', v: 4.5, fmt: () => 'auch besser', dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 230 })
-        text(g, 180, 320, 'nur der Unterschied zählt', { anchor: 'middle', cls: 's', d: 1300 })
+        // zwei Gruppen: mit Mittel und mit Scheinmittel – beiden geht es besser, nur die Differenz zählt
+        for (const [x, real] of [[90, true], [250, false]] as const) {
+          crowd(g, x - 50, 600, 4, 32, 1.6, real ? 0 : 300, 80)
+          ink(g, RR(x - 14, 400, 28, 40, 6), { w: 2, d: 500, t: 200 })
+          ink(g, RR(x - 16, 392, 32, 10, 3), { w: 1.8, d: 600, t: 100 })
+          if (real) hatch(g, RR(x - 12, 412, 24, 26, 4), 700, true)
+          arrow(g, L([x + 50, 560], [x + 50, real ? 470 : 500]), { w: 2.4, d: 900, t: 300, head: 8 })
+        }
+        dashes(g, L([150, 470], [300, 470]), { w: 1, d: 1300, dash: 4, gap: 3 })
+        arrow(g, L([316, 500], [316, 474]), { w: 1.6, d: 1500, t: 150, head: 5 })
+        arrow(g, L([316, 474], [316, 500]), { w: 1.6, d: 1500, t: 150, head: 5 })
       },
       trainer(g) {
         axes(g, 30, 600, 330, 330, { xl: 'Spiele', yl: 'Punkte' })
         const pts: P[] = [[40, 450], [80, 500], [120, 540], [160, 560], [200, 480], [240, 460], [280, 470], [320, 455]]
         ink(g, pts, { w: 2.8, d: 400, t: 1200 })
         dashes(g, L([180, 590], [180, 360]), { w: 1.4, d: 1400 })
-        text(g, 186, 372, 'neuer Trainer', { cls: 's', d: 1500 })
+        fig(g, 196, 410, 1.4, { d: 1500, arms: 'push' })
+        ink(g, B([186, 366], [190, 360], [202, 360], [206, 366]), { w: 2, d: 1600, t: 100 })
       },
       galton(g) {
-        fig(g, 70, 600, 5)
-        fig(g, 140, 600, 4.6, { d: 200 })
-        arrow(g, L([170, 540], [220, 540]), { w: 2.4, d: 600, t: 300, head: 9 })
-        fig(g, 270, 600, 4, { d: 800 })
-        text(g, 180, 650, 'sehr große Eltern → etwas kleinere Kinder', { anchor: 'middle', cls: 's', d: 1100 })
+        // Messlatte: sehr große Eltern, ihr Kind ist etwas kleiner – näher am Durchschnitt (gestrichelt)
+        ink(g, L([30, 300], [30, 600]), { w: 2.4, t: 400 })
+        for (let k = 0; k <= 15; k++) ink(g, L([30, 600 - k * 20], [k % 5 ? 38 : 46, 600 - k * 20]), { w: 1, d: 200 + k * 20, t: 40 })
+        dashes(g, L([30, 600 - 32 * 5.5], [340, 600 - 32 * 5.5]), { w: 1.2, d: 600, dash: 5, gap: 4 })
+        fig(g, 90, 600, 5.6, { d: 300 })
+        fig(g, 160, 600, 5.3, { d: 500 })
+        fig(g, 270, 600, 5, { d: 1000 })
+        arrow(g, L([196, 500], [236, 500]), { w: 2.4, d: 800, t: 300, head: 9 })
+        ink(g, L([20, 600], [340, 600]), { w: 2.6, d: 100, t: 400 })
       },
       noten(g) {
-        for (const [x, n, d] of [[60, '1', 0], [160, '3', 400], [260, '2', 800]] as const) {
-          ink(g, RR(x - 30, 400, 60, 80, 6), { w: 2.6, d, t: 400 })
-          text(g, x, 452, n, { anchor: 'middle', size: 32, d: d + 200 })
+        // drei Arbeiten derselben Schülerin nacheinander: Ausreißer nach oben, dann wieder Mittelfeld
+        for (const [x, n, d] of [[60, '1', 0], [170, '3', 400], [280, '2', 800]] as const) {
+          const pg: P[] = [[x - 40, 380], [x + 36, 376], [x + 40, 520], [x - 36, 524], [x - 40, 380]]
+          blank(g, pg)
+          ink(g, pg, { w: 2.2, d, t: 400 })
+          for (let k = 0; k < 6; k++) ink(g, L([x - 30, 396 + k * 12], [x + 24 - (k % 3) * 8, 394 + k * 12]), { w: 0.8, d: d + 200 + k * 40, t: 100 })
+          ink(g, E(x + 10, 490, 18), { w: 2, d: d + 500, t: 200 })
+          text(g, x + 10, 498, n, { anchor: 'middle', size: 22, d: d + 600 })
         }
-        text(g, 180, 560, 'Ausreißer, dann Mitte', { anchor: 'middle', cls: 's', d: 1300 })
+        ink(g, [[60, 580], [170, 620], [280, 600]], { w: 2.2, d: 1300, t: 500 })
+        for (const [x, y] of [[60, 580], [170, 620], [280, 600]] as const) dot(g, x, y, 4, 1400)
+        dashes(g, L([30, 600], [330, 600]), { w: 1, d: 1200, dash: 4, gap: 4 })
       },
       blitzer(g) {
-        ink(g, RR(150, 380, 60, 90, 10), { w: 3, t: 600 })
-        ink(g, E(180, 410, 16), { w: 2.4, d: 300, t: 300 })
-        ink(g, L([180, 470], [180, 600]), { w: 3, d: 400, t: 300 })
-        text(g, 180, 640, 'aufgestellt nach einem Unfall-Hoch', { anchor: 'middle', cls: 's', d: 1000 })
+        // Blitzersäule am Straßenrand, Auto fährt vorbei, Blitz; daneben fallende Unfallzahlen
+        ink(g, L([20, 600], [340, 600]), { w: 2.6, t: 400 })
+        dashes(g, L([20, 630], [340, 630]), { w: 2, d: 200, dash: 16, gap: 10 })
+        ink(g, RR(56, 380, 40, 150, 6), { w: 2.8, d: 300, t: 400 })
+        ink(g, L([76, 530], [76, 600]), { w: 3, d: 400, t: 200 })
+        ink(g, E(76, 410, 12), { w: 2.2, d: 500, t: 200 })
+        ink(g, E(76, 410, 5), { w: 1.4, d: 550, t: 100 })
+        ink(g, RR(64, 440, 24, 14, 2), { w: 1.6, d: 600, t: 100 })
+        const fl = pop(g, 1800, '50% 50%')
+        for (let k = 0; k < 8; k++) ink(fl, L([76 + Math.cos(rad(k * 45)) * 18, 410 + Math.sin(rad(k * 45)) * 18], [76 + Math.cos(rad(k * 45)) * 30, 410 + Math.sin(rad(k * 45)) * 30]), { w: 1.6, t: 0 })
+        const c = glide(g, -200, 0, { ms: 2400, d: 900, loop: true })
+        car(c, 330, 620, 1.2, 600)
+        axes(g, 180, 540, 340, 370, {})
+        ink(g, [[186, 400], [220, 410], [250, 470], [280, 480], [320, 490]], { w: 2.2, d: 1200, t: 500 })
+        dot(g, 186, 400, 4, 1200)
       },
       ende(g) {
         dashes(g, L([40, 500], [320, 500]), { w: 1.6 })
-        arrow(g, L([100, 380], [100, 490]), { w: 2.6, d: 500, t: 400, head: 9 })
-        arrow(g, L([260, 620], [260, 510]), { w: 2.6, d: 700, t: 400, head: 9 })
+        for (let i = 0; i < 12; i++) dot(g, 50 + i * 24, 500 + Math.sin(i * 2.1) * 20, 3, 200 + i * 40)
+        arrow(g, L([100, 380], [100, 490]), { w: 2.6, d: 900, t: 400, head: 9 })
+        dot(g, 100, 370, 6, 800)
+        arrow(g, L([260, 620], [260, 510]), { w: 2.6, d: 1100, t: 400, head: 9 })
+        dot(g, 260, 630, 6, 1000)
+      },
+      anteile(g) {
+        // jede Leistung = festes Können (dunkler Sockel) + schwankender Zufall (hell schraffiert, mal plus, mal minus)
+        ink(g, L([30, 600], [330, 600]), { w: 2.6, t: 400 })
+        dashes(g, L([30, 480], [330, 480]), { w: 1.2, d: 300, dash: 5, gap: 4 })
+        const luck = [30, -20, 50, -40, 10, 70, -60, 20, -10, 40]
+        luck.forEach((l, i) => {
+          const x = 40 + i * 29
+          hatch(g, RR(x, 480, 20, 120, 2), 400 + i * 80, true)
+          ink(g, RR(x, 480, 20, 120, 2), { w: 1.6, d: 300 + i * 80, t: 150 })
+          const top = 480 - l
+          const r: P[] = [[x, 480], [x + 20, 480], [x + 20, top], [x, top], [x, 480]]
+          if (l > 0) hatch(g, r, 900 + i * 80)
+          ink(g, r, { w: 1.4, d: 800 + i * 80, t: 150 })
+        })
       },
     },
     scenes: [
@@ -700,7 +992,7 @@ export const AHA_DENKEN: Bite[] = [
       { t: T('Ein Fluglehrer erzählte: Wer nach einer **tollen Landung** gelobt wird, landet danach meist schlechter.', 64), gfx: { lob: {} } },
       { t: T('Und wer nach einer **miesen Landung** angeschrien wird, landet danach meist besser. Schimpfen wirkt also, Lob schadet?', 64), gfx: { tadel: {} } },
       { t: T('Der Psychologe Daniel Kahneman erkannte: weder noch. Das ist die **Regression zur Mitte**.', 480), gfx: { spitze: {} } },
-      { t: T('Jede Leistung besteht aus Können **plus Zufall** – an manchen Tagen läuft es, an anderen nicht.', 64), gfx: { f1: { draw: 'formel', args: [['Ergebnis', '=', 'Können', '+', 'Zufall'], 360] } } },
+      { t: T('Jede Leistung besteht aus Können **plus Zufall** – an manchen Tagen läuft es, an anderen nicht.', 64), gfx: { anteile: {} } },
       { t: T('Eine herausragende Landung hatte meist besonders viel **Glück**. Beim nächsten Mal ist das Glück durchschnittlich – das Ergebnis fällt zurück.', 64), gfx: { streuung: {} } },
       { t: T('Bei einer miserablen Landung war meist **Pech** dabei. Danach geht es fast von allein wieder nach oben.', 64), gfx: { streuung: {} } },
       { t: T('Lob und Tadel haben damit **wenig zu tun**. Die Ergebnisse wandern einfach zurück Richtung Durchschnitt.', 64), gfx: { ende: {} } },
