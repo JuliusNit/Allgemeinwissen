@@ -1,22 +1,8 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, bolt, check, cross, dashes, fig, hatch, ink, mk, mountain, pop, question, rays, st, star, text, timeline, type P } from './draw'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, check, cross, dashes, fig, hatch, ink, mk, mountain, pop, question, rays, st, star, text, type P } from './draw'
 import { LAND, arcArrow, ball, bird, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, flow, geo, glide, house, jet, mapRegion, mol, moonFace, rad, rain, ripple, rotPole, smooth, spin, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
 
 // Erde & Wetter: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
-
-/** Unregelmäßige Fläche (Land), geschlossen; seed ändert die Zacken */
-function blob(g: Element, cx: number, cy: number, rx: number, ry: number, seed: number, d = 0, fill = true): P[] {
-  const pts: P[] = []
-  for (let i = 0; i <= 60; i++) {
-    const a = (i / 60) * Math.PI * 2
-    const r = 1 + 0.1 * Math.sin(a * 3 + seed) + 0.06 * Math.sin(a * 5 + seed * 2)
-    pts.push([cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r])
-  }
-  blank(g, pts)
-  if (fill) hatch(g, pts, d + 400)
-  ink(g, pts, { w: 2.4, d, t: 700 })
-  return pts
-}
 
 /** Düne als Bogen von x0 bis x1, Grundlinie y */
 function dune(g: Element, x0: number, x1: number, y: number, hgt: number, d = 0): void {
@@ -242,6 +228,21 @@ function tanker(g: Element, x: number, y: number, s = 1, d = 0): void {
     blank(g, E(x + a * s, y - 6 * s, 5 * s))
     ink(g, E(x + a * s, y - 6 * s, 5 * s), { w: 1.6, d: d + 200, t: 100 })
   }
+}
+
+/** Trilobit von oben, Kopf oben: Kopfschild mit Augen, dreigeteilter Rumpf mit Segmenten, Schwanzschild */
+function trilobite(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const o: P[] = smooth([P(0, -30), P(22, -26), P(30, -14), P(20, -8), P(18, 14), P(10, 28), P(0, 32), P(-10, 28), P(-18, 14), P(-20, -8), P(-30, -14), P(-22, -26), P(0, -30)], 3)
+  blank(g, o)
+  hatch(g, o, d + 400)
+  ink(g, o, { w: 2 * Math.max(0.7, s * 0.8), d, t: 400 })
+  ink(g, B(P(-30, -14), P(-14, -6), P(14, -6), P(30, -14)), { w: 1.2, d: d + 200, t: 200 })
+  for (const k of [-1, 1]) {
+    ink(g, E(x + k * 12 * s, y - 16 * s, 4 * s, 3 * s), { w: 1.2, d: d + 300, t: 80 })
+    ink(g, B(P(k * 6, -6), P(k * 7, 6), P(k * 6, 18), P(k * 4, 28)), { w: 1, d: d + 300, t: 150 })
+  }
+  for (let k = 0; k < 8; k++) ink(g, L(P(-18 + k * 0.6, -4 + k * 3.6), P(18 - k * 0.6, -4 + k * 3.6)), { w: 0.8, d: d + 400 + k * 30, t: 60 })
 }
 
 export const AHA_ERDE: Bite[] = [
@@ -2047,91 +2048,220 @@ export const AHA_ERDE: Bite[] = [
     images: [],
     draw: {
       gipfel(g) {
-        mountain(g, 30, 330, 420, [180, 110])
+        // Everest-Pyramide mit Schneefeldern, Gesteinsbändern und Gipfelfahne; in der Lupe ein Ammonit
+        mountain(g, 20, 340, 420, [190, 110], 0)
+        mountain(g, 20, 160, 420, [90, 220], 200)
+        for (const [y, w] of [[180, 34], [204, 52]] as const) ink(g, L([190 - w * 0.7, y], [190 + w * 0.8, y + 4]), { w: 1.4, d: 700, t: 200 })
+        for (const [x, y] of [[170, 150], [215, 170], [150, 250], [250, 260]] as const) {
+          const sn: P[] = smooth([[x, y], [x + 14, y + 10], [x + 6, y + 30], [x - 8, y + 20], [x, y]], 3)
+          blank(g, sn)
+          ink(g, sn, { w: 1, d: 800, t: 150 })
+        }
+        const fl = wobble(g, { deg: 8, ox: 190, oy: 96, ms: 500, d: 1200 })
+        ink(g, L([190, 110], [190, 90]), { w: 1.6, d: 900, t: 100 })
+        ink(fl, [[190, 90], [206, 94], [190, 98]], { w: 1.4, d: 1000, t: 100 })
+        blank(g, E(290, 170, 40))
+        ink(g, E(290, 170, 40), { w: 2.4, d: 1200, t: 300 })
+        ink(g, L([262, 198], [224, 196]), { w: 1.6, d: 1300, t: 150 })
+        ammonite(g, 290, 170, 28, 1400)
         ink(g, L([20, 422], [340, 422]), { w: 2.6, d: 200, t: 500 })
-        blank(g, E(180, 170, 22))
-        ammonite(g, 180, 170, 20, 1000)
       },
       kalk(g) {
-        for (let i = 0; i < 5; i++) ink(g, L([40, 380 + i * 40], [320, 380 + i * 40 + (i % 2) * 6]), { w: 2.2, d: i * 120, t: 400 })
-        for (const [x, y] of [[100, 400], [220, 442], [160, 484], [270, 520]] as const) {
-          blank(g, E(x, y, 14))
-          ammonite(g, x, y, 12, 800)
+        // Kalksteinschichten im Anschnitt mit Ammoniten, Muscheln und Seelilienstielen; Geologenhammer
+        for (let i = 0; i < 6; i++) ink(g, smooth([[30, 360 + i * 44], [120, 356 + i * 44 + (i % 2) * 6], [240, 362 + i * 44], [330, 358 + i * 44]], 3), { w: 2, d: i * 100, t: 400 })
+        hatch(g, [[30, 404], [330, 402], [330, 446], [30, 448]], 600)
+        hatch(g, [[30, 536], [330, 534], [330, 578], [30, 580]], 700, true)
+        for (const [x, y, r] of [[90, 380, 14], [230, 426, 12], [160, 470, 16], [280, 510, 12]] as const) {
+          blank(g, E(x, y, r + 2))
+          ammonite(g, x, y, r, 800)
         }
-        text(g, 180, 620, 'Kalkstein aus Meerestieren', { anchor: 'middle', cls: 's', d: 1200 })
+        for (const [x, y] of [[60, 478], [300, 470], [120, 600]] as const) {
+          const sh: P[] = [...B([x, y], [x + 4, y - 14], [x + 22, y - 14], [x + 26, y]), [x, y]]
+          blank(g, sh)
+          ink(g, sh, { w: 1.6, d: 1000, t: 200 })
+          for (let k = 1; k < 4; k++) ink(g, L([x + 13, y], [x + 4 + k * 6, y - 11]), { w: 0.8, d: 1100, t: 60 })
+        }
+        for (let k = 0; k < 6; k++) ink(g, E(200 + k * 8, 604, 3.5, 6), { w: 1, d: 1200 + k * 30, t: 50 })
+        const hm = wobble(g, { deg: -10, ox: 300, oy: 640, ms: 700, d: 1400 })
+        ink(hm, L([300, 640], [250, 610]), { w: 3, d: 1300, t: 150 })
+        ink(hm, RR(236, 596, 30, 12, 3), { w: 2.4, d: 1400, t: 100 })
       },
       alter(g) {
-        text(g, 180, 450, '450 Mio.', { anchor: 'middle', size: 52, d: 200 })
-        text(g, 180, 495, 'Jahre alt: Gestein am Gipfel', { anchor: 'middle', cls: 's', d: 600 })
+        // vor 450 Mio. Jahren: warmes, flaches Meer mit Riff, Seelilien, Trilobit, Ammonit
+        travelWave(g, 20, 340, 330, 4, 60, { ms: 3000, w: 2.2 })
+        for (let k = 0; k < 4; k++) ink(g, L([60 + k * 70, 340], [40 + k * 70, 460]), { w: 0.8, d: 300 + k * 60, t: 300 })
+        const floor: P[] = smooth([[20, 620], [100, 610], [200, 616], [340, 604]], 3)
+        ink(g, floor, { w: 2.4, d: 200, t: 500 })
+        hatch(g, [...floor, [340, 650], [20, 650]], 400, true)
+        for (const x of [70, 110, 260]) {
+          const w = wobble(g, { deg: 6, ox: x, oy: 612, ms: 2200 + x * 5, d: 900 })
+          ink(w, B([x, 612], [x - 6, 560], [x + 6, 520], [x, 490]), { w: 1.6, d: 500, t: 300 })
+          for (let k = 0; k < 6; k++) ink(w, B([x, 490], [x + Math.cos(rad(200 + k * 28)) * 14, 490 + Math.sin(rad(200 + k * 28)) * 14], [x + Math.cos(rad(200 + k * 28)) * 24, 486 + Math.sin(rad(200 + k * 28)) * 20], [x + Math.cos(rad(200 + k * 28)) * 26, 496 + Math.sin(rad(200 + k * 28)) * 20]), { w: 1.2, d: 800 + k * 40, t: 150 })
+        }
+        const t = glide(g, -60, 0, { ms: 9000, d: 1000, loop: true })
+        trilobite(t, 200, 600, 0.8, 900)
+        const a = glide(g, 50, -10, { ms: 6000, d: 1200, loop: true })
+        ammonite(a, 170, 430, 18, 1000)
+        ink(a, L([152, 436], [134, 442]), { w: 1, d: 1100, t: 80 })
       },
       tiere(g) {
-        ammonite(g, 100, 470, 40)
-        ink(g, [...B([210, 420], [260, 400], [300, 440], [290, 500]), ...B([290, 500], [270, 540], [220, 540], [210, 500]).slice(1), [210, 420]], { w: 2.6, d: 400, t: 700 })
-        for (let i = 0; i < 4; i++) ink(g, L([216 + i * 6, 430 + i * 22], [288 - i * 4, 440 + i * 22]), { w: 1.4, d: 900 + i * 80, t: 200 })
-        text(g, 180, 600, 'Seelilien, Trilobiten, Muscheln', { anchor: 'middle', cls: 's', d: 1100 })
+        // Ammonit, Trilobit, Seelilie, Muschel als Fossilien
+        ammonite(g, 90, 420, 50, 0)
+        for (let k = 0; k < 9; k++) {
+          const a = rad(k * 40)
+          ink(g, L([90 + Math.cos(a) * 30, 420 + Math.sin(a) * 30], [90 + Math.cos(a) * 52, 420 + Math.sin(a) * 52]), { w: 0.8, d: 700 + k * 30, t: 60 })
+        }
+        trilobite(g, 260, 420, 1.6, 400)
+        const st0: P[] = [[60, 620], [70, 560], [80, 520]]
+        ink(g, st0, { w: 3, d: 800, t: 300 })
+        for (let k = 0; k < 6; k++) ink(g, L([60 + k * 3.4, 610 - k * 16], [72 + k * 3.4, 612 - k * 16]), { w: 1, d: 900 + k * 40, t: 60 })
+        for (let k = 0; k < 7; k++) ink(g, B([80, 520], [80 + Math.cos(rad(220 + k * 20)) * 20, 520 + Math.sin(rad(220 + k * 20)) * 20], [80 + Math.cos(rad(220 + k * 20)) * 32, 516 + Math.sin(rad(220 + k * 20)) * 28], [80 + Math.cos(rad(220 + k * 20)) * 36, 530 + Math.sin(rad(220 + k * 20)) * 28]), { w: 1.2, d: 1000 + k * 40, t: 150 })
+        const sh: P[] = [...B([200, 620], [206, 560], [290, 560], [296, 620]), [246, 632], [200, 620]]
+        blank(g, sh)
+        ink(g, sh, { w: 2.2, d: 1100, t: 400 })
+        for (let k = 1; k < 8; k++) ink(g, L([246, 630], [200 + k * 12, 572 + Math.abs(k - 4) * 6]), { w: 0.9, d: 1300 + k * 30, t: 80 })
       },
       indien(g) {
-        const a = st(g, 'm1', '--m1: translateY(-80px); transition-duration: 2.2s; --dl: 500ms')
-        blob(a, 180, 590, 50, 40, 7)
-        text(a, 180, 650, 'Indien', { anchor: 'middle', cls: 's', d: 300 })
-        ink(g, B([30, 400], [120, 380], [240, 380], [330, 400]), { w: 3, d: 200, t: 600 })
-        text(g, 180, 360, 'Asien', { anchor: 'middle', cls: 's', d: 400 })
+        // Asien heute; Indien vor 70, 50 und 30 Mio. Jahren weiter im Süden (gestrichelt), driftet nach Norden
+        const pr = mapRegion(g, 20, 320, 320, 330, 50, 120, -45, 45, 0)
+        const ind: [number, number][] = [[68, 23], [72, 21], [73, 17], [75, 12], [77, 8], [80, 10], [80, 15], [85, 20], [89, 22], [92, 22], [88, 27], [80, 30], [75, 32], [70, 28], [68, 23]]
+        for (const [dl, d] of [[-45, 400], [-30, 700], [-15, 1000]] as const) dashes(g, ind.map(([lo, la]) => pr(lo - dl * 0.15, la + dl)), { w: 1.6, d, dash: 4, gap: 3 })
+        const m = st(g, 'm1', '--m1: translateY(-110px); transition-duration: 2.4s; --dl: 600ms')
+        const cur = ind.map(([lo, la]) => pr(lo + 7, la - 30 + 0.0))
+        blank(m, cur)
+        hatch(m, cur, 900, true)
+        ink(m, cur, { w: 2.2, d: 800, t: 400 })
+        arrow(g, L(pr(80, -38), pr(80, -20)), { w: 2.4, d: 1200, t: 300, head: 9 })
       },
       tethys(g) {
-        ink(g, L([20, 380], [340, 380]), { w: 2.8, t: 500 })
-        text(g, 180, 360, 'Asien', { anchor: 'middle', cls: 's', d: 300 })
-        for (const y of [440, 480]) ink(g, waveP(40, 320, y, 5, 50, y / 20), { w: 2, d: 400, t: 600 })
-        text(g, 180, 530, 'Tethys-Meer', { anchor: 'middle', d: 800 })
-        ink(g, L([20, 600], [340, 600]), { w: 2.8, d: 200, t: 500 })
-        text(g, 180, 630, 'Indien', { anchor: 'middle', cls: 's', d: 400 })
-        arrow(g, L([80, 650], [80, 610]), { w: 2.2, d: 1000, t: 300, head: 8 })
+        // Schnitt: Asien oben links, dazwischen die Tethys mit Kalkschlamm am Grund, Indien schiebt von rechts heran
+        travelWave(g, 20, 340, 380, 2, 50, { ms: 3000, w: 1.8 })
+        const asia: P[] = [[20, 340], [100, 330], [120, 380], [130, 640], [20, 640]]
+        hatch(g, asia, 300, true)
+        ink(g, [[20, 340], [100, 330], [120, 380], [130, 640]], { w: 2.6, d: 100, t: 600 })
+        const floor: P[] = [[124, 520], [340, 520]]
+        ink(g, floor, { w: 2.2, d: 400, t: 400 })
+        for (let k = 0; k < 3; k++) ink(g, L([124, 510 - k * 10], [340, 510 - k * 10]), { w: 0.9, d: 600 + k * 100, t: 300 })
+        for (let k = 0; k < 12; k++) {
+          const s = glide(g, 0, 90 - (k % 3) * 10, { ms: 2400, d: 600 + k * 200, loop: true })
+          ammonite(s, 150 + k * 16, 400, 3, 500)
+        }
+        const ind = glide(g, -60, 0, { ms: 6000, d: 800, loop: true })
+        hatch(ind, [[300, 520], [360, 520], [360, 640], [300, 640]], 500)
+        ink(ind, L([300, 520], [300, 640]), { w: 2.6, d: 400, t: 300 })
+        arrow(g, L([330, 580], [270, 580]), { w: 2.4, d: 1000, t: 300, head: 9 })
+        ink(g, B([124, 530], [180, 540], [240, 560], [300, 580]), { w: 1.4, d: 800, t: 400 })
       },
       falten(g) {
-        ink(g, L([20, 620], [340, 620]), { w: 2.4, t: 500 })
-        for (let i = 0; i < 4; i++) {
-          const y = 600 - i * 26
-          ink(g, waveP(60, 300, y, 14, 120), { w: 2.2, d: 200 + i * 150, t: 600 })
+        // gefaltete Schichten mit Überschiebung, Druckpfeile von beiden Seiten
+        for (let i = 0; i < 5; i++) {
+          const y = 600 - i * 30
+          ink(g, Array.from({ length: 61 }, (_, k) => [40 + k * 4.6, y - Math.sin((k / 60) * Math.PI * 2) * (30 + i * 4) - Math.max(0, 1 - Math.abs(k - 40) / 14) * 20] as P), { w: 2.2, d: 200 + i * 150, t: 600 })
         }
-        arrow(g, L([20, 540], [52, 540]), { w: 2.6, d: 900, t: 300, head: 10 })
-        arrow(g, L([340, 540], [308, 540]), { w: 2.6, d: 900, t: 300, head: 10 })
-        text(g, 180, 440, 'gefaltet und hochgedrückt', { anchor: 'middle', cls: 's', d: 1200 })
+        hatch(g, Array.from({ length: 61 }, (_, k) => [40 + k * 4.6, 570 - Math.sin((k / 60) * Math.PI * 2) * 34 - Math.max(0, 1 - Math.abs(k - 40) / 14) * 20] as P).concat(Array.from({ length: 61 }, (_, k) => [40 + (60 - k) * 4.6, 540 - Math.sin(((60 - k) / 60) * Math.PI * 2) * 38 - Math.max(0, 1 - Math.abs(60 - k - 40) / 14) * 20] as P)), 900)
+        ink(g, [[200, 640], [240, 520], [260, 440]], { w: 2.6, d: 1000, t: 300 })
+        arrow(g, L([20, 520], [36, 520]), { w: 2.6, d: 1200, t: 200, head: 10 })
+        arrow(g, L([340, 520], [324, 520]), { w: 2.6, d: 1200, t: 200, head: 10 })
+        ink(g, L([20, 640], [340, 640]), { w: 2, d: 100, t: 400 })
       },
       tischtuch(g) {
-        ink(g, L([20, 600], [340, 600]), { w: 2.4, t: 500 })
-        ink(g, [[30, 598], [120, 598], ...B([120, 598], [150, 520], [180, 520], [200, 598]).slice(1), ...B([200, 598], [220, 560], [240, 560], [260, 598]).slice(1), [330, 598]], { w: 2.6, d: 300, t: 700 })
-        arrow(g, L([340, 560], [290, 560]), { w: 2.4, d: 900, t: 300, head: 10 })
-        text(g, 180, 470, 'wie ein Tischtuch, das man zusammenschiebt', { anchor: 'middle', cls: 's', d: 1100 })
+        // Tisch mit Tuch; eine Hand schiebt, das Tuch wirft Falten
+        ink(g, RR(20, 590, 320, 16, 3), { w: 2.8, t: 500 })
+        for (const x of [40, 320]) ink(g, L([x, 606], [x, 650]), { w: 2.6, d: 200, t: 200 })
+        const cloth: P[] = [[20, 588], [110, 588], ...B([110, 588], [130, 530], [160, 530], [180, 588]).slice(1), ...B([180, 588], [200, 550], [224, 550], [240, 588]).slice(1), ...B([240, 588], [252, 570], [266, 570], [276, 588]).slice(1), [330, 588]]
+        ink(g, cloth, { w: 2.4, d: 400, t: 800 })
+        hatch(g, [...cloth, [330, 590], [20, 590]], 900)
+        for (const x of [145, 212]) ink(g, B([x - 10, 586], [x - 4, 556], [x + 4, 556], [x + 10, 586]), { w: 0.9, d: 1000, t: 150 })
+        const h = glide(g, -30, 0, { ms: 1600, d: 600 })
+        const hand: P[] = smooth([[300, 560], [330, 556], [350, 566], [352, 586], [300, 588], [292, 574], [300, 560]], 3)
+        blank(h, hand)
+        ink(h, hand, { w: 2.4, d: 500, t: 300 })
+        for (let k = 0; k < 3; k++) ink(h, L([304, 564 + k * 7], [292, 566 + k * 7]), { w: 1.2, d: 600, t: 80 })
       },
       zeit(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.15, label: '450 Mio.', sub: 'Meeresboden', up: true },
-          { at: 0.7, label: '50 Mio.', sub: 'Zusammenstoß', big: true },
-          { at: 0.95, label: 'heute' },
-        ])
+        // Zusammenstoß: Indien schiebt sich unter Asien, der Meeresboden dazwischen staut sich auf
+        const asia: P[] = [[20, 470], [140, 470], [180, 500], [180, 640], [20, 640]]
+        hatch(g, asia, 300, true)
+        ink(g, asia.slice(0, 4), { w: 2.6, t: 600 })
+        const m = glide(g, -40, 0, { ms: 2400, d: 800 })
+        const ind: P[] = [[220, 520], [340, 520], [340, 640], [200, 640], [180, 600]]
+        hatch(m, ind, 500)
+        ink(m, ind, { w: 2.6, d: 300, t: 500 })
+        const wedge = pop(g, 1800, '50% 100%')
+        for (let k = 0; k < 4; k++) ink(wedge, smooth([[130, 470 - k * 16], [160, 420 - k * 20], [200, 400 - k * 18], [230, 440 - k * 10], [250, 516]], 3), { w: 2, t: 0 })
+        ink(wedge, L([130, 470], [250, 516]), { w: 1.6, t: 0 })
       },
       waechst(g) {
-        text(g, 180, 450, '8.849 m', { anchor: 'middle', size: 52, d: 200 })
-        text(g, 180, 495, 'und er wächst noch: wenige Millimeter im Jahr', { anchor: 'middle', cls: 's', d: 600 })
+        // Everest mit GPS-Station am Gipfel: hebt sich – gleichzeitig tragen Gletscher und Fluss ab
+        mountain(g, 30, 330, 620, [180, 340], 0)
+        ink(g, L([180, 340], [180, 320]), { w: 1.6, d: 800, t: 100 })
+        ink(g, RR(172, 306, 16, 14, 2), { w: 1.6, d: 900, t: 100 })
+        arrow(g, L([210, 340], [210, 310]), { w: 2.2, d: 1100, t: 200, head: 7 })
+        const gl: P[] = smooth([[150, 420], [140, 480], [120, 540], [100, 600]], 3)
+        ink(g, gl, { w: 8, d: 600, t: 400 })
+        blank(g, gl)
+        flow(g, gl, { n: 3, ms: 4000, d: 1000, r: 2 })
+        const rv: P[] = smooth([[100, 610], [140, 630], [220, 626], [330, 640]], 3)
+        ink(g, rv, { w: 2, d: 800, t: 400 })
+        flow(g, rv, { n: 4, ms: 2000, d: 1300, r: 1.6 })
+        for (let k = 0; k < 4; k++) {
+          const s = glide(g, 30, 60, { ms: 2600, d: 1400 + k * 300, loop: true })
+          ink(s, RR(200 + k * 14, 450, 5, 4, 1), { w: 1, d: 1300, t: 50 })
+        }
       },
       beben(g) {
-        mountain(g, 60, 300, 560, [180, 380])
-        ink(g, L([20, 562], [340, 562]), { w: 2.6, d: 200, t: 500 })
-        seismo(g, 30, 330, 620, 30, 800)
-        text(g, 180, 670, 'Nepal 2015: Stärke 7,8', { anchor: 'middle', cls: 's', d: 1100 })
+        // Erdbeben im Himalaya-Vorland: Pagode steht schief, Mauern stürzen, Seismogramm
+        mountain(g, 20, 340, 480, [200, 330], 0)
+        ink(g, L([20, 560], [340, 560]), { w: 2.6, d: 200, t: 500 })
+        const p = wobble(g, { deg: 4, ox: 110, oy: 560, ms: 300, d: 900 })
+        for (let k = 0; k < 3; k++) {
+          const y = 560 - k * 34
+          const w = 60 - k * 14
+          ink(p, RR(110 - w / 2 + 6, y - 24, w - 12, 24, 1), { w: 2, d: 400 + k * 100, t: 200 })
+          ink(p, [[110 - w / 2 - 8, y - 22], [110, y - 36], [110 + w / 2 + 8, y - 22]], { w: 2.2, d: 500 + k * 100, t: 200 })
+        }
+        ink(p, L([110, 458], [110, 440]), { w: 1.6, d: 900, t: 100 })
+        const rub: P[] = [[200, 560], [220, 530], [250, 520], [280, 540], [300, 560]]
+        hatch(g, [...rub, [200, 560]], 1000, true)
+        ink(g, rub, { w: 2.2, d: 900, t: 300 })
+        ink(g, RR(30, 590, 300, 50, 4), { w: 1.2, d: 1000, t: 300 })
+        const c = clipBox(g, 32, 592, 296, 46)
+        seismo(c, 36, 324, 615, 60, 1100)
       },
       alpen(g) {
-        mountain(g, 20, 190, 580, [105, 400])
-        mountain(g, 190, 340, 580, [265, 430], 300, true)
-        ink(g, L([20, 582], [340, 582]), { w: 2.6, d: 200, t: 500 })
-        text(g, 180, 630, 'Alpen: Afrika drückt gegen Europa', { anchor: 'middle', cls: 's', d: 1100 })
+        // Alpen mit Zugspitze; in ihrem Kalk ein versteinertes Riff mit Korallen; Afrika drückt von Süden
+        mountain(g, 20, 200, 560, [110, 350], 0)
+        mountain(g, 160, 340, 560, [260, 390], 200, true)
+        ink(g, L([20, 562], [340, 562]), { w: 2.6, d: 200, t: 500 })
+        blank(g, E(110, 460, 44))
+        ink(g, E(110, 460, 44), { w: 2.2, d: 900, t: 300 })
+        for (let k = 0; k < 5; k++) {
+          const x = 84 + k * 13
+          ink(g, B([x, 494], [x - 4, 470], [x + 4, 450], [x, 430]), { w: 1.4, d: 1000 + k * 50, t: 150 })
+          ink(g, E(x, 430, 4), { w: 1, d: 1100 + k * 50, t: 60 })
+        }
+        arrow(g, L([300, 630], [240, 590]), { w: 2.6, d: 1200, t: 300, head: 10 })
+        mapRegion(g, 230, 590, 110, 60, -10, 30, 30, 50, 1300)
       },
       leonardo(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.3, label: 'um 1500', sub: 'Leonardo da Vinci', up: true }])
+        // Notizbuchseite: Spiegelschrift, Skizze einer Muschel im Fels, Gänsekiel
+        const pg: P[] = [[50, 330], [310, 320], [320, 630], [56, 640], [50, 330]]
+        blank(g, pg)
+        ink(g, pg, { w: 2.4, t: 600 })
+        for (let k = 0; k < 7; k++) ink(g, Array.from({ length: 30 }, (_, i) => [290 - i * 7, 350 + k * 16 + Math.sin(i * 1.7 + k) * 2] as P), { w: 0.9, d: 300 + k * 80, t: 300 })
+        mountain(g, 70, 300, 600, [180, 480], 900)
+        const sh: P[] = [...B([150, 580], [156, 556], [194, 556], [200, 580]), [175, 590], [150, 580]]
+        blank(g, sh)
+        ink(g, sh, { w: 1.8, d: 1300, t: 300 })
+        for (let k = 1; k < 6; k++) ink(g, L([175, 588], [150 + k * 8.4, 566]), { w: 0.8, d: 1400, t: 60 })
+        const q = wobble(g, { deg: 4, ox: 300, oy: 560, ms: 900, d: 1500 })
+        ink(q, L([300, 560], [340, 440]), { w: 1.6, d: 1400, t: 200 })
+        ink(q, smooth([[340, 440], [330, 470], [316, 510], [304, 548]], 3), { w: 1.2, d: 1500, t: 200 })
       },
       ende(g) {
-        mountain(g, 60, 300, 600, [180, 360])
-        blank(g, E(180, 410, 18))
-        ammonite(g, 180, 410, 16, 800)
+        mountain(g, 60, 300, 600, [180, 360], 0)
+        blank(g, E(180, 470, 26))
+        ammonite(g, 180, 470, 22, 800)
       },
     },
     scenes: [
