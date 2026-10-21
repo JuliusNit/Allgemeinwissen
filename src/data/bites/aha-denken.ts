@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, bolt, bubble, car, check, cross, crowd, dashes, fig, group, hatch, ink, letter, mk, mountain, pop, question, rays, st, text, timeline, vbars, type P } from './draw'
-import { axes, bact, ball, bullets, carrow, clipBox, cloud, dot, drop, earth, flame, flow, glide, head, house, jet, lens, plot, rad, ripple, smooth, spin, sun, sunDisk, virus, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, bubble, car, check, cross, crowd, dashes, fig, group, hatch, ink, letter, mk, mountain, pop, question, rays, st, text, vbars, type P } from './draw'
+import { axes, bact, ball, bullets, carrow, clipBox, cloud, dot, drop, earth, flame, flow, glide, head, house, jet, lens, moonFace, plot, rad, ripple, smooth, spin, stars, sunDisk, virus, wobble } from './kit'
 
 // Denkwerkzeuge & Statistik: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -1277,82 +1277,218 @@ export const AHA_DENKEN: Bite[] = [
     images: [],
     draw: {
       blatt(g) {
-        ink(g, [[60, 300], [240, 260], [300, 340], [120, 380], [60, 300]], { w: 3, t: 800 })
-        ink(g, L([150, 280], [210, 360]), { w: 1.6, d: 600, t: 300 })
-        ball(g, 290, 120, 30, { d: 900, fill: 'hell', w: 2.6 })
+        // ein Blatt wird gefaltet (die rechte Hälfte klappt um), darüber der Mond
+        stars(g, 20, 70, 320, 150, 18, 0, (x, y) => Math.hypot(x - 280, y - 130) < 50)
+        moonFace(g, 280, 130, 36, 200)
+        const left: P[] = [[60, 330], [150, 310], [190, 370], [100, 392], [60, 330]]
+        blank(g, left)
+        ink(g, left, { w: 3, d: 300, t: 600 })
+        for (let k = 0; k < 4; k++) ink(g, L([76 + k * 6, 340 + k * 10], [150 + k * 6, 324 + k * 10]), { w: 0.6, d: 600 + k * 50, t: 150 })
+        // umgeklappte Hälfte liegt auf der linken, gestrichelt die alte Lage, Pfeil fürs Falten
+        dashes(g, [[150, 310], [240, 290], [280, 350], [190, 370]], { w: 1.4, d: 600, dash: 5, gap: 4 })
+        const flap: P[] = [[150, 310], [70, 300], [100, 350], [190, 370], [150, 310]]
+        blank(g, flap)
+        hatch(g, flap, 1200)
+        ink(g, flap, { w: 2.6, d: 1000, t: 400 })
+        carrow(g, [250, 300], [110, 290], -60, { d: 900 })
+        ink(g, L([150, 310], [190, 370]), { w: 1.6, d: 900, t: 300 })
       },
       dicke(g) {
-        ink(g, L([40, 470], [320, 470]), { w: 1.4, t: 600 })
-        text(g, 180, 450, '0,1 mm', { anchor: 'middle', size: 22, d: 500 })
+        // Lupe auf die Blattkante neben einem Lineal mit Millimeterstrichen: das Blatt ist ein Zehntel davon
+        ink(g, [[30, 470], [250, 440], [330, 460], [110, 490], [30, 470]], { w: 2.4, t: 600 })
+        ink(g, E(260, 520, 70), { w: 2.8, d: 400, t: 400 })
+        ink(g, L([210, 470], [180, 440]), { w: 2, d: 500, t: 150 })
+        const c = clipBox(g, 192, 452, 136, 136)
+        ink(c, RR(180, 540, 160, 30, 2), { w: 2, d: 600, t: 300 })
+        for (let k = 0; k < 4; k++) ink(c, L([200 + k * 40, 540], [200 + k * 40, k % 2 ? 556 : 564]), { w: 1.6, d: 700 + k * 60, t: 80 })
+        hatch(c, RR(180, 518, 160, 4, 0), 900, true)
+        ink(c, L([180, 518], [340, 518]), { w: 1.2, d: 900, t: 200 })
+        ink(c, L([180, 522], [340, 522]), { w: 1.2, d: 900, t: 200 })
+        for (let k = 0; k < 6; k++) ink(c, B([190 + k * 24, 519], [196 + k * 24, 521], [202 + k * 24, 518], [208 + k * 24, 520]), { w: 0.5, d: 1000, t: 60 })
       },
       stapel(g) {
+        // jede Faltung verdoppelt die Lagen: 1, 2, 4, 8, 16
         ink(g, L([20, 620], [340, 620]), { w: 3, t: 400 })
         for (let k = 0; k < 5; k++) {
           const x = 30 + k * 66
-          const h = 4 * Math.pow(2, k)
-          ink(g, RR(x, 616 - h, 50, h, 2), { w: 2.2, d: k * 300, t: 300 })
-          text(g, x + 25, 600 - h, `×${Math.pow(2, k)}`, { anchor: 'middle', cls: 's', d: k * 300 + 200 })
+          const n = Math.pow(2, k)
+          const h = 4 * n
+          ink(g, RR(x, 616 - h, 50 - k * 4, h, 2), { w: 2.2, d: k * 300, t: 300 })
+          for (let i = 1; i < n; i++) ink(g, L([x + 2, 616 - i * 4], [x + 48 - k * 4, 616 - i * 4]), { w: 0.5, d: k * 300 + 200, t: 60 })
+          if (k < 4) carrow(g, [x + 30, 600 - h - 10], [x + 70, 600 - 2 * h - 10], -20, { d: 300 + k * 300 })
         }
       },
-      leiter(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.05, label: '10×', sub: 'Buch', up: true },
-          { at: 0.3, label: '20×', sub: 'Kirchturm' },
-          { at: 0.55, label: '30×', sub: 'Weltraum', up: true },
-          { at: 0.8, label: '42×', sub: 'Mond', big: true },
-        ], 0, 500)
-      },
       mond(g) {
-        earth(g, 60, 480, 30)
-        ball(g, 310, 480, 12, { d: 300, fill: 'hell', w: 2 })
-        ink(g, L([92, 480], [296, 480]), { w: 3, d: 600, t: 900 })
-        text(g, 190, 460, '384.000 km', { anchor: 'middle', d: 1200 })
-        text(g, 190, 540, '42 Faltungen', { anchor: 'middle', size: 24, d: 1500 })
+        // Erde und Mond mit dem Papierstapel als dünnem Strich dazwischen
+        earth(g, 60, 480, 34, 0, { lon: 20, lat: 10 })
+        moonFace(g, 314, 480, 12, 300)
+        stars(g, 20, 320, 320, 300, 20, 200, (x, y) => Math.hypot(x - 60, y - 480) < 44 || Math.hypot(x - 314, y - 480) < 20)
+        const st0 = mk('g', {}, mk('g', { transform: 'translate(94 0)' }, g))
+        mk('animateTransform', { attributeName: 'transform', type: 'scale', from: '0.01 1', to: '1 1', dur: '3s', begin: '0.8s', fill: 'freeze', additive: 'sum' }, st0)
+        const inner = mk('g', { transform: 'translate(-94 0)' }, st0)
+        ink(inner, RR(94, 477, 206, 6, 1), { w: 1.4, d: 600, t: 400 })
+        hatch(inner, RR(94, 477, 206, 6, 1), 900, true)
       },
       sonne(g) {
-        sun(g, 280, 470, 40)
-        earth(g, 60, 470, 20, 200)
-        dashes(g, L([86, 470], [226, 470]), { w: 1.6, d: 600 })
-        text(g, 150, 540, '51 Faltungen: bis zur Sonne', { anchor: 'middle', cls: 's', d: 1000 })
+        // bis zur Sonne: die Erde winzig, der Stapel ein langer Strich
+        sunDisk(g, 290, 470, 50, 0)
+        earth(g, 50, 470, 12, 200)
+        ink(g, RR(64, 468, 172, 4, 1), { w: 1.2, d: 800, t: 900 })
+        stars(g, 20, 340, 320, 260, 18, 300, (x, y) => Math.hypot(x - 290, y - 470) < 80)
       },
       universum(g) {
+        // das beobachtbare Universum: Galaxienhaufen und Filamente, quer durch die Säule
         ink(g, E(180, 470, 150), { w: 3, t: 900 })
-        dot(g, 180, 470, 4, 600)
-        text(g, 180, 650, '103 Faltungen', { anchor: 'middle', size: 22, d: 1100 })
+        let seed = 13
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 40; i++) {
+          const a = rnd() * Math.PI * 2
+          const r = Math.sqrt(rnd()) * 140
+          dot(g, 180 + Math.cos(a) * r, 470 + Math.sin(a) * r, 1 + rnd() * 2, 300 + i * 20)
+        }
+        for (let k = 0; k < 6; k++) {
+          const a = rad(k * 60 + 10)
+          ink(g, smooth([[180, 470], [180 + Math.cos(a) * 60, 470 + Math.sin(a + 0.4) * 60], [180 + Math.cos(a) * 140, 470 + Math.sin(a) * 140]], 3), { w: 0.8, d: 600 + k * 80, t: 300 })
+        }
+        for (const [x, y] of [[120, 410], [250, 530]] as const) {
+          const sp = spin(g, x, y, 8000, 1000)
+          for (const k of [0, 180]) ink(sp, Array.from({ length: 20 }, (_, i) => [x + Math.cos(rad(k + i * 18)) * (2 + i * 0.7), y + Math.sin(rad(k + i * 18)) * (2 + i * 0.7) * 0.6] as P), { w: 1, d: 900, t: 200 })
+        }
+        ink(g, RR(176, 300, 8, 340, 1), { w: 1.6, d: 1200, t: 600 })
       },
       sieben(g) {
+        // sieben Faltungen hintereinander: das Päckchen wird kleiner und dicker
         for (let k = 0; k < 7; k++) {
           const w = 260 / Math.pow(1.45, k)
           const h = 6 * Math.pow(1.5, k)
-          ink(g, RR(180 - w / 2, 600 - k * 30 - h, w, h, 3), { w: 2, d: k * 200, t: 300 })
+          const y = 600 - k * 34 - h
+          ink(g, RR(180 - w / 2, y, w, h, 3), { w: 2, d: k * 200, t: 300 })
+          for (let i = 1; i < Math.min(16, Math.pow(2, k)); i++) ink(g, L([180 - w / 2 + 2, y + (h * i) / Math.min(16, Math.pow(2, k))], [180 + w / 2 - 2, y + (h * i) / Math.min(16, Math.pow(2, k))]), { w: 0.4, d: k * 200 + 100, t: 40 })
+          ink(g, E(180 + w / 2, y + h / 2, 3, h / 2, -90, 90), { w: 1.2, d: k * 200 + 150, t: 60 })
         }
-        text(g, 180, 640, 'nach 7 Faltungen: so dick wie breit', { anchor: 'middle', cls: 's', d: 1600 })
       },
       gallivan(g) {
-        fig(g, 60, 600, 3)
-        ink(g, L([90, 560], [330, 560]), { w: 2, d: 400, t: 900 })
-        ink(g, L([90, 570], [330, 570]), { w: 2, d: 500, t: 900 })
-        text(g, 210, 540, '1,2 km Papier', { anchor: 'middle', d: 1100 })
-        text(g, 180, 400, 'Britney Gallivan, 2002', { anchor: 'middle', size: 20, d: 1300 })
-        text(g, 180, 430, '12 Faltungen', { anchor: 'middle', d: 1500 })
+        // ein über einen Kilometer langer Papierstreifen in einer langen Halle; am Ende das Faltpaket mit Bögen
+        ink(g, [[20, 340], [340, 380]], { w: 1.4, t: 500 })
+        ink(g, [[20, 620], [340, 600]], { w: 2.4, d: 100, t: 500 })
+        for (let k = 0; k < 6; k++) ink(g, L([40 + k * 52, 342 + k * 6], [40 + k * 52, 618 - k * 2.4]), { w: 0.8, d: 200 + k * 40, t: 200 })
+        const strip: P[] = Array.from({ length: 40 }, (_, i) => [20 + i * 6.4, 580 - Math.sin(i * 0.5) * 3] as P)
+        ink(g, strip, { w: 2, d: 400, t: 800 })
+        ink(g, strip.map(([x, y]): P => [x, y + 8]), { w: 2, d: 500, t: 800 })
+        for (let k = 0; k < 6; k++) {
+          const r = 6 + k * 5
+          ink(g, E(270, 560, r, r, -90, 90), { w: 1.4, d: 1200 + k * 80, t: 150 })
+          ink(g, L([270 - 10, 560 - r], [270, 560 - r]), { w: 1.4, d: 1200 + k * 80, t: 60 })
+          ink(g, L([270 - 10, 560 + r], [270, 560 + r]), { w: 1.4, d: 1200 + k * 80, t: 60 })
+        }
+        fig(g, 300, 612, 2.4, { d: 800, arms: 'push' })
       },
       ende(g) {
-        ball(g, 180, 480, 40, { fill: 'hell', w: 3 })
+        moonFace(g, 180, 430, 50, 0)
         ink(g, [[110, 600], [250, 590], [270, 620], [130, 630], [110, 600]], { w: 2.6, d: 500, t: 600 })
+        ink(g, RR(176, 486, 6, 104, 1), { w: 1.4, d: 900, t: 500 })
+      },
+      buch(g) {
+        // nach zehn Faltungen: so dick wie ein dickes Buch
+        ink(g, L([20, 620], [340, 620]), { w: 3, t: 400 })
+        ink(g, RR(70, 520, 90, 98, 3), { w: 2.4, d: 200, t: 400 })
+        for (let i = 1; i < 24; i++) ink(g, L([72, 618 - i * 4], [158, 618 - i * 4]), { w: 0.5, d: 400 + i * 20, t: 60 })
+        const book: P[] = [[200, 618], [200, 522], [300, 518], [300, 614], [200, 618]]
+        ink(g, book, { w: 2.6, d: 600, t: 400 })
+        hatch(g, [[200, 522], [214, 518], [214, 614], [200, 618]], 900, true)
+        for (let k = 0; k < 8; k++) ink(g, L([218, 528 + k * 11], [296, 526 + k * 11]), { w: 0.6, d: 1000 + k * 30, t: 80 })
+        dashes(g, L([60, 520], [310, 516]), { w: 1, d: 1300, dash: 4, gap: 4 })
+      },
+      turm(g) {
+        // nach zwanzig Faltungen: höher als ein Kirchturm
+        ink(g, L([20, 640], [340, 640]), { w: 3, t: 400 })
+        ink(g, RR(80, 320, 16, 320, 2), { w: 2.2, d: 200, t: 600 })
+        hatch(g, RR(80, 320, 16, 320, 2), 600)
+        const ch: P[] = [[160, 640], [160, 470], [200, 470], [200, 420], [214, 360], [228, 420], [228, 470], [300, 470], [300, 640]]
+        ink(g, ch, { w: 2.6, d: 400, t: 700 })
+        ink(g, [[200, 470], [270, 420], [300, 470]], { w: 2.4, d: 600, t: 300 })
+        ink(g, E(214, 450, 8), { w: 1.6, d: 900, t: 150 })
+        ink(g, L([214, 360], [214, 340]), { w: 1.6, d: 1000, t: 100 })
+        ink(g, L([208, 346], [220, 346]), { w: 1.6, d: 1000, t: 100 })
+        for (const x of [190, 250, 280]) ink(g, [[x - 6, 600], [x - 6, 570], [x, 562], [x + 6, 570], [x + 6, 600]], { w: 1.4, d: 1100, t: 150 })
+        fig(g, 130, 640, 1.2, { d: 1200 })
+      },
+      all(g) {
+        // nach dreißig Faltungen: die Säule ragt durch die Lufthülle bis ins All
+        ink(g, L([20, 640], [340, 640]), { w: 3, t: 400 })
+        for (const [y, w] of [[560, 1.4], [460, 1], [380, 0.7]] as const) dashes(g, L([20, y], [340, y]), { w, d: 300, dash: 6, gap: 6 })
+        stars(g, 20, 300, 320, 70, 14, 400)
+        ink(g, RR(150, 300, 10, 340, 1), { w: 2, d: 300, t: 600 })
+        hatch(g, RR(150, 300, 10, 340, 1), 800)
+        cloud(g, 70, 610, 0.5, 600)
+        jet(g, 250, 580, 0.18, 800)
+        const iss = wobble(g, { dx: 20, ms: 6000, d: 1000 })
+        ink(iss, RR(240, 330, 30, 10, 2), { w: 1.6, d: 900, t: 150 })
+        for (const k of [-1, 1]) {
+          ink(iss, RR(255 + k * 28 - 10, 320, 20, 30, 1), { w: 1.2, d: 1000, t: 150 })
+          hatch(iss, RR(255 + k * 28 - 10, 320, 20, 30, 1), 1100, true)
+        }
+      },
+      everest(g) {
+        // nach 27 Faltungen: höher als der Mount Everest
+        ink(g, L([20, 640], [340, 640]), { w: 3, t: 400 })
+        mountain(g, 120, 340, 640, [240, 400], 200)
+        ink(g, RR(70, 360, 12, 280, 1), { w: 2, d: 300, t: 600 })
+        hatch(g, RR(70, 360, 12, 280, 1), 800)
+        dashes(g, L([82, 400], [240, 400]), { w: 1, d: 1200, dash: 4, gap: 4 })
+        cloud(g, 300, 470, 0.4, 900)
+      },
+      lagen(g) {
+        // Stapel im Schnitt mit sehr vielen Lagen; die Lupe zeigt, wie dicht sie liegen
+        ink(g, RR(60, 440, 120, 160, 3), { w: 2.6, t: 500 })
+        for (let i = 1; i < 40; i++) ink(g, L([62, 440 + i * 4], [178, 440 + i * 4], 60), { w: 0.4, d: 300 + i * 10, t: 40 })
+        blank(g, E(260, 470, 64))
+        ink(g, E(260, 470, 64), { w: 2.6, d: 800, t: 300 })
+        ink(g, L([180, 500], [204, 494]), { w: 2, d: 900, t: 150 })
+        for (let i = 0; i < 12; i++) ink(g, B([206, 420 + i * 9], [240, 418 + i * 9], [280, 422 + i * 9], [316, 420 + i * 9]), { w: 1.4, d: 1000 + i * 40, t: 100 })
+      },
+      kette(g) {
+        // Kettenbrief, Schneeballsystem, Ausbruch – jeder gibt an mehrere weiter
+        letter(g, 160, 330, 40, 0)
+        for (let k = 0; k < 3; k++) {
+          const x = 80 + k * 80
+          ink(g, L([180, 360], [x + 20, 410]), { w: 1.2, d: 300, t: 150 })
+          letter(g, x, 410, 30, 400 + k * 80)
+          for (let j = 0; j < 3; j++) {
+            const xx = x - 24 + j * 28
+            ink(g, L([x + 15, 432], [xx + 10, 470]), { w: 0.9, d: 700 + k * 80, t: 100 })
+            letter(g, xx, 470, 20, 900 + k * 80 + j * 40)
+          }
+        }
+        for (let r = 0; r < 4; r++) for (let k = 0; k <= r; k++) fig(g, 180 - r * 22 + k * 44, 560 + r * 28, 0.9, { d: 1400 + (r * 4 + k) * 40 })
+        dashes(g, [[90, 640], [180, 520], [270, 640]], { w: 1, d: 1500, dash: 4, gap: 4 })
+      },
+      zehn(g) {
+        // jede Runde zehnfach: aus einem Brief werden zehn, hundert, tausend …
+        for (let r = 0; r < 4; r++) {
+          const n = Math.pow(10, r)
+          const y = 350 + r * 70
+          if (n <= 100) for (let k = 0; k < Math.min(n, 100); k++) dot(g, 180 - Math.min(n, 25) * 6 + (k % 25) * 12 + 6, y + Math.floor(k / 25) * 8, n > 10 ? 2 : 4, r * 400 + k * 6)
+          else {
+            hatch(g, RR(30, y - 6, 300, 40, 2), r * 400, true)
+            ink(g, RR(30, y - 6, 300, 40, 2), { w: 1.6, d: r * 400, t: 200 })
+          }
+        }
+        earth(g, 180, 620, 30, 1600)
       },
     },
     scenes: [
       { t: HOOK(476), gfx: { blatt: {} } },
       { t: T('Ein normales Blatt Papier ist etwa **0,1 Millimeter** dick.', 64), gfx: { dicke: {} } },
       { t: T('Einmal falten: doppelt so dick. Zweimal: vierfach. Jede Faltung **verdoppelt** die Dicke.', 64), gfx: { stapel: {} } },
-      { t: T('Nach 10 Faltungen: gut 10 Zentimeter – so dick wie ein **dickes Buch**.', 64), gfx: { leiter: {} } },
-      { t: T('Nach 20 Faltungen: über **100 Meter** – höher als die meisten Kirchtürme.', 64), gfx: { leiter: {} } },
-      { t: T('Nach 30 Faltungen: über 100 Kilometer. Der Stapel ragt **bis ins All**.', 64), gfx: { leiter: {} } },
-      { t: T('Nach 27 Faltungen: über 13 Kilometer – höher als der **Mount Everest**.', 64), gfx: { leiter: {} } },
+      { t: T('Nach 10 Faltungen: gut 10 Zentimeter – so dick wie ein **dickes Buch**.', 64), gfx: { buch: {} } },
+      { t: T('Nach 20 Faltungen: über **100 Meter** – höher als die meisten Kirchtürme.', 64), gfx: { turm: {} } },
+      { t: T('Nach 30 Faltungen: über 100 Kilometer. Der Stapel ragt **bis ins All**.', 64), gfx: { all: {} } },
+      { t: T('Nach 27 Faltungen: über 13 Kilometer – höher als der **Mount Everest**.', 64), gfx: { everest: {} } },
       { t: T('Der Mond ist rund 384.000 Kilometer entfernt. Wie viele Faltungen brauchst du? Nur **42**.', 64), gfx: { mond: {} } },
       { t: T('Mit 51 Faltungen reichte der Stapel **bis zur Sonne** – 150 Millionen Kilometer.', 64), gfx: { sonne: {} } },
       { t: T('Und nach 103 Faltungen wäre er dicker als das ganze **beobachtbare Universum**.', 64), gfx: { universum: {} } },
-      { t: T('Schon zehn Faltungen ergeben **1.024 Lagen** Papier übereinander.', 64), gfx: { z9: { draw: 'zahl', args: ['1.024', 'Lagen nach zehn Faltungen', 430] } } },
+      { t: T('Schon zehn Faltungen ergeben **1.024 Lagen** Papier übereinander.', 64), gfx: { lagen: {} } },
       { t: T('Das liegt an der Verdopplung: Jede einzelne Faltung legt **so viel drauf**, wie schon da ist.', 64), gfx: { f1: { draw: 'formel', args: [['0,1 mm', '×', '2 hoch 42', '≈', '440.000 km'], 360] } } },
       { t: T('In Wirklichkeit schafft das niemand: Schon nach etwa **sieben** Faltungen ist ein normales Blatt so dick wie breit.', 64), gfx: { sieben: {} } },
       { t: T('Jede Faltung halbiert außerdem die **Länge**. Das Blatt wird immer kürzer und dicker – bis es sich nicht mehr biegen lässt.', 64), gfx: { sieben: {} } },
@@ -1360,8 +1496,8 @@ export const AHA_DENKEN: Bite[] = [
       { t: T('Sie berechnete dazu eine Formel: Die nötige Papierlänge **explodiert** mit jeder weiteren Faltung.', 64), gfx: { gallivan: {} } },
       { t: T('Und jeder Knick schluckt Papier: Die äußeren Lagen müssen um die inneren herum – darum braucht man einen **riesig langen** Streifen.', 64), gfx: { gallivan: {} } },
       { t: T('Das Gedankenexperiment zeigt, warum **Verdopplungen** unsere Vorstellung sprengen.', 64), gfx: { stapel: {} } },
-      { t: T('Dasselbe Muster steckt in Kettenbriefen, Schneeballsystemen und Virusausbrüchen: Der Anfang wirkt **harmlos**.', 64), gfx: { p1: { draw: 'punkte', args: [['Kettenbriefe', 'Schneeballsysteme', 'Virusausbrüche'], 340] } } },
-      { t: T('Ein Kettenbrief an jeweils zehn Leute erreicht nach zehn Runden **zehn Milliarden** – mehr Menschen, als es gibt.', 64), gfx: { z1: { draw: 'zahl', args: ['10¹⁰', 'Menschen nach zehn Runden', 430] } } },
+      { t: T('Dasselbe Muster steckt in Kettenbriefen, Schneeballsystemen und Virusausbrüchen: Der Anfang wirkt **harmlos**.', 64), gfx: { kette: {} } },
+      { t: T('Ein Kettenbrief an jeweils zehn Leute erreicht nach zehn Runden **zehn Milliarden** – mehr Menschen, als es gibt.', 64), gfx: { zehn: {} } },
       { t: T('Mit **42** Faltungen bis zum Mond – auf dem Papier.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],
     summary: ['Jede Faltung verdoppelt die Dicke: 0,1 mm × 2⁴² ≈ 440.000 km – weiter als bis zum Mond.', 'Praktisch scheitert man nach etwa 7 Faltungen; der Rekord mit sehr langem Papier liegt bei 12–13.', 'Verdopplungen sprengen unser Vorstellungsvermögen.'],
@@ -1377,71 +1513,167 @@ export const AHA_DENKEN: Bite[] = [
     images: [],
     draw: {
       zellen(g) {
-        for (const x of [40, 200]) {
-          ink(g, RR(x, 140, 120, 200, 6), { w: 3, t: 700 })
-          for (let k = 1; k < 4; k++) ink(g, L([x + k * 30, 142], [x + k * 30, 338]), { w: 2, d: 400 + k * 80, t: 300 })
+        // zwei Zellen mit Gittern und Backsteinwand, dazwischen Verhörtisch mit Lampe
+        for (const x of [30, 230]) {
+          ink(g, RR(x, 150, 100, 200, 4), { w: 3, t: 700 })
+          for (let r = 0; r < 10; r++) for (let c = 0; c < 4; c++) ink(g, L([x + 4 + c * 24 + (r % 2) * 12, 156 + r * 20], [x + 18 + c * 24 + (r % 2) * 12, 156 + r * 20]), { w: 0.6, d: 200 + r * 20, t: 40 })
+          fig(g, x + 50, 340, 2.4, { d: 600 })
+          for (let k = 1; k < 5; k++) ink(g, L([x + k * 20, 152], [x + k * 20, 348]), { w: 2.4, d: 900 + k * 60, t: 300 })
+          ink(g, L([x, 250], [x + 100, 250]), { w: 2, d: 1100, t: 200 })
         }
-        fig(g, 70, 320, 2.4, { d: 900 })
-        fig(g, 290, 320, 2.4, { d: 1000 })
+        ink(g, RR(150, 300, 60, 10, 2), { w: 2, d: 800, t: 200 })
+        for (const x of [156, 204]) ink(g, L([x, 310], [x, 350]), { w: 1.8, d: 850, t: 100 })
+        ink(g, [[180, 120], [180, 220], [166, 238], [194, 238], [180, 220]], { w: 1.8, d: 900, t: 300 })
+        for (let k = 0; k < 3; k++) ink(g, L([170 + k * 10, 242], [160 + k * 20, 296]), { w: 0.8, d: 1100, t: 200 })
+        ink(g, L([20, 352], [340, 352]), { w: 2.6, d: 100, t: 500 })
       },
       matrix(g) {
-        const cell = (x: number, y: number, a: string, b: string, cls: string, d: number) => {
-          const gr = st(g, cls)
-          ink(gr, RR(x, y, 120, 100, 10), { w: 2.6, d, t: 400 })
-          text(gr, x + 60, y + 42, a, { anchor: 'middle', d: d + 200 })
-          text(gr, x + 60, y + 70, b, { anchor: 'middle', cls: 's', d: d + 300 })
+        // Auszahlungstafel ohne Worte: Spalten = B schweigt (Mund zu) / gesteht (Sprechblase), Zeilen = A ebenso;
+        // je Feld Striche für die Haftjahre von A (links) und B (rechts); x2 die Kronzeugen-Felder, x1 beide gestehen
+        const silent = (x: number, y: number, d: number) => {
+          ink(g, E(x, y, 14), { w: 2, d, t: 150 })
+          ink(g, L([x - 6, y + 5], [x + 6, y + 5]), { w: 2, d: d + 100, t: 60 })
+          for (const k of [-1, 1]) dot(g, x + k * 5, y - 3, 1.6, d + 100)
         }
-        text(g, 150, 330, 'B schweigt', { anchor: 'middle', cls: 's', d: 200 })
-        text(g, 280, 330, 'B gesteht', { anchor: 'middle', cls: 's', d: 300 })
-        text(g, 44, 400, 'A schweigt', { anchor: 'middle', cls: 's', d: 400 })
-        text(g, 44, 510, 'A gesteht', { anchor: 'middle', cls: 's', d: 500 })
-        cell(90, 345, 'je 1 Jahr', '', '', 600)
-        cell(222, 345, 'A: 10 J.', 'B: frei', 'x2', 0)
-        cell(90, 455, 'A: frei', 'B: 10 J.', 'x2', 0)
-        cell(222, 455, 'je 5 Jahre', '', 'x1', 0)
+        const talk = (x: number, y: number, d: number) => {
+          ink(g, E(x, y, 14), { w: 2, d, t: 150 })
+          ink(g, E(x, y + 6, 5, 4), { w: 1.6, d: d + 100, t: 60 })
+          for (const k of [-1, 1]) dot(g, x + k * 5, y - 3, 1.6, d + 100)
+          ink(g, RR(x + 16, y - 26, 26, 16, 6), { w: 1.4, d: d + 200, t: 100 })
+        }
+        silent(150, 320, 200)
+        talk(272, 320, 300)
+        silent(52, 400, 400)
+        talk(40, 510, 500)
+        text(g, 52, 432, 'A', { anchor: 'middle', size: 14, d: 400 })
+        text(g, 40, 542, 'A', { anchor: 'middle', size: 14, d: 500 })
+        text(g, 150, 296, 'B', { anchor: 'middle', size: 14, d: 200 })
+        text(g, 272, 296, 'B', { anchor: 'middle', size: 14, d: 300 })
+        const tally = (gr: Element, x: number, y: number, n: number, d: number) => {
+          if (n === 0) {
+            ink(gr, E(x + 12, y, 12, 9), { w: 1.6, d, t: 150 })
+            return
+          }
+          for (let i = 0; i < Math.min(n, 10); i++) {
+            const grp = Math.floor(i / 5)
+            const j = i % 5
+            if (j < 4) ink(gr, L([x + j * 6, y - 12 + grp * 30], [x + j * 6, y + 12 + grp * 30]), { w: 1.8, d: d + i * 30, t: 50 })
+            else ink(gr, L([x - 3, y + 10 + grp * 30], [x + 22, y - 10 + grp * 30]), { w: 1.8, d: d + i * 30, t: 50 })
+          }
+        }
+        const cell = (x: number, y: number, a: number, b: number, cls: string, d: number) => {
+          const gr = cls ? st(g, cls) : g
+          ink(gr, RR(x, y, 120, 100, 10), { w: 2.6, d, t: 400 })
+          ink(gr, L([x + 60, y + 8], [x + 60, y + 92]), { w: 0.8, d: d + 100, t: 200 })
+          tally(gr, x + 14, y + 36, a, d + 300)
+          tally(gr, x + 74, y + 36, b, d + 400)
+        }
+        cell(90, 345, 1, 1, '', 600)
+        cell(222, 345, 10, 0, 'x2', 0)
+        cell(90, 455, 0, 10, 'x2', 0)
+        cell(222, 455, 5, 5, 'x1', 0)
       },
       beide(g) {
-        fig(g, 110, 600, 3.4)
-        fig(g, 250, 600, 3.4, { d: 200 })
-        text(g, 180, 400, '5 + 5 statt 1 + 1', { anchor: 'middle', size: 24, d: 700 })
+        // beide sitzen je fünf Striche ab – gestrichelt daneben das eine Jahr, das sie hätten haben können
+        for (const [x, d] of [[90, 0], [270, 200]] as const) {
+          ink(g, RR(x - 60, 380, 120, 220, 4), { w: 2.6, d, t: 500 })
+          for (let k = 1; k < 5; k++) ink(g, L([x - 60 + k * 24, 382], [x - 60 + k * 24, 598]), { w: 2, d: d + 600 + k * 50, t: 200 })
+          fig(g, x, 600, 3, { d: d + 300 })
+          for (let i = 0; i < 4; i++) ink(g, L([x - 40 + i * 8, 610], [x - 40 + i * 8, 640]), { w: 2, d: d + 1000 + i * 60, t: 60 })
+          ink(g, L([x - 44, 636], [x - 4, 614]), { w: 2, d: d + 1300, t: 60 })
+          dashes(g, L([x + 30, 610], [x + 30, 640]), { w: 1.6, d: d + 1500, dash: 3, gap: 3 })
+        }
       },
       axelrod(g) {
+        // Turnier der Programme: Bildschirme, Ergebnisbalken
         for (let i = 0; i < 6; i++) {
-          const x = 50 + (i % 3) * 110
-          const y = 380 + Math.floor(i / 3) * 110
-          ink(g, RR(x, y, 70, 60, 8), { w: 2.4, d: i * 150, t: 300 })
-          ink(g, RR(x + 10, y + 10, 50, 30, 4), { w: 1.6, d: i * 150 + 200, t: 200 })
+          const x = 40 + (i % 3) * 100
+          const y = 340 + Math.floor(i / 3) * 100
+          ink(g, RR(x, y, 80, 60, 8), { w: 2.4, d: i * 150, t: 300 })
+          ink(g, RR(x + 8, y + 8, 64, 40, 4), { w: 1.4, d: i * 150 + 200, t: 200 })
+          for (let k = 0; k < 3; k++) ink(g, L([x + 14, y + 18 + k * 9], [x + 30 + ((i * 7 + k * 13) % 30), y + 18 + k * 9]), { w: 1, d: i * 150 + 300 + k * 40, t: 60 })
+          ink(g, [[x + 30, y + 60], [x + 26, y + 72], [x + 54, y + 72], [x + 50, y + 60]], { w: 1.6, d: i * 150 + 250, t: 100 })
         }
-        text(g, 180, 620, 'Turnier der Programme, 1980', { anchor: 'middle', cls: 's', d: 1200 })
+        ink(g, L([40, 640], [320, 640]), { w: 2, d: 900, t: 300 })
+        for (let i = 0; i < 6; i++) {
+          const h = [40, 26, 32, 18, 36, 22][i]
+          const r = RR(50 + i * 46, 640 - h, 30, h, 2)
+          hatch(g, r, 1100 + i * 80, i === 0)
+          ink(g, r, { w: 1.6, d: 1000 + i * 80, t: 100 })
+        }
       },
       titfortat(g) {
-        const seqA = ['K', 'K', 'V', 'K', 'K']
-        const seqB = ['K', 'K', 'K', 'V', 'K']
-        text(g, 30, 420, 'Gegner', { cls: 's', d: 100 })
-        text(g, 30, 520, 'Wie du mir', { cls: 's', d: 200 })
-        seqA.forEach((m, i) => {
-          ball(g, 130 + i * 44, 416, 16, { d: 300 + i * 200, fill: m === 'V' ? 'dicht' : 'leer', t: 200 })
-        })
-        seqB.forEach((m, i) => {
-          ball(g, 130 + i * 44, 516, 16, { d: 400 + i * 200, fill: m === 'V' ? 'dicht' : 'leer', t: 200 })
-        })
-        text(g, 180, 600, 'leer = kooperieren, voll = verraten', { anchor: 'middle', cls: 's', d: 1500 })
+        // oben der Gegner, unten „Wie du mir“: hell = kooperieren, dunkel = verraten; Pfeile zeigen das Nachmachen
+        const seqA = ['K', 'K', 'V', 'K', 'K', 'K']
+        const seqB = ['K', 'K', 'K', 'V', 'K', 'K']
+        for (const [y, sneaky] of [[416, true], [516, false]] as const) {
+          ink(g, E(40, y, 16), { w: 2, d: 100, t: 150 })
+          for (const k of [-1, 1]) dot(g, 40 + k * 5, y - 3, 1.6, 200)
+          ink(g, sneaky ? B([32, y + 7], [36, y + 4], [44, y + 10], [48, y + 6]) : B([32, y + 5], [36, y + 10], [44, y + 10], [48, y + 5]), { w: 1.6, d: 200, t: 80 })
+        }
+        seqA.forEach((m, i) => ball(g, 90 + i * 44, 416, 15, { d: 300 + i * 300, fill: m === 'V' ? 'dicht' : 'hell', t: 200 }))
+        seqB.forEach((m, i) => ball(g, 90 + i * 44, 516, 15, { d: 450 + i * 300, fill: m === 'V' ? 'dicht' : 'hell', t: 200 }))
+        for (let i = 0; i < 5; i++) arrow(g, L([96 + i * 44, 432], [128 + i * 44, 500]), { w: 1.2, d: 600 + i * 300, t: 150, head: 5 })
       },
       fledermaus(g) {
-        const bat = (cx: number, d: number) => {
-          const w: P[] = [[cx, 470], [cx - 50, 440], [cx - 70, 470], [cx - 50, 466], [cx - 36, 480], [cx - 20, 470], [cx, 490], [cx + 20, 470], [cx + 36, 480], [cx + 50, 466], [cx + 70, 470], [cx + 50, 440], [cx, 470]]
-          hatch(g, w, d + 500, true)
-          ink(g, w, { w: 2.4, d, t: 600 })
+        // Höhlendecke: zwei Vampirfledermäuse hängen kopfüber; eine gibt der anderen von ihrem Blut ab
+        ink(g, smooth([[20, 360], [90, 340], [180, 356], [270, 336], [340, 352]], 3), { w: 2.6, t: 600 })
+        hatch(g, [...smooth([[20, 360], [90, 340], [180, 356], [270, 336], [340, 352]], 3), [340, 300], [20, 300]], 300, true)
+        const bat = (cx: number, top: number, d: number) => {
+          ink(g, L([cx - 4, top], [cx - 4, top + 10]), { w: 1.6, d, t: 60 })
+          ink(g, L([cx + 4, top], [cx + 4, top + 10]), { w: 1.6, d, t: 60 })
+          const body: P[] = smooth([[cx, top + 10], [cx + 16, top + 30], [cx + 14, top + 80], [cx, top + 100], [cx - 14, top + 80], [cx - 16, top + 30], [cx, top + 10]], 3)
+          blank(g, body)
+          hatch(g, body, d + 300, true)
+          ink(g, body, { w: 2, d: d + 100, t: 300 })
+          for (const k of [-1, 1]) {
+            const w: P[] = [[cx + k * 14, top + 24], [cx + k * 40, top + 30], [cx + k * 44, top + 60], [cx + k * 34, top + 54], [cx + k * 30, top + 76], [cx + k * 20, top + 66], [cx + k * 14, top + 84]]
+            ink(g, w, { w: 1.8, d: d + 200, t: 300 })
+            ink(g, [[cx + k * 6, top + 104], [cx + k * 10, top + 116], [cx + k * 2, top + 108]], { w: 1.6, d: d + 300, t: 60 })
+          }
+          dot(g, cx - 5, top + 96, 1.4, d + 400)
+          dot(g, cx + 5, top + 96, 1.4, d + 400)
         }
-        bat(90, 0)
-        bat(270, 300)
-        carrow(g, [130, 520], [230, 520], -30, { d: 900 })
-        carrow(g, [230, 420], [130, 420], -30, { d: 1300 })
-        text(g, 180, 600, 'teilen mit denen, die geteilt haben', { anchor: 'middle', cls: 's', d: 1500 })
+        bat(110, 352, 300)
+        bat(250, 348, 600)
+        const dr = glide(g, 110, 0, { ms: 1800, d: 1500, loop: true })
+        drop(dr, 128, 470, 0.3, 1400)
+        carrow(g, [130, 500], [230, 500], -30, { d: 1300 })
+        carrow(g, [230, 540], [130, 540], -30, { d: 1700 })
       },
       ende(g) {
-        fig(g, 130, 600, 3.4, { arms: 'push' })
-        fig(g, 230, 600, 3.4, { d: 200 })
+        // zwei reichen sich die Hände
+        fig(g, 140, 600, 3.6, { arms: 'push' })
+        fig(g, 220, 600, 3.6, { d: 200, arms: 'push' })
+        ink(g, E(180, 520, 10, 7), { w: 2, d: 800, t: 150 })
+      },
+      beispiele(g) {
+        // Wettrüsten (zwei Raketen), Preiskampf (Preisschilder), Klima (Schornsteine), Doping (Spritze)
+        for (const x of [60, 130]) {
+          const r: P[] = [[x, 420], [x - 8, 400], [x - 8, 340], [x, 324], [x + 8, 340], [x + 8, 400], [x, 420]]
+          ink(g, r, { w: 2, d: 100, t: 300 })
+          ink(g, [[x - 8, 400], [x - 16, 420], [x - 8, 410]], { w: 1.6, d: 300, t: 100 })
+          ink(g, [[x + 8, 400], [x + 16, 420], [x + 8, 410]], { w: 1.6, d: 300, t: 100 })
+        }
+        for (const [x, y, d] of [[220, 340, 400], [270, 380, 500]] as const) {
+          const tag: P[] = [[x, y], [x + 50, y], [x + 64, y + 14], [x + 50, y + 28], [x, y + 28], [x, y]]
+          ink(g, tag, { w: 2, d, t: 200 })
+          ink(g, E(x + 52, y + 14, 3), { w: 1.2, d: d + 100, t: 60 })
+          arrow(g, L([x + 20, y + 4], [x + 20, y + 24]), { w: 1.6, d: d + 200, t: 100, head: 5 })
+        }
+        ink(g, L([30, 600], [170, 600]), { w: 2.2, d: 600, t: 300 })
+        for (const x of [60, 110]) {
+          ink(g, [[x - 10, 600], [x - 8, 520], [x + 8, 520], [x + 10, 600]], { w: 2, d: 700, t: 300 })
+          for (let k = 0; k < 3; k++) {
+            const w = wobble(g, { dx: 6, dy: -4, ms: 1600 + k * 200, d: 1000 })
+            cloud(w, x + k * 14, 500 - k * 24, 0.2 + k * 0.05, 900 + k * 100, true)
+          }
+        }
+        const sy: P[] = [[210, 560], [300, 540], [304, 556], [214, 576], [210, 560]]
+        ink(g, sy, { w: 2.2, d: 1000, t: 300 })
+        hatch(g, [[230, 556], [280, 545], [282, 553], [232, 564]], 1200, true)
+        ink(g, L([300, 548], [330, 542]), { w: 1.6, d: 1100, t: 100 })
+        ink(g, L([210, 568], [196, 572]), { w: 2.6, d: 1100, t: 100 })
       },
     },
     scenes: [
@@ -1454,7 +1686,7 @@ export const AHA_DENKEN: Bite[] = [
       { t: T('Egal, was B tut – für A **lohnt sich Gestehen**. B denkt genauso.', 64), gfx: { matrix: { cls: 'a1 a2' } } },
       { t: T('Also gestehen beide und sitzen fünf Jahre. Hätten sie geschwiegen, wären es **nur eins** gewesen.', 64), gfx: { beide: {} } },
       { t: T('Das ist das **Gefangenendilemma**: Was für jeden Einzelnen klug ist, ist für beide zusammen schlecht.', 64), gfx: { beide: {} } },
-      { t: T('Es steckt überall, wo Misstrauen teuer ist: im Wettrüsten, in Preiskämpfen, beim **Klimaschutz**, beim Doping.', 64), gfx: { p1: { draw: 'punkte', args: [['Wettrüsten', 'Preiskampf', 'Klimaschutz', 'Doping'], 330] } } },
+      { t: T('Es steckt überall, wo Misstrauen teuer ist: im Wettrüsten, in Preiskämpfen, beim **Klimaschutz**, beim Doping.', 64), gfx: { beispiele: {} } },
       { t: T('Was hilft? **Wiederholung**. Wer sich öfter begegnet, kann Vertrauen aufbauen – und Verrat beim nächsten Mal bestrafen.', 64), gfx: { titfortat: {} } },
       { t: T('Im Kalten Krieg dachten Strategen genau so: Abrüsten wäre für beide gut – aber wer **zuerst** abrüstet, riskiert alles.', 64), gfx: { matrix: { cls: 'a1 a2' } } },
       { t: T('Der Politologe Robert Axelrod ließ 1980 Computerprogramme gegeneinander antreten – Runde um Runde **Gefangenendilemma**.', 64), gfx: { axelrod: {} } },
