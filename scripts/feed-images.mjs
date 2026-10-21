@@ -120,7 +120,6 @@ export const IMAGES = {
   "popcorn": "File:Day 356 - Photo365 - Popcorn (23894551246).jpg",
   "rost": "File:Mouette tridactyle (Rissa tridactyla) (Ifremer 00555-66706 - 18914).jpg",
   "freiheitsstatue": "File:LibertyStatue.JPG",
-  "mars-oberflaeche": "File:PIA26554A-Mars-CuriosityRover-UbajaraSite-20230430.jpg",
   "steak": "File:Crowd Cow seared steak in a cast iron pan.jpg",
   "brezel": "File:Pretzel, Auntie Annes, Kingston MA.jpg",
   "eiche": "File:Solitary oak tree at Hangthwaite - geograph.org.uk - 7153805.jpg",

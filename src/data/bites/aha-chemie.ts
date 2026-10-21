@@ -974,7 +974,7 @@ export const AHA_CHEMIE: Bite[] = [
     hook: 'Rost ist ein sehr langsames Feuer.',
     mood: 'dunkel',
     ambience: 'regen',
-    images: [img('rost'), img('freiheitsstatue'), img('mars-oberflaeche')],
+    images: [img('rost'), img('freiheitsstatue')],
     draw: {
       nagel(g) {
         ink(g, [[60, 240], [260, 240], [300, 252], [260, 264], [60, 264]], { w: 3, t: 800 })
@@ -1108,7 +1108,7 @@ export const AHA_CHEMIE: Bite[] = [
       { t: T('Wärmepads nutzen genau das: Eisenpulver, Salz und Luft rosten in Minuten – die Packung wird **richtig heiß**.', 64), gfx: { waerme: {} } },
       { t: T('Auch dein Körper „verbrennt“ langsam: Er oxidiert Nährstoffe mit Sauerstoff – **kontrolliert**, in vielen kleinen Schritten.', 64), gfx: { koerper: {} } },
       { t: T('Und die Freiheitsstatue? Sie ist aus **Kupfer**. Ihr Grün ist Patina – Kupfer, das jahrzehntelang mit der Luft reagiert hat.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
-      { t: T('Und der Mars? Der Rote Planet ist rot, weil sein Staub voller **Eisenoxid** steckt – Rost im Planetenmaßstab.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
+      { t: T('Und der Mars? Der Rote Planet ist rot, weil sein Staub voller **Eisenoxid** steckt – Rost im Planetenmaßstab.', 64), gfx: { mars: {} } },
       { t: T('Korrosion ist teuer: Weltweit kostet sie nach Schätzungen rund **drei Prozent** der gesamten Wirtschaftsleistung.', 64), gfx: { z1: { draw: 'zahl', args: ['3 %', 'der Wirtschaftsleistung weltweit', 440] } } },
       { t: T('Rost ist **Verbrennung** in Zeitlupe.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],

@@ -112,7 +112,6 @@ const IMG = {
   'popcorn': ['UnknownNet Photography', 'CC BY-SA 2.0'],
   'rost': ['Olivier Dugornay (Ifremer)', 'CC BY 4.0'],
   'freiheitsstatue': ['Jyothis at Malayalam Wikipedia', 'CC BY-SA 3.0'],
-  'mars-oberflaeche': ['NASA/JPL-Caltech/MSSS', 'gemeinfrei'],
   'steak': ['sousvideguy', 'CC BY 2.0'],
   'brezel': ['John Phelan', 'CC BY-SA 4.0'],
   'eiche': ['Neil Theasby', 'CC BY-SA 2.0'],
