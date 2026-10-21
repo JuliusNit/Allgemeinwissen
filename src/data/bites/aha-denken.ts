@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, bubble, check, cross, crowd, dashes, fig, hatch, ink, mk, question, st, text, timeline, vbars, type P } from './draw'
-import { axes, ball, box, bullets, carrow, dot, earth, house, lens, plot, rad, sun } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bubble, check, cross, crowd, dashes, fig, hatch, ink, mk, pop, question, st, text, timeline, vbars, type P } from './draw'
+import { axes, ball, box, bullets, carrow, dot, earth, flame, house, lens, plot, rad, ripple, smooth, sun, wobble } from './kit'
 
 // Denkwerkzeuge & Statistik: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -48,6 +48,73 @@ function dotgrid(g: Element, x0: number, y0: number, cols: number, rows: number,
   return out
 }
 
+/** Geburtstagstorte mit Kerzen (Flammen flackern), Mitte unten (x, y) */
+function cake(g: Element, x: number, y: number, s = 1, d = 0, n = 3): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  ink(g, E(x, y, 60 * s, 10 * s), { w: 2.2, d, t: 400 })
+  for (const [w, h, y0] of [[50, 30, -6], [34, 24, -36]] as const) {
+    const t: P[] = [P(-w, y0), P(-w, y0 - h), ...E(x, y + (y0 - h) * s, w * s, 6 * s, 180, 360).slice(1), P(w, y0)]
+    blank(g, [...t, ...E(x, y + y0 * s, w * s, 6 * s, 0, 180)])
+    ink(g, t, { w: 2.4, d: d + 100, t: 400 })
+    ink(g, E(x, y + y0 * s, w * s, 6 * s, 0, 180), { w: 1.6, d: d + 150, t: 300 })
+    for (let k = 0; k < 6; k++) ink(g, B(P(-w + k * (w / 3), y0 - h + 2), P(-w + k * (w / 3) + 4, y0 - h + 10), P(-w + k * (w / 3) + 10, y0 - h + 10), P(-w + k * (w / 3) + 14, y0 - h + 2)), { w: 1, d: d + 300 + k * 30, t: 80 })
+  }
+  for (let k = 0; k < n; k++) {
+    const cx = x + (-16 + (32 / Math.max(1, n - 1)) * k) * s
+    ink(g, RR(cx - 3 * s, y - 80 * s, 6 * s, 20 * s, 1), { w: 1.4, d: d + 500, t: 100 })
+    const fw = wobble(g, { deg: 6, ox: cx, oy: y - 82 * s, ms: 500 + k * 70, d: d + 900 })
+    flame(fw, cx, y - 82 * s, 0.13 * s, d + 700)
+  }
+}
+
+/** Kreis aus n Köpfen; alle Verbindungen (Paare) als feine Linien, Person 0 hervorgehoben */
+function pairCircle(g: Element, cx: number, cy: number, r: number, n: number, d = 0, o: { mine?: boolean; all?: boolean; dAll?: number } = {}): P[] {
+  const pts: P[] = Array.from({ length: n }, (_, i) => [cx + Math.cos(rad(-90 + (i * 360) / n)) * r, cy + Math.sin(rad(-90 + (i * 360) / n)) * r])
+  if (o.all !== false) {
+    // alle Paare als ein einziger Zug (Euler-Kreis, bei ungerader Anzahl vorhanden): leicht für das Gerät
+    const left = new Set<string>()
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) left.add(i + ',' + j)
+    const key = (a: number, b: number) => (a < b ? a + ',' + b : b + ',' + a)
+    const stack = [0]
+    const tour: number[] = []
+    while (stack.length) {
+      const v = stack[stack.length - 1]
+      let next = -1
+      for (let u = 0; u < n; u++) if (u !== v && left.has(key(v, u))) { next = u; break }
+      if (next < 0) tour.push(stack.pop() as number)
+      else { left.delete(key(v, next)); stack.push(next) }
+    }
+    const path: P[] = []
+    tour.forEach((v, i) => path.push(...(i ? L(pts[tour[i - 1]], pts[v], 60).slice(1) : [pts[v]])))
+    ink(g, path, { w: 0.6, d: o.dAll ?? d + 600, t: Math.min(3000, tour.length * 14), p: 0.2 })
+  }
+  if (o.mine) for (let j = 1; j < n; j++) ink(g, L(pts[0], pts[j], 6), { w: 1.8, d: d + 300 + j * 30, t: 100 })
+  pts.forEach(([x, y], i) => ball(g, x, y, n > 16 ? 6 : 9, { d: d + i * 20, fill: i === 0 && o.mine ? 'dicht' : 'leer', w: 1.6, t: 80 }))
+  return pts
+}
+
+/** Trikot mit Nummernfeld */
+function shirt(g: Element, x: number, y: number, s = 1, d = 0, dense = false): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const o: P[] = [P(-8, -14), P(-16, -10), P(-20, -2), P(-14, 2), P(-12, -2), P(-12, 16), P(12, 16), P(12, -2), P(14, 2), P(20, -2), P(16, -10), P(8, -14), ...B(P(8, -14), P(4, -8), P(-4, -8), P(-8, -14)).slice(1)]
+  blank(g, o)
+  if (dense) hatch(g, o, d + 200, true)
+  ink(g, o, { w: 1.6, d, t: 200 })
+}
+
+/** Raster aus n Tagesfeldern, 25 je Zeile (12 × 18 px), als Gitterlinien */
+function dayGrid(g: Element, n: number, d = 0): void {
+  const rows = Math.ceil(n / 25)
+  for (let r = 0; r <= rows; r++) {
+    const w = r === rows ? (n % 25 || 25) : r === rows - 1 && n % 25 ? 25 : 25
+    ink(g, L([30, 330 + r * 18], [30 + (r === rows ? (n % 25 || 25) : w) * 12, 330 + r * 18], 60), { w: 0.8, d: d + r * 40, t: 150 })
+  }
+  for (let k = 0; k <= 25; k++) {
+    const full = k <= (n % 25 || 25) ? rows : rows - 1
+    ink(g, L([30 + k * 12, 330], [30 + k * 12, 330 + full * 18], 60), { w: 0.8, d: d + 200 + k * 20, t: 150 })
+  }
+}
+
 export const AHA_DENKEN: Bite[] = [
   {
     id: 'geburtstag',
@@ -59,101 +126,220 @@ export const AHA_DENKEN: Bite[] = [
     images: [],
     draw: {
       party(g) {
-        crowd(g, 40, 400, 9, 35, 1.6, 0, 100)
-        ink(g, RR(130, 230, 100, 50, 8), { w: 2.8, d: 900, t: 500 })
-        ink(g, RR(144, 200, 72, 30, 6), { w: 2.6, d: 1100, t: 400 })
-        for (const x of [160, 180, 200]) ink(g, L([x, 196], [x, 176]), { w: 2, d: 1300, t: 150 })
+        // Geburtstagsfeier: Wimpelkette, Luftballons, Torte, Gäste
+        ink(g, B([20, 90], [120, 130], [240, 130], [340, 90]), { w: 1.4, t: 600 })
+        for (let k = 0; k < 9; k++) {
+          const t = (k + 0.5) / 9
+          const x = 20 + t * 320
+          const y = 90 + Math.sin(t * Math.PI) * 30
+          const fl: P[] = [[x - 9, y], [x + 9, y], [x, y + 18], [x - 9, y]]
+          if (k % 2) hatch(g, fl, 400 + k * 40, true)
+          ink(g, fl, { w: 1.4, d: 300 + k * 40, t: 100 })
+        }
+        for (const [x, y, dd] of [[50, 170, 500], [300, 160, 700], [80, 200, 900]] as const) {
+          const w = wobble(g, { dx: 4, dy: -4, ms: 2400 + x * 5, d: 1000 })
+          const bl: P[] = smooth([[x, y + 30], [x - 18, y + 4], [x - 16, y - 22], [x, y - 28], [x + 16, y - 22], [x + 18, y + 4], [x, y + 30]], 3)
+          blank(w, bl)
+          if (x > 200) hatch(w, bl, dd + 200, true)
+          ink(w, bl, { w: 2, d: dd, t: 300 })
+          ink(w, B([x, y + 30], [x - 6, y + 60], [x + 6, y + 80], [x, y + 110]), { w: 1, d: dd + 200, t: 200 })
+        }
+        ink(g, RR(110, 330, 140, 12, 3), { w: 2.4, d: 300, t: 300 })
+        for (const x of [120, 240]) ink(g, L([x, 342], [x, 420]), { w: 2, d: 400, t: 200 })
+        cake(g, 180, 326, 1, 600, 5)
+        crowd(g, 30, 420, 3, 34, 1.7, 900, 100)
+        crowd(g, 262, 420, 3, 34, 1.7, 1100, 100)
       },
       kalender(g) {
-        for (let i = 0; i < 35; i++) ink(g, RR(40 + (i % 7) * 42, 340 + Math.floor(i / 7) * 42, 34, 34, 4), { w: 1.6, d: i * 25, t: 150 })
-        question(g, 180, 600, 1, 1000)
+        // Jahreskalender: zwölf Monatsblätter, zwei Tage sind markiert
+        for (let m = 0; m < 12; m++) {
+          const x = 30 + (m % 4) * 78
+          const y = 330 + Math.floor(m / 4) * 100
+          ink(g, RR(x, y, 70, 88, 4), { w: 1.8, d: m * 60, t: 200 })
+          hatch(g, RR(x, y, 70, 14, 4), 300 + m * 60, true)
+          for (let dd = 0; dd < 30; dd++) ink(g, RR(x + 4 + (dd % 7) * 9.2, y + 20 + Math.floor(dd / 7) * 13, 7, 9, 1), { w: 0.6, d: 600 + m * 40, t: 30 })
+        }
+        for (const [x, y] of [[30 + 78 + 4 + 3 * 9.2, 430 + 20 + 2 * 13], [30 + 3 * 78 + 4 + 3 * 9.2, 530 + 20 + 2 * 13]] as const) {
+          const p = pop(g, 1600, '50% 50%')
+          ink(p, E(x + 3.5, y + 4.5, 10), { w: 2.2, t: 0 })
+        }
+        carrow(g, [150, 486], [262, 586], -30, { d: 1900 })
       },
       kurve(g) {
-        axes(g, 40, 600, 330, 320, { yl: 'Chance' })
+        // Wahrscheinlichkeit eines gemeinsamen Geburtstags je Gruppengröße
+        axes(g, 50, 600, 330, 320, {})
         const f = (n: number) => {
           let p = 1
           for (let i = 0; i < n; i++) p *= (365 - i) / 365
           return 1 - p
         }
-        plot(g, 46, 596, 270, 250, (t) => f(Math.round(t * 80)), { d: 400 })
-        const x23 = 46 + (23 / 80) * 270
-        dashes(g, L([x23, 596], [x23, 596 - 0.507 * 250]), { w: 1.4, d: 1500 })
-        text(g, x23, 626, '23', { anchor: 'middle', cls: 's', d: 1600 })
-        text(g, x23 - 6, 580, '50 %', { anchor: 'end', cls: 's', d: 1700 })
-        const x70 = 46 + (70 / 80) * 270
-        text(g, x70, 626, '70', { anchor: 'middle', cls: 's', d: 1800 })
-        text(g, x70, 330, '99,9 %', { anchor: 'middle', cls: 's', d: 1900 })
+        for (const [v, l] of [[0, '0'], [0.5, '50'], [1, '100']] as const) {
+          const y = 596 - v * 250
+          ink(g, L([44, y], [56, y]), { w: 1.4, d: 300, t: 60 })
+          text(g, 40, y + 5, l, { anchor: 'end', cls: 's', d: 400 })
+        }
+        for (const n of [0, 20, 40, 60, 80]) {
+          const x = 56 + (n / 80) * 260
+          ink(g, L([x, 594], [x, 606]), { w: 1.4, d: 300, t: 60 })
+          text(g, x, 626, String(n), { anchor: 'middle', cls: 's', d: 400 })
+        }
+        plot(g, 56, 596, 260, 250, (t) => f(Math.round(t * 80)), { d: 600 })
+        const x23 = 56 + (23 / 80) * 260
+        dashes(g, L([x23, 596], [x23, 596 - 0.507 * 250]), { w: 1.4, d: 1700 })
+        dashes(g, L([56, 596 - 0.507 * 250], [x23, 596 - 0.507 * 250]), { w: 1.4, d: 1800 })
+        dot(g, x23, 596 - 0.507 * 250, 5, 1900)
+        ripple(g, x23, 596 - 0.507 * 250, 6, 26, { n: 2, ms: 1600, d: 2000, w: 1 })
       },
       du(g) {
-        fig(g, 70, 600, 2.4)
-        text(g, 70, 630, 'du', { anchor: 'middle', cls: 's', d: 300 })
-        crowd(g, 150, 600, 6, 30, 1.6, 400, 80)
-        text(g, 225, 400, 'irgendein Paar zählt', { anchor: 'middle', d: 1100 })
+        // 23 Köpfe im Kreis: fett die 22 Paare mit dir, fein alle übrigen
+        pairCircle(g, 180, 480, 140, 23, 0, { mine: true, dAll: 1400 })
       },
       paare(g) {
-        for (let r = 1; r < 23; r++) for (let c = 0; c < r; c++) {
-          const x = 40 + c * 12.5
-          const y = 330 + r * 12.5
-          mk('rect', { x, y, width: 10, height: 10, class: 'k fade', style: `--d:${r * 50}ms` }, g).style.opacity = '0.75'
+        // jedes Kästchen ein Paar: Dreieck aus 253 Feldern (Gitterlinien als Treppe)
+        const x0 = 40
+        const y0 = 342
+        const c = 12.5
+        for (let r = 0; r <= 22; r++) ink(g, L([x0, y0 + r * c], [x0 + Math.max(r, 1) * c - (r === 0 ? c : 0), y0 + r * c], 40), { w: 0.9, d: r * 60, t: 120 })
+        for (let k = 0; k <= 22; k++) ink(g, L([x0 + k * c, y0 + Math.max(k, 1) * c - (k === 0 ? c : 0)], [x0 + k * c, y0 + 22 * c], 40), { w: 0.9, d: 200 + k * 60, t: 120 })
+        let seed = 5
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let k = 0; k < 24; k++) {
+          const r = 1 + Math.floor(rnd() * 21)
+          const cc = Math.floor(rnd() * r)
+          hatch(g, RR(x0 + cc * c + 1, y0 + r * c + 1, c - 2, c - 2, 1), 1600 + k * 40, true)
         }
-        text(g, 260, 380, '253', { anchor: 'middle', size: 40, d: 1300 })
-        text(g, 260, 410, 'Paare', { anchor: 'middle', d: 1400 })
       },
       zahl253(g) {
-        fig(g, 60, 560, 2.4)
-        text(g, 220, 470, '253 Leute', { anchor: 'middle', size: 34, d: 400 })
-        text(g, 220, 510, 'für jemanden mit deinem Tag', { anchor: 'middle', cls: 's', d: 800 })
+        // eine große Menge: nur einer darin hat deinen Tag
+        fig(g, 40, 640, 2.4, { d: 0 })
+        let seed = 3
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        for (let i = 0; i < 253; i++) {
+          const x = 90 + (i % 23) * 11 + rnd() * 3
+          const y = 340 + Math.floor(i / 23) * 26 + rnd() * 4
+          dot(g, x, y, 2.6, 200 + i * 5)
+        }
+        const t = [90 + 17 * 11, 340 + 9 * 26] as P
+        ball(g, t[0], t[1], 5, { d: 1800, fill: 'dicht', w: 1.4, t: 60 })
+        ripple(g, t[0], t[1], 6, 26, { n: 2, ms: 1600, d: 2000, w: 1 })
+        carrow(g, [60, 570], [t[0] - 10, t[1] + 6], -30, { d: 2100 })
       },
       feld(g) {
-        ink(g, RR(30, 340, 300, 300, 10), { w: 3, t: 800 })
-        ink(g, L([30, 490], [330, 490]), { w: 2, d: 300, t: 500 })
-        ink(g, E(180, 490, 40), { w: 2, d: 400, t: 500 })
-        const pts: P[] = [[70, 380], [120, 400], [70, 450], [130, 450], [90, 520], [140, 540], [70, 600], [180, 400], [180, 590], [230, 380], [290, 400], [230, 450], [290, 450], [270, 520], [220, 540], [290, 600], [110, 610], [250, 610], [150, 370], [210, 620], [60, 560], [300, 560], [180, 450]]
-        pts.forEach(([x, y], i) => dot(g, x, y, i === 3 || i === 13 ? 7 : 4.5, 800 + i * 50))
-        text(g, 180, 666, '22 Spieler + Schiedsrichter', { anchor: 'middle', cls: 's', d: 2000 })
+        // Fußballfeld von oben: Mittelkreis, Strafräume, Tore; 22 Spieler + Schiedsrichter, zwei markiert
+        ink(g, RR(30, 340, 300, 300, 4), { w: 3, t: 800 })
+        ink(g, L([30, 490], [330, 490]), { w: 2, d: 300, t: 400 })
+        ink(g, E(180, 490, 40), { w: 2, d: 400, t: 400 })
+        dot(g, 180, 490, 2.4, 500)
+        for (const [y, s] of [[340, 1], [640, -1]] as const) {
+          ink(g, [[100, y], [100, y + s * 50], [260, y + s * 50], [260, y]], { w: 1.8, d: 500, t: 300 })
+          ink(g, [[140, y], [140, y + s * 18], [220, y + s * 18], [220, y]], { w: 1.4, d: 600, t: 200 })
+          ink(g, E(180, y + s * 50, 22, 22, s > 0 ? 0 : 180, s > 0 ? 180 : 360), { w: 1.4, d: 700, t: 200 })
+          ink(g, RR(160, y - (s > 0 ? 8 : 0), 40, 8, 1), { w: 2, d: 600, t: 100 })
+        }
+        const pts: P[] = [[180, 360], [90, 410], [150, 410], [210, 410], [270, 410], [70, 460], [130, 460], [230, 460], [290, 460], [150, 520], [210, 520], [180, 620], [90, 570], [150, 570], [210, 570], [270, 570], [70, 530], [290, 530], [110, 520], [250, 520], [180, 470], [200, 430], [120, 480]]
+        pts.forEach(([x, y], i) => {
+          const w = wobble(g, { dx: (i % 3 - 1) * 6, dy: (i % 2 ? 4 : -4), ms: 1600 + i * 70, d: 1200 })
+          ball(w, x, y, i === 22 ? 5 : 6, { d: 800 + i * 40, fill: i === 22 ? 'leer' : i < 11 ? 'dicht' : 'hell', w: 1.4, t: 60 })
+        })
+        for (const i of [6, 14]) {
+          const p = pop(g, 2000, '50% 50%')
+          ink(p, E(pts[i][0], pts[i][1], 13), { w: 2.2, t: 0 })
+        }
       },
       wm(g) {
+        // 32 Trikots, 16 davon mit Geburtstagspaar dunkel
         for (let i = 0; i < 32; i++) {
-          const x = 46 + (i % 8) * 38
-          const y = 360 + Math.floor(i / 8) * 50
-          ball(g, x, y, 13, { d: i * 40, fill: i % 2 ? 'leer' : 'dicht', w: 1.8, t: 0 })
+          const x = 48 + (i % 8) * 38
+          const y = 380 + Math.floor(i / 8) * 60
+          shirt(g, x, y, 1.1, i * 40, [1, 2, 4, 7, 8, 11, 13, 14, 17, 19, 22, 23, 26, 28, 29, 31].includes(i))
         }
-        text(g, 180, 600, 'WM 2014: 16 von 32 Teams', { anchor: 'middle', d: 1500 })
       },
       wachstum(g) {
-        vbars(g, [
-          { label: '10 Leute', v: 45, fmt: (v) => `${Math.round(v)}` },
-          { label: '23 Leute', v: 253, fmt: (v) => `${Math.round(v)}` },
-          { label: '50 Leute', v: 1225, fmt: (v) => `${Math.round(v).toLocaleString('de-DE')}`, dense: true },
-        ], { x: 40, base: 590, w: 70, gap: 110, h: 230 })
-        text(g, 180, 320, 'Zahl der Paare', { anchor: 'middle', cls: 's', d: 1300 })
+        // doppelt so viele Menschen – rund viermal so viele Paare
+        pairCircle(g, 70, 470, 46, 5, 0, { dAll: 300 })
+        pairCircle(g, 180, 470, 52, 11, 400, { dAll: 700 })
+        pairCircle(g, 296, 470, 56, 21, 800, { dAll: 1100 })
       },
       pruefsumme(g) {
-        box(g, 40, 360, 120, 60, 'Datei A', { size: 16 })
-        box(g, 200, 360, 120, 60, 'Datei B', { size: 16, d: 300 })
-        arrow(g, L([100, 424], [160, 494]), { w: 2.2, d: 700, t: 300, head: 8 })
-        arrow(g, L([260, 424], [200, 494]), { w: 2.2, d: 800, t: 300, head: 8 })
-        box(g, 80, 500, 200, 60, 'gleiche Prüfsumme', { size: 15, fill: true, d: 1100 })
+        // zwei verschiedene Dateien ergeben denselben kurzen Fingerabdruck
+        for (const [x, d] of [[60, 0], [220, 300]] as const) {
+          const doc: P[] = [[x, 340], [x + 60, 340], [x + 80, 360], [x + 80, 440], [x, 440], [x, 340]]
+          blank(g, doc)
+          ink(g, doc, { w: 2.2, d, t: 300 })
+          ink(g, [[x + 60, 340], [x + 60, 360], [x + 80, 360]], { w: 1.4, d: d + 200, t: 100 })
+          for (let k = 0; k < 5; k++) ink(g, L([x + 10, 372 + k * 13], [x + 10 + ((k * 23 + x) % 50) + 10, 372 + k * 13]), { w: 1, d: d + 300 + k * 40, t: 80 })
+        }
+        arrow(g, L([100, 450], [160, 520]), { w: 2, d: 800, t: 300, head: 8 })
+        arrow(g, L([260, 450], [200, 520]), { w: 2, d: 900, t: 300, head: 8 })
+        ink(g, RR(90, 530, 180, 60, 6), { w: 2.4, d: 1100, t: 300 })
+        const bars = [3, 1, 2, 1, 1, 3, 2, 1, 3, 1, 2, 2, 1, 3, 1, 1, 2, 3, 1, 2]
+        let x = 102
+        bars.forEach((w, k) => {
+          if (k % 2 === 0) hatch(g, RR(x, 540, w * 3, 40, 0), 1300 + k * 30, true)
+          x += w * 3 + 2
+        })
+        ripple(g, 180, 560, 20, 100, { n: 2, ms: 1600, d: 1800, w: 1, ry: 0.4 })
       },
       sicher(g) {
-        text(g, 180, 470, '367', { anchor: 'middle', size: 80, d: 200 })
-        text(g, 180, 520, 'Personen: garantiert ein Paar', { anchor: 'middle', d: 700 })
+        // alle 366 Felder belegt – die nächste Person findet keinen freien Tag mehr
+        dayGrid(g, 366, 0)
+        for (let r = 0; r < 15; r++) hatch(g, RR(30, 330 + r * 18, r === 14 ? 16 * 12 : 300, 18, 0), 300 + r * 80, true)
+        fig(g, 300, 640, 2.2, { d: 1600, arms: 'up' })
+        question(g, 262, 610, 0.5, 1900)
       },
       ende(g) {
-        crowd(g, 60, 560, 7, 40, 2, 0, 100)
+        cake(g, 180, 470, 1.2, 0, 5)
+        crowd(g, 50, 600, 7, 42, 1.8, 600, 100)
+      },
+      gruppe(g) {
+        // 23 Menschen in drei Reihen, zwei tragen eine Torte über dem Kopf – sie haben am selben Tag Geburtstag
+        for (let r = 0; r < 3; r++) for (let k = 0; k < (r === 2 ? 7 : 8); k++) {
+          const x = 44 + k * 40 + (r % 2) * 18
+          const y = 460 + r * 70
+          fig(g, x, y, 1.9, { d: 200 + (r * 8 + k) * 40 })
+        }
+        const a: P = [44 + 2 * 40, 380]
+        const b: P = [44 + 6 * 40 + 18, 450]
+        for (const [x, y] of [a, b]) cake(g, x, y, 0.32, 1500, 1)
+        carrow(g, [a[0] + 20, a[1] - 30], [b[0] - 20, b[1] - 34], -30, { d: 1900 })
+      },
+      netz(g) {
+        // jede Verbindung ein Paar – alle 253 werden nacheinander gezogen
+        pairCircle(g, 180, 480, 140, 23, 0, { dAll: 400 })
+      },
+      belegt(g) {
+        // 365 Tage als Felder: jede neue Person braucht ein noch freies Feld
+        dayGrid(g, 365, 0)
+        let seed = 11
+        const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+        const used = new Set<number>()
+        for (let k = 0; k < 22; k++) {
+          let i = Math.floor(rnd() * 365)
+          while (used.has(i)) i = (i + 1) % 365
+          used.add(i)
+          hatch(g, RR(31 + (i % 25) * 12, 331 + Math.floor(i / 25) * 18, 10, 16, 1), 800 + k * 90, true)
+        }
+      },
+      torte(g) {
+        // gut die Hälfte: Kreis zu 51 % schraffiert
+        ink(g, E(180, 470, 120), { w: 3, t: 700 })
+        hatch(g, [[180, 470], ...E(180, 470, 118, 118, -90, -90 + 0.51 * 360), [180, 470]], 800, true)
+        hatch(g, [[180, 470], ...E(180, 470, 118, 118, -90 + 0.51 * 360, 270), [180, 470]], 1000)
+        ink(g, L([180, 470], [180, 350]), { w: 2.2, d: 600, t: 150 })
+        ink(g, L([180, 470], [180 + Math.cos(rad(-90 + 0.51 * 360)) * 120, 470 + Math.sin(rad(-90 + 0.51 * 360)) * 120]), { w: 2.2, d: 700, t: 150 })
       },
     },
     scenes: [
       { t: HOOK(476), gfx: { party: {} } },
       { t: T('Schätz mal: Wie viele Menschen müssen in einem Raum sein, damit es **wahrscheinlich** ist, dass zwei am selben Tag Geburtstag haben?', 64), gfx: { kalender: {} } },
-      { t: T('Viele tippen auf 180 – die Hälfte von 365. Die richtige Antwort ist erstaunlich klein: **23**.', 64), gfx: { z1: { draw: 'zahl', args: ['23', 'Menschen reichen für über 50 %', 430] } } },
+      { t: T('Viele tippen auf 180 – die Hälfte von 365. Die richtige Antwort ist erstaunlich klein: **23**.', 64), gfx: { gruppe: {} } },
       { t: T('Bei 23 Leuten liegt die Chance schon bei gut **50 Prozent**. Bei 70 Leuten sind es 99,9 Prozent.', 64), gfx: { kurve: {} } },
       { t: T('Warum so wenige? Weil es nicht um **deinen** Geburtstag geht, sondern um irgendein beliebiges Paar im Raum.', 64), gfx: { du: {} } },
-      { t: T('Bei 23 Leuten gibt es nämlich **253 Paare** – und jedes Paar ist eine eigene Chance auf einen Treffer.', 64), gfx: { f1: { draw: 'formel', args: [['23 × 22', '÷', '2', '=', '253 Paare'], 360] } } },
+      { t: T('Bei 23 Leuten gibt es nämlich **253 Paare** – und jedes Paar ist eine eigene Chance auf einen Treffer.', 64), gfx: { netz: {} } },
       { t: T('Jedes Kästchen hier steht für ein Paar. Das sind **viel mehr** Gelegenheiten, als das Bauchgefühl erwartet.', 64), gfx: { paare: {} } },
       { t: T('Am leichtesten rechnet man **rückwärts**: Wie wahrscheinlich ist es, dass alle verschiedene Geburtstage haben?', 64), gfx: { kalender: {} } },
-      { t: T('Die zweite Person braucht einen anderen Tag als die erste: 364 von 365. Die dritte: **363 von 365**. Und so weiter.', 64), gfx: { f2: { draw: 'formel', args: [['364/365', '×', '363/365', '×', '362/365', '× …'], 360] } } },
-      { t: T('Multipliziert für 23 Personen ergibt das knapp **49 Prozent**. Zu 51 Prozent teilen also mindestens zwei einen Tag.', 64), gfx: { f3: { draw: 'formel', args: [['100 %', '−', '49 %', '≈', '51 %'], 380] } } },
+      { t: T('Die zweite Person braucht einen anderen Tag als die erste: 364 von 365. Die dritte: **363 von 365**. Und so weiter.', 64), gfx: { belegt: {} } },
+      { t: T('Multipliziert für 23 Personen ergibt das knapp **49 Prozent**. Zu 51 Prozent teilen also mindestens zwei einen Tag.', 64), gfx: { torte: {} } },
       { t: T('Willst du dagegen jemanden mit **deinem** Geburtstag treffen, brauchst du für 50 Prozent rund 253 Leute.', 64), gfx: { zahl253: {} } },
       { t: T('Im Fußball stehen genau 23 Menschen auf dem Platz: 22 Spieler plus Schiedsrichter. In etwa **jedem zweiten** Spiel teilen zwei einen Geburtstag.', 64), gfx: { feld: {} } },
       { t: T('Bei der WM 2014 hatte jedes Team 23 Spieler. Tatsächlich gab es in **16 von 32** Mannschaften ein Geburtstagspaar.', 64), gfx: { wm: {} } },
