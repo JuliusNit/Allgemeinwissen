@@ -1,32 +1,69 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, check, clock, cross, crowd, eye, fig, globe, hatch, ink, lie, question, st, text, timeline, vbars, type P } from './draw'
-import { axes, ball, box, bullets, dot, heart, house, pie, plot, rad, sun, waveP } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, car, check, clock, cross, crowd, dashes, eye, fig, hatch, ink, lie, mk, pop, question, rays, st, strike, text, timeline, vbars, type P } from './draw'
+import { LAND, axes, ball, box, bullets, coastPts, dot, flow, glide, heart, house, pie, plot, rad, ripple, smooth, spin, sun, waveP, wobble } from './kit'
 
 // Psychologie: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
-
-/** Gorilla von vorn, Füße auf y */
-function gorilla(g: Element, x: number, y: number, s = 1, d = 0): void {
-  const P = (a: number, b: number): P => [x + a * s, y + b * s]
-  const body: P[] = [...B(P(-40, -20), P(-50, -90), P(-30, -120), P(0, -122)), ...B(P(0, -122), P(30, -120), P(50, -90), P(40, -20)).slice(1), ...B(P(40, -20), P(30, 0), P(-30, 0), P(-40, -20)).slice(1)]
-  blank(g, body)
-  hatch(g, body, d + 700, true)
-  ink(g, body, { w: 3, d, t: 900 })
-  const head = E(x, y - 140 * s, 24 * s, 22 * s)
-  blank(g, head)
-  hatch(g, head, d + 800, true)
-  ink(g, head, { w: 2.8, d: d + 300, t: 500 })
-  blank(g, E(x, y - 132 * s, 14 * s, 9 * s))
-  ink(g, E(x, y - 132 * s, 14 * s, 9 * s), { w: 2, d: d + 600, t: 300 })
-  for (const k of [-1, 1]) {
-    ink(g, B(P(k * 44, -100), P(k * 70, -80), P(k * 74, -40), P(k * 66, -4)), { w: 3.4, d: d + 500, t: 400 })
-    dot(g, x - 7 * s * k, y - 146 * s, 2.6 * s, d + 900)
-  }
-}
 
 /** Linie mit Länge für den Asch-Versuch, senkrecht bei x, unten bei y */
 function stroke(g: Element, x: number, y: number, h: number, label: string, d = 0): void {
   ink(g, L([x, y], [x, y - h]), { w: 4, d, t: 300 })
   text(g, x, y + 24, label, { anchor: 'middle', d: d + 200 })
+}
+
+/** Gorilla von vorn (Mensch im Kostüm), Füße auf y: Scheitelkamm, Brauenwulst, breite Schultern, lange Arme;
+ *  beat = Fäuste trommeln auf die Brust */
+function gorilla(g: Element, x: number, y: number, s = 1, d = 0, beat = false): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  for (const k of [-1, 1]) {
+    const leg: P[] = [P(k * 8, -46), P(k * 30, -44), P(k * 34, -10), P(k * 40, 0), P(k * 12, 0), P(k * 10, -20)]
+    blank(g, leg)
+    hatch(g, leg, d + 600, true)
+    ink(g, leg, { w: 2.4 * Math.min(1.2, s), d: d + 200, t: 400 })
+  }
+  const body: P[] = smooth([P(-30, -40), P(-50, -90), P(-48, -116), P(-20, -128), P(20, -128), P(48, -116), P(50, -90), P(30, -40), P(-30, -40)], 3)
+  blank(g, body)
+  hatch(g, body, d + 700, true)
+  ink(g, body, { w: 2.8 * Math.min(1.2, s), d, t: 700 })
+  const chest: P[] = smooth([P(-24, -110), P(0, -114), P(24, -110), P(20, -80), P(0, -74), P(-20, -80), P(-24, -110)], 3)
+  blank(g, chest)
+  ink(g, chest, { w: 1.4, d: d + 400, t: 300 })
+  for (const k of [-1, 1]) {
+    const arm: P[] = beat
+      ? [P(k * 46, -118), P(k * 62, -96), P(k * 30, -86), P(k * 14, -96)]
+      : [P(k * 46, -118), P(k * 70, -80), P(k * 72, -40), P(k * 64, -8)]
+    ink(g, arm, { w: 9 * Math.min(1.2, s), d: d + 500, t: 300 })
+    ball(g, arm[3][0], arm[3][1], 8 * s, { d: d + 600, fill: 'dicht', w: 1.6, t: 100 })
+  }
+  const head: P[] = smooth([P(-20, -130), P(-22, -150), P(-10, -168), P(0, -172), P(10, -168), P(22, -150), P(20, -130), P(-20, -130)], 3)
+  blank(g, head)
+  hatch(g, head, d + 800, true)
+  ink(g, head, { w: 2.6, d: d + 300, t: 400 })
+  const face: P[] = smooth([P(-14, -150), P(14, -150), P(14, -136), P(0, -130), P(-14, -136), P(-14, -150)], 3)
+  blank(g, face)
+  ink(g, face, { w: 1.6, d: d + 600, t: 200 })
+  ink(g, B(P(-16, -152), P(-6, -158), P(6, -158), P(16, -152)), { w: 2.6, d: d + 650, t: 150 })
+  for (const k of [-1, 1]) {
+    dot(g, x + k * 6 * s, y - 148 * s, 1.8 * s, d + 800)
+    dot(g, x + k * 3 * s, y - 140 * s, 1.2 * s, d + 850)
+  }
+}
+
+/** Admiralitätsanker: Ring, Stock (Querbalken), Schaft, Arme mit Flunken; Kreuz unten bei (x, y) */
+function anchor(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const w = Math.max(1.2, 4 * s)
+  ink(g, E(x, y - 230 * s, 16 * s), { w, d, t: 300 })
+  ink(g, L(P(0, -214), P(0, 0)), { w: w * 1.5, d: d + 200, t: 500 })
+  ink(g, L(P(-50, -190), P(50, -190)), { w, d: d + 300, t: 200 })
+  for (const k of [-1, 1]) ball(g, x + k * 52 * s, y - 190 * s, 5 * s, { d: d + 400, fill: 'dicht', w: 1.2, t: 60 })
+  ink(g, B(P(-90, -60), P(-80, 0), P(80, 0), P(90, -60)), { w: w * 1.3, d: d + 500, t: 500 })
+  for (const k of [-1, 1]) {
+    const fl: P[] = [P(k * 90, -60), P(k * 110, -50), P(k * 96, -84), P(k * 90, -60)]
+    blank(g, fl)
+    hatch(g, fl, d + 800, true)
+    ink(g, fl, { w: w * 0.7, d: d + 700, t: 150 })
+  }
+  ball(g, x, y, 8 * s, { d: d + 600, fill: 'dicht', w: 1.4, t: 60 })
 }
 
 export const AHA_PSYCHE: Bite[] = [
@@ -40,90 +77,177 @@ export const AHA_PSYCHE: Bite[] = [
     images: [],
     draw: {
       bild(g) {
-        crowd(g, 24, 380, 3, 32, 2.2, 0, 150)
-        crowd(g, 272, 380, 3, 32, 2.2, 300, 150)
-        gorilla(g, 180, 400, 1, 900)
+        // Spieler passen sich Bälle zu, mitten zwischen ihnen trommelt der Gorilla
+        crowd(g, 24, 400, 3, 32, 2.2, 0, 150)
+        crowd(g, 272, 400, 3, 32, 2.2, 300, 150)
+        const bt = wobble(g, { dy: -3, ms: 300, d: 1200 })
+        gorilla(bt, 180, 410, 1, 900, true)
+        for (const [a, b] of [[[60, 300], [290, 310]], [[300, 280], [80, 260]]] as const) {
+          const p = B(a as P, [((a as P)[0] + (b as P)[0]) / 2, 200], [((a as P)[0] + (b as P)[0]) / 2, 200], b as P)
+          dashes(g, p, { w: 1, d: 600, dash: 4, gap: 4 })
+          flow(g, p, { n: 1, ms: 1800, d: 800, r: 5 })
+        }
       },
       spiel(g) {
+        // zwei Teams: helle Trikots und dunkle, die Bälle fliegen hin und her
         for (let i = 0; i < 6; i++) {
           const x = 50 + i * 52
-          fig(g, x, 600, 2.4, { d: i * 120, arms: i % 2 ? 'up' : 'down' })
-          if (i % 2) ink(g, RR(x - 10, 520, 20, 6, 3), { w: 1.6, d: i * 120 + 200, t: 100 })
+          fig(g, x, 600, 2.4, { d: i * 120, arms: i % 2 ? 'up' : 'push' })
+          const shirt = RR(x - 8, 540, 16, 26, 4)
+          blank(g, shirt)
+          if (i % 2) hatch(g, shirt, i * 120 + 300, true)
+          ink(g, shirt, { w: 1.6, d: i * 120 + 200, t: 100 })
         }
-        ball(g, 130, 470, 12, { d: 900, t: 200 })
-        ball(g, 250, 450, 12, { d: 1000, fill: 'dicht', t: 200 })
-        text(g, 180, 640, 'Weiß und Schwarz passen sich Bälle zu', { anchor: 'middle', cls: 's', d: 1200 })
+        for (const [a, b, dd] of [[[50, 520], [154, 520], 900], [[102, 510], [258, 500], 1300]] as const) {
+          const p = B(a as P, [((a as P)[0] + (b as P)[0]) / 2, 420], [((a as P)[0] + (b as P)[0]) / 2, 420], b as P)
+          dashes(g, p, { w: 1, d: dd, dash: 4, gap: 4 })
+          flow(g, p, { n: 1, ms: 1600, d: dd + 200, r: 6, kind: dd > 1000 ? 'dot' : 'ring' })
+        }
       },
       zaehlen(g) {
-        for (let i = 0; i < 6; i++) fig(g, 50 + i * 52, 600, 2.4, { d: i * 80 })
-        text(g, 180, 430, 'Pässe von Weiß: 1, 2, 3 …', { anchor: 'middle', size: 20, d: 700 })
+        // Blick über die Schulter auf den Bildschirm, darüber eine Strichliste der Pässe
+        ink(g, RR(60, 330, 240, 170, 8), { w: 2.8, t: 500 })
+        for (let i = 0; i < 6; i++) {
+          fig(g, 90 + i * 36, 480, 1.4, { d: 300 + i * 60 })
+          if (i % 2) hatch(g, RR(84 + i * 36, 450, 12, 14, 3), 600 + i * 60, true)
+        }
+        const hd: P[] = smooth([[130, 640], [134, 590], [160, 560], [200, 560], [226, 590], [230, 640]], 3)
+        blank(g, [...hd, [130, 640]])
+        hatch(g, [...hd, [130, 640]], 900, true)
+        ink(g, hd, { w: 2.6, d: 700, t: 400 })
+        for (let i = 0; i < 7; i++) {
+          const x = 250 + (i % 5) * 9
+          if (i === 4) ink(g, L([246, 300], [292, 284]), { w: 2, d: 1200 + i * 200, t: 80 })
+          else ink(g, L([x, 278], [x, 304]), { w: 2, d: 1200 + i * 200, t: 80 })
+        }
       },
       gorilla(g) {
-        for (const x of [30, 70, 290, 330]) fig(g, x, 600, 2.4)
-        gorilla(g, 180, 610, 1.15, 300)
+        const bt = wobble(g, { dy: -3, ms: 300, d: 1200 })
+        gorilla(bt, 180, 610, 1.6, 300, true)
+        ripple(g, 180, 460, 20, 70, { n: 2, ms: 600, d: 1400, w: 1 })
       },
       haelfte(g) {
-        pie(g, 180, 460, 110, 0.5)
-        text(g, 180, 620, 'etwa die Hälfte sieht ihn nicht', { anchor: 'middle', cls: 's', d: 1100 })
+        // zehn Zuschauer: fünf haben ihn gesehen, fünf nicht
+        for (let i = 0; i < 10; i++) {
+          const x = 36 + (i % 5) * 72
+          const y = 460 + Math.floor(i / 5) * 140
+          fig(g, x, y, 2.4, { d: i * 80 })
+          if (i % 2 === 0) check(g, x, y - 100, 0.5, 900 + i * 60)
+          else cross(g, x, y - 100, 0.5, 900 + i * 60)
+        }
       },
       scheinwerfer(g) {
-        const cone: P[] = [[60, 330], [300, 520], [300, 640], [60, 360]]
-        hatch(g, [[300, 520], [300, 640], [200, 560]], 600)
+        // Scheinwerfer beleuchtet den Ball – der Gorilla steht im Dunkeln daneben
         ink(g, RR(30, 310, 50, 60, 10), { w: 2.8, t: 500 })
-        ink(g, L([80, 340], [300, 520]), { w: 1.6, d: 300, t: 500 })
-        ink(g, L([80, 350], [300, 640]), { w: 1.6, d: 300, t: 500 })
-        void cone
-        text(g, 180, 330, 'Aufmerksamkeit', { anchor: 'middle', cls: 's', d: 900 })
+        ink(g, L([55, 370], [55, 400]), { w: 2.4, d: 200, t: 100 })
+        ink(g, L([80, 334], [250, 560]), { w: 1.6, d: 300, t: 500 })
+        ink(g, L([80, 350], [160, 600]), { w: 1.6, d: 300, t: 500 })
+        ink(g, E(205, 580, 50, 14), { w: 1.4, d: 600, t: 300 })
+        ball(g, 200, 560, 12, { d: 800, w: 2, t: 200 })
+        rays(g, 200, 560, 18, 28, 8, 1000)
+        hatch(g, [[230, 350], [340, 350], [340, 640], [230, 640]], 400, true)
+        const gw = st(g, '', 'opacity: 0.5')
+        gorilla(gw, 290, 640, 0.9, 700)
       },
       sicher(g) {
-        fig(g, 110, 600, 4)
-        bubble(g, 160, 380, 170, 60, 'l', 400)
-        text(g, 245, 416, 'Da war kein Gorilla!', { anchor: 'middle', cls: 's', d: 700 })
+        // jemand ist ganz sicher: in der Sprechblase ein durchgestrichener Gorilla
+        fig(g, 110, 620, 4.4, { d: 0, arms: 'cross' })
+        bubble(g, 160, 330, 170, 130, 'l', 400)
+        gorilla(g, 245, 450, 0.5, 700)
+        cross(g, 245, 410, 1.1, 1300)
       },
       lunge(g) {
-        ink(g, RR(60, 320, 240, 280, 16), { w: 3, t: 700 })
+        // CT-Schnitt durch die Brust: Lungenflügel mit Gefäßen, Wirbel, Herz; oben rechts ein winziger Gorilla
+        ink(g, E(180, 470, 150, 120), { w: 3, t: 700 })
+        hatch(g, E(180, 470, 146, 116), 300, true)
         for (const k of [-1, 1]) {
-          const lu: P[] = [...B([180 + k * 12, 360], [180 + k * 90, 350], [180 + k * 100, 500], [180 + k * 80, 560]), ...B([180 + k * 80, 560], [180 + k * 40, 570], [180 + k * 16, 560], [180 + k * 12, 360]).slice(1)]
-          hatch(g, lu, 600)
-          ink(g, lu, { w: 2.2, d: 300, t: 600 })
+          const lu: P[] = smooth([[180 + k * 14, 380], [180 + k * 90, 372], [180 + k * 130, 440], [180 + k * 120, 540], [180 + k * 60, 570], [180 + k * 20, 540], [180 + k * 14, 380]], 3)
+          blank(g, lu)
+          ink(g, lu, { w: 2.2, d: 400, t: 600 })
+          let seed = k > 0 ? 3 : 7
+          const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+          for (let i = 0; i < 14; i++) dot(g, 180 + k * (40 + rnd() * 70), 400 + rnd() * 140, 1.4 + rnd() * 2, 800 + i * 30)
         }
-        gorilla(g, 230, 470, 0.22, 1000)
-        text(g, 180, 640, '83 % der Radiologen übersahen ihn', { anchor: 'middle', cls: 's', d: 1300 })
+        ink(g, E(180, 560, 18, 16), { w: 2.4, d: 600, t: 200 })
+        blank(g, E(180, 560, 10))
+        ink(g, E(150, 480, 30, 40), { w: 2, d: 700, t: 300 })
+        gorilla(g, 252, 438, 0.16, 1400)
+        const p = pop(g, 2200, '50% 50%')
+        ink(p, E(252, 424, 16), { w: 1.6, t: 0 })
       },
       motorrad(g) {
-        ink(g, RR(40, 420, 140, 70, 14), { w: 2.8, t: 600 })
-        for (const x of [70, 150]) ball(g, x, 494, 16, { d: 300, t: 300 })
-        ink(g, L([30, 520], [330, 520]), { w: 2.6, d: 200, t: 500 })
-        ball(g, 250, 500, 12, { d: 600, t: 200 })
-        ball(g, 310, 500, 12, { d: 600, t: 200 })
-        ink(g, [[250, 500], [280, 470], [310, 500]], { w: 2.2, d: 800, t: 300 })
-        text(g, 180, 600, '„Sorry, hab dich nicht gesehen.“', { anchor: 'middle', cls: 'it', d: 1100 })
+        // Auto biegt ab; der Blick des Fahrers (Kegel) geht an der Motorradfahrerin vorbei
+        ink(g, L([20, 560], [340, 560]), { w: 2.6, t: 400 })
+        dashes(g, L([20, 600], [340, 600]), { w: 2, d: 100, dash: 14, gap: 10 })
+        car(g, 110, 556, 1.8, 200)
+        const cone: P[] = [[150, 500], [340, 420], [340, 470], [150, 510]]
+        hatch(g, cone, 900)
+        dashes(g, L([150, 500], [340, 420]), { w: 1, d: 800, dash: 4, gap: 4 })
+        dashes(g, L([150, 510], [340, 470]), { w: 1, d: 800, dash: 4, gap: 4 })
+        const m = glide(g, -40, 0, { ms: 3000, d: 1000, loop: true })
+        for (const x of [250, 306]) {
+          ink(m, E(x, 544, 14), { w: 2.2, d: 600, t: 150 })
+          ink(m, E(x, 544, 4), { w: 1, d: 650, t: 60 })
+        }
+        ink(m, [[250, 544], [270, 520], [296, 520], [306, 544]], { w: 2.2, d: 700, t: 200 })
+        ink(m, [[270, 520], [276, 500], [290, 500]], { w: 1.8, d: 750, t: 100 })
+        fig(m, 280, 520, 1.2, { d: 800, arms: 'push' })
       },
       tuer(g) {
+        // zwei Arbeiter tragen eine Tür zwischen den Gesprächspartnern hindurch (a1)
         fig(g, 70, 600, 3.6)
         fig(g, 290, 600, 3.6, { d: 300 })
+        ink(g, RR(250, 460, 40, 30, 2), { w: 1.6, d: 500, t: 150 })
         const door = st(g, 'x1', '--o: 180px 500px')
-        ink(door, RR(150, 380, 60, 220, 4), { w: 3, t: 0 })
-        hatch(door, RR(150, 380, 60, 220, 4), 0)
-        text(g, 180, 650, 'Gesprächspartner heimlich getauscht', { anchor: 'middle', cls: 's', d: 900 })
+        ink(door, RR(140, 380, 80, 220, 4), { w: 3, t: 0 })
+        hatch(door, RR(140, 380, 80, 220, 4), 0)
+        ink(door, RR(150, 390, 60, 90, 2), { w: 1.4, t: 0 })
+        ink(door, RR(150, 494, 60, 90, 2), { w: 1.4, t: 0 })
+        dot(door, 206, 490, 3, 0)
+        for (const x of [130, 230]) {
+          const leg = mk('g', {}, door)
+          ink(leg, L([x, 600], [x, 640]), { w: 2.4, t: 0 })
+        }
       },
       vorhang(g) {
-        ink(g, RR(40, 360, 280, 200, 8), { w: 2.8, t: 600 })
-        for (const x of [60, 300]) ink(g, B([x, 362], [x + (x < 180 ? 20 : -20), 440], [x, 500], [x + (x < 180 ? 16 : -16), 558]), { w: 2, d: 400, t: 500 })
-        gorilla(g, 180, 540, 0.8, 700)
-        text(g, 180, 620, 'Wer den Gorilla erwartet, übersieht anderes', { anchor: 'middle', cls: 's', d: 1300 })
+        // Bühne mit Vorhang: alle erwarten den Gorilla – derweil wechselt der Vorhang die Farbe, ein Spieler geht
+        ink(g, RR(40, 360, 280, 220, 8), { w: 2.8, t: 600 })
+        const back = st(g, '', '')
+        hatch(back, RR(44, 364, 272, 212, 6), 1400)
+        for (const x of [60, 300]) {
+          const cur: P[] = [[x, 362], [x + (x < 180 ? 40 : -40), 362], [x + (x < 180 ? 14 : -14), 470], [x + (x < 180 ? 30 : -30), 578], [x, 578]]
+          blank(g, cur)
+          hatch(g, cur, 500, true)
+          ink(g, cur, { w: 2, d: 400, t: 500 })
+        }
+        gorilla(g, 180, 572, 0.8, 700)
+        const lv = glide(g, 60, 0, { ms: 2000, d: 1600 })
+        fig(lv, 250, 576, 2, { d: 900 })
       },
       zauber(g) {
-        fig(g, 110, 620, 4, { arms: 'up' })
-        ink(g, RR(200, 380, 60, 70, 8), { w: 2.6, d: 400, t: 400 })
-        ink(g, L([190, 384], [270, 384]), { w: 3, d: 500, t: 300 })
-        ball(g, 230, 560, 10, { d: 900, fill: 'dicht', t: 200 })
-        text(g, 230, 600, 'der Trick passiert daneben', { anchor: 'middle', cls: 's', d: 1100 })
+        // Zauberer: die linke Hand lenkt mit großer Geste ab, die rechte lässt die Münze verschwinden
+        fig(g, 180, 640, 5, { arms: 'up' })
+        ink(g, [[150, 420], [210, 420], [200, 380], [160, 380], [150, 420]], { w: 2.4, d: 400, t: 300 })
+        ink(g, L([140, 420], [220, 420]), { w: 3, d: 500, t: 200 })
+        hatch(g, [[160, 380], [200, 380], [204, 390], [156, 390]], 600, true)
+        rays(g, 110, 460, 14, 26, 8, 800)
+        const c = glide(g, 0, 40, { ms: 900, d: 1400, loop: true })
+        ink(c, E(250, 560, 7, 3), { w: 1.6, d: 1300, t: 60 })
+        eye(g, 60, 340, 0.6, 1000)
+        dashes(g, L([76, 346], [108, 446]), { w: 1, d: 1200, dash: 3, gap: 3 })
       },
       schulter(g) {
-        fig(g, 180, 600, 5)
-        arrow(g, B([160, 420], [120, 400], [90, 420], [80, 460]), { w: 2.6, d: 600, t: 400, head: 9 })
-        text(g, 180, 650, 'feste Routinen: Schulterblick', { anchor: 'middle', cls: 's', d: 900 })
+        // Schulterblick aus dem Auto: der Kopf dreht sich, der Blick erfasst den Radfahrer im toten Winkel
+        car(g, 140, 600, 2.6, 0)
+        const hd = wobble(g, { deg: 20, ox: 160, oy: 500, ms: 1600, d: 900 })
+        ink(hd, E(160, 490, 12), { w: 2.2, d: 500, t: 150 })
+        const cone: P[] = [[150, 490], [40, 420], [40, 470]]
+        hatch(g, [...cone, cone[0]], 1100)
+        dashes(g, L([150, 490], [40, 420]), { w: 1, d: 1000, dash: 4, gap: 4 })
+        dashes(g, L([150, 490], [40, 470]), { w: 1, d: 1000, dash: 4, gap: 4 })
+        for (const x of [30, 74]) ink(g, E(x, 594, 14), { w: 2, d: 1200, t: 150 })
+        ink(g, [[30, 594], [44, 570], [64, 570], [74, 594]], { w: 2, d: 1300, t: 150 })
+        fig(g, 54, 570, 1.2, { d: 1400, arms: 'push' })
       },
       ende(g) {
         eye(g, 180, 480, 2.4)
@@ -164,92 +288,148 @@ export const AHA_PSYCHE: Bite[] = [
     images: [],
     draw: {
       anker(g) {
-        ink(g, L([180, 120], [180, 340]), { w: 4, t: 600 })
-        ink(g, E(180, 106, 16), { w: 3, d: 200, t: 400 })
-        ink(g, L([140, 170], [176, 170]), { w: 3.6, d: 400, t: 300 })
-        ink(g, L([184, 170], [220, 170]), { w: 3.6, d: 400, t: 300 })
-        ink(g, B([90, 290], [110, 350], [250, 350], [270, 290]), { w: 4, d: 600, t: 600 })
-        for (const k of [-1, 1]) ink(g, [[180 + k * 90, 290], [180 + k * 104, 300], [180 + k * 84, 308]], { w: 3, d: 1100, t: 200 })
+        // Schiffsanker an der Kette auf dem Meeresgrund, Fische ziehen vorbei
+        anchor(g, 180, 330, 1, 0)
+        for (let k = 0; k < 6; k++) ink(g, E(180, 110 - k * 14, 5, 8), { w: 2, d: 200 + k * 60, t: 100 })
+        const floor: P[] = smooth([[20, 400], [120, 390], [240, 398], [340, 388]], 3)
+        ink(g, floor, { w: 2.2, d: 300, t: 500 })
+        hatch(g, [...floor, [340, 440], [20, 440]], 500, true)
+        for (const [x, y, dd] of [[60, 200, 900], [280, 260, 1200]] as const) {
+          const f = glide(g, 40, 0, { ms: 5000, d: dd, loop: true })
+          ink(f, smooth([[x, y], [x + 14, y - 8], [x + 30, y - 6], [x + 36, y], [x + 30, y + 6], [x + 14, y + 8], [x, y]], 3), { w: 1.6, d: dd, t: 200 })
+          ink(f, [[x, y], [x - 10, y - 7], [x - 10, y + 7], [x, y]], { w: 1.4, d: dd + 100, t: 100 })
+        }
       },
       rad(g) {
-        ink(g, E(180, 460, 110), { w: 3.2, t: 800 })
+        // Glücksrad auf dem Ständer, Zeiger oben
+        const w = spin(g, 180, 460, 6000, 1400)
+        ink(w, E(180, 460, 110), { w: 3.2, t: 800 })
         for (let k = 0; k < 10; k++) {
           const a = rad(k * 36 - 90)
-          ink(g, L([180, 460], [180 + Math.cos(a) * 110, 460 + Math.sin(a) * 110]), { w: 1.4, d: 300 + k * 50, t: 150 })
-          text(g, 180 + Math.cos(a + rad(18)) * 86, 465 + Math.sin(a + rad(18)) * 86, String(k * 10), { anchor: 'middle', cls: 's halo', d: 700 + k * 40 })
+          ink(w, L([180, 460], [180 + Math.cos(a) * 110, 460 + Math.sin(a) * 110]), { w: 1.4, d: 300 + k * 50, t: 150 })
+          if (k % 2) hatch(w, [[180, 460], ...E(180, 460, 108, 108, k * 36 - 90, k * 36 - 54), [180, 460]], 600 + k * 40)
+          text(w, 180 + Math.cos(a + rad(18)) * 86, 465 + Math.sin(a + rad(18)) * 86, String(k * 10), { anchor: 'middle', cls: 's halo', d: 700 + k * 40 })
         }
-        ink(g, [[180, 330], [170, 314], [190, 314], [180, 330]], { w: 2.6, d: 1200, t: 200 })
+        ink(g, [[180, 340], [170, 322], [190, 322], [180, 340]], { w: 2.6, d: 1200, t: 200 })
         ball(g, 180, 460, 10, { d: 900, fill: 'dicht', t: 200 })
+        ink(g, [[150, 640], [180, 470], [210, 640]], { w: 2.6, d: 200, t: 400 })
+        ink(g, L([120, 640], [240, 640]), { w: 2.6, d: 300, t: 300 })
       },
       afrika(g) {
-        globe(g, 180, 470, 110)
-        text(g, 180, 630, 'Anteil afrikanischer Staaten in der UNO?', { anchor: 'middle', cls: 's', d: 1300 })
+        // Afrika, ringsum 54 Fähnchen für seine Staaten
+        const pts = coastPts(LAND.afrika, (lon, lat) => [180 + (lon - 17) * 3.2 * Math.cos(rad(lat * 0.6)), 470 - (lat - 2) * 3.2])
+        blank(g, pts)
+        hatch(g, pts, 500)
+        ink(g, pts, { w: 2.4, t: 900 })
+        for (let i = 0; i < 54; i++) {
+          const a = rad(-90 + (i * 360) / 54)
+          const x = 180 + Math.cos(a) * 160
+          const y = 470 + Math.sin(a) * 170
+          if (y < 300 || y > 650 || x < 14 || x > 346) continue
+          ink(g, L([x, y + 6], [x, y - 8]), { w: 1, d: 900 + i * 15, t: 40 })
+          ink(g, RR(x, y - 8, 8, 6, 1), { w: 0.9, d: 950 + i * 15, t: 40 })
+        }
+        question(g, 300, 600, 0.5, 1800)
       },
       ergebnis(g) {
-        vbars(g, [
-          { label: 'nach der 10', v: 25, fmt: (v) => `${Math.round(v)} %` },
-          { label: 'nach der 65', v: 45, fmt: (v) => `${Math.round(v)} %`, dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 250 })
-        text(g, 180, 320, 'mittlere Schätzung', { anchor: 'middle', cls: 's', d: 1200 })
+        // links: Rad zeigte 10 → niedrige Schätzung; rechts: Rad zeigte 65 → hohe Schätzung
+        for (const [x, ang, h, d, dense] of [[110, -54, 100, 0, false], [250, 144, 180, 400, true]] as const) {
+          ink(g, E(x, 360, 36), { w: 2.2, d, t: 300 })
+          for (let k = 0; k < 10; k++) ink(g, L([x, 360], [x + Math.cos(rad(k * 36 - 90)) * 36, 360 + Math.sin(rad(k * 36 - 90)) * 36]), { w: 0.8, d: d + 200, t: 60 })
+          ink(g, L([x, 360], [x + Math.cos(rad(ang)) * 30, 360 + Math.sin(rad(ang)) * 30]), { w: 3, d: d + 500, t: 150 })
+          const r = RR(x - 35, 620 - h, 70, h, 3)
+          hatch(g, r, d + 900, dense)
+          ink(g, r, { w: 2.4, d: d + 800, t: 300 })
+        }
+        ink(g, L([40, 622], [320, 622]), { w: 2.4, d: 200, t: 400 })
       },
       zug(g) {
-        ink(g, L([30, 470], [330, 470]), { w: 2.4, t: 600 })
-        for (let k = 0; k <= 10; k++) ink(g, L([30 + k * 30, 462], [30 + k * 30, 478]), { w: 1.6, d: 200 + k * 30, t: 80 })
-        ball(g, 90, 470, 12, { d: 600, fill: 'dicht', t: 200 })
-        text(g, 90, 440, 'Anker', { anchor: 'middle', cls: 's', d: 700 })
-        arrow(g, L([106, 500], [160, 500]), { w: 2.4, d: 900, t: 300, head: 9 })
-        text(g, 240, 530, 'zögerlich weg vom Anker', { anchor: 'middle', cls: 's', d: 1100 })
+        // Zahlenstrahl: der Anker liegt links, die Schätzung hängt an einer Kette und kommt nur zögerlich los
+        ink(g, L([30, 520], [330, 520]), { w: 2.4, t: 600 })
+        for (let k = 0; k <= 10; k++) ink(g, L([30 + k * 30, 512], [30 + k * 30, 528]), { w: 1.6, d: 200 + k * 30, t: 80 })
+        anchor(g, 90, 640, 0.35, 500)
+        const p = glide(g, 50, 0, { ms: 2400, d: 1200 })
+        ball(p, 120, 520, 10, { d: 1000, fill: 'dicht', w: 1.6, t: 100 })
+        ink(p, B([120, 530], [110, 560], [100, 570], [90, 556]), { w: 1.6, d: 1100, t: 200 })
+        dashes(g, L([270, 500], [270, 540]), { w: 1.4, d: 1300, dash: 3, gap: 3 })
+        dot(g, 270, 520, 4, 1400)
       },
       preis(g) {
-        ink(g, [[60, 400], [250, 400], [300, 460], [250, 520], [60, 520], [60, 400]], { w: 3, t: 800 })
-        ink(g, E(270, 460, 8), { w: 2, d: 400, t: 200 })
-        text(g, 150, 444, 'statt 299 €', { anchor: 'middle', cls: 's', d: 500 })
-        text(g, 150, 494, '199 €', { anchor: 'middle', size: 30, d: 1100 })
-        text(g, 180, 590, 'der alte Preis ist der Anker', { anchor: 'middle', cls: 's', d: 1300 })
+        // Fernseher mit Preisschild: alter Preis durchgestrichen, neuer groß
+        ink(g, RR(40, 340, 200, 130, 6), { w: 2.8, t: 500 })
+        ink(g, RR(52, 352, 176, 100, 3), { w: 1.4, d: 200, t: 400 })
+        ink(g, [[120, 470], [110, 490], [170, 490], [160, 470]], { w: 2.2, d: 300, t: 200 })
+        const tag: P[] = [[180, 500], [300, 500], [330, 540], [300, 580], [180, 580], [180, 500]]
+        ink(g, tag, { w: 2.6, d: 600, t: 500 })
+        ink(g, E(310, 540, 6), { w: 1.6, d: 800, t: 100 })
+        ink(g, L([310, 534], [250, 470]), { w: 1, d: 800, t: 200 })
+        for (let k = 0; k < 3; k++) ink(g, E(200 + k * 18, 520, 6, 8), { w: 1.6, d: 900 + k * 60, t: 80 })
+        strike(g, [190, 526], [256, 514], 1200)
+        for (let k = 0; k < 3; k++) ink(g, E(210 + k * 26, 556, 9, 12), { w: 3, d: 1500 + k * 80, t: 100 })
       },
       gehalt(g) {
+        // Verhandlung am Tisch: in der Sprechblase ein Bündel Geldscheine
         fig(g, 90, 600, 3.6)
         fig(g, 270, 600, 3.6, { d: 200 })
         ink(g, RR(130, 520, 100, 20, 4), { w: 2.6, d: 400, t: 300 })
-        bubble(g, 20, 360, 150, 60, 'l', 700)
-        text(g, 95, 398, '65.000 €?', { anchor: 'middle', d: 900 })
+        for (const x of [140, 220]) ink(g, L([x, 540], [x, 600]), { w: 2, d: 450, t: 150 })
+        bubble(g, 20, 330, 150, 80, 'l', 700)
+        for (let k = 0; k < 3; k++) {
+          ink(g, RR(56 + k * 4, 352 + k * 6, 70, 30, 3), { w: 1.6, d: 900 + k * 80, t: 150 })
+          ink(g, E(91 + k * 4, 367 + k * 6, 8), { w: 1, d: 1000 + k * 80, t: 60 })
+        }
       },
       richter(g) {
-        fig(g, 180, 600, 4.6)
-        ink(g, RR(110, 600, 140, 30, 4), { w: 2.8, d: 300, t: 400 })
-        for (const [x, n] of [[60, '3'], [300, '9']] as const) {
-          ink(g, RR(x - 22, 380, 44, 44, 8), { w: 2.6, d: 600, t: 300 })
-          text(g, x, 410, n, { anchor: 'middle', size: 22, d: 800 })
+        // Richterin mit Hammer am Pult; davor liegen zwei Würfel
+        ink(g, RR(80, 520, 200, 120, 4), { w: 2.8, t: 500 })
+        for (let k = 0; k < 4; k++) ink(g, L([90 + k * 50, 530], [90 + k * 50, 630]), { w: 0.8, d: 300, t: 200 })
+        fig(g, 180, 520, 4, { d: 300, arms: 'up' })
+        const hm = wobble(g, { deg: 20, ox: 220, oy: 440, ms: 500, d: 1200 })
+        ink(hm, L([220, 440], [250, 410]), { w: 2.6, d: 900, t: 150 })
+        ink(hm, RR(240, 396, 26, 14, 3), { w: 2.4, d: 1000, t: 100 })
+        for (const [x, n] of [[40, 3], [320, 6]] as const) {
+          ink(g, RR(x - 20, 360, 40, 40, 8), { w: 2.4, d: 600, t: 300 })
+          const pips: [number, number][] = n === 3 ? [[-10, -10], [0, 0], [10, 10]] : [[-10, -10], [-10, 0], [-10, 10], [10, -10], [10, 0], [10, 10]]
+          for (const [dx, dy] of pips) dot(g, x + dx, 380 + dy, 3, 800)
         }
-        text(g, 180, 670, 'gewürfelte Zahl → höhere Strafe', { anchor: 'middle', cls: 's', d: 1100 })
       },
       gandhi(g) {
-        for (const [x, n, d] of [[90, '9 Jahre?', 0], [270, '140 Jahre?', 400]] as const) {
-          ink(g, RR(x - 70, 400, 140, 70, 10), { w: 2.6, d, t: 400 })
-          text(g, x, 444, n, { anchor: 'middle', size: 20, d: d + 200 })
-        }
-        text(g, 180, 560, 'absurde Anker wirken trotzdem', { anchor: 'middle', cls: 's', d: 1000 })
+        // alter Mann mit runder Brille und Stock; daneben eine Messlatte fürs Lebensalter mit hohem Markierungsstrich
+        fig(g, 120, 620, 5, { d: 0 })
+        for (const k of [-1, 1]) ink(g, E(120 + k * 6, 474, 5), { w: 1.4, d: 500, t: 100 })
+        ink(g, L([150, 520], [170, 620]), { w: 2.2, d: 600, t: 200 })
+        const robe: P[] = [[96, 520], [144, 520], [150, 600], [90, 600], [96, 520]]
+        blank(g, robe)
+        ink(g, robe, { w: 1.8, d: 700, t: 300 })
+        ink(g, L([260, 640], [260, 320]), { w: 2.4, d: 800, t: 400 })
+        for (let k = 0; k <= 15; k++) ink(g, L([260, 640 - k * 20], [k % 5 ? 268 : 276, 640 - k * 20]), { w: 1, d: 900 + k * 20, t: 40 })
+        arrow(g, L([310, 340], [282, 340]), { w: 2.4, d: 1400, t: 200, head: 8 })
+        dashes(g, L([240, 470], [290, 470]), { w: 1.4, d: 1600, dash: 3, gap: 3 })
       },
       makler(g) {
-        house(g, 110, 600, 140, 0)
-        ink(g, RR(230, 420, 100, 50, 6), { w: 2.6, d: 600, t: 400 })
-        text(g, 280, 452, 'Listenpreis', { anchor: 'middle', cls: 's', d: 800 })
-        text(g, 180, 650, 'auch Profis lassen sich verankern', { anchor: 'middle', cls: 's', d: 1100 })
+        // Haus mit Verkaufsschild; Fachleute mit Klemmbrett schauen auf den Preis
+        house(g, 40, 600, 150, 0)
+        ink(g, L([250, 600], [250, 460]), { w: 2.6, d: 400, t: 300 })
+        ink(g, RR(214, 420, 100, 50, 4), { w: 2.6, d: 600, t: 300 })
+        for (let k = 0; k < 3; k++) ink(g, E(236 + k * 22, 445, 7, 10), { w: 2, d: 800 + k * 60, t: 80 })
+        crowd(g, 220, 640, 3, 34, 1.8, 900, 100)
+        ink(g, RR(224, 588, 14, 18, 2), { w: 1.4, d: 1200, t: 100 })
       },
       gruende(g) {
-        brain(g, 180, 440, 1)
-        for (const [x, y] of [[80, 590], [180, 610], [280, 590]] as const) check(g, x, y, 0.8, 1100)
-        text(g, 180, 330, 'sucht Gründe für den Anker', { anchor: 'middle', cls: 's', d: 1200 })
+        // das Gehirn sammelt Gründe, die zum Anker passen
+        anchor(g, 180, 380, 0.3, 0)
+        brain(g, 180, 480, 1, 300)
+        for (const [x, y] of [[80, 610], [180, 630], [280, 610]] as const) check(g, x, y, 0.8, 1100)
       },
       gegen(g) {
-        brain(g, 180, 440, 1)
-        for (const [x, y] of [[80, 590], [180, 610], [280, 590]] as const) cross(g, x, y, 0.7, 1100)
-        text(g, 180, 330, 'Gründe dagegen suchen', { anchor: 'middle', cls: 's', d: 1200 })
+        // Gegenmittel: bewusst Gründe dagegen suchen
+        anchor(g, 180, 380, 0.3, 0)
+        strike(g, [150, 320], [210, 380], 500)
+        brain(g, 180, 480, 1, 300)
+        for (const [x, y] of [[80, 610], [180, 630], [280, 610]] as const) cross(g, x, y, 0.7, 1100)
       },
       ende(g) {
-        ink(g, L([180, 420], [180, 580]), { w: 4, t: 500 })
-        ink(g, E(180, 406, 14), { w: 3, d: 200, t: 400 })
-        ink(g, B([110, 540], [124, 590], [236, 590], [250, 540]), { w: 4, d: 500, t: 500 })
+        anchor(g, 180, 560, 0.8, 0)
       },
     },
     scenes: [
