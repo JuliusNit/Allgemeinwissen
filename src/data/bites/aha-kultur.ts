@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, cross, crowd, dashes, eye, fig, hatch, hbars, ink, mountain, question, rays, st, text, timeline, type P } from './draw'
 import { ball, box, bullets, carrow, dot, waveP } from './kit'
 
@@ -109,7 +110,7 @@ export const AHA_KULTUR: Bite[] = [
     hook: 'Warum ist das A eigentlich ein Ochse?',
     mood: 'raetsel',
     ambience: 'wind',
-    images: [],
+    images: [img('phoenizisch')],
     draw: {
       ochse(g) {
         oxA(g, 180, 260, 1.4)
@@ -190,7 +191,7 @@ export const AHA_KULTUR: Bite[] = [
       { t: T('Um 1850 vor Christus hatten Arbeiter in Bergwerken auf dem Sinai eine geniale Idee – vermutlich **Menschen aus Kanaan**.', 64), gfx: { bergleute: {} } },
       { t: T('Sie nahmen ein Bild und nutzten nur den **ersten Laut** seines Namens. Das Bild eines Ochsen, ʾalep, stand für den Anfangslaut.', 64), gfx: { prinzip: {} } },
       { t: T('So brauchte man nicht mehr Hunderte Zeichen, sondern nur noch **zwei Dutzend**. Jeder konnte schreiben lernen.', 64), gfx: { prinzip: {} } },
-      { t: T('Die **Phönizier**, Händler am Mittelmeer, machten daraus ein Alphabet mit 22 Zeichen und trugen es übers Meer.', 64), gfx: { aegypten: {} } },
+      { t: T('Die **Phönizier**, Händler am Mittelmeer, machten daraus ein Alphabet mit 22 Zeichen und trugen es übers Meer.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Phönizische Schrift, Idalion (Zypern)' } } },
       { t: T('Viele Namen verraten noch das Bild: **bēt** hieß Haus. Daraus wurde das B.', 64), gfx: { haus: {} } },
       { t: T('**Mēm** hieß Wasser – die Wellen siehst du bis heute im M.', 64), gfx: { wasser: {} } },
       { t: T('Und **ʿayin** hieß Auge. Daraus wurde das O.', 64), gfx: { auge: {} } },
@@ -214,7 +215,7 @@ export const AHA_KULTUR: Bite[] = [
     hook: 'Was hat der Dollar mit einem Tal in Böhmen zu tun?',
     mood: 'hell',
     ambience: 'glocke',
-    images: [],
+    images: [img('joachimsthaler'), img('jachymov')],
     draw: {
       muenze(g) {
         bigCoin(g, 180, 250, 100, '$')
@@ -277,8 +278,8 @@ export const AHA_KULTUR: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { muenze: {} } },
-      { t: T('Im Erzgebirge, im heutigen Tschechien, liegt ein Tal: **Joachimsthal**, heute Jáchymov.', 64), gfx: { tal: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
+      { t: T('Im Erzgebirge, im heutigen Tschechien, liegt ein Tal: **Joachimsthal**, heute Jáchymov.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('1516 fand man dort riesige **Silbervorkommen**. Eine Bergbaustadt wuchs in kurzer Zeit auf Tausende Einwohner.', 64), gfx: { silber: {} } },
       { t: T('Ab 1520 prägte man aus dem Silber große Münzen: die **Joachimsthaler** Guldengroschen.', 64), gfx: { name: {} } },
       { t: T('Das war ein Zungenbrecher. Bald sagte man nur noch: **Taler**.', 64), gfx: { name: {} } },
@@ -308,7 +309,7 @@ export const AHA_KULTUR: Bite[] = [
     hook: 'Was war wirklich in der Büchse der Pandora?',
     mood: 'dunkel',
     ambience: 'wind',
-    images: [],
+    images: [img('pandora')],
     draw: {
       krug(g) {
         jar(g, 180, 400, 1.6)
@@ -385,7 +386,7 @@ export const AHA_KULTUR: Bite[] = [
       { t: T('Erste Überraschung: Es war gar **keine Büchse**. Doch dazu später.', 64), gfx: { krug: { tf: [1, 0, 260] } } },
       { t: T('Die Geschichte erzählt der griechische Dichter **Hesiod** um 700 vor Christus.', 64), gfx: { hesiod: {} } },
       { t: T('Der Titan Prometheus hatte den Göttern das **Feuer** gestohlen und den Menschen gebracht. Göttervater Zeus sann auf Rache.', 64), gfx: { prometheus: {} } },
-      { t: T('Er ließ die erste Frau erschaffen: **Pandora**, „die Allbeschenkte“. Jeder Gott gab ihr eine Gabe – Schönheit, Anmut, aber auch List.', 64), gfx: { pandora: {} } },
+      { t: T('Er ließ die erste Frau erschaffen: **Pandora**, „die Allbeschenkte“. Jeder Gott gab ihr eine Gabe – Schönheit, Anmut, aber auch List.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 40, 1.05], cam2: [50, 40, 1.2], cap: 'Waterhouse 1896 – mit Kiste statt Krug' } } },
       { t: T('Zeus schickte sie zu Epimetheus, dem Bruder des Prometheus. Der hatte ihn gewarnt: **Nimm kein Geschenk** von Zeus!', 64), gfx: { warnung: {} } },
       { t: T('Epimetheus – sein Name heißt „der hinterher Denkende“ – nahm sie **trotzdem** auf.', 64), gfx: { warnung: {} } },
       { t: T('Pandora hob den Deckel von einem großen Krug. Heraus flogen alle Übel: **Krankheit**, Mühsal, Leid – bis dahin unbekannt.', 64), gfx: { offen: {} } },
@@ -411,7 +412,7 @@ export const AHA_KULTUR: Bite[] = [
     hook: 'Gab es das Trojanische Pferd wirklich?',
     mood: 'episch',
     ambience: 'wind',
-    images: [],
+    images: [img('trojanisches-pferd'), img('schliemann')],
     draw: {
       pferd(g) {
         horse(g, 170, 420, 1.2)
@@ -470,7 +471,7 @@ export const AHA_KULTUR: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { pferd: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die Geschichte kennt jeder: Zehn Jahre belagern die Griechen **Troja**. Dann bauen sie ein riesiges Holzpferd – und tun so, als zögen sie ab.', 64), gfx: { list: {} } },
       { t: T('Die Trojaner ziehen das Geschenk in ihre Stadt. Nachts klettern Krieger aus dem Bauch und **öffnen die Tore**.', 64), gfx: { list: {} } },
       { t: T('Erste Überraschung: In Homers **Ilias** kommt das Pferd gar nicht vor. Das Epos endet vor dem Fall Trojas.', 64), gfx: { ilias: {} } },
@@ -478,7 +479,7 @@ export const AHA_KULTUR: Bite[] = [
       { t: T('Die berühmte Fassung schrieb erst der Römer **Vergil**, rund 700 Jahre später, in seiner Aeneis.', 64), gfx: { vergil: {} } },
       { t: T('Dort warnt der Priester Laokoon: „Ich fürchte die Griechen, auch wenn sie **Geschenke** bringen.“ Niemand hört auf ihn.', 64), gfx: { laokoon: {} } },
       { t: T('Aber gab es Troja überhaupt? Lange hielt man es für **erfunden**.', 64), gfx: { pferd: { tf: [1, 0, 220] } } },
-      { t: T('In den 1870ern grub der Kaufmann **Heinrich Schliemann** am Hügel Hisarlık in der heutigen Türkei – und fand eine Stadt.', 64), gfx: { schliemann: {} } },
+      { t: T('In den 1870ern grub der Kaufmann **Heinrich Schliemann** am Hügel Hisarlık in der heutigen Türkei – und fand eine Stadt.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 35, 1.2] } } },
       { t: T('Genauer: **neun Städte** übereinander. Jede war auf den Trümmern der vorigen gebaut.', 64), gfx: { schichten: {} } },
       { t: T('Schliemann grub hastig in die Tiefe – und **zerstörte** dabei gerade die Schichten, die zur Zeit eines Trojanischen Krieges passen könnten.', 64), gfx: { schichten: {} } },
       { t: T('Sein berühmter **„Schatz des Priamos“** war über tausend Jahre älter als jeder König Priamos.', 64), gfx: { schatz: {} } },
@@ -499,7 +500,7 @@ export const AHA_KULTUR: Bite[] = [
     hook: 'Warum klingen manche Töne zusammen schön?',
     mood: 'hell',
     ambience: 'glocke',
-    images: [],
+    images: [img('klavier')],
     draw: {
       noten(g) {
         for (let i = 0; i < 5; i++) ink(g, L([30, 180 + i * 18], [330, 180 + i * 18]), { w: 1.4, d: i * 80, t: 500 })
@@ -581,7 +582,7 @@ export const AHA_KULTUR: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { noten: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein Ton ist eine **Schwingung**. Eine Gitarrensaite schwingt zum Beispiel hundertmal pro Sekunde hin und her.', 64), gfx: { saite: {} } },
       { t: T('Greifst du die Saite in der Mitte, schwingt nur die halbe Länge – **doppelt so schnell**.', 64), gfx: { haelfte: {} } },
       { t: T('Der neue Ton klingt höher und doch **gleich**, nur heller. Das ist die Oktave: Verhältnis 2 zu 1.', 64), gfx: { haelfte: {} } },
@@ -611,7 +612,7 @@ export const AHA_KULTUR: Bite[] = [
     hook: 'Warum sehen Bilder seit der Renaissance so echt aus?',
     mood: 'ruhig',
     ambience: 'glocke',
-    images: [],
+    images: [img('baptisterium'), img('masaccio')],
     draw: {
       raum(g) {
         const v: P = [180, 220]
@@ -692,13 +693,13 @@ export const AHA_KULTUR: Bite[] = [
       { t: T('Räume wirkten flach, Tische kippten nach vorn. Niemand kannte eine Regel für **Tiefe**.', 64), gfx: { mittelalter: {} } },
       { t: T('Dann bemerkte man etwas Einfaches: **Parallele Linien**, die von uns weglaufen, scheinen sich in einem Punkt zu treffen.', 64), gfx: { gleise: {} } },
       { t: T('Dieser Punkt heißt **Fluchtpunkt**. Schau auf lange Bahngleise – sie laufen am Horizont zusammen.', 64), gfx: { gleise: {} } },
-      { t: T('Um 1415 bewies der Architekt **Filippo Brunelleschi** in Florenz, dass man das exakt berechnen kann.', 64), gfx: { brunelleschi: {} } },
+      { t: T('Um 1415 bewies der Architekt **Filippo Brunelleschi** in Florenz, dass man das exakt berechnen kann.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Ghiberti-Tür am Baptisterium, Florenz' } } },
       { t: T('Er malte die Taufkirche von Florenz, bohrte ein Loch ins Bild und ließ Betrachter von hinten hindurchschauen – auf einen **Spiegel**.', 64), gfx: { spiegel: {} } },
       { t: T('Hob man den Spiegel weg, sah man das echte Gebäude – und es passte **genau** zum gemalten.', 64), gfx: { spiegel: {} } },
       { t: T('Das Wort kommt vom Lateinischen perspicere: **hindurchsehen**.', 64), gfx: { fenster: {} } },
       { t: T('Leon Battista **Alberti** schrieb 1435 die Regeln auf: Ein Bild ist wie ein offenes Fenster, durch das man in die Welt blickt.', 64), gfx: { fenster: {} } },
       { t: T('Der Trick: Alle Linien in die Tiefe zielen auf den Fluchtpunkt. Bodenfliesen werden nach hinten **immer schmaler**.', 64), gfx: { fliesen: {} } },
-      { t: T('Eines der ersten Gemälde mit richtiger Zentralperspektive malte **Masaccio** um 1427: eine Kapelle, die in die Kirchenwand hineinzureichen scheint.', 64), gfx: { masaccio: {} } },
+      { t: T('Eines der ersten Gemälde mit richtiger Zentralperspektive malte **Masaccio** um 1427: eine Kapelle, die in die Kirchenwand hineinzureichen scheint.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die Betrachter waren verblüfft. Plötzlich wirkten Wände wie **Durchgänge**.', 64), gfx: { fliesen: {} } },
       { t: T('Dazu kam die **Luftperspektive**: Ferne Berge malte man blasser und bläulicher – wie man sie in der Natur sieht.', 64), gfx: { gleise: {} } },
       { t: T('Später zeichnete Albrecht **Dürer** mit Gitter und Peilstab – ein frühes Hilfsmittel, fast wie eine Kamera.', 64), gfx: { duerer: {} } },
@@ -719,7 +720,7 @@ export const AHA_KULTUR: Bite[] = [
     hook: 'Wie bekamen gotische Kathedralen so riesige Fenster?',
     mood: 'episch',
     ambience: 'glocke',
-    images: [],
+    images: [img('strebebogen'), img('kirchenfenster'), img('koelner-dom')],
     draw: {
       kathedrale(g) {
         ink(g, L([20, 420], [340, 420]), { w: 2.6, t: 500 })
@@ -797,7 +798,7 @@ export const AHA_KULTUR: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { kathedrale: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ältere Kirchen der **Romanik** hatten dicke Mauern und kleine, runde Fenster. Innen war es oft dämmrig.', 64), gfx: { romanik: {} } },
       { t: T('Das Problem: Ein steinernes Gewölbe ist schwer. Es drückt nicht nur nach unten, sondern auch **zur Seite**.', 64), gfx: { schub: {} } },
       { t: T('Diesen Seitendruck nennen Baumeister **Schub**. Er will die Wände auseinanderdrücken.', 64), gfx: { schub: {} } },
@@ -807,13 +808,13 @@ export const AHA_KULTUR: Bite[] = [
       { t: T('Das Gebäude trägt sich wie ein **Skelett**. Die Wände dazwischen tragen kaum noch etwas.', 64), gfx: { strebe: {} } },
       { t: T('Und was nicht tragen muss, kann **Glas** sein. Aus Mauern wurden Fensterwände.', 64), gfx: { fenster: {} } },
       { t: T('Den Anfang machte um 1140 Abt Suger in **Saint-Denis** bei Paris. Er wollte eine Kirche voller Licht.', 64), gfx: { suger: {} } },
-      { t: T('Licht galt als Bild für **Gott**. Farbiges Glas tauchte den Raum in leuchtende Farben.', 64), gfx: { licht: {} } },
+      { t: T('Licht galt als Bild für **Gott**. Farbiges Glas tauchte den Raum in leuchtende Farben.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Sainte-Chapelle, Paris' } } },
       { t: T('Die Steinmetze arbeiteten ohne Statik-Berechnung – mit **Erfahrung**, Faustregeln und Modellen. Manches stürzte ein, das meiste steht bis heute.', 64), gfx: { strebe: {} } },
       { t: T('Die Fenster erzählten Geschichten aus der Bibel – für viele, die nicht lesen konnten, eine **Bibel aus Licht**.', 64), gfx: { bibel: {} } },
       { t: T('Die Baupläne waren oft **geheim**: Bauhütten gaben ihr Wissen nur an ihre Mitglieder weiter.', 64), gfx: { kathedrale: { tf: [1, 0, 220] } } },
       { t: T('Die Baumeister trieben es immer höher. In **Beauvais** wölbten sie einen Chor 48 Meter hoch.', 64), gfx: { beauvais: {} } },
       { t: T('1284 stürzte er teilweise **ein**. Man baute ihn wieder auf – mit zusätzlichen Pfeilern.', 64), gfx: { beauvais: {} } },
-      { t: T('Solche Bauten dauerten oft **Generationen**. Der Kölner Dom wurde 1248 begonnen – und erst 1880 vollendet.', 64), gfx: { koeln: {} } },
+      { t: T('Solche Bauten dauerten oft **Generationen**. Der Kölner Dom wurde 1248 begonnen – und erst 1880 vollendet.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Viele Kathedralen blieben unvollendet: In Köln stand jahrhundertelang ein **Baukran** auf dem Südturm.', 64), gfx: { koeln: {} } },
       { t: T('Wer vor einer gotischen Kathedrale steht, sieht die Kräfte: Die Strebebögen außen sind das **Geheimnis** des Lichts innen.', 64), gfx: { strebe: {} } },
       { t: T('Die Kraft geht **nach außen** – das Licht kommt herein.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
@@ -828,7 +829,7 @@ export const AHA_KULTUR: Bite[] = [
     hook: 'Warum ruckelt ein Film nicht, obwohl er nur aus Standbildern besteht?',
     mood: 'verspielt',
     ambience: 'uhr',
-    images: [],
+    images: [img('filmprojektor'), img('muybridge')],
     draw: {
       streifen(g) {
         filmstrip(g, 20, 200, 4, 80, 0, (i, cx, cy) => ball(g, cx - 20 + i * 12, cy, 10, { fill: 'dicht', d: 500 + i * 100, t: 200 }))
@@ -895,7 +896,7 @@ export const AHA_KULTUR: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { streifen: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein Kinofilm zeigt **24 Einzelbilder** pro Sekunde. Jedes ist ein Foto, das stillsteht.', 64), gfx: { vierundzwanzig: {} } },
       { t: T('Trotzdem siehst du flüssige Bewegung. Das Prinzip kennst du vom **Daumenkino**.', 64), gfx: { daumenkino: {} } },
       { t: T('Lange hieß es, das Auge halte jedes Bild als **Nachbild** fest, bis das nächste kommt. Das gilt heute als Mythos.', 64), gfx: { mythos: {} } },
@@ -907,7 +908,7 @@ export const AHA_KULTUR: Bite[] = [
       { t: T('24 war ein Kompromiss: flüssig genug – und so **sparsam** mit dem teuren Filmmaterial wie möglich.', 64), gfx: { vierundzwanzig: {} } },
       { t: T('Aber 24 Bilder würden sichtbar **flackern**. Darum zeigt ein Projektor jedes Bild zwei- oder dreimal, unterbrochen von einer Blende.', 64), gfx: { blende: {} } },
       { t: T('So blitzt das Licht 48- oder 72-mal pro Sekunde – zu schnell, um **Flackern** zu sehen.', 64), gfx: { blende: {} } },
-      { t: T('Die Vorgeschichte: 1878 fotografierte Eadweard **Muybridge** ein galoppierendes Pferd mit einer Reihe von Kameras.', 64), gfx: { muybridge: {} } },
+      { t: T('Die Vorgeschichte: 1878 fotografierte Eadweard **Muybridge** ein galoppierendes Pferd mit einer Reihe von Kameras.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Seine Bilder bewiesen, dass beim Galopp kurz **alle vier Hufe** in der Luft sind – und wurden eines der ersten Bewegtbilder.', 64), gfx: { muybridge: {} } },
       { t: T('Fernsehen in Europa lief mit **25 Bildern**, passend zum Stromnetz mit 50 Hertz. Kinofilme im Fernsehen liefen darum etwa 4 Prozent schneller.', 64), gfx: { stumm: {} } },
       { t: T('Mehr Bilder wirken nicht automatisch besser: „Der Hobbit“ lief 2012 mit **48 Bildern** – vielen sah das zu sehr nach Fernsehen aus.', 64), gfx: { hobbit: {} } },

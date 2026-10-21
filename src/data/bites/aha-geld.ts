@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, bubble, car, check, clock, coin, cross, crowd, dashes, eye, fig, group, hatch, ink, mk, mountain, pop, question, rays, st, star, strike, text, type P } from './draw'
 import { axes, ball, box, carrow, cloud, dot, drop, flame, flow, glide, heart, house, mapRegion, pie, plot, rad, ripple, smooth, spin, sunDisk, travelWave, tree, waveP, wobble } from './kit'
 
@@ -207,7 +208,7 @@ export const AHA_GELD: Bite[] = [
     hook: 'Woher kommt eigentlich das Geld auf deinem Konto?',
     mood: 'raetsel',
     ambience: 'stadt',
-    images: [],
+    images: [img('geldscheine')],
     draw: {
       bankbild(g) {
         bank(g, 180, 400, 1.2)
@@ -370,7 +371,7 @@ export const AHA_GELD: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { bankbild: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Viele denken: Eine Bank verleiht das Geld, das andere bei ihr **eingezahlt** haben – wie ein Lager voller Münzen.', 64), gfx: { lager: {} } },
       { t: T('So funktioniert es nicht. Der größte Teil des Geldes entsteht, wenn Banken **Kredite vergeben**.', 64), gfx: { lager: {} } },
       { t: T('Du leihst dir 10.000 Euro für ein Auto. Die Bank schreibt dir die Summe einfach auf dein Konto – **per Tastendruck**.', 64), gfx: { kredit: {} } },
@@ -399,7 +400,7 @@ export const AHA_GELD: Bite[] = [
     hook: 'Wie werden aus 100 Euro über 1.000 – ohne dass du etwas tust?',
     mood: 'hell',
     ambience: 'uhr',
-    images: [],
+    images: [img('sparschwein')],
     draw: {
       stapel(g) {
         // drei Münzstapel, aus jedem wächst ein Bäumchen – je älter, desto größer
@@ -556,7 +557,7 @@ export const AHA_GELD: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { stapel: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Du legst 100 Euro an, zu **7 Prozent** Zinsen im Jahr – und rührst sie nicht an.', 64), gfx: { start: {} } },
       { t: T('Nach einem Jahr hast du 107 Euro. Im nächsten Jahr gibt es Zinsen **auf die 107** – nicht nur auf die 100.', 64), gfx: { jahr1: {} } },
       { t: T('Das sind die **Zinseszinsen**: Zinsen auf Zinsen. Am Anfang kaum spürbar – ein paar Cent mehr.', 64), gfx: { jahr1: {} } },
@@ -585,7 +586,7 @@ export const AHA_GELD: Bite[] = [
     hook: 'Warum druckt ein Staat nicht einfach mehr Geld?',
     mood: 'dunkel',
     ambience: 'stadt',
-    images: [],
+    images: [img('simbabwe-schein'), img('inflation-1923')],
     draw: {
       schein(g) {
         // simbabwischer Riesenschein: lange Ziffernreihe, Balancierfelsen als Motiv, Wasserzeichen
@@ -740,7 +741,7 @@ export const AHA_GELD: Bite[] = [
     scenes: [
       { t: HOOK(476), gfx: { schein: {} } },
       { t: T('Eine verlockende Idee: Der Staat braucht Geld? Dann **druckt** er eben welches!', 64), gfx: { presse: {} } },
-      { t: T('Simbabwe tat genau das. Ab den 2000er-Jahren ließ die Regierung immer mehr Geld drucken, um ihre **Ausgaben** zu bezahlen.', 64), gfx: { presse: {} } },
+      { t: T('Simbabwe tat genau das. Ab den 2000er-Jahren ließ die Regierung immer mehr Geld drucken, um ihre **Ausgaben** zu bezahlen.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Simbabwe-Dollar bis 100 Billionen' } } },
       { t: T('Die Waren im Land wurden aber nicht mehr – die Wirtschaft schrumpfte sogar. Nur das **Geld** wurde mehr.', 64), gfx: { waren: {} } },
       { t: T('Mehr Geld jagt dieselben Waren. Also steigen die **Preise**.', 64), gfx: { preise: {} } },
       { t: T('Händler mussten ihre Preisschilder **mehrmals am Tag** ändern. Wer Lohn bekam, rannte sofort einkaufen.', 64), gfx: { schild: { cls: 'a1' } } },
@@ -749,7 +750,7 @@ export const AHA_GELD: Bite[] = [
       { t: T('Das nennt man **Hyperinflation**: Geld verliert so schnell an Wert, dass es niemand mehr behalten will.', 64), gfx: { rekord: {} } },
       { t: T('Wer Schulden hatte, freute sich: Sie schmolzen **dahin**. Wer gespart hatte, verlor alles.', 64), gfx: { rekord: {} } },
       { t: T('Die Menschen tauschten Waren oder nutzten **US-Dollar**. 2009 gab Simbabwe die eigene Währung auf.', 64), gfx: { dollar: {} } },
-      { t: T('Deutschland kennt das: Im November 1923 kostete ein Brot in Berlin über **200 Milliarden** Mark.', 64), gfx: { berlin: {} } },
+      { t: T('Deutschland kennt das: Im November 1923 kostete ein Brot in Berlin über **200 Milliarden** Mark.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ersparnisse wurden wertlos. Diese Erfahrung prägte das Land – und den Auftrag der Bundesbank, später der **EZB**: stabile Preise.', 64), gfx: { ezb: {} } },
       { t: T('Ein bisschen Inflation gilt trotzdem als gesund: Die EZB strebt rund **2 Prozent** im Jahr an – als Puffer.', 64), gfx: { zwei: {} } },
       { t: T('Denn auch sinkende Preise, **Deflation**, sind gefährlich: Menschen warten mit Käufen, Firmen investieren weniger, die Wirtschaft stockt.', 64), gfx: { deflation: {} } },
@@ -767,7 +768,7 @@ export const AHA_GELD: Bite[] = [
     hook: 'Warum werden gemeinsame Wiesen kahl gefressen?',
     mood: 'ruhig',
     ambience: 'wind',
-    images: [],
+    images: [img('schafe-weide'), img('ostrom'), img('kabeljau')],
     draw: {
       weide(g) {
         // Gemeindeweide mit Zaun, Baum und grasenden Schafen
@@ -948,7 +949,7 @@ export const AHA_GELD: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { weide: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein Dorf hat eine gemeinsame Weide, die **Allmende**. Jede Familie darf ihre Schafe darauf grasen lassen.', 64), gfx: { dorf: {} } },
       { t: T('Jedes zusätzliche Schaf bringt seinem Besitzer den **ganzen Gewinn**: Wolle, Milch, Fleisch.', 64), gfx: { gewinn: {} } },
       { t: T('Die Kosten – weniger Gras für alle – **verteilen sich** auf das ganze Dorf.', 64), gfx: { gewinn: {} } },
@@ -957,10 +958,10 @@ export const AHA_GELD: Bite[] = [
       { t: T('Niemand war böse oder dumm. Jeder hat für sich **vernünftig** gehandelt – und gemeinsam ist das Ergebnis schlecht.', 64), gfx: { kahl: {} } },
       { t: T('Das ist die **Tragik der Allmende**. Der Biologe Garrett Hardin machte sie 1968 berühmt.', 64), gfx: { hardin: {} } },
       { t: T('Heute steckt sie überall: in **überfischten** Meeren, verstopften Straßen, in der Atmosphäre als Ablage für CO₂.', 64), gfx: { meer: {} } },
-      { t: T('Vor Neufundland brachen 1992 die Kabeljau-Bestände zusammen – nach Jahrzehnten der Überfischung. Sie haben sich bis heute **kaum erholt**.', 64), gfx: { kabeljau: {} } },
+      { t: T('Vor Neufundland brachen 1992 die Kabeljau-Bestände zusammen – nach Jahrzehnten der Überfischung. Sie haben sich bis heute **kaum erholt**.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Das Problem: Jeder Fisch, den ein Boot nicht fängt, holt sich ein **anderes** Boot. Verzicht lohnt sich allein nicht.', 64), gfx: { meer: {} } },
       { t: T('Hardin sah zwei Auswege: alles **privatisieren** – oder der Staat regelt es von oben.', 64), gfx: { dorf: {} } },
-      { t: T('Die Ökonomin **Elinor Ostrom** fand einen dritten Weg – und bekam dafür 2009 als erste Frau den Wirtschafts-Nobelpreis.', 64), gfx: { ostrom: {} } },
+      { t: T('Die Ökonomin **Elinor Ostrom** fand einen dritten Weg – und bekam dafür 2009 als erste Frau den Wirtschafts-Nobelpreis.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Sie untersuchte Almen in der Schweiz, Bewässerung in Nepal, Fischgründe in der Türkei: Viele Gemeinschaften verwalten Gemeingüter **seit Jahrhunderten** erfolgreich.', 64), gfx: { alm: {} } },
       { t: T('Ihr Rezept: klare Grenzen, eigene Regeln, gegenseitige Kontrolle – und **Strafen**, die bei Wiederholung steigen.', 64), gfx: { regeln: {} } },
       { t: T('Entscheidend ist, dass die Nutzer **miteinander reden** und die Regeln selbst mitbestimmen.', 64), gfx: { regeln: {} } },
@@ -979,7 +980,7 @@ export const AHA_GELD: Bite[] = [
     hook: 'Warum stehen konkurrierende Läden oft direkt nebeneinander?',
     mood: 'hell',
     ambience: 'wellen',
-    images: [],
+    images: [img('eisstand')],
     draw: {
       laeden(g) {
         // zwei konkurrierende Läden Wand an Wand, mit Markisen und Schildern; Passanten
@@ -1097,7 +1098,7 @@ export const AHA_GELD: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { laeden: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein Gedankenspiel: ein Strand, genau ein Kilometer lang. Die Badegäste liegen **gleichmäßig** verteilt.', 64), gfx: { strand: {} } },
       { t: T('Zwei Eisverkäufer verkaufen dasselbe Eis zum selben Preis. Jeder Gast geht zum **nächstgelegenen** Stand.', 64), gfx: { optimal: {} } },
       { t: T('Am besten für die Gäste: Die Stände stehen bei einem und bei drei Vierteln. Niemand läuft mehr als **250 Meter**.', 64), gfx: { optimal: {} } },
@@ -1128,7 +1129,7 @@ export const AHA_GELD: Bite[] = [
     hook: 'Lohnt sich Handel sogar, wenn einer alles besser kann?',
     mood: 'hell',
     ambience: 'wellen',
-    images: [],
+    images: [img('containerhafen'), img('ricardo'), img('chirurgen')],
     draw: {
       tausch(g) {
         // Markt: Stoffballen gegen Weinflasche, zwei Händler tauschen
@@ -1274,14 +1275,14 @@ export const AHA_GELD: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { tausch: {} } },
-      { t: T('Stell dir eine Chirurgin und ihren Assistenten vor. Sie operiert besser – und tippt ihre Berichte sogar **schneller** als er.', 64), gfx: { chirurgin: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
+      { t: T('Stell dir eine Chirurgin und ihren Assistenten vor. Sie operiert besser – und tippt ihre Berichte sogar **schneller** als er.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Soll sie ihre Berichte also selbst tippen? **Nein**.', 64), gfx: { chirurgin: {} } },
       { t: T('In der Stunde, in der sie tippt, könnte sie operieren. Das ist viel **wertvoller**. Das Tippen kostet sie eigentlich eine Operation.', 64), gfx: { stunde: {} } },
       { t: T('Diese Kosten nennt man **Opportunitätskosten**: das, was du aufgibst, wenn du etwas anderes tust.', 64), gfx: { stunde: {} } },
       { t: T('Der Assistent tippt langsamer – aber er gibt dabei **wenig** auf, er kann ja nicht operieren.', 64), gfx: { verteilung: {} } },
       { t: T('Teilen sie die Arbeit danach auf, was jeden **am wenigsten kostet**, schaffen beide zusammen mehr.', 64), gfx: { verteilung: {} } },
-      { t: T('Das ist der **komparative Vorteil**. Der Ökonom David Ricardo beschrieb ihn 1817.', 64), gfx: { ricardo: {} } },
+      { t: T('Das ist der **komparative Vorteil**. Der Ökonom David Ricardo beschrieb ihn 1817.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 30, 1.1], cam2: [50, 30, 1.25] } } },
       { t: T('Sein Beispiel: England und Portugal, Tuch und Wein. Portugal konnte **beides** mit weniger Arbeit herstellen.', 64), gfx: { tabelle: {} } },
       { t: T('Trotzdem lohnte sich Handel: Portugal macht Wein, England Tuch – und beide tauschen. So gibt es **mehr von beidem**.', 64), gfx: { handel: {} } },
       { t: T('Entscheidend ist nicht, wer etwas am besten kann, sondern wer dabei **am wenigsten aufgibt**.', 64), gfx: { tabelle: {} } },
@@ -1304,7 +1305,7 @@ export const AHA_GELD: Bite[] = [
     hook: 'Kann Sparsamkeit den Verbrauch steigern?',
     mood: 'raetsel',
     ambience: 'feuer',
-    images: [],
+    images: [img('dampfmaschine'), img('jevons')],
     draw: {
       dampf(g) {
         // Dampfmaschine: Kessel mit Feuerung, Kolbenzylinder, Schwungrad, Schornstein mit Rauch, Kohlehaufen
@@ -1450,8 +1451,8 @@ export const AHA_GELD: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { dampf: {} } },
-      { t: T('England, 1865: Der Ökonom William Stanley Jevons bemerkte etwas Seltsames an der wichtigsten Maschine seiner Zeit.', 64), gfx: { jevons: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
+      { t: T('England, 1865: Der Ökonom William Stanley Jevons bemerkte etwas Seltsames an der wichtigsten Maschine seiner Zeit.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [45, 35, 1.05], cam2: [45, 35, 1.2] } } },
       { t: T('Dampfmaschinen wurden immer **sparsamer**. James Watts Bauart brauchte viel weniger Kohle als ältere Modelle.', 64), gfx: { sparsam: {} } },
       { t: T('Man hätte erwartet, dass Englands Kohleverbrauch **sinkt**. Doch er stieg – und zwar stark.', 64), gfx: { verbrauch: {} } },
       { t: T('Der Grund: Weil Dampfkraft billiger wurde, lohnte sie sich plötzlich für **viel mehr** Fabriken, Bergwerke und Eisenbahnen.', 64), gfx: { fabriken: {} } },
@@ -1480,7 +1481,7 @@ export const AHA_GELD: Bite[] = [
     hook: 'Warum ist Wasser billig und ein Diamant teuer – obwohl Wasser lebenswichtig ist?',
     mood: 'raetsel',
     ambience: 'wellen',
-    images: [],
+    images: [img('diamant'), img('adam-smith')],
     draw: {
       beide(g) {
         // Wasserglas und Diamant nebeneinander
@@ -1640,8 +1641,8 @@ export const AHA_GELD: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { beide: {} } },
-      { t: T('Schon Adam Smith wunderte sich 1776: Wasser ist **unverzichtbar**, aber fast nichts wert. Ein Diamant ist nutzlos – und kostet ein Vermögen.', 64), gfx: { smith: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
+      { t: T('Schon Adam Smith wunderte sich 1776: Wasser ist **unverzichtbar**, aber fast nichts wert. Ein Diamant ist nutzlos – und kostet ein Vermögen.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 30, 1.05], cam2: [50, 30, 1.2] } } },
       { t: T('Die Lösung kam erst rund hundert Jahre später – mit dem **Grenznutzen**.', 64), gfx: { liter: {} } },
       { t: T('Entscheidend ist nicht der Nutzen von Wasser **überhaupt**, sondern der Nutzen des **nächsten** Liters.', 64), gfx: { liter: {} } },
       { t: T('Der erste Liter rettet dein Leben. Der zehnte löscht Durst. Der hundertste füllt die **Badewanne**.', 64), gfx: { liter: {} } },

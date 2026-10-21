@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, bolt, brain, bubble, bulb, car, check, clock, cross, crowd, dashes, eye, fig, hatch, ink, lie, mk, pop, question, rays, st, star, strike, text, type P } from './draw'
 import { LAND, axes, bact, ball, carrow, cell, cloud, coastPts, dot, drop, flake, flame, flow, glide, head, heart, house, leaf, moonFace, pie, plot, rad, ripple, smooth, spin, sunDisk, travelWave, waveP, wobble } from './kit'
 
@@ -149,7 +150,7 @@ export const AHA_PSYCHE: Bite[] = [
     hook: 'Würdest du einen Gorilla übersehen, der direkt vor dir steht?',
     mood: 'raetsel',
     ambience: 'stadt',
-    images: [],
+    images: [img('gorilla')],
     draw: {
       bild(g) {
         // Spieler passen sich Bälle zu, mitten zwischen ihnen trommelt der Gorilla
@@ -329,7 +330,7 @@ export const AHA_PSYCHE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { bild: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein berühmtes Experiment: Du siehst ein Video, in dem zwei Teams sich **Basketbälle** zupassen – eins in Weiß, eins in Schwarz.', 64), gfx: { spiel: {} } },
       { t: T('Deine Aufgabe: Zähle die Pässe des **weißen Teams**. Gar nicht so leicht – die Spieler laufen durcheinander.', 64), gfx: { zaehlen: {} } },
       { t: T('Mitten im Video läuft eine Person im **Gorillakostüm** durchs Bild, bleibt stehen, trommelt sich auf die Brust – und geht.', 64), gfx: { gorilla: {} } },
@@ -360,7 +361,7 @@ export const AHA_PSYCHE: Bite[] = [
     hook: 'Kann eine zufällige Zahl deine Schätzung verändern?',
     mood: 'raetsel',
     ambience: 'uhr',
-    images: [],
+    images: [img('anker'), img('gandhi')],
     draw: {
       anker(g) {
         // Schiffsanker an der Kette auf dem Meeresgrund, Fische ziehen vorbei
@@ -508,7 +509,7 @@ export const AHA_PSYCHE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { anker: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein Versuch der Psychologen Amos Tversky und Daniel Kahneman: Vor den Augen der Teilnehmer wird ein **Glücksrad** gedreht.', 64), gfx: { rad: {} } },
       { t: T('Das Rad ist präpariert: Es bleibt entweder bei **10** oder bei **65** stehen. Alle sehen, dass die Zahl zufällig ist.', 64), gfx: { rad: {} } },
       { t: T('Dann die Frage: Liegt der Anteil afrikanischer Staaten in der UNO über oder unter dieser Zahl? Und **wie hoch** ist er?', 64), gfx: { afrika: {} } },
@@ -518,7 +519,7 @@ export const AHA_PSYCHE: Bite[] = [
       { t: T('Händler nutzen das täglich: Der **durchgestrichene Preis** ist ein Anker. 199 statt 299 wirkt günstig – egal, was das Ding wert ist.', 64), gfx: { preis: {} } },
       { t: T('In Gehaltsverhandlungen setzt oft die **erste genannte Zahl** den Rahmen für alles, was folgt.', 64), gfx: { gehalt: {} } },
       { t: T('Sogar Richter sind beeinflussbar: In Versuchen schlugen erfahrene Juristen nach einem **gewürfelten** Anker höhere Strafen vor.', 64), gfx: { richter: {} } },
-      { t: T('Selbst absurde Anker wirken: Die Frage, ob Gandhi älter als **140 Jahre** wurde, hob die Schätzungen seines Sterbealters deutlich an.', 64), gfx: { gandhi: {} } },
+      { t: T('Selbst absurde Anker wirken: Die Frage, ob Gandhi älter als **140 Jahre** wurde, hob die Schätzungen seines Sterbealters deutlich an.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Mahatma Gandhi' } } },
       { t: T('Auch Immobilienmakler ließen sich in einem Versuch vom angegebenen **Listenpreis** beeinflussen – und bestritten es hinterher.', 64), gfx: { makler: {} } },
       { t: T('Warum? Das Gehirn prüft den Anker, sucht **Gründe**, warum er passen könnte – und findet welche.', 64), gfx: { gruende: {} } },
       { t: T('Oder es startet beim Anker und passt die Schätzung schrittweise an – und **hört zu früh auf**.', 64), gfx: { zug: {} } },
@@ -538,7 +539,7 @@ export const AHA_PSYCHE: Bite[] = [
     hook: 'Warum tut Verlieren mehr weh, als Gewinnen freut?',
     mood: 'dunkel',
     ambience: 'uhr',
-    images: [],
+    images: [img('muenzwurf'), img('golf'), img('kapuziner')],
     draw: {
       muenze(g) {
         // Euromünze mit Riffelrand und Sternenkranz, wird hochgeschnippt
@@ -691,7 +692,7 @@ export const AHA_PSYCHE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { muenze: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein Angebot: Eine Münze wird geworfen. Kopf – du gewinnst **110 Euro**. Zahl – du verlierst 100 Euro. Spielst du mit?', 64), gfx: { wette: {} } },
       { t: T('Rein rechnerisch lohnt es sich: Im Schnitt gewinnst du **5 Euro** pro Wurf.', 64), gfx: { f1: { draw: 'formel', args: [['½ × 110 €', '−', '½ × 100 €', '=', '+ 5 €'], 360] } } },
       { t: T('Trotzdem lehnen die meisten ab. Viele würden erst mitspielen, wenn der mögliche Gewinn bei rund **200 Euro** liegt.', 64), gfx: { ablehnen: {} } },
@@ -702,8 +703,8 @@ export const AHA_PSYCHE: Bite[] = [
       { t: T('Darum halten Anleger fallende Aktien oft zu lange: **Verkaufen** würde den Verlust endgültig machen.', 64), gfx: { aktie: {} } },
       { t: T('Werbung nutzt es: „Nicht **verpassen**!“ wirkt stärker als „Jetzt gewinnen“.', 64), gfx: { verpassen: {} } },
       { t: T('Auch Gratis-Probeabos spielen damit: Was du einmal hast, **kündigst** du ungern.', 64), gfx: { verpassen: {} } },
-      { t: T('Sogar Golfprofis zeigen es: Sie putten zielsicherer, um einen Schlag **zu viel** zu vermeiden, als um einen Schlag zu gewinnen.', 64), gfx: { golf: {} } },
-      { t: T('Auch Kapuzineraffen zeigen es: In Tauschversuchen mit Futter mieden sie Angebote, die sich wie ein **Verlust** anfühlten.', 64), gfx: { affen: {} } },
+      { t: T('Sogar Golfprofis zeigen es: Sie putten zielsicherer, um einen Schlag **zu viel** zu vermeiden, als um einen Schlag zu gewinnen.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
+      { t: T('Auch Kapuzineraffen zeigen es: In Tauschversuchen mit Futter mieden sie Angebote, die sich wie ein **Verlust** anfühlten.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Eine Erklärung aus der Evolution: Für unsere Vorfahren konnte ein Verlust – Vorräte, Schutz – **tödlich** sein. Ein Gewinn war nur angenehm.', 64), gfx: { vorfahren: {} } },
       { t: T('Händler wissen das: Ein **Rabatt** bei Barzahlung klingt viel besser als ein Aufschlag bei Kartenzahlung – obwohl es dasselbe ist.', 64), gfx: { bar: {} } },
       { t: T('Ein Schulversuch in den USA: Lehrkräfte, die einen Bonus vorab bekamen und **zurückzahlen** mussten, wenn Ziele verfehlt wurden, erzielten bessere Ergebnisse.', 64), gfx: { bar: {} } },
@@ -721,7 +722,7 @@ export const AHA_PSYCHE: Bite[] = [
     hook: 'Wirken Zuckerpillen – sogar, wenn du es weißt?',
     mood: 'raetsel',
     ambience: 'herz',
-    images: [],
+    images: [img('tabletten')],
     draw: {
       pille(g) {
         // Kapsel, Blisterstreifen und ein Glas Wasser
@@ -940,7 +941,7 @@ export const AHA_PSYCHE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { pille: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein **Placebo** ist ein Scheinmedikament: eine Tablette ohne Wirkstoff, oft nur aus Zucker oder Stärke.', 64), gfx: { schein: {} } },
       { t: T('Trotzdem fühlen sich viele Menschen damit besser – vor allem bei **Schmerzen**, Übelkeit oder Erschöpfung.', 64), gfx: { besser: {} } },
       { t: T('Der Schlüssel ist **Erwartung**: Das Gehirn rechnet mit Linderung – und verändert, was es selbst ausschüttet und wahrnimmt.', 64), gfx: { erwartung: {} } },
@@ -969,7 +970,7 @@ export const AHA_PSYCHE: Bite[] = [
     hook: 'Warum hilft niemand, wenn alle zusehen?',
     mood: 'dunkel',
     ambience: 'stadt',
-    images: [],
+    images: [img('menschenmenge')],
     draw: {
       menge(g) {
         // Straße bei Nacht: Laterne, Häuser, eine Menge steht um eine liegende Person
@@ -1136,7 +1137,7 @@ export const AHA_PSYCHE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { menge: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('New York, 1964: Kitty Genovese wird nachts vor ihrem Haus ermordet. Eine Zeitung berichtet: **38 Nachbarn** hätten zugesehen und nichts getan.', 64), gfx: { zeitung: {} } },
       { t: T('Die Geschichte war stark **übertrieben**: Viele hörten nur Geräusche, manche riefen die Polizei. Aber sie stieß wichtige Forschung an.', 64), gfx: { uebertrieben: {} } },
       { t: T('Die Psychologen John Darley und Bibb Latané stellten 1968 einen Notfall nach: Über die Gegensprechanlage bekommt jemand einen **Anfall**.', 64), gfx: { versuch: {} } },
@@ -1360,7 +1361,7 @@ export const AHA_PSYCHE: Bite[] = [
     hook: 'Wie hörst du in einem lauten Raum deinen Namen heraus?',
     mood: 'verspielt',
     ambience: 'stadt',
-    images: [],
+    images: [img('menschen-abend')],
     draw: {
       party(g) {
         // Party: Kronleuchter, Gruppen im Gespräch mit Gläsern, Schall prallt von harten Wänden zurück
@@ -1527,7 +1528,7 @@ export const AHA_PSYCHE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { party: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Auf einer Party reden alle durcheinander. Trotzdem kannst du **einer Person** zuhören und den Rest ausblenden.', 64), gfx: { zuhoeren: {} } },
       { t: T('Das ist der **Cocktailparty-Effekt** – benannt 1953 vom britischen Forscher Colin Cherry.', 64), gfx: { cherry: {} } },
       { t: T('Dein Gehirn nutzt dafür viele **Hinweise** gleichzeitig.', 64), gfx: { hinweise: {} } },
@@ -1556,7 +1557,7 @@ export const AHA_PSYCHE: Bite[] = [
     hook: 'Warum vergeht die Zeit im Alter immer schneller?',
     mood: 'ruhig',
     ambience: 'uhr',
-    images: [],
+    images: [img('taschenuhr'), img('strand')],
     draw: {
       uhr(g) {
         // Pendeluhr, daneben fliegen Kalenderblätter davon
@@ -1717,14 +1718,14 @@ export const AHA_PSYCHE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { uhr: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Als Kind dauerten Sommerferien eine **Ewigkeit**. Heute ist plötzlich schon wieder Dezember.', 64), gfx: { ferien: {} } },
       { t: T('Fast alle Erwachsenen erleben das. Die Forschung hat dafür mehrere **Erklärungen**.', 64), gfx: { uhr: { tf: [0.6, 72, 250] } } },
       { t: T('Erstens: der **Anteil**. Für ein fünfjähriges Kind ist ein Jahr ein Fünftel seines Lebens – für einen Fünfzigjährigen nur ein Fünfzigstel.', 64), gfx: { anteil: {} } },
       { t: T('Zweitens: **Neues**. Kinder erleben ständig etwas zum ersten Mal – und das Gehirn speichert Erstes besonders gut.', 64), gfx: { neues: {} } },
       { t: T('Im Rückblick schätzen wir Zeit nach der **Menge an Erinnerungen**. Viele Erinnerungen – die Zeit wirkt lang.', 64), gfx: { erinnerung: {} } },
       { t: T('Erwachsene leben mehr in **Routine**. Die Tage ähneln sich – und das Gedächtnis fasst sie zu wenigen Erinnerungen zusammen.', 64), gfx: { routine: {} } },
-      { t: T('Das erklärt das **Urlaubsparadox**: Eine Woche voller Neuem vergeht im Moment schnell, wirkt im Rückblick aber lang.', 64), gfx: { urlaub: {} } },
+      { t: T('Das erklärt das **Urlaubsparadox**: Eine Woche voller Neuem vergeht im Moment schnell, wirkt im Rückblick aber lang.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Umgekehrt zieht sich ein langweiliger Tag endlos – und schrumpft in der Erinnerung **fast auf nichts**.', 64), gfx: { urlaub: {} } },
       { t: T('In Gefahr scheint die Zeit stillzustehen. Versuche beim freien Fall zeigten aber: Wir sehen nicht schneller – wir erinnern uns **dichter**.', 64), gfx: { fall: {} } },
       { t: T('Die Jahre zwischen 15 und 25 nehmen im Gedächtnis besonders viel Raum ein – Forscher sprechen vom **Erinnerungshügel**.', 64), gfx: { huegel: {} } },

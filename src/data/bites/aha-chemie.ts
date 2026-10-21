@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, brain, car, check, cross, dashes, fig, hatch, ink, mk, pop, rays, st, strike, text, vbars, type P } from './draw'
 import { axes, bact, ball, clipBox, dot, drop, eyeFront, flake, flame, flow, glide, halfOnion, head, heart, knife, leaf, mapRegion, mito, mol, onion, plot, rad, rain, ripple, smooth, spin, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble } from './kit'
 
@@ -311,7 +312,7 @@ export const AHA_CHEMIE: Bite[] = [
     hook: 'Warum schwimmt Eis – obwohl fast alles andere im festen Zustand sinkt?',
     mood: 'ruhig',
     ambience: 'wellen',
-    images: [],
+    images: [img('schneeflocke'), img('eisberg')],
     draw: {
       glas(g) {
         beaker(g, 100, 420, 160, 300, 0.75)
@@ -543,7 +544,7 @@ export const AHA_CHEMIE: Bite[] = [
       { t: T('Beim Gefrieren rastet jedes Molekül in ein festes Gitter ein: **Sechsecke** mit viel freiem Raum in der Mitte.', 64), gfx: { gitter: {} } },
       { t: T('Dieses Gitter braucht **mehr Platz** als die drängelnde Flüssigkeit. Gleiche Masse, mehr Volumen – Eis ist leichter.', 64), gfx: { gitter: { cls: 'a1' } } },
       { t: T('Wasser ist damit eine große Ausnahme. Nur wenige Stoffe dehnen sich beim Erstarren aus – etwa **Silizium**, Gallium und Bismut.', 64), gfx: { stoffe: {} } },
-      { t: T('Die Sechsecke siehst du sogar mit bloßem Auge: Jede **Schneeflocke** hat sechs Arme.', 64), gfx: { flocke: {} } },
+      { t: T('Die Sechsecke siehst du sogar mit bloßem Auge: Jede **Schneeflocke** hat sechs Arme.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Am dichtesten ist Wasser übrigens bei **4 Grad**. Darum hat der Grund tiefer Seen im Winter etwa 4 Grad.', 64), gfx: { see: {} } },
       { t: T('Kälteres Wasser bleibt oben und gefriert an der **Oberfläche**. Das Eis isoliert wie ein Deckel.', 64), gfx: { see: { cls: 'a1' } } },
       { t: T('So frieren Seen nicht von unten zu – Fische und Pflanzen **überwintern** im flüssigen Wasser darunter.', 64), gfx: { see: { cls: 'a1 a2' } } },
@@ -551,7 +552,7 @@ export const AHA_CHEMIE: Bite[] = [
       { t: T('Glatt ist Eis übrigens nicht wegen des Drucks der Kufen: Auf seiner Oberfläche liegt immer eine hauchdünne, **flüssigkeitsähnliche** Schicht.', 64), gfx: { eislauf: {} } },
       { t: T('Die Ausdehnung hat Kraft: Gefriert Wasser in einer geschlossenen Flasche, kann es sie **sprengen**.', 64), gfx: { flasche: {} } },
       { t: T('So sprengt Frost auch Felsen und Straßen: Wasser in Ritzen gefriert und dehnt sich aus – so entstehen **Schlaglöcher**.', 64), gfx: { fels: {} } },
-      { t: T('Und Eisberge? Weil Eis nur wenig leichter ist als Meerwasser, ragt nur etwa **ein Zehntel** heraus.', 64), gfx: { eisberg: {} } },
+      { t: T('Und Eisberge? Weil Eis nur wenig leichter ist als Meerwasser, ragt nur etwa **ein Zehntel** heraus.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Eis schwimmt, weil Wasser beim Gefrieren **Platz** schafft.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],
     summary: ['Eis ist rund 9 % leichter als flüssiges Wasser.', 'Beim Gefrieren ordnen Wasserstoffbrücken die Moleküle zu luftigen Sechsecken.', 'Darum frieren Seen von oben zu – und Frost sprengt Felsen und Flaschen.'],
@@ -564,7 +565,7 @@ export const AHA_CHEMIE: Bite[] = [
     hook: 'Warum weinst du beim Zwiebelschneiden?',
     mood: 'verspielt',
     ambience: 'stadt',
-    images: [],
+    images: [img('zwiebel')],
     draw: {
       zwiebel(g) {
         board(g, 20, 400, 320, 0)
@@ -827,7 +828,7 @@ export const AHA_CHEMIE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { zwiebel: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Eine ganze Zwiebel riecht kaum. Erst wenn du sie **aufschneidest**, wird sie zur Tränenwaffe.', 64), gfx: { ganz: {} } },
       { t: T('In ihren Zellen lagern **schwefelhaltige** Stoffe – und getrennt davon, in anderen Kammern, ein Enzym.', 64), gfx: { zelle: {} } },
       { t: T('Das Messer zerstört die Zellwände. Enzym und Schwefelstoff **treffen sich** – eine Kettenreaktion beginnt.', 64), gfx: { zelle: { cls: 'a1' } } },
@@ -857,7 +858,7 @@ export const AHA_CHEMIE: Bite[] = [
     hook: 'Was ist eine Flamme eigentlich?',
     mood: 'ruhig',
     ambience: 'feuer',
-    images: [],
+    images: [img('kerze'), img('faraday')],
     draw: {
       kerze(g) {
         candle(g, 180, 190, 0)
@@ -1122,12 +1123,12 @@ export const AHA_CHEMIE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { kerze: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Eine Flamme ist kein Ding, sondern ein **Vorgang**: Gas, das gerade mit Sauerstoff reagiert – und dabei leuchtet und Wärme abgibt.', 64), gfx: { vorgang: {} } },
       { t: T('Bei einer Kerze brennt nicht das feste Wachs. Die Hitze **schmilzt** es, und der Docht saugt es nach oben.', 64), gfx: { docht: {} } },
       { t: T('Am Docht **verdampft** das flüssige Wachs. Erst dieser Wachsdampf verbrennt.', 64), gfx: { docht: { cls: 'a1' } } },
       { t: T('Probier es: Blas eine Kerze aus und halte ein brennendes Streichholz in den **weißen Rauch**. Die Flamme springt zurück auf den Docht.', 64), gfx: { rauch: {} } },
-      { t: T('Der Physiker Michael Faraday hielt 1848 eine berühmte Vortragsreihe für Kinder – über nichts anderes als **eine Kerze**.', 64), gfx: { faraday: {} } },
+      { t: T('Der Physiker Michael Faraday hielt 1848 eine berühmte Vortragsreihe für Kinder – über nichts anderes als **eine Kerze**.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 30, 1.05], cam2: [50, 30, 1.2] } } },
       { t: T('Eine Flamme hat Zonen. Innen ist sie dunkel – dort gibt es zu **wenig Sauerstoff**, der Dampf kann noch nicht brennen.', 64), gfx: { zonen: { cls: 'a1' } } },
       { t: T('Im hellen gelben Teil glühen winzige **Rußteilchen**, rund 1.000 Grad heiß. Ihr Glühen ist das Licht der Kerze.', 64), gfx: { zonen: { cls: 'a2' } } },
       { t: T('Ganz außen, wo genug Sauerstoff ist, verbrennt alles vollständig. Dort ist die Flamme **am heißesten** – bis rund 1.400 Grad.', 64), gfx: { zonen: { cls: 'a3' } } },
@@ -1152,7 +1153,7 @@ export const AHA_CHEMIE: Bite[] = [
     hook: 'Wie wäscht Seife Fett weg, wenn Wasser es nicht kann?',
     mood: 'verspielt',
     ambience: 'blasen',
-    images: [],
+    images: [img('seifenblasen')],
     draw: {
       blasen(g) {
         // Seifenblasen mit Schillerbändern, Glanzlicht; unten der Pustering
@@ -1478,7 +1479,7 @@ export const AHA_CHEMIE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { blasen: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Wasser und Öl mischen sich nicht. Schüttel sie zusammen – nach kurzer Zeit liegt das Öl wieder **obenauf**.', 64), gfx: { oel: {} } },
       { t: T('Wassermoleküle sind elektrisch ungleich geladen und halten fest zusammen. Fett ist **unpolar** – es wird einfach ausgeschlossen.', 64), gfx: { polar: {} } },
       { t: T('Seife ist ein Vermittler. Ihr Molekül hat einen **wasserliebenden Kopf** …', 64), gfx: { molekuel: { cls: 'a1' } } },
@@ -1510,7 +1511,7 @@ export const AHA_CHEMIE: Bite[] = [
     hook: 'Warum taut Salz Eis – sogar unter null Grad?',
     mood: 'ruhig',
     ambience: 'wind',
-    images: [],
+    images: [img('streusalz'), img('meereis')],
     draw: {
       strasse(g) {
         // Straße in Fluchtperspektive, Schneewälle, Laterne, Streuwagen in der Ferne, Salzkörner
@@ -1794,7 +1795,7 @@ export const AHA_CHEMIE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { strasse: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Eis ist nie ganz ruhig: An seiner Oberfläche lösen sich ständig Moleküle ins Schmelzwasser – und andere **frieren fest**.', 64), gfx: { gleichgewicht: {} } },
       { t: T('Bei null Grad halten sich beide Vorgänge die **Waage**. Es scheint nichts zu passieren.', 64), gfx: { gleichgewicht: {} } },
       { t: T('Salz löst sich im dünnen Wasserfilm auf dem Eis. Die Salz-Teilchen stehen den Wassermolekülen beim Festfrieren **im Weg**.', 64), gfx: { salz: {} } },
@@ -1806,7 +1807,7 @@ export const AHA_CHEMIE: Bite[] = [
       { t: T('Es kommt nicht auf die Sorte an, sondern auf die **Zahl der Teilchen**. Zucker wirkt auch – nur viel schwächer.', 64), gfx: { teilchen: {} } },
       { t: T('Calciumchlorid zerfällt in **drei** Teilchen statt zwei. Es taut noch bei Temperaturen weit unter minus 21 Grad.', 64), gfx: { teilchen: { cls: 'a1' } } },
       { t: T('Derselbe Effekt lässt das Meer erst bei etwa **minus 2 Grad** gefrieren.', 64), gfx: { meer: {} } },
-      { t: T('Und gefriert Meerwasser, bleibt das meiste Salz draußen: Junges **Meereis** ist erstaunlich salzarm.', 64), gfx: { meereis: {} } },
+      { t: T('Und gefriert Meerwasser, bleibt das meiste Salz draußen: Junges **Meereis** ist erstaunlich salzarm.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Streusalz hat Nachteile: Es lässt Autos **rosten**, schadet Straßenbäumen und versalzt Böden.', 64), gfx: { nachteile: {} } },
       { t: T('Viele Städte setzen darum auf Splitt oder **Sole**: Salzlösung, die vorbeugend in kleiner Menge aufs Pflaster gesprüht wird.', 64), gfx: { sole: {} } },
       { t: T('Frostschutz im Auto nutzt dasselbe Prinzip: Glykol im Kühlwasser senkt den Gefrierpunkt **weit unter minus 30 Grad**.', 64), gfx: { kuehler: {} } },
@@ -1824,7 +1825,7 @@ export const AHA_CHEMIE: Bite[] = [
     hook: 'Warum ploppt Popcorn – und anderer Mais nicht?',
     mood: 'verspielt',
     ambience: 'feuer',
-    images: [],
+    images: [img('popcorn')],
     draw: {
       flocken(g) {
         // gestreifte Kinotüte, Flocken quellen oben heraus, einzelne fliegen
@@ -2056,7 +2057,7 @@ export const AHA_CHEMIE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { flocken: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein Popcorn-Korn ist eine winzige **Dampfmaschine**.', 64), gfx: { maschine: {} } },
       { t: T('Innen steckt Stärke mit etwa **14 Prozent Wasser**. Außen sitzt eine harte, fast wasserdichte Schale.', 64), gfx: { schnitt: {} } },
       { t: T('Beim Erhitzen wird das Wasser zu **Dampf**. Die Schale hält ihn fest – der Druck im Korn steigt und steigt.', 64), gfx: { druck: {} } },
@@ -2087,7 +2088,7 @@ export const AHA_CHEMIE: Bite[] = [
     hook: 'Rost ist ein sehr langsames Feuer.',
     mood: 'dunkel',
     ambience: 'regen',
-    images: [],
+    images: [img('rost'), img('freiheitsstatue')],
     draw: {
       nagel(g) {
         // rostiger Nagel auf Holz, Regentropfen darauf, Rostflecken und abplatzende Schuppen
@@ -2396,7 +2397,7 @@ export const AHA_CHEMIE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { nagel: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Feuer und Rost sehen völlig verschieden aus. Chemisch tun sie **dasselbe**: Ein Stoff verbindet sich mit Sauerstoff.', 64), gfx: { vergleich: {} } },
       { t: T('Das heißt **Oxidation**. Beim Feuer geht es rasend schnell, beim Rost dauert es Wochen und Monate.', 64), gfx: { vergleich: {} } },
       { t: T('Eisen braucht dafür aber auch **Wasser**. In trockener Wüstenluft rostet es kaum.', 64), gfx: { wueste: {} } },
@@ -2412,7 +2413,7 @@ export const AHA_CHEMIE: Bite[] = [
       { t: T('Rost setzt übrigens Wärme frei, wie ein Feuer – nur so langsam, dass du **nichts spürst**.', 64), gfx: { waerme: {} } },
       { t: T('Wärmepads nutzen genau das: Eisenpulver, Salz und Luft rosten in Minuten – die Packung wird **richtig heiß**.', 64), gfx: { waerme: {} } },
       { t: T('Auch dein Körper „verbrennt“ langsam: Er oxidiert Nährstoffe mit Sauerstoff – **kontrolliert**, in vielen kleinen Schritten.', 64), gfx: { koerper: {} } },
-      { t: T('Und die Freiheitsstatue? Sie ist aus **Kupfer**. Ihr Grün ist Patina – Kupfer, das jahrzehntelang mit der Luft reagiert hat.', 64), gfx: { statue: {} } },
+      { t: T('Und die Freiheitsstatue? Sie ist aus **Kupfer**. Ihr Grün ist Patina – Kupfer, das jahrzehntelang mit der Luft reagiert hat.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Und der Mars? Der Rote Planet ist rot, weil sein Staub voller **Eisenoxid** steckt – Rost im Planetenmaßstab.', 64), gfx: { mars: {} } },
       { t: T('Korrosion ist teuer: Weltweit kostet sie nach Schätzungen rund **drei Prozent** der gesamten Wirtschaftsleistung.', 64), gfx: { kosten: {} } },
       { t: T('Rost ist **Verbrennung** in Zeitlupe.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
@@ -2427,7 +2428,7 @@ export const AHA_CHEMIE: Bite[] = [
     hook: 'Warum schmeckt Gebratenes so viel besser als Gekochtes?',
     mood: 'hell',
     ambience: 'feuer',
-    images: [],
+    images: [img('steak'), img('brezel')],
     draw: {
       pfanne(g) {
         // Steak in der heißen Gusseisenpfanne, Fett spritzt, Dampf steigt
@@ -2778,7 +2779,7 @@ export const AHA_CHEMIE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { pfanne: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Brotkruste, Röstkaffee, gebratenes Fleisch: Hinter diesem Duft steckt immer **dieselbe Reaktion**.', 64), gfx: { beispiele: {} } },
       { t: T('Sie heißt **Maillard-Reaktion** – nach dem französischen Chemiker Louis-Camille Maillard, der sie 1912 beschrieb.', 64), gfx: { maillard: {} } },
       { t: T('Dabei reagieren **Zucker** mit Bausteinen von Eiweißen, den Aminosäuren.', 64), gfx: { reaktion: {} } },
@@ -2791,7 +2792,7 @@ export const AHA_CHEMIE: Bite[] = [
       { t: T('Daraus folgt der Küchentrick: Fleisch und Gemüse vor dem Braten **trocken tupfen** – sonst dämpfen sie erst.', 64), gfx: { tupfen: {} } },
       { t: T('Und die Pfanne nicht **überfüllen**: Zu viel Dampf, und alles kocht im eigenen Saft.', 64), gfx: { voll: {} } },
       { t: T('Scharfes Anbraten „schließt“ übrigens **keine Poren**. Der Saft tritt trotzdem aus – das Fleisch schmeckt nur besser.', 64), gfx: { poren: {} } },
-      { t: T('Eine basische Lauge beschleunigt die Reaktion stark – darum werden **Laugenbrezeln** so tiefbraun.', 64), gfx: { brezel: {} } },
+      { t: T('Eine basische Lauge beschleunigt die Reaktion stark – darum werden **Laugenbrezeln** so tiefbraun.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Bei niedriger Temperatur läuft die Reaktion ganz langsam: **Schwarzer Knoblauch** reift wochenlang bei rund 60 Grad.', 64), gfx: { knoblauch: {} } },
       { t: T('Nicht verwechseln mit **Karamellisierung**: Dabei zerfällt nur Zucker, ganz ohne Eiweiß.', 64), gfx: { karamell: {} } },
       { t: T('Zu dunkel wird es ungesund: Bei sehr starker Bräunung entsteht **Acrylamid**. Die Faustregel lautet: vergolden statt verkohlen.', 64), gfx: { acrylamid: {} } },

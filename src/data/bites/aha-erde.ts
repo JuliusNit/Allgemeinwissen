@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, bolt, check, cross, dashes, fig, hatch, ink, mk, mountain, pop, question, rays, st, star, text, type P } from './draw'
 import { LAND, arcArrow, ball, bird, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, flow, geo, glide, house, jet, mapRegion, mol, moonFace, rad, rain, ripple, rotPole, smooth, spin, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
 
@@ -253,7 +254,7 @@ export const AHA_ERDE: Bite[] = [
     hook: 'Ist Grönland wirklich so groß wie Afrika?',
     mood: 'raetsel',
     ambience: 'wind',
-    images: [],
+    images: [img('gerhard-mercator')],
     draw: {
       karte(g) {
         worldMap(g, 20, 120, 320, 250, 'mercator', 0, { hi: [LAND.afrika, LAND.groenland] })
@@ -431,7 +432,7 @@ export const AHA_ERDE: Bite[] = [
     scenes: [
       { t: HOOK(476), gfx: { karte: {} } },
       { t: T('Auf vielen Weltkarten wirkt Grönland fast so groß wie **Afrika**. In Wahrheit ist Afrika etwa vierzehnmal größer.', 64), gfx: { wahr: {} } },
-      { t: T('Schuld ist die Karte selbst: die **Mercator-Projektion**, gezeichnet 1569 vom Kartografen Gerhard Mercator.', 64), gfx: { mercator: {} } },
+      { t: T('Schuld ist die Karte selbst: die **Mercator-Projektion**, gezeichnet 1569 vom Kartografen Gerhard Mercator.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 40, 1.05], cam2: [50, 40, 1.2] } } },
       { t: T('Das Problem dahinter: Die Erde ist eine Kugel. Eine Kugeloberfläche lässt sich **nicht verzerrungsfrei** flach ausbreiten.', 64), gfx: { gauss: {} } },
       { t: T('Probier es mit einer Orangenschale: Flach bekommst du sie nur, wenn sie **reißt** oder du sie dehnst.', 64), gfx: { orange: {} } },
       { t: T('Carl Friedrich Gauß bewies 1827 mathematisch: Jede flache Karte der Erde muss **etwas verzerren** – Flächen, Winkel oder Abstände.', 64), gfx: { gauss: {} } },
@@ -461,7 +462,7 @@ export const AHA_ERDE: Bite[] = [
     hook: 'Warum wird es in der Wüste nachts eiskalt?',
     mood: 'kosmisch',
     ambience: 'wind',
-    images: [],
+    images: [img('sahara-nacht')],
     draw: {
       wueste(g) {
         // Dünen unter Sonne und Mond, Karawane, Windrippel
@@ -672,7 +673,7 @@ export const AHA_ERDE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { wueste: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('In der Sahara klettert das Thermometer tagsüber oft auf **über 40 Grad**.', 64), gfx: { tag: {} } },
       { t: T('Nachts kann es dort bis **nahe null Grad** abkühlen. Wer in der Wüste zeltet, braucht einen warmen Schlafsack.', 64), gfx: { nacht: {} } },
       { t: T('Der Grund ist unsichtbar: Es fehlt **Wasserdampf** in der Luft.', 64), gfx: { wasser: {} } },
@@ -703,7 +704,7 @@ export const AHA_ERDE: Bite[] = [
     hook: 'Warum ist das Meer salzig – aber Flüsse nicht?',
     mood: 'ruhig',
     ambience: 'wellen',
-    images: [],
+    images: [img('totes-meer'), img('meer-wellen')],
     draw: {
       meer(g) {
         // Felsen in der Brandung, darauf ausgeblühte Salzkristalle; Möwen
@@ -926,7 +927,7 @@ export const AHA_ERDE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { meer: {} } },
+      { t: HOOK(476), pics: { p1: { img: 1, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die Antwort beginnt mit **Regen**. Regenwasser nimmt aus der Luft etwas Kohlendioxid auf.', 64), gfx: { regen: {} } },
       { t: T('Dadurch wird es ganz **leicht sauer** – und löst winzige Mengen Mineralien aus Felsen und Böden.', 64), gfx: { saeure: {} } },
       { t: T('Flüsse tragen diese gelösten Salze ins Meer. Auch Flusswasser enthält also Salz – nur **so wenig**, dass man es nicht schmeckt.', 64), gfx: { fluss: {} } },
@@ -941,7 +942,7 @@ export const AHA_ERDE: Bite[] = [
       { t: T('Holte man alles Meersalz heraus und verteilte es über das Land, läge dort eine Schicht von über **150 Metern**.', 64), gfx: { schicht: {} } },
       { t: T('Wird das Meer immer salziger? Kaum – Salz lagert sich auch am Meeresboden ab. Der Salzgehalt ist seit langem **recht stabil**.', 64), gfx: { gramm: {} } },
       { t: T('Wo viel verdunstet und kaum etwas abfließt, wird es extrem: Das **Tote Meer** enthält rund 34 Prozent Salz.', 64), gfx: { gefaesse: {} } },
-      { t: T('Das Wasser ist so dicht, dass man darin **liegen** kann wie auf einer Luftmatratze.', 64), gfx: { totes: {} } },
+      { t: T('Das Wasser ist so dicht, dass man darin **liegen** kann wie auf einer Luftmatratze.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die Ostsee dagegen bekommt viel Flusswasser und verdunstet wenig. Sie ist nur **leicht salzig**.', 64), gfx: { gefaesse: {} } },
       { t: T('Salzwasser ist schwerer als Süßwasser. Wo Flüsse ins Meer münden, schiebt sich das Süßwasser oft **obenauf**.', 64), gfx: { muendung: {} } },
       { t: T('Und Salz verändert das Wasser: Meerwasser gefriert erst bei etwa **−1,9 Grad**.', 64), gfx: { gefrieren: {} } },
@@ -957,7 +958,7 @@ export const AHA_ERDE: Bite[] = [
     hook: 'Warum bemerkt ein Schiff auf offenem Meer einen Tsunami kaum?',
     mood: 'dunkel',
     ambience: 'wellen',
-    images: [],
+    images: [img('tsunami'), img('dart-boje')],
     draw: {
       schiff(g) {
         // offenes Meer: lange, flache Tsunami-Dünung unter kurzem Wellengekräusel, der Frachter hebt sich kaum
@@ -1161,12 +1162,12 @@ export const AHA_ERDE: Bite[] = [
       { t: T('Nähert sie sich der Küste, wird das Wasser flach. Die Front der Welle wird **gebremst**.', 64), gfx: { stau: {} } },
       { t: T('Der hintere Teil ist noch schnell und **holt auf**. Das Wasser staut sich – die Welle wächst in die Höhe.', 64), gfx: { stau: {} } },
       { t: T('Aus einem Meter auf hoher See werden an der Küste **zehn, zwanzig, dreißig** Meter.', 64), gfx: { kueste: { cls: 'a1' } } },
-      { t: T('Oft kündigt sich ein Tsunami seltsam an: Das Meer **weicht zurück** und legt den Grund frei.', 64), gfx: { rueckzug: { cls: 'a1' } } },
+      { t: T('Oft kündigt sich ein Tsunami seltsam an: Das Meer **weicht zurück** und legt den Grund frei.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Kata Noi, Thailand, 26.12.2004' } } },
       { t: T('Das ist das Wellental, das zuerst ankommt. Wer das sieht, muss **sofort** weg – nicht hingehen und staunen.', 64), gfx: { rueckzug: { cls: 'a1' } } },
       { t: T('Ein Tsunami bricht nicht wie eine Surfwelle. Er wirkt eher wie eine **Flut**, die nicht aufhört zu steigen.', 64), gfx: { kueste: { cls: 'a1' } } },
       { t: T('Und selten kommt nur eine Welle. Oft folgen **mehrere** – die erste ist nicht unbedingt die größte.', 64), gfx: { mehrere: {} } },
       { t: T('2004 starben im Indischen Ozean rund **230.000 Menschen**. 2011 traf ein Tsunami Japan mit Wellen von örtlich fast 40 Metern.', 64), gfx: { karte: {} } },
-      { t: T('Heute messen **Bojen** mit Drucksensoren am Meeresgrund jede verdächtige Welle und lösen Warnungen aus.', 64), gfx: { boje: {} } },
+      { t: T('Heute messen **Bojen** mit Drucksensoren am Meeresgrund jede verdächtige Welle und lösen Warnungen aus.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die wichtigste Regel an der Küste: Bebt die Erde stark oder weicht das Meer zurück – sofort auf **höheres Gelände**.', 64), gfx: { hoch: {} } },
       { t: T('Das Wort kommt aus dem Japanischen: **Tsunami** heißt „Hafenwelle“. Fischer bemerkten draußen nichts – und fanden ihren Hafen zerstört.', 64), gfx: { schiff: { tf: [1, 0, 270] } } },
       { t: T('Flach im Ozean, **riesig** an der Küste.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
@@ -1181,7 +1182,7 @@ export const AHA_ERDE: Bite[] = [
     hook: 'Ist ein Beben der Stärke 6 doppelt so stark wie eines der Stärke 3?',
     mood: 'dunkel',
     ambience: 'stadt',
-    images: [],
+    images: [img('erdbeben'), img('richter'), img('haiti')],
     draw: {
       seismo(g) {
         // Trommel-Seismograf: Sockel, rotierende Papiertrommel, Schreibarm mit Masse
@@ -1402,7 +1403,7 @@ export const AHA_ERDE: Bite[] = [
     scenes: [
       { t: HOOK(476), gfx: { seismo: {} } },
       { t: T('Die Antwort überrascht: Ein Beben der Stärke 6 ist nicht doppelt so stark – sondern **tausendfach** in der Auslenkung.', 64), gfx: { tausend: {} } },
-      { t: T('Der Seismologe Charles Richter entwickelte 1935 in Kalifornien eine Skala, um Beben **vergleichbar** zu machen.', 64), gfx: { richter: {} } },
+      { t: T('Der Seismologe Charles Richter entwickelte 1935 in Kalifornien eine Skala, um Beben **vergleichbar** zu machen.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Er maß den Ausschlag der Nadel am Seismografen. Die Werte reichten von winzig bis **riesig**.', 64), gfx: { seismo: { tf: [1, 0, 180] } } },
       { t: T('Damit die Zahlen handlich bleiben, wählte er eine **logarithmische** Skala: Jede Stufe bedeutet zehnmal so viel Ausschlag.', 64), gfx: { log: {} } },
       { t: T('Stärke 4 schwingt also zehnmal so weit wie 3. Stärke 5 schon **hundertmal** so weit.', 64), gfx: { zehn: {} } },
@@ -1412,9 +1413,9 @@ export const AHA_ERDE: Bite[] = [
       { t: T('Die Zahlen sind ähnlich – aber sie funktioniert auch bei **riesigen** Beben, bei denen Richters Skala nicht mehr weiter steigt.', 64), gfx: { log: {} } },
       { t: T('Das stärkste je gemessene Beben: **9,5** in Chile 1960. Es löste einen Tsunami bis nach Japan aus.', 64), gfx: { chile: {} } },
       { t: T('Kleine Beben gibt es ständig – **tausende** jeden Tag, die meisten spürt niemand. Stärke 8 und mehr kommt etwa einmal im Jahr vor.', 64), gfx: { haeufig: {} } },
-      { t: T('Wie schlimm ein Beben ist, sagt die Magnitude aber nur **zum Teil**.', 64), gfx: { haus: {} } },
+      { t: T('Wie schlimm ein Beben ist, sagt die Magnitude aber nur **zum Teil**.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Hualien, Taiwan, 2024' } } },
       { t: T('Entscheidend sind auch Tiefe, Boden und **Bauweise**. Ein flaches Beben unter einer Stadt richtet mehr an als ein tiefes unter dem Meer.', 64), gfx: { tiefe: {} } },
-      { t: T('2010 traf ein Beben der Stärke 7,0 **Haiti** – über 100.000 Menschen starben. Im selben Jahr traf ein viel stärkeres Beben Chile – mit rund 500 Toten.', 64), gfx: { haiti: {} } },
+      { t: T('2010 traf ein Beben der Stärke 7,0 **Haiti** – über 100.000 Menschen starben. Im selben Jahr traf ein viel stärkeres Beben Chile – mit rund 500 Toten.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Port-au-Prince, Januar 2010' } } },
       { t: T('Der Unterschied: Chile hat strenge **Bauvorschriften**. Nicht das Beben tötet, sondern einstürzende Häuser.', 64), gfx: { haus: {} } },
       { t: T('Logarithmische Skalen begegnen dir öfter: bei **Dezibel**, beim pH-Wert, bei der Helligkeit von Sternen.', 64), gfx: { skalen: {} } },
       { t: T('Plus eins heißt **mal zehn**.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
@@ -1429,7 +1430,7 @@ export const AHA_ERDE: Bite[] = [
     hook: 'Warum passen Südamerika und Afrika zusammen wie Puzzleteile?',
     mood: 'episch',
     ambience: 'wellen',
-    images: [],
+    images: [img('wegener')],
     draw: {
       puzzle(g) {
         // echte Küstenlinien: Südamerika und Afrika, dazwischen der Atlantik
@@ -1602,7 +1603,7 @@ export const AHA_ERDE: Bite[] = [
       { t: HOOK(476), gfx: { puzzle: {} } },
       { t: T('Schon auf frühen Weltkarten fiel auf: Die Ostküste Südamerikas und die Westküste Afrikas passen fast **genau ineinander**.', 64), gfx: { nah: {} } },
       { t: T('Schiebt man sie zusammen, schließt sich der Atlantik – als hätte jemand einen Kontinent **zerrissen**.', 64), gfx: { nah: { cls: 'a1' } } },
-      { t: T('1912 zog der deutsche Forscher **Alfred Wegener** einen kühnen Schluss: Die Kontinente wandern.', 64), gfx: { wegener: {} } },
+      { t: T('1912 zog der deutsche Forscher **Alfred Wegener** einen kühnen Schluss: Die Kontinente wandern.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 35, 1.2] } } },
       { t: T('Er sammelte Belege: Auf beiden Seiten des Atlantiks finden sich **dieselben Fossilien** – etwa ein kleines Süßwasser-Reptil, der Mesosaurus.', 64), gfx: { fossil: {} } },
       { t: T('Das Tier konnte unmöglich über einen Ozean schwimmen. Also lagen die Länder einst **direkt nebeneinander**.', 64), gfx: { fossil: {} } },
       { t: T('Auch Gesteinsschichten und Gebirge setzen sich auf der anderen Seite **nahtlos fort**.', 64), gfx: { nah: { cls: 'a1' } } },
@@ -1630,7 +1631,7 @@ export const AHA_ERDE: Bite[] = [
     hook: 'Wie schwer ist eine Wolke?',
     mood: 'verspielt',
     ambience: 'wind',
-    images: [],
+    images: [img('kumulus')],
     draw: {
       wolke(g) {
         // große Haufenwolke über der Landschaft, Haus und Bäume zum Größenvergleich
@@ -1793,7 +1794,7 @@ export const AHA_ERDE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { wolke: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Wolken sehen aus wie Watte. Dabei bestehen sie aus Milliarden winziger **Wassertröpfchen** – oder Eiskristallen.', 64), gfx: { troepfchen: {} } },
       { t: T('Nehmen wir eine kleine **Schönwetterwolke**, etwa einen Kilometer breit, hoch und tief.', 64), gfx: { wuerfel: {} } },
       { t: T('In jedem Kubikmeter davon schweben etwa **ein halbes Gramm** Wasser. Klingt nach wenig.', 64), gfx: { gramm: {} } },
@@ -1823,7 +1824,7 @@ export const AHA_ERDE: Bite[] = [
     hook: 'Dreht sich der Abfluss auf der Südhalbkugel andersherum?',
     mood: 'raetsel',
     ambience: 'blasen',
-    images: [],
+    images: [img('hurrikan'), img('foucault')],
     draw: {
       wanne(g) {
         // Badewanne auf Löwenfüßen, Wasserhahn, Strudel über dem Abfluss
@@ -2020,7 +2021,7 @@ export const AHA_ERDE: Bite[] = [
       { t: T('Dahinter steckt etwas Echtes: die **Corioliskraft**. Sie entsteht, weil sich die Erde dreht.', 64), gfx: { erde: {} } },
       { t: T('Stell dir ein Karussell vor: Wirfst du einen Ball geradeaus, scheint er für dich **abzubiegen** – weil du dich unter ihm wegdrehst.', 64), gfx: { karussell: {} } },
       { t: T('Auf der Erde werden Bewegungen so abgelenkt: auf der Nordhalbkugel **nach rechts**, auf der Südhalbkugel nach links.', 64), gfx: { ablenkung: {} } },
-      { t: T('Bei Wirbelstürmen sieht man das deutlich: Hurrikane drehen im Norden **gegen den Uhrzeiger**, im Süden mit ihm.', 64), gfx: { hurrikan: {} } },
+      { t: T('Bei Wirbelstürmen sieht man das deutlich: Hurrikane drehen im Norden **gegen den Uhrzeiger**, im Süden mit ihm.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Hurrikan Dennis, 2005' } } },
       { t: T('Aber die Corioliskraft ist **sehr schwach**. Sie zeigt sich erst über Hunderte Kilometer und viele Stunden.', 64), gfx: { winzig: {} } },
       { t: T('In einer Badewanne ist sie **millionenfach** schwächer als alles andere, was das Wasser bewegt.', 64), gfx: { winzig: {} } },
       { t: T('Entscheidend sind die **Form** des Beckens, die Lage des Abflusses und Strömungen, die vom Einfüllen übrig sind.', 64), gfx: { stoerung: {} } },
@@ -2032,7 +2033,7 @@ export const AHA_ERDE: Bite[] = [
       { t: T('Ihr Trick: Sie gießen das Wasser **mit leichtem Schwung** ein. Ein paar Schritte weiter dreht es sich dann andersherum.', 64), gfx: { trick: {} } },
       { t: T('Dabei ist die waagrechte Ablenkung **am Äquator** selbst null. Darum entstehen direkt dort auch keine Wirbelstürme.', 64), gfx: { aequator: {} } },
       { t: T('Auch weite **Meeresströmungen** und Passatwinde verdanken ihre Richtung zum Teil der Corioliskraft.', 64), gfx: { ablenkung: {} } },
-      { t: T('Sichtbar wird die Erddrehung im **Foucault-Pendel**: Seine Schwingebene dreht sich im Lauf des Tages langsam weiter.', 64), gfx: { pendel: {} } },
+      { t: T('Sichtbar wird die Erddrehung im **Foucault-Pendel**: Seine Schwingebene dreht sich im Lauf des Tages langsam weiter.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Foucault-Pendel, Panthéon Paris' } } },
       { t: T('Echt bei Stürmen, **Mythos** in der Wanne.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],
     summary: ['Die Corioliskraft lenkt Bewegungen auf der Nordhalbkugel nach rechts, im Süden nach links ab.', 'Sie prägt Wirbelstürme, ist in der Badewanne aber millionenfach schwächer als Beckenform und Restströmungen.', 'Nur unter Laborbedingungen (Shapiro 1962) zeigt sie sich im Abfluss; Äquator-Shows sind Tricks.'],
@@ -2045,7 +2046,7 @@ export const AHA_ERDE: Bite[] = [
     hook: 'Warum liegen auf dem Mount Everest Muscheln aus dem Meer?',
     mood: 'episch',
     ambience: 'wind',
-    images: [],
+    images: [img('himalaya'), img('ammonit'), img('zugspitze')],
     draw: {
       gipfel(g) {
         // Everest-Pyramide mit Schneefeldern, Gesteinsbändern und Gipfelfahne; in der Lupe ein Ammonit
@@ -2265,7 +2266,7 @@ export const AHA_ERDE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { gipfel: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Der Gipfel des Mount Everest besteht aus **Kalkstein** – entstanden aus Schalen und Skeletten von Meerestieren.', 64), gfx: { kalk: {} } },
       { t: T('Dieses Gestein ist rund **450 Millionen** Jahre alt. Damals lag es am Grund eines warmen Meeres.', 64), gfx: { alter: {} } },
       { t: T('Bergsteiger finden dort oben Reste von **Seelilien**, Trilobiten und anderen Meerestieren.', 64), gfx: { tiere: {} } },
@@ -2281,8 +2282,8 @@ export const AHA_ERDE: Bite[] = [
       { t: T('Gleichzeitig tragen Wind, Eis und Wasser ihn ab. Gebirge sind ein Wettlauf zwischen **Heben und Abtragen**.', 64), gfx: { waechst: {} } },
       { t: T('Weil Indien unter Asien taucht, ist die Erdkruste unter Tibet doppelt so dick wie üblich – rund **70 Kilometer**.', 64), gfx: { falten: {} } },
       { t: T('Die Spannung entlädt sich in **Erdbeben** – etwa 2015 in Nepal mit fast 9.000 Toten.', 64), gfx: { beben: {} } },
-      { t: T('Auch die **Alpen** sind so entstanden: Afrika schiebt sich gegen Europa. Die Zugspitze besteht aus einem uralten Riff.', 64), gfx: { alpen: {} } },
-      { t: T('Selbst in Deutschland findest du oft **Ammoniten** im Gestein – zum Beispiel auf der Schwäbischen Alb, einst ein Meeresboden.', 64), gfx: { kalk: {} } },
+      { t: T('Auch die **Alpen** sind so entstanden: Afrika schiebt sich gegen Europa. Die Zugspitze besteht aus einem uralten Riff.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Zugspitze' } } },
+      { t: T('Selbst in Deutschland findest du oft **Ammoniten** im Gestein – zum Beispiel auf der Schwäbischen Alb, einst ein Meeresboden.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Schon **Leonardo da Vinci** wunderte sich über Muscheln in den Bergen Italiens – und vermutete richtig, dass dort einst Meer war.', 64), gfx: { leonardo: {} } },
       { t: T('Die Berge von heute sind die **Meeresböden** von gestern.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],

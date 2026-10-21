@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, bolt, clock, countUp, dashes, eye, fig, group, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, vbars, type P } from './draw'
 import { arcArrow, axes, ball, bird, bow, cloud, dot, dplot, drop, earth, eyeFront, fighter, flake, flow, foilAt, glide, ground, house, jet, mammoth, mapRegion, moonFace, plot, rad, rain, ripple, sea, smooth, spin, stars, sun, sunDisk, thermo, travelWave, tree, waveP, wing, wobble } from './kit'
 
@@ -53,7 +54,7 @@ export const AHA_PHYSIK: Bite[] = [
     hook: 'Warum ist der Himmel blau – und abends rot?',
     mood: 'hell',
     ambience: 'wind',
-    images: [],
+    images: [img('himmel-blau'), img('rayleigh')],
     draw: {
       himmel(g) {
         sun(g, 276, 140, 28)
@@ -394,13 +395,13 @@ export const AHA_PHYSIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { himmel: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Sonnenlicht sieht weiß aus. Doch ein Prisma zeigt: Es ist eine Mischung aus **allen Farben** – von Rot bis Violett.', 64), gfx: { prisma: {} } },
       { t: T('Jede Farbe ist eine Welle. Rotes Licht hat **lange** Wellen, blaues Licht deutlich **kürzere**.', 64), gfx: { wellen: {} } },
       { t: T('Luft besteht aus winzigen Molekülen, vor allem Stickstoff und Sauerstoff – viel **kleiner** als jede Lichtwelle.', 64), gfx: { luft: {} } },
       { t: T('Trifft Licht ein Molekül, bringt es dessen Elektronen zum Schwingen. Das Molekül strahlt dann Licht in **alle Richtungen** ab.', 64), gfx: { streu: {} } },
       { t: T('Physiker nennen das **Streuung**. Je kürzer die Welle, desto stärker wird sie aus ihrer Bahn geworfen.', 64), gfx: { streu: { cls: 'a1' } } },
-      { t: T('Lord Rayleigh fand 1871 heraus: Es geht mit der **vierten Potenz**. Blau wird gut fünfmal stärker gestreut als Rot.', 64), gfx: { rayleigh: {} } },
+      { t: T('Lord Rayleigh fand 1871 heraus: Es geht mit der **vierten Potenz**. Blau wird gut fünfmal stärker gestreut als Rot.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 30, 1.05], cam2: [50, 30, 1.2] } } },
       { t: T('Wohin du auch schaust: Von überall am Himmel kommt **gestreutes Blau** zu dir. Der ganze Himmel leuchtet.', 64), gfx: { tag: {} } },
       { t: T('Aber Violett streut noch stärker – warum ist der Himmel nicht lila? Die Sonne liefert weniger davon, und **dein Auge** reagiert auf Blau stärker.', 64), gfx: { auge: {} } },
       { t: T('Mittags fällt das Licht steil ein. Sein Weg durch die Luft ist **kurz**.', 480), gfx: { abend: {} } },
@@ -424,7 +425,7 @@ export const AHA_PHYSIK: Bite[] = [
     hook: 'Warum ist ein Regenbogen eigentlich rund?',
     mood: 'hell',
     ambience: 'regen',
-    images: [],
+    images: [img('regenbogen'), img('descartes'), img('nebelbogen')],
     draw: {
       bogen(g) {
         // Landschaft nach dem Schauer: Regenwolke rechts, Bogen über Hügeln
@@ -666,12 +667,12 @@ export const AHA_PHYSIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { bogen: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Für einen Regenbogen brauchst du zwei Dinge: die **Sonne im Rücken** und Regen vor dir.', 64), gfx: { aufbau: {} } },
       { t: T('Jeder Regentropfen wirkt wie ein winziges **Prisma**. Licht dringt ein, wird gebrochen und an der Rückseite gespiegelt.', 64), gfx: { tropfen: {} } },
       { t: T('Beim Ein- und Austreten wird jede Farbe **unterschiedlich stark** gebrochen: Violett am stärksten, Rot am wenigsten.', 64), gfx: { tropfen: { cls: 'a1' } } },
       { t: T('Rotes Licht verlässt den Tropfen in einem Winkel von etwa **42 Grad** zum Sonnenlicht, Violett bei etwa 40 Grad.', 64), gfx: { winkel: {} } },
-      { t: T('Das berechnete schon René Descartes 1637: Er verfolgte unzählige Lichtwege durch eine **Glaskugel voller Wasser**.', 64), gfx: { descartes: {} } },
+      { t: T('Das berechnete schon René Descartes 1637: Er verfolgte unzählige Lichtwege durch eine **Glaskugel voller Wasser**.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 30, 1.05], cam2: [50, 30, 1.2] } } },
       { t: T('Für dich leuchten also nur Tropfen, die genau in diesem Winkel stehen. Und alle diese Tropfen liegen auf einem **Kreis**.', 64), gfx: { kegel: {} } },
       { t: T('Seine Mitte liegt genau **gegenüber der Sonne** – dort, wohin der Schatten deines Kopfes fällt.', 64), gfx: { kegel: { cls: 'a1' } } },
       { t: T('Eigentlich ist jeder Regenbogen also ein ganzer Kreis. Doch der Boden schneidet ihn ab – übrig bleibt ein **Bogen**.', 64), gfx: { kreisbogen: { cls: 'a1' } } },
@@ -681,7 +682,7 @@ export const AHA_PHYSIK: Bite[] = [
       { t: T('Manchmal erscheint darüber ein zweiter, blasserer Bogen. Dort wird das Licht **zweimal** gespiegelt – die Farben stehen umgekehrt.', 64), gfx: { doppelt: {} } },
       { t: T('Dazwischen ist der Himmel **dunkler**: das Alexanderband, benannt nach Alexander von Aphrodisias, der es um 200 n. Chr. beschrieb.', 64), gfx: { doppelt: { cls: 'a1' } } },
       { t: T('Nachts gibt es **Mondregenbögen**. Sie sind farbig – doch im Dunkeln sieht dein Auge kaum Farben, also wirken sie meist weiß.', 64), gfx: { mondbogen: {} } },
-      { t: T('Und im Nebel entsteht ein breiter **Nebelbogen**: Die Tröpfchen sind so winzig, dass die Farben verschwimmen.', 64), gfx: { nebel: {} } },
+      { t: T('Und im Nebel entsteht ein breiter **Nebelbogen**: Die Tröpfchen sind so winzig, dass die Farben verschwimmen.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein Regenbogen ist also kein Ding an einem Ort, sondern eine **Richtung**. Darum kannst du nie zu seinem Ende laufen.', 64), gfx: { laufen: {} } },
       { t: T('Gehst du weiter, wandert er mit – denn mit jedem Schritt leuchten **andere Tropfen** für dich auf.', 64), gfx: { laufen: { cls: 'a1' } } },
       { t: T('Ein Regenbogen ist ein **Kreis aus Licht** um den Schatten deines Kopfes.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
@@ -696,7 +697,7 @@ export const AHA_PHYSIK: Bite[] = [
     hook: 'Wie hält sich ein Flugzeug mit Hunderten Tonnen in der Luft?',
     mood: 'episch',
     ambience: 'wind',
-    images: [],
+    images: [img('flugzeug'), img('wirbelschleppe'), img('a380')],
     draw: {
       flieger(g) {
         const c = glide(g, -40, 0, { ms: 9000, d: 300 })
@@ -1003,7 +1004,7 @@ export const AHA_PHYSIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { flieger: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die Schulbuch-Erklärung: Oben ist der Flügel gewölbt. Die Luft hat dort einen längeren Weg – und muss **gleichzeitig** hinten ankommen.', 64), gfx: { profil: {} } },
       { t: T('Das klingt logisch, ist aber falsch. Nichts zwingt die Luft, sich hinten wiederzutreffen. Oben ist sie sogar **deutlich schneller**.', 64), gfx: { profil: { cls: 'a1' } } },
       { t: T('Und gälte die Erklärung, könnte kein Flugzeug **auf dem Rücken** fliegen. Kunstflieger tun das aber ständig.', 64), gfx: { ruecken: {} } },
@@ -1013,13 +1014,13 @@ export const AHA_PHYSIK: Bite[] = [
       { t: T('Die Triebwerke liefern nur den **Schub** gegen den Luftwiderstand. Den Auftrieb macht allein der Flügel – sobald er schnell genug ist.', 64), gfx: { kraefte: { cls: 'a1' } } },
       { t: T('Gleichzeitig entsteht oben **Unterdruck**: Die Luft folgt der Wölbung, wird beschleunigt – und ihr Druck sinkt.', 64), gfx: { druck: {} } },
       { t: T('Beides gehört zusammen: Druckunterschied und Umlenkung sind **zwei Seiten** derselben Strömung.', 64), gfx: { druck: { cls: 'a1' } } },
-      { t: T('Die nach unten geschobene Luft wirbelt hinter den Flügelspitzen weiter. Darum starten Flugzeuge **mit Abstand** – oft zwei, drei Minuten.', 64), gfx: { wirbel: {} } },
+      { t: T('Die nach unten geschobene Luft wirbelt hinter den Flügelspitzen weiter. Darum starten Flugzeuge **mit Abstand** – oft zwei, drei Minuten.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Mehr Auftrieb gibt es durch mehr **Tempo**, mehr Fläche oder mehr Anstellwinkel. Bei Start und Landung fährt der Pilot dafür Klappen aus.', 64), gfx: { klappen: {} } },
       { t: T('Aber nicht zu steil: Ab etwa 15 Grad reißt die Strömung oben ab und wirbelt nur noch. Der Auftrieb bricht ein – der **Strömungsabriss**.', 64), gfx: { abriss: {} } },
       { t: T('Segelflugzeuge haben gar keinen Motor. Sie gleiten langsam abwärts – und kreisen in **aufsteigender Warmluft** wieder nach oben.', 64), gfx: { segler: {} } },
       { t: T('Vögel nutzen dasselbe Prinzip – und Hubschrauber, Ventilatoren und Windräder: Jeder Rotor ist ein **drehender Flügel**.', 64), gfx: { rotor: {} } },
       { t: T('Du kennst es auch: Halt die Hand aus dem Autofenster und **kipp sie leicht** – der Fahrtwind drückt sie nach oben.', 64), gfx: { hand: {} } },
-      { t: T('Ein Airbus A380 wiegt beim Start bis zu **575 Tonnen**. Getragen wird er von Luft, die er schnell genug nach unten schiebt.', 64), gfx: { a380: {} } },
+      { t: T('Ein Airbus A380 wiegt beim Start bis zu **575 Tonnen**. Getragen wird er von Luft, die er schnell genug nach unten schiebt.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Fliegen heißt: **Luft nach unten werfen** – und von ihr nach oben gedrückt werden.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],
     summary: ['Die „Gleichzeitig-ankommen“-Erklärung ist falsch: Oben strömt die Luft sogar schneller.', 'Der angestellte Flügel lenkt Luft nach unten; die Gegenkraft ist der Auftrieb.', 'Zu steil reißt die Strömung ab: Strömungsabriss.'],
@@ -1032,7 +1033,7 @@ export const AHA_PHYSIK: Bite[] = [
     hook: 'Warum schweben Astronauten, obwohl dort oben fast volle Schwerkraft herrscht?',
     mood: 'kosmisch',
     ambience: 'weltraum',
-    images: [],
+    images: [img('iss-astronauten')],
     draw: {
       iss(g) {
         stars(g, 20, 70, 320, 380, 34, 0, (x, y) => Math.hypot(x - 180, y - 280) < 170)
@@ -1266,7 +1267,7 @@ export const AHA_PHYSIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { iss: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die Raumstation ISS fliegt nur rund **400 Kilometer** hoch – etwa so weit wie von Berlin nach Hannover.', 64), gfx: { hoehe: {} } },
       { t: T('Dort oben ist die Schwerkraft fast so stark wie bei dir: etwa **90 Prozent**.', 64), gfx: { prozent: {} } },
       { t: T('Warum schweben die Astronauten trotzdem? Weil sie **fallen** – ununterbrochen, zusammen mit der ganzen Station.', 64), gfx: { fallen: {} } },
@@ -1295,7 +1296,7 @@ export const AHA_PHYSIK: Bite[] = [
     hook: 'Warum kommt die Flut zweimal am Tag – obwohl der Mond nur einmal vorbeizieht?',
     mood: 'ruhig',
     ambience: 'wellen',
-    images: [],
+    images: [img('ebbe'), img('fundy')],
     draw: {
       kueste(g) {
         // Nachtküste: Mond, Leuchtturm auf dem Fels, Pegel am Steg – das Wasser steigt und fällt
@@ -1502,7 +1503,7 @@ export const AHA_PHYSIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { kueste: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ebbe und Flut macht vor allem der **Mond**. Seine Schwerkraft zieht am Wasser der Erde.', 64), gfx: { zug: {} } },
       { t: T('Auf der dem Mond zugewandten Seite zieht er am stärksten. Das Wasser dort wölbt sich zu ihm hin – ein **Flutberg**.', 64), gfx: { berge: { cls: 'a1' } } },
       { t: T('Aber auch auf der **anderen Seite** der Erde gibt es einen Flutberg. Wie kann das sein?', 64), gfx: { berge: { cls: 'a1 a2' } } },
@@ -1514,7 +1515,7 @@ export const AHA_PHYSIK: Bite[] = [
       { t: T('Auch die **Sonne** erzeugt Gezeiten – wegen ihrer riesigen Entfernung aber nicht einmal halb so starke wie der Mond.', 64), gfx: { sonne: {} } },
       { t: T('Stehen Sonne und Mond in einer Linie, bei Voll- und Neumond, addieren sich ihre Kräfte: **Springflut**.', 64), gfx: { spring: {} } },
       { t: T('Stehen sie im rechten Winkel zueinander, schwächen sie sich gegenseitig: **Nippflut**.', 64), gfx: { nipp: {} } },
-      { t: T('Wie hoch die Flut wird, bestimmen Küste und Meeresboden. In der kanadischen Fundy-Bucht steigt das Wasser um bis zu **16 Meter**.', 64), gfx: { fundy: {} } },
+      { t: T('Wie hoch die Flut wird, bestimmen Küste und Meeresboden. In der kanadischen Fundy-Bucht steigt das Wasser um bis zu **16 Meter**.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Das Mittelmeer hat kaum Gezeiten: Es ist fast geschlossen, durch die schmale Straße von Gibraltar strömt **zu wenig Wasser** nach.', 64), gfx: { mittelmeer: {} } },
       { t: T('Sogar das **feste Land** hebt und senkt sich zweimal am Tag – um einige Dutzend Zentimeter. Du merkst es nur nicht, weil alles mitschwingt.', 64), gfx: { boden: {} } },
       { t: T('Die Gezeiten bremsen sogar die Erde: Ein Tag wird pro Jahrhundert knapp **zwei Millisekunden** länger.', 64), gfx: { tag: {} } },
@@ -1531,7 +1532,7 @@ export const AHA_PHYSIK: Bite[] = [
     hook: 'Im Januar ist die Erde der Sonne am nächsten. Warum ist dann Winter?',
     mood: 'ruhig',
     ambience: 'wind',
-    images: [],
+    images: [img('winter'), img('mitternachtssonne')],
     draw: {
       bahn(g) {
         stars(g, 20, 80, 320, 340, 26, 0, (x, y) => Math.abs((x - 180) / 160) ** 2 + Math.abs((y - 250) / 110) ** 2 < 1.1)
@@ -1837,7 +1838,7 @@ export const AHA_PHYSIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { bahn: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Viele glauben: Im Sommer ist die Erde der Sonne näher. Doch Anfang Januar ist sie ihr am **nächsten** – rund 147 Millionen Kilometer.', 64), gfx: { abstand: {} } },
       { t: T('Anfang Juli sind es 152 Millionen. Der Unterschied ist **klein** – und auf der Südhalbkugel ist im Januar ja gerade Sommer.', 64), gfx: { abstand: { cls: 'a1' } } },
       { t: T('Der wahre Grund: Die Erdachse ist um **23,4 Grad** geneigt. Und sie zeigt das ganze Jahr in dieselbe Richtung, etwa zum Polarstern.', 64), gfx: { achse: {} } },
@@ -1850,7 +1851,7 @@ export const AHA_PHYSIK: Bite[] = [
       { t: T('Steiles Licht und lange Tage heizen auf, flaches Licht und kurze Tage kühlen ab. Das sind die **Jahreszeiten**.', 64), gfx: { thermo2: {} } },
       { t: T('Der kälteste Tag kommt übrigens meist **Wochen nach** dem kürzesten: Boden und Meer geben ihre Sommerwärme nur langsam ab.', 64), gfx: { kalt: {} } },
       { t: T('Am Äquator ändert sich wenig. Die Sonne steht dort immer hoch – statt Sommer und Winter gibt es oft **Regen- und Trockenzeit**.', 64), gfx: { aequator: {} } },
-      { t: T('An den Polen dagegen wird es extrem: monatelang **Polartag**, an dem die Sonne nie untergeht, und monatelang Polarnacht.', 64), gfx: { pol: {} } },
+      { t: T('An den Polen dagegen wird es extrem: monatelang **Polartag**, an dem die Sonne nie untergeht, und monatelang Polarnacht.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Und die Sonnennähe im Januar? Weil die Erde fern der Sonne **langsamer** läuft, dauert das Sommerhalbjahr im Norden sogar rund eine Woche länger.', 64), gfx: { kepler: {} } },
       { t: T('Auf dem Mars ist die Achse ähnlich geneigt, um 25 Grad. Auch dort gibt es Jahreszeiten – nur **fast doppelt so lang**.', 64), gfx: { mars: {} } },
       { t: T('Nicht der Abstand macht den Sommer, sondern **der Winkel**.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
@@ -1865,7 +1866,7 @@ export const AHA_PHYSIK: Bite[] = [
     hook: 'Warum zeigt uns der Mond immer dasselbe Gesicht?',
     mood: 'kosmisch',
     ambience: 'nacht',
-    images: [],
+    images: [img('mond-vorderseite'), img('mond-rueckseite')],
     draw: {
       gross(g) {
         stars(g, 20, 80, 320, 360, 30, 0, (x, y) => Math.hypot(x - 180, y - 250) < 150)
@@ -2069,8 +2070,8 @@ export const AHA_PHYSIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { gross: {} } },
-      { t: T('Egal wann du hinschaust: Vom Mond siehst du immer **dieselben Flecken**. Seine Rückseite sah niemand, bis die Sonde Luna 3 sie 1959 fotografierte.', 64), gfx: { flecken: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
+      { t: T('Egal wann du hinschaust: Vom Mond siehst du immer **dieselben Flecken**. Seine Rückseite sah niemand, bis die Sonde Luna 3 sie 1959 fotografierte.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Dreht sich der Mond also nicht? Im Gegenteil: Er dreht sich genau **einmal pro Umlauf** um sich selbst – in gut 27 Tagen.', 64), gfx: { umlauf: {} } },
       { t: T('Probier es aus: Geh um einen Stuhl herum und schau ihn dabei immer an. Nach einer Runde hast du dich **einmal ganz gedreht**.', 64), gfx: { stuhl: {} } },
       { t: T('Diese perfekte Abstimmung heißt **gebundene Rotation**. Und sie ist kein Zufall.', 64), gfx: { gebunden: {} } },
@@ -2098,7 +2099,7 @@ export const AHA_PHYSIK: Bite[] = [
     hook: 'Wie alt ist das Sonnenlicht auf deiner Haut?',
     mood: 'kosmisch',
     ambience: 'weltraum',
-    images: [],
+    images: [img('sonne-sdo'), img('superkamiokande')],
     draw: {
       gross(g) {
         sunDisk(g, 180, 250, 110)
@@ -2341,7 +2342,7 @@ export const AHA_PHYSIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { gross: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Von der Sonnenoberfläche bis zu dir braucht Licht nur gut **8 Minuten**. Du siehst die Sonne immer so, wie sie vor 8 Minuten war.', 64), gfx: { reise: {} } },
       { t: T('Doch die **Energie** in diesem Licht ist viel älter. Sie entstand tief im Kern der Sonne.', 64), gfx: { schnitt: {} } },
       { t: T('Dort herrschen rund 15 Millionen Grad. Wasserstoffkerne prallen so heftig zusammen, dass sie zu **Helium** verschmelzen.', 64), gfx: { fusion: {} } },
@@ -2356,7 +2357,7 @@ export const AHA_PHYSIK: Bite[] = [
       { t: T('An der Oberfläche, bei rund 5.500 Grad, kann das Licht endlich entkommen. Ab hier fliegt es **ungehindert** zu dir.', 64), gfx: { raus: {} } },
       { t: T('Die Wärme auf deiner Haut begann ihre Reise also, als in Europa noch **Eiszeit** herrschte.', 64), gfx: { eiszeit: {} } },
       { t: T('Ein Teilchen nimmt die Abkürzung: **Neutrinos** aus der Kernfusion fliegen fast ungehindert durch alles – in gut zwei Sekunden aus der Sonne.', 64), gfx: { neutrino: {} } },
-      { t: T('Forscher fangen ein paar davon in riesigen Wassertanks tief unter der Erde. So schauen sie der Sonne **direkt ins Herz**.', 64), gfx: { detektor: {} } },
+      { t: T('Forscher fangen ein paar davon in riesigen Wassertanks tief unter der Erde. So schauen sie der Sonne **direkt ins Herz**.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Durch jeden Quadratzentimeter deiner Haut rasen jede Sekunde rund **60 Milliarden** Sonnen-Neutrinos. Du merkst nichts davon.', 64), gfx: { haut: {} } },
       { t: T('Sonnenlicht ist **uralte Energie** auf einer 8-Minuten-Reise.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
     ],
@@ -2370,7 +2371,7 @@ export const AHA_PHYSIK: Bite[] = [
     hook: 'Warum ist der Nachthimmel eigentlich dunkel?',
     mood: 'kosmisch',
     ambience: 'nacht',
-    images: [],
+    images: [img('milchstrasse'), img('olbers'), img('poe'), img('hornantenne')],
     draw: {
       himmel(g) {
         stars(g, 20, 70, 320, 300, 60, 0)
@@ -2639,21 +2640,21 @@ export const AHA_PHYSIK: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { himmel: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Klingt nach einer Kinderfrage. Doch sie hat Astronomen jahrhundertelang **gequält**.', 64), gfx: { frage: {} } },
       { t: T('Stell dir ein Universum vor, das **unendlich groß** ist, unendlich alt und überall gleichmäßig voller Sterne.', 64), gfx: { sterne: {} } },
       { t: T('Dann träfe dein Blick in **jeder Richtung** irgendwann auf einen Stern – wie in einem dichten Wald, wo du überall auf einen Stamm schaust.', 64), gfx: { wald: {} } },
       { t: T('Ferne Sterne sind zwar schwächer. Aber je weiter du schaust, desto **mehr Sterne** gibt es dort. Beides gleicht sich genau aus.', 64), gfx: { schalen: {} } },
       { t: T('Der ganze Himmel müsste also so hell leuchten wie die **Oberfläche der Sonne** – Tag und Nacht.', 64), gfx: { hell: {} } },
-      { t: T('Das ist das **Olberssche Paradoxon**, benannt nach dem Bremer Arzt und Astronomen Heinrich Wilhelm Olbers.', 64), gfx: { zeitleiste: {} } },
+      { t: T('Das ist das **Olberssche Paradoxon**, benannt nach dem Bremer Arzt und Astronomen Heinrich Wilhelm Olbers.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 30, 1.05], cam2: [50, 30, 1.2] } } },
       { t: T('Die Lösung hat zwei Teile. Erstens: Das Universum ist **nicht unendlich alt**. Es entstand vor 13,8 Milliarden Jahren.', 64), gfx: { alter: {} } },
       { t: T('Licht von Sternen, die weiter weg sind, als Licht in dieser Zeit reisen konnte, hat uns **noch gar nicht erreicht**.', 64), gfx: { horizont: {} } },
       { t: T('Weil sich der Raum seitdem ausgedehnt hat, reicht unser Blick heute **46 Milliarden** Lichtjahre weit – das beobachtbare Universum.', 64), gfx: { beobachtbar: {} } },
       { t: T('Und Sterne leben nicht ewig. Es gibt schlicht **nicht genug** leuchtende Sterne, um jeden Blickwinkel zu füllen.', 64), gfx: { leben: {} } },
-      { t: T('Kurioserweise ahnte das zuerst ein Dichter: **Edgar Allan Poe** schrieb die Idee 1848 in sein Prosagedicht „Eureka“.', 64), gfx: { poe: {} } },
+      { t: T('Kurioserweise ahnte das zuerst ein Dichter: **Edgar Allan Poe** schrieb die Idee 1848 in sein Prosagedicht „Eureka“.', 64), pics: { p2: { img: 2, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 30, 1.05], cam2: [50, 30, 1.2] } } },
       { t: T('Zweitens: Das Universum **dehnt sich aus**. Licht von fernen Galaxien wird dabei gestreckt – rötlicher und schwächer.', 64), gfx: { dehnung: {} } },
       { t: T('Das Leuchten des jungen Universums ist so stark gestreckt, dass es heute als **Mikrowellen** ankommt – unsichtbar für dein Auge.', 64), gfx: { mikrowelle: {} } },
-      { t: T('1965 entdeckten Arno Penzias und Robert Wilson dieses Rauschen zufällig. Erst hielten sie es für **Taubendreck** in ihrer Antenne.', 64), gfx: { antenne: {} } },
+      { t: T('1965 entdeckten Arno Penzias und Robert Wilson dieses Rauschen zufällig. Erst hielten sie es für **Taubendreck** in ihrer Antenne.', 64), pics: { p3: { img: 3, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Hornantenne, Holmdel' } } },
       { t: T('Ein kleiner Teil des **Rauschens** alter Röhrenfernseher stammte von genau diesem Nachglühen des Urknalls.', 64), gfx: { fernseher: {} } },
       { t: T('Der Himmel leuchtet also wirklich in jeder Richtung – nur in einem Licht, das wir **nicht sehen** können.', 64), gfx: { mikrowelle: {} } },
       { t: T('Die dunkle Nacht verrät: Das Universum hatte **einen Anfang**.', 230, { kind: 'big', center: true }), gfx: { ende: {} } },
@@ -2668,7 +2669,7 @@ export const AHA_PHYSIK: Bite[] = [
     hook: 'Was knallt eigentlich beim Überschallknall?',
     mood: 'episch',
     ambience: 'wind',
-    images: [],
+    images: [img('ernst-mach'), img('concorde')],
     draw: {
       kegel(g) {
         // Kampfjet mit Überschall: hinter ihm die Wellenkreise, die sich zum Kegel überlagern
@@ -2889,11 +2890,11 @@ export const AHA_PHYSIK: Bite[] = [
       { t: T('Fliegt es genau mit Schallgeschwindigkeit, stapeln sich alle Wellen vorne zu einer **Wand** aus verdichteter Luft: der „Schallmauer“.', 64), gfx: { gleich: {} } },
       { t: T('Fliegt es schneller, überholt es seine eigenen Wellen. Sie legen sich zu einem **Kegel** zusammen, dem Machschen Kegel.', 64), gfx: { schnell: {} } },
       { t: T('Je schneller der Jet, desto **spitzer** der Kegel. Bei doppelter Schallgeschwindigkeit ist er nur noch 60 Grad weit.', 64), gfx: { schnell: { cls: 'a1' } } },
-      { t: T('Benannt ist er nach **Ernst Mach**: Der österreichische Physiker fotografierte 1887 als Erster die Kegelwelle eines Geschosses.', 64), gfx: { mach: {} } },
+      { t: T('Benannt ist er nach **Ernst Mach**: Der österreichische Physiker fotografierte 1887 als Erster die Kegelwelle eines Geschosses.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [45, 35, 1.05], cam2: [45, 35, 1.2] } } },
       { t: T('Dieser Kegel fegt mit dem Jet über das Land. Wen er erreicht, der hört den **Knall** – egal, wo der Jet „durchgebrochen“ ist.', 64), gfx: { boden: {} } },
       { t: T('Entlang der ganzen Flugroute hören Menschen so nacheinander einen Knall: ein **Knallteppich**, viele Kilometer breit.', 64), gfx: { teppich: {} } },
       { t: T('Meist ist es sogar ein **Doppelknall**: eine Druckwelle vom Bug, eine vom Heck – dazwischen sinkt der Druck.', 64), gfx: { nwelle: {} } },
-      { t: T('Die Concorde flog deshalb nur **über dem Meer** mit Überschall. Über Land war ihr Knall verboten.', 64), gfx: { concorde: {} } },
+      { t: T('Die Concorde flog deshalb nur **über dem Meer** mit Überschall. Über Land war ihr Knall verboten.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Eine **Peitsche** knallt ähnlich: Ihre Spitze wird schneller als der Schall – ein Mini-Überschallknall.', 64), gfx: { peitsche: {} } },
       { t: T('Und der **Donner**? Der Blitz heizt die Luft schlagartig auf rund 30.000 Grad. Sie dehnt sich explosionsartig aus – eine Druckwelle.', 64), gfx: { donner: {} } },
       { t: T('Bei feuchter Luft sieht man um sehr schnelle Jets manchmal eine **Dampfwolke**: Wo der Druck fällt, kondensiert kurz Wasser.', 64), gfx: { dampf: {} } },

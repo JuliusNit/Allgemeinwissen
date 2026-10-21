@@ -7,7 +7,7 @@ import path from 'node:path'
 import sharp from 'sharp'
 
 const OUT = path.resolve('public/feed')
-const UA = 'Allgemeinwissen-App/1.0 (https://github.com/JuliusNit/Allgemeinwissen)'
+const UA = 'AllgemeinwissenBot/1.0 (https://github.com/JuliusNit/Allgemeinwissen; images for an educational app)'
 
 export const IMAGES = {
   "hund-schlaf": "File:Little Man the Pillow (5415264131).jpg",
@@ -120,7 +120,6 @@ export const IMAGES = {
   "popcorn": "File:Day 356 - Photo365 - Popcorn (23894551246).jpg",
   "rost": "File:Mouette tridactyle (Rissa tridactyla) (Ifremer 00555-66706 - 18914).jpg",
   "freiheitsstatue": "File:LibertyStatue.JPG",
-  "mars-oberflaeche": "File:PIA26554A-Mars-CuriosityRover-UbajaraSite-20230430.jpg",
   "steak": "File:Crowd Cow seared steak in a cast iron pan.jpg",
   "brezel": "File:Pretzel, Auntie Annes, Kingston MA.jpg",
   "eiche": "File:Solitary oak tree at Hangthwaite - geograph.org.uk - 7153805.jpg",
@@ -131,6 +130,128 @@ export const IMAGES = {
   "dna-modell": "File:20251019 Replica DNA double helix model Berlin 03.jpg",
   "karyogramm": "File:Human karyotype (248 27) Human karyotype.jpg",
   "blaues-auge": "File:A blue eye.jpg",
+  "petrischale": "File:Colonie batteriche o vita marina?.jpg",
+  "fleming": "File:Professor Alexander Fleming at work in his laboratory at St Mary's Hospital, London, during the Second World War. D17801 (cropped).jpg",
+  "impfung": "File:US Navy 100913-N-8191S-001 Capt. Mark E. Brouker, commanding officer of Naval Hospital Bremerton, is vaccinated for influenza.jpg",
+  "jenner": "File:Edward Jenner vaccinating a boy. Oil painting by E.-E. Hille Wellcome L0029094 (cropped).jpg",
+  "augenhintergrund": "File:Fundus photograph of a healthy right eye (OD) from a myopic female Asian patient. Age 22.png",
+  "espresso": "File:Close-up of espresso machine with two brown coffee cups.jpg",
+  "kaffeekirschen": "File:The fireside university of modern invention, discovery, industry and art for home circle study and entertainment (1902) (14756117666).jpg",
+  "fuchsie": "File:Magenta Beauties (6465210241).jpg",
+  "subpixel": "File:Red-Square-sub-pixel-weirdness.jpg",
+  "karussell": "File:ManègeLR1.jpg",
+  "chili": "File:Red chili peppers drying on a footbridge.jpg",
+  "scoville": "File:Scoville, Wilbur Prof med.jpg",
+  "geburtstagstorte": "File:Italy - birthday cake with candles 5.jpg",
+  "teststreifen": "File:U.S. Air Force Staff Sgt. Thomas C. Sullivan Jr., a laboratory technician assigned to the 319th Medical Support Squadron, places a medical sample into a test tube rack at the medical laboratory on Grand Forks 130522-F-JB669-061.jpg",
+  "b24": "File:Consolidated B-24M Liberator Equipped for Icing Research (GRC-1946-C-15318).jpg",
+  "hochsprung": "File:Iryna Gerashchenko DSC08638.jpg",
+  "galton": "File:Sir Francis Galton, 1890s.jpg",
+  "gefaengnis": "File:Cell bars from the Marshalsea prison, Charles Dickens Museum.jpg",
+  "vampirfledermaus": "File:Desmodus rotundus 91479551.jpg",
+  "roulette": "File:Roulette casino.JPG",
+  "monte-carlo": "File:Monte Carlo Casino, Monaco (Riviera)-LCCN2002707976.jpg",
+  "gorilla": "File:Mountain gorilla (Gorilla beringei beringei) female 2.jpg",
+  "anker": "File:Ship's anchor by HMS Unicorn - geograph.org.uk - 4545244.jpg",
+  "gandhi": "File:Mahatma-Gandhi, studio, 1931.jpg",
+  "muenzwurf": "File:Coin Toss (3635981474).jpg",
+  "golf": "File:Putting Green Butler Park Pitch and Putt Golf Course Austin.jpg",
+  "kapuziner": "File:Capuchin Costa Rica.jpg",
+  "tabletten": "File:Medicine cocktail tablets and pills in glass.jpg",
+  "menschenmenge": "File:Pedestrians on Charles Bridge.jpg",
+  "taschenuhr": "File:Vienna - Vintage pocket watch - 0599.jpg",
+  "strand": "File:Italy-Taormina Beach - Creative Commons by gnuckx (3492293192).jpg",
+  "geldscheine": "File:One stands out 002 2025 01 01.jpg",
+  "sparschwein": "File:-finance -wealth -savings -security -coin.jpg",
+  "simbabwe-schein": "File:Zimbabwe dollar notes 1 to 100 trillion 2007 08 Front.jpg",
+  "inflation-1923": "File:GER-116-Reichsbanknote-10 Billion Mark (1923).jpg",
+  "schafe-weide": "File:Sheep grazing pasture near Drummin - geograph.org.uk - 2058475.jpg",
+  "ostrom": "File:Nobel Prize 2009-Press Conference KVA-30.jpg",
+  "kabeljau": "File:Atlantic Cod, Atlantischer Kabeljau (Gadus morhua).jpg",
+  "eisstand": "File:2016-08-02 Strand Sankt-Peter-Ording 08.jpg",
+  "containerhafen": "File:Container ship NYK Themis at the Port of Los Angeles.jpg",
+  "ricardo": "File:D. Ricardo - engraved by W. Holl. LCCN90708977.jpg",
+  "dampfmaschine": "File:Woolfsche Balanciermaschine 1858.JPG",
+  "jevons": "File:William Stanley Jevons portrait extract.jpg",
+  "diamant": "File:Diamond Hoax P4212651.jpg",
+  "adam-smith": "File:Adam Smith The Muir portrait (cropped 2).jpg",
+  "gerhard-mercator": "File:Gerardus Mercator 3.jpg",
+  "sahara-nacht": "File:Sand dunes, Libyan Desert, Dakhla Oasis, Egypt.jpg",
+  "totes-meer": "File:Swimming in Dead Sea (7) (5365311878).jpg",
+  "meer-wellen": "File:Long Spit Sea of Azov2.jpg",
+  "tsunami": "File:KataNoiReceding.jpg",
+  "dart-boje": "File:Crew of the USCGC William Hart inspect a deep water buoy that measures Tsunamis - 211116-G-G2014-1001.jpg",
+  "erdbeben": "File:Rescue workers near the semi-collapsed ten-story Uranus Building on Xuanyuan Road after the 2024 Hualien earthquake.jpg",
+  "richter": "File:Charles Richter analyzing a seismograph log.jpg",
+  "haiti": "File:Downtown Port au Prince after earthquake.jpg",
+  "wegener": "File:Alfred Wegener ca.1924-30.jpg",
+  "kumulus": "File:White Cumulus Clouds against Blue Sky with Sun Shining.jpg",
+  "hurrikan": "File:Dennis 2005-07-07 1550Z.jpg",
+  "foucault": "File:Foucault pendulum at Panthéon de Paris (24466666577).jpg",
+  "himalaya": "File:Everest, Himalayas.jpg",
+  "ammonit": "File:Ammonite section.JPG",
+  "zugspitze": "File:Zugspitze - Summit (6761797085).jpg",
+  "rechenzentrum": "File:Racks Amravati Data Center.jpg",
+  "touchscreen": "File:Livraria do Senado (22622160063).jpg",
+  "seekabel": "File:Submarine telegraph cable in the early 1900s (1).png",
+  "diffie": "File:Whit Diffie at CFP 2007.jpg",
+  "leibniz": "File:Christoph Bernhard Francke - Bildnis des Philosophen Leibniz (ca. 1695).jpg",
+  "katze": "File:Cat November 2010-1a.jpg",
+  "kao": "File:Charles K. Kao cropped 2.jpg",
+  "mikrowelle": "File:Panasonic MICROWAVE OVEN NN-GM333W.jpg",
+  "radarange": "File:NS Savannah microwave oven MD8.jpg",
+  "kuehlschrank": "File:Open refrigerator with food at night.jpg",
+  "linde": "File:Carl von Linde 1868.jpg",
+  "mondlandung": "File:Buzz Aldrin by Neil Armstrong.jpg",
+  "kleopatra-bueste": "File:Bust of Cleopatra VII - Altes Museum - Berlin - Germany 2017 (2) (cropped).jpg",
+  "keilschrift": "File:Proto cuneiform tablet OIM A02516.jpg",
+  "ea-nasir": "File:Complaint tablet to Ea-Nasir.jpg",
+  "astro-tafel": "File:MulApin-BritishMuseum.jpg",
+  "winterpalast": "File:00 2038 Winter Palace - Hermitage Museum (St. Petersburg).jpg",
+  "gregor": "File:Lavinia Fontana - Portrait of Pope Gregory XIII.jpg",
+  "revolutionskalender": "File:Calendrier-republicain-debucourt2.jpg",
+  "franz-ferdinand": "File:Franz Ferdinand & Sophie Leave Sarajevo Guildhall.jpg",
+  "princip": "File:Gavrilo Princip, cell, headshot, bw (cropped).jpg",
+  "berliner-mauer": "File:Berlinermauer.jpg",
+  "schabowski": "File:Schabowski-notizzettel.jpg",
+  "mauerfall": "File:0576 1989 BERLIN Mauer (1 december) (14285537256).jpg",
+  "caesar": "File:Bust of Julius Caesar.jpg",
+  "bahnhofsuhr": "File:2019 at Penrith station - platform clock.jpg",
+  "greenwich": "File:View of the Royal Observatory Greenwich from One Tree Hill in Greenwich Park, London, 20260719 0940 4508.jpg",
+  "marathon": "File:Berlin-Marathon 2015 Runners 14.jpg",
+  "pietri": "File:Dorando Pietri 1908b.jpg",
+  "phoenizisch": "File:Idalion Phoenician archive 12.jpg",
+  "joachimsthaler": "File:Joachimsthaler (19774165530).jpg",
+  "jachymov": "File:Jáchymov radnice muzeum.JPG",
+  "pandora": "File:John William Waterhouse - Pandora, 1896.jpg",
+  "trojanisches-pferd": "File:The Procession of the Trojan Horse in Troy by Giovanni Domenico Tiepolo (cropped).jpg",
+  "schliemann": "File:Heinrich Schliemann Kohn BNF Gallica.jpg",
+  "klavier": "File:Piano keys jacob.jpg",
+  "baptisterium": "File:Florence Baptistery - South Door - Annunciation.jpg",
+  "masaccio": "File:Masaccio 003.jpg",
+  "strebebogen": "File:Amiens Cathedral gallery roof and buttresses 1980-1.jpg",
+  "kirchenfenster": "File:2017-07-29 France, Paris DSC 2711 DxO 2.jpg",
+  "koelner-dom": "File:Kölner Dom von Osten.jpg",
+  "filmprojektor": "File:Movie projector monument in Stolin 01.jpg",
+  "muybridge": "File:The Horse in Motion high res.jpg",
+  "trireme": "File:The trireme Olympias on 23 February 2019.jpg",
+  "plutarch": "File:Plutarch of Chaeronea-03 (cropped).jpg",
+  "schildkroete": "File:Radiated tortoise (Astrochelys radiata) Tsimanampetsotsa.jpg",
+  "ockham": "File:William of Ockham - Logica - 1341.jpg",
+  "gehirn": "File:Brain model 12.jpg",
+  "schmetterling": "File:Peacock butterfly (Aglais io) 2.jpg",
+  "bundestag": "File:Bundestag - Palais du Reichstag.jpg",
+  "stimmzettel": "File:Stimmzettel Bundestagswahl 1949.jpg",
+  "gerry-mander": "File:Natural and political history of the Gerry-mander! (6094165372).jpg",
+  "bellevue": "File:Berlin Schloss Bellevue (S07 1695).jpg",
+  "hindenburg": "File:Paul von Hindenburg in 1933.jpg",
+  "windsor": "File:King George IV Gate in the South Wing of Castle. Windsor, UK.jpg",
+  "chirurgen": "File:Surgeons in the operating room.jpg",
+  "gaensehaut": "File:2003-09-17 Goose bumps.jpg",
+  "schachbrett": "File:Schachfiguren, Bauern -- 2022 -- 0022 (bw).jpg",
+  "papierstapel": "File:Stack of Copy Paper.jpg",
+  "kurstabellen": "File:Stock market charts illustration.jpg",
+  "menschen-abend": "File:Crowd at a party (Unsplash).jpg",
 }
 async function thumb(title) {
   try {
@@ -176,14 +297,21 @@ for (const [name, title] of Object.entries(IMAGES)) {
   const file = path.join(OUT, `${name}.webp`)
   if (only.length ? !only.includes(name) : fs.existsSync(file)) continue
   try {
-    let url = await thumb(title)
+    // Wikimedia liefert nur Standardbreiten aus (z. B. 960, 500); andere Größen werden abgelehnt oder gedrosselt
+    const orig = (await thumb(title)).replace(/\/thumb(\/[0-9a-f]\/[0-9a-f]{2}\/[^/]+)\/.*$/, '$1')
+    const file0 = orig.split('/').pop()
+    const tries = /\.(jpe?g|png|tiff?)$/i.test(file0)
+      ? [960, 500].map((w) => orig.replace(/(\/commons)(\/[0-9a-f]\/[0-9a-f]{2}\/)/, `$1/thumb$2`) + `/${w}px-${file0}${/\.tiff?$/i.test(file0) ? '.jpg' : ''}`)
+      : []
+    tries.push(orig)
     let res
-    for (let i = 0; i < 6; i++) {
-      res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(60000) })
-      if (res.status !== 429) break
-      // Vorschaugrößen werden bei Last gedrosselt – dann die Originaldatei nehmen
-      if (i === 1 && url.includes('/thumb/')) url = await fromPage(title)
-      await new Promise((r) => setTimeout(r, 4000 * (i + 1)))
+    for (const url of tries) {
+      for (let i = 0; i < 3; i++) {
+        res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(60000) })
+        if (res.status !== 429) break
+        await new Promise((r) => setTimeout(r, (Number(res.headers.get('retry-after') ?? 5) + 3) * 1000))
+      }
+      if (res.ok) break
     }
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const buf = Buffer.from(await res.arrayBuffer())

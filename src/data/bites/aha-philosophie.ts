@@ -1,4 +1,5 @@
 import type { Bite } from '../feed'
+import { img } from './img'
 import { B, E, HOOK, L, RR, T, arrow, blank, brain, check, cross, dashes, eye, fig, hatch, hbars, ink, question, text, timeline, type P } from './draw'
 import { ball, box, bullets, carrow, dot, plot, waveP } from './kit'
 
@@ -114,7 +115,7 @@ export const AHA_PHILOSOPHIE: Bite[] = [
     hook: 'Ist ein Schiff noch dasselbe, wenn man jede Planke austauscht?',
     mood: 'raetsel',
     ambience: 'wellen',
-    images: [],
+    images: [img('trireme'), img('plutarch')],
     draw: {
       schiff(g) {
         ink(g, waveP(20, 340, 382, 4, 60), { w: 2.2, t: 700 })
@@ -179,8 +180,8 @@ export const AHA_PHILOSOPHIE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { schiff: {} } },
-      { t: T('Der griechische Schriftsteller **Plutarch** erzählt: Die Athener bewahrten das Schiff ihres Helden Theseus jahrhundertelang auf.', 64), gfx: { plutarch: {} } },
+      { t: HOOK(456), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 370, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Nachbau einer griechischen Triere' } } },
+      { t: T('Der griechische Schriftsteller **Plutarch** erzählt: Die Athener bewahrten das Schiff ihres Helden Theseus jahrhundertelang auf.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 35, 1.2], cap: 'Plutarch, Delphi' } } },
       { t: T('Wurde eine Planke morsch, ersetzten sie sie durch eine **neue**. Das Schiff blieb im Hafen, sorgfältig gepflegt.', 64), gfx: { eine: {} } },
       { t: T('Nach einer Weile war die **Hälfte** der Planken ausgetauscht. Ist es noch das Schiff des Theseus?', 64), gfx: { halb: {} } },
       { t: T('Irgendwann stammte **keine einzige** Planke mehr vom Original. Und doch zeigten die Athener stolz: das Schiff des Theseus.', 64), gfx: { alle: {} } },
@@ -209,7 +210,7 @@ export const AHA_PHILOSOPHIE: Bite[] = [
     hook: 'Kann Achilles eine Schildkröte jemals einholen?',
     mood: 'raetsel',
     ambience: 'atem',
-    images: [],
+    images: [img('schildkroete')],
     draw: {
       rennen(g) {
         ink(g, L([20, 380], [340, 380]), { w: 2.4, t: 500 })
@@ -285,7 +286,7 @@ export const AHA_PHILOSOPHIE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { rennen: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Ein Rätsel des Philosophen **Zenon von Elea**, rund 2.500 Jahre alt.', 64), gfx: { zenon: {} } },
       { t: T('Der schnelle Held Achilles läuft mit einer Schildkröte um die Wette. Sie bekommt **100 Meter Vorsprung**.', 64), gfx: { vorsprung: {} } },
       { t: T('Achilles rennt los. Bis er die 100 Meter geschafft hat, ist die Schildkröte ein Stück weiter – sagen wir **10 Meter**.', 64), gfx: { schritte: {} } },
@@ -314,7 +315,7 @@ export const AHA_PHILOSOPHIE: Bite[] = [
     hook: 'Warum ist die einfachste Erklärung meist die beste?',
     mood: 'raetsel',
     ambience: 'nacht',
-    images: [],
+    images: [img('ockham')],
     draw: {
       messer(g) {
         ink(g, [[60, 300], [260, 230], [300, 240], [80, 310], [60, 300]], { w: 2.8, t: 600 })
@@ -391,7 +392,7 @@ export const AHA_PHILOSOPHIE: Bite[] = [
     },
     scenes: [
       { t: HOOK(476), gfx: { messer: {} } },
-      { t: T('Die Idee trägt den Namen eines Mönchs: **Wilhelm von Ockham**, ein englischer Franziskaner des 14. Jahrhunderts.', 64), gfx: { wilhelm: {} } },
+      { t: T('Die Idee trägt den Namen eines Mönchs: **Wilhelm von Ockham**, ein englischer Franziskaner des 14. Jahrhunderts.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: '„Frater Occham“, Handschrift 1341' } } },
       { t: T('Sie heißt **Ockhams Rasiermesser**: Schneide alles weg, was du für eine Erklärung nicht brauchst.', 64), gfx: { messer: { tf: [1, 0, 220] } } },
       { t: T('Ein Beispiel: Nachts **poltert** es auf dem Dachboden.', 64), gfx: { dachboden: {} } },
       { t: T('Erklärung A: ein **Marder**. Erklärung B: ein Geist.', 64), gfx: { erklaerungen: {} } },
@@ -420,7 +421,7 @@ export const AHA_PHILOSOPHIE: Bite[] = [
     hook: 'Woher weißt du, dass du gerade nicht träumst?',
     mood: 'kosmisch',
     ambience: 'nacht',
-    images: [],
+    images: [img('gehirn'), img('schmetterling')],
     draw: {
       tank(g) {
         vat(g, 180, 420, 1.3)
@@ -472,7 +473,7 @@ export const AHA_PHILOSOPHIE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { tank: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Im Traum wirkt alles **echt**. Erst beim Aufwachen merkst du, dass es keiner war.', 64), gfx: { traum: {} } },
       { t: T('Woher weißt du also, dass du **jetzt** wach bist? Vielleicht wachst du gleich auf.', 64), gfx: { traum: {} } },
       { t: T('Der französische Philosoph **René Descartes** stellte diese Frage 1641 – und ging noch weiter.', 64), gfx: { descartes: {} } },
@@ -485,7 +486,7 @@ export const AHA_PHILOSOPHIE: Bite[] = [
       { t: T('Könntest du von innen herausfinden, ob du so ein Gehirn bist? Die unbequeme Antwort: **wohl kaum**.', 64), gfx: { tank: { tf: [1, 0, 220] } } },
       { t: T('Der Philosoph Nick Bostrom fragte 2003 sogar: Wenn künftige Zivilisationen viele Welten **simulieren**, leben wir dann wahrscheinlich in einer?', 64), gfx: { matrix: {} } },
       { t: T('Der Film **Matrix** von 1999 machte genau diese Idee berühmt.', 64), gfx: { matrix: {} } },
-      { t: T('Die Frage ist uralt. Der chinesische Denker **Zhuangzi** träumte, ein Schmetterling zu sein. Beim Aufwachen fragte er sich: Bin ich ein Mensch, der träumte – oder ein Schmetterling, der jetzt träumt?', 64), gfx: { zhuangzi: {} } },
+      { t: T('Die Frage ist uralt. Der chinesische Denker **Zhuangzi** träumte, ein Schmetterling zu sein. Beim Aufwachen fragte er sich: Bin ich ein Mensch, der träumte – oder ein Schmetterling, der jetzt träumt?', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Der Brite G. E. Moore antwortete 1939 trotzig: „Hier ist eine **Hand**.“ Das sei sicherer als jedes Argument dagegen.', 64), gfx: { moore: {} } },
       { t: T('Putnam selbst meinte übrigens, der Satz „Ich bin ein Gehirn im Tank“ könne gar nicht **wahr** sein – weil die Wörter eines Tankgehirns sich nicht auf echte Tanks bezögen.', 64), gfx: { ende: {} } },
       { t: T('Andere sagen: Selbst wenn alles simuliert wäre, wären deine Freunde, Gefühle und Erfahrungen **echt für dich**.', 64), gfx: { ende: {} } },
@@ -503,7 +504,7 @@ export const AHA_PHILOSOPHIE: Bite[] = [
     hook: 'Warum ist bei der Bundestagswahl die Zweitstimme wichtiger?',
     mood: 'hell',
     ambience: 'stadt',
-    images: [],
+    images: [img('bundestag'), img('stimmzettel')],
     draw: {
       zettel(g) {
         ballot(g, 40, 110, 280, 200)
@@ -573,8 +574,8 @@ export const AHA_PHILOSOPHIE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { zettel: {} } },
-      { t: T('Auf dem Stimmzettel für den Bundestag hast du **zwei Kreuze**. Links die Erststimme, rechts die Zweitstimme.', 64), gfx: { zettel: { tf: [1, 0, 250] } } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
+      { t: T('Auf dem Stimmzettel für den Bundestag hast du **zwei Kreuze**. Links die Erststimme, rechts die Zweitstimme.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: 'Stimmzettel 1949 – damals nur eine Stimme' } } },
       { t: T('Mit der **Erststimme** wählst du eine Person: wer deinen Wahlkreis im Bundestag vertreten soll.', 64), gfx: { erst: {} } },
       { t: T('Deutschland ist in **299 Wahlkreise** eingeteilt. In jedem gewinnt, wer die meisten Erststimmen hat.', 64), gfx: { wahlkreise: {} } },
       { t: T('Mit der **Zweitstimme** wählst du eine Partei – genauer: ihre Landesliste.', 64), gfx: { zweit: {} } },
@@ -604,7 +605,7 @@ export const AHA_PHILOSOPHIE: Bite[] = [
     hook: 'Kann man eine Wahl gewinnen, indem man Grenzen verschiebt?',
     mood: 'raetsel',
     ambience: 'stadt',
-    images: [],
+    images: [img('gerry-mander')],
     draw: {
       karte(g) {
         voters(g, 80, 110, 5, 40, [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0])
@@ -677,7 +678,7 @@ export const AHA_PHILOSOPHIE: Bite[] = [
       { t: T('Und mit geschickt geformten Kreisen kann sogar die **Minderheit** gewinnen: Leer holt drei von fünf.', 64), gfx: { umgekehrt: {} } },
       { t: T('Dieselben Wähler, dieselben Stimmen – und doch ein **völlig anderes** Parlament.', 64), gfx: { umgekehrt: {} } },
       { t: T('Wer die Grenzen zieht, kann also das Ergebnis **vorher festlegen** – ohne eine einzige Stimme zu fälschen.', 64), gfx: { umgekehrt: {} } },
-      { t: T('Das heißt **Gerrymandering**. Der Name geht auf Elbridge Gerry zurück, Gouverneur von Massachusetts.', 64), gfx: { gerry: {} } },
+      { t: T('Das heißt **Gerrymandering**. Der Name geht auf Elbridge Gerry zurück, Gouverneur von Massachusetts.', 64), pics: { p0: { img: 0, x: 16, y: 268, w: 328, h: 350, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2], cap: '„The Gerry-Mander“, 1812' } } },
       { t: T('1812 unterschrieb er neue Wahlkreise. Einer davon war so verschlungen, dass Zeitungen ihn als **Salamander** zeichneten: Gerry-mander.', 64), gfx: { salamander: {} } },
       { t: T('Die zwei Grundtricks: **Packing** – man presst die Gegner in wenige Kreise, die sie haushoch gewinnen.', 64), gfx: { packen: {} } },
       { t: T('Und **Cracking** – man verteilt sie so auf viele Kreise, dass sie überall knapp verlieren.', 64), gfx: { packen: {} } },
@@ -701,7 +702,7 @@ export const AHA_PHILOSOPHIE: Bite[] = [
     hook: 'Warum wählen wir den Bundespräsidenten nicht direkt?',
     mood: 'ruhig',
     ambience: 'glocke',
-    images: [],
+    images: [img('bellevue'), img('hindenburg')],
     draw: {
       schloss(g) {
         ink(g, L([20, 400], [340, 400]), { w: 2.6, t: 500 })
@@ -772,12 +773,12 @@ export const AHA_PHILOSOPHIE: Bite[] = [
       },
     },
     scenes: [
-      { t: HOOK(476), gfx: { schloss: {} } },
+      { t: HOOK(476), pics: { p0: { img: 0, x: 16, y: 56, w: 328, h: 400, enter: 'blot', cam: [50, 45, 1.05], cam2: [50, 45, 1.2] } } },
       { t: T('Die Antwort liegt in der Geschichte – in der **Weimarer Republik**, Deutschlands erster Demokratie.', 64), gfx: { weimar: {} } },
       { t: T('Ihr Reichspräsident wurde **direkt vom Volk** gewählt – und hatte enorme Macht.', 64), gfx: { macht: {} } },
       { t: T('Er konnte mit **Notverordnungen** am Parlament vorbei regieren, Kanzler ernennen und entlassen, den Reichstag auflösen.', 64), gfx: { macht: {} } },
       { t: T('In der Krise ab 1930 regierten Kanzler fast nur noch mit seinen Verordnungen. Das Parlament war **ausgeschaltet**.', 64), gfx: { macht: {} } },
-      { t: T('Im Januar 1933 ernannte Reichspräsident **Hindenburg** Adolf Hitler zum Reichskanzler.', 64), gfx: { weimar: {} } },
+      { t: T('Im Januar 1933 ernannte Reichspräsident **Hindenburg** Adolf Hitler zum Reichskanzler.', 64), pics: { p1: { img: 1, x: 16, y: 268, w: 328, h: 380, enter: 'blot', cam: [50, 35, 1.05], cam2: [50, 35, 1.2] } } },
       { t: T('Die Väter und Mütter des Grundgesetzes zogen 1949 die Lehre: Das Staatsoberhaupt soll **wenig politische Macht** haben.', 64), gfx: { gg: {} } },
       { t: T('Darum wählt den Bundespräsidenten die **Bundesversammlung**: alle Bundestagsabgeordneten und ebenso viele Delegierte der Landesparlamente.', 64), gfx: { versammlung: {} } },
       { t: T('Unter den Delegierten sind oft auch **Prominente** – Sportlerinnen, Schauspieler, Ärztinnen.', 64), gfx: { versammlung: {} } },
