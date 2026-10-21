@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, bolt, check, clock, cross, dashes, fig, globe, hatch, hbars, ink, mk, mountain, pop, question, rays, st, star, text, timeline, type P } from './draw'
-import { LAND, arcArrow, ball, bird, bullets, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, flow, geo, glide, house, jet, mapRegion, mol, moonFace, rad, rain, ripple, rotPole, smooth, spin, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, check, cross, dashes, fig, hatch, ink, mk, mountain, pop, question, rays, st, star, text, timeline, type P } from './draw'
+import { LAND, arcArrow, ball, bird, carrow, clipBox, cloud, coastPts, dot, drop, earth, flake, flame, flow, geo, glide, house, jet, mapRegion, mol, moonFace, rad, rain, ripple, rotPole, smooth, spin, stars, sunDisk, thermo, travelWave, tree, water, waveP, wobble, worldMap } from './kit'
 
 // Erde & Wetter: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -1825,85 +1825,192 @@ export const AHA_ERDE: Bite[] = [
     images: [],
     draw: {
       wanne(g) {
-        ink(g, [...B([40, 200], [40, 380], [320, 380], [320, 200])], { w: 3, t: 700 })
-        ink(g, waveP(46, 314, 240, 3, 50), { w: 2, d: 300, t: 500 })
-        arcArrow(g, 180, 296, 22, 0, 300, { d: 700 })
+        // Badewanne auf Löwenfüßen, Wasserhahn, Strudel über dem Abfluss
+        const tub: P[] = [[30, 220], ...B([30, 220], [36, 380], [324, 380], [330, 220]).slice(1)]
+        ink(g, tub, { w: 3.2, t: 800 })
+        ink(g, L([24, 220], [336, 220]), { w: 3, d: 100, t: 500 })
+        for (const x of [80, 280]) ink(g, B([x, 334], [x - 8, 360], [x + 4, 380], [x - 10, 396]), { w: 3, d: 500, t: 200 })
+        ink(g, [[300, 220], [300, 170], [270, 170], [270, 182]], { w: 3, d: 400, t: 300 })
+        ink(g, RR(292, 156, 16, 8, 3), { w: 1.8, d: 500, t: 100 })
+        ink(g, waveP(40, 320, 250, 2.5, 40), { w: 2, d: 300, t: 500 })
+        hatch(g, [[40, 254], [320, 254], [314, 340], [46, 340]], 500)
+        const v = spin(g, 180, 300, -1800, 900)
+        for (let k = 0; k < 3; k++) {
+          const p: P[] = Array.from({ length: 30 }, (_, i) => {
+            const a = rad(k * 120 + i * 12)
+            const r = 4 + i * 1.4
+            return [180 + Math.cos(a) * r, 300 + Math.sin(a) * r * 0.4] as P
+          })
+          ink(v, p, { w: 1.6, d: 700, t: 300 })
+        }
+        ink(g, E(180, 360, 10, 4), { w: 2, d: 600, t: 150 })
+        for (let k = 0; k < 4; k++) {
+          const b = glide(g, 0, -30, { ms: 1400, d: 1000 + k * 300, loop: true })
+          ink(b, E(100 + k * 50, 300, 3 + (k % 2) * 2), { w: 1, d: 900, t: 80 })
+        }
       },
       erde(g) {
-        globe(g, 180, 470, 110)
-        arcArrow(g, 180, 350, 60, 200, 340, { d: 1100 })
+        // Erde mit Drehpfeil um die geneigte Achse
+        earth(g, 180, 480, 120, 0, { lon: -20, lat: 20, grid: true })
+        ink(g, L([180 - Math.sin(rad(23)) * 150, 480 - Math.cos(rad(23)) * 150], [180 + Math.sin(rad(23)) * 150, 480 + Math.cos(rad(23)) * 150]), { w: 1.6, d: 800, t: 400 })
+        arcArrow(g, 180 - Math.sin(rad(23)) * 130, 480 - Math.cos(rad(23)) * 130, 26, 200, 520, { d: 1100 })
       },
       karussell(g) {
-        ink(g, E(180, 480, 120, 40), { w: 3, t: 700 })
-        arcArrow(g, 180, 480, 140, 20, 160, { d: 400 })
-        ball(g, 120, 470, 8, { fill: 'dicht', d: 600 })
-        ink(g, B([128, 470], [170, 466], [210, 476], [250, 500]), { w: 2.2, d: 900, t: 600 })
-        text(g, 180, 656, 'der Ball scheint abzubiegen', { anchor: 'middle', cls: 's', d: 1200 })
+        // Karussell von oben: der Ball fliegt geradeaus (gestrichelt), für die Mitfahrenden biegt er ab
+        ink(g, E(180, 480, 140, 60), { w: 3, t: 700 })
+        ink(g, B([40, 480], [44, 500], [316, 500], [320, 480]), { w: 2, d: 200, t: 500 })
+        for (let k = 0; k < 8; k++) {
+          const a = rad(k * 45)
+          ink(g, L([180, 480], [180 + Math.cos(a) * 130, 480 + Math.sin(a) * 54]), { w: 0.8, d: 300 + k * 30, t: 200 })
+        }
+        ink(g, E(180, 480, 14, 6), { w: 2, d: 400, t: 150 })
+        arcArrow(g, 180, 480, 160, 30, 150, { d: 600 })
+        fig(g, 90, 494, 1.4, { d: 700, arms: 'push' })
+        dashes(g, L([104, 456], [300, 420]), { w: 1.4, d: 1000, dash: 5, gap: 4 })
+        ink(g, B([104, 456], [170, 442], [230, 450], [270, 486]), { w: 2.4, d: 1300, t: 600 })
+        const b = glide(g, 166, 30, { ms: 1600, d: 1800, loop: true })
+        ball(b, 104, 456, 6, { d: 1700, fill: 'dicht', w: 1.4, t: 60 })
       },
       ablenkung(g) {
-        ink(g, E(180, 470, 110), { w: 3, t: 800 })
-        dashes(g, L([72, 470], [288, 470]), { w: 1.4, d: 400 })
-        for (const [y, k] of [[410, 1], [530, -1]] as const) carrow(g, [130, y], [230, y], 20 * k, { d: 900 })
-        text(g, 180, 330, 'Norden: nach rechts', { anchor: 'middle', cls: 's', d: 1100 })
-        text(g, 180, 620, 'Süden: nach links', { anchor: 'middle', cls: 's', d: 1200 })
+        // Erde: Bewegungen nach Norden/Süden werden im Norden rechts, im Süden links abgelenkt
+        earth(g, 180, 480, 140, 0, { lon: -30, lat: 0, grid: true })
+        for (const [y, k] of [[400, -1], [560, 1]] as const) {
+          dashes(g, L([150, y], [150, y + k * 50]), { w: 1.4, d: 800, dash: 4, gap: 4 })
+          carrow(g, [150, y], [190, y + k * 50], 14 * -k, { d: 1000 })
+          dashes(g, L([230, y + k * 50], [230, y]), { w: 1.4, d: 1200, dash: 4, gap: 4 })
+        }
+        ink(g, L([40, 480], [320, 480]), { w: 2, d: 600, t: 400 })
       },
       hurrikan(g) {
-        for (const [cx, dir] of [[100, -1], [260, 1]] as const) {
-          const p: P[] = []
-          for (let i = 0; i <= 80; i++) {
-            const a = (i / 80) * Math.PI * 4
-            const r = 8 + a * 4.5
-            p.push([cx + Math.cos(a * dir) * r, 470 + Math.sin(a * dir) * r])
+        // Erdkugel mit zwei Wirbelstürmen: im Norden gegen, im Süden mit dem Uhrzeiger
+        earth(g, 180, 480, 150, 0, { lon: -80, lat: 0, grid: false })
+        for (const [cy, dir] of [[400, -1], [570, 1]] as const) {
+          const sp = spin(g, 200, cy, dir * 6000, 1000)
+          for (let k = 0; k < 3; k++) {
+            const p: P[] = Array.from({ length: 40 }, (_, i) => {
+              const a = dir * (rad(k * 120) + (i / 40) * Math.PI * 1.6)
+              const r = 8 + i * 1.3
+              return [200 + Math.cos(a) * r, cy + Math.sin(a) * r * 0.8] as P
+            })
+            blank(sp, p.map(([x, y]) => [x, y] as P))
+            ink(sp, p, { w: 3, d: 600 + k * 100, t: 400 })
           }
-          ink(g, p, { w: 2.2, t: 900, d: cx === 100 ? 0 : 400 })
+          blank(sp, E(200, cy, 6))
+          ink(sp, E(200, cy, 6), { w: 1.6, d: 900, t: 100 })
         }
-        text(g, 100, 580, 'Norden', { anchor: 'middle', cls: 's', d: 1000 })
-        text(g, 260, 580, 'Süden', { anchor: 'middle', cls: 's', d: 1100 })
       },
       winzig(g) {
-        hbars(g, [
-          { label: 'Hurrikan', v: 100, fmt: () => 'Hunderte km', dense: true },
-          { label: 'Badewanne', v: 1, fmt: () => 'ein halber Meter' },
-        ], { x: 30, y: 400, w: 300, h: 40, gap: 80 })
-        text(g, 180, 590, 'Coriolis wirkt erst auf große Strecken', { anchor: 'middle', cls: 's', d: 1200 })
+        // Wanne von oben: große Restströmungen vom Einfüllen, in der Lupe der winzige Coriolis-Pfeil
+        ink(g, RR(30, 340, 300, 180, 70), { w: 3, t: 700 })
+        ink(g, E(240, 430, 10), { w: 2, d: 300, t: 150 })
+        for (const [cx, cy, r, a0, a1] of [[120, 420, 60, 200, 470], [220, 450, 50, -20, 250]] as const) arcArrow(g, cx, cy, r, a0, a1, { d: 600 })
+        flow(g, E(140, 430, 70, 50), { n: 4, ms: 2400, d: 900, r: 2 })
+        blank(g, E(250, 590, 50))
+        ink(g, E(250, 590, 50), { w: 2.6, d: 1100, t: 300 })
+        ink(g, L([216, 554], [200, 520]), { w: 2, d: 1200, t: 150 })
+        arrow(g, L([240, 590], [252, 590]), { w: 1.2, d: 1500, t: 100, head: 4 })
       },
       stoerung(g) {
-        bullets(g, 40, 380, ['Form des Beckens', 'Restströmung beim Einfüllen', 'Lage des Abflusses', 'Temperaturunterschiede'], { gap: 50, size: 18 })
+        // vier Störenfriede: schiefe Wanne, Abfluss am Rand, Schwung vom Wasserhahn, warmes und kaltes Wasser
+        const panel = (x: number, y: number, d: number) => ink(g, RR(x, y, 150, 140, 40), { w: 2.2, d, t: 400 })
+        panel(20, 320, 0)
+        panel(190, 320, 200)
+        panel(20, 490, 400)
+        panel(190, 490, 600)
+        ink(g, [[40, 440], [150, 410]], { w: 1.6, d: 800, t: 200 })
+        ink(g, E(60, 400, 6), { w: 1.6, d: 900, t: 100 })
+        arcArrow(g, 80, 400, 24, 0, 270, { d: 1000 })
+        ink(g, E(330, 390, 7), { w: 1.6, d: 900, t: 100 })
+        arcArrow(g, 300, 390, 34, 180, 450, { d: 1100 })
+        ink(g, [[60, 520], [60, 500], [100, 500]], { w: 2.4, d: 900, t: 200 })
+        flow(g, B([60, 524], [60, 560], [110, 590], [140, 570]), { n: 3, ms: 1200, d: 1200, r: 2 })
+        thermo(g, 230, 510, 80, 0.7, 900)
+        for (const [x, dir] of [[290, -1], [320, 1]] as const) {
+          const p = L([x, 610], [x, 530])
+          flow(g, dir < 0 ? p : p.slice().reverse(), { n: 2, ms: 1600, d: 1300, r: 2, kind: dir < 0 ? 'dot' : 'ring' })
+        }
       },
       shapiro(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.45, label: '1962', sub: 'Ascher Shapiro, MIT', up: true }])
+        // Laborbecken (1,8 m Durchmesser) auf einem Gestell, abgedeckt, Thermometer, Abflussrohr mit Hahn
+        ink(g, E(180, 420, 140, 34), { w: 3, t: 700 })
+        ink(g, B([40, 420], [46, 500], [314, 500], [320, 420]), { w: 3, d: 200, t: 600 })
+        hatch(g, [...E(180, 432, 130, 26, 0, 180), [50, 432]], 700)
+        dashes(g, E(180, 408, 150, 38), { w: 1.2, d: 500, dash: 5, gap: 4 })
+        for (const x of [70, 290]) ink(g, L([x, 496], [x - 10, 620]), { w: 2.6, d: 600, t: 300 })
+        ink(g, L([180, 500], [180, 600]), { w: 3, d: 700, t: 300 })
+        ink(g, [[172, 580], [188, 580]], { w: 4, d: 800, t: 100 })
+        thermo(g, 300, 330, 70, 0.4, 900)
+        fig(g, 40, 640, 3, { d: 900, arms: 'down' })
+        ink(g, L([20, 640], [340, 640]), { w: 2.2, d: 300, t: 400 })
       },
       becken(g) {
-        ink(g, E(180, 470, 110, 110), { w: 3, t: 800 })
-        clock(g, 180, 470, 50, 0, 0, 400)
-        text(g, 180, 620, '24 Stunden ruhen lassen', { anchor: 'middle', cls: 's', d: 900 })
+        // Becken von oben, eine Uhr läuft 24 Stunden; a1: das Wasser beginnt sich gegen den Uhrzeiger zu drehen
+        ink(g, E(180, 470, 130), { w: 3, t: 800 })
+        ink(g, E(180, 470, 120), { w: 1.2, d: 200, t: 800 })
+        for (let k = 1; k < 4; k++) ink(g, E(180, 470, k * 26), { w: 0.8, d: 400 + k * 100, t: 300 })
+        ink(g, E(300, 330, 26), { w: 2.2, d: 500, t: 300 })
+        const h = spin(g, 300, 330, 1500, 900)
+        ink(h, L([300, 330], [300, 312]), { w: 2, d: 800, t: 100 })
+        const x1 = st(g, 'x1', '--o: 180px 470px')
+        const v = spin(x1, 180, 470, -5000, 0)
+        for (let k = 0; k < 3; k++) {
+          const p: P[] = Array.from({ length: 40 }, (_, i) => {
+            const a = -(rad(k * 120) + (i / 40) * Math.PI * 1.4)
+            const r = 10 + i * 2.5
+            return [180 + Math.cos(a) * r, 470 + Math.sin(a) * r] as P
+          })
+          ink(v, p, { w: 1.8, t: 0 })
+        }
+        arcArrow(x1, 180, 470, 110, 60, -60, { d: 0 })
       },
       trick(g) {
-        fig(g, 90, 600, 3.6)
-        ink(g, RR(160, 480, 140, 60, 6), { w: 2.6, d: 300, t: 400 })
-        arcArrow(g, 230, 510, 20, 0, 300, { d: 700 })
-        text(g, 230, 580, 'am Äquator', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 180, 640, 'der Trick: vorher umrühren', { anchor: 'middle', cls: 's', d: 1100 })
+        // Straßenkünstler an der Äquatorlinie: Schüssel mit Wasser, Touristen schauen zu
+        dashes(g, L([180, 640], [180, 420]), { w: 3, d: 0, dash: 10, gap: 6 })
+        ink(g, L([20, 640], [340, 640]), { w: 2.2, t: 400 })
+        ink(g, L([180, 420], [180, 340]), { w: 2.4, d: 300, t: 200 })
+        ink(g, E(180, 330, 16), { w: 2, d: 400, t: 200 })
+        ink(g, L([164, 330], [196, 330]), { w: 1.2, d: 500, t: 100 })
+        fig(g, 110, 640, 3.4, { d: 600, arms: 'push' })
+        ink(g, [[150, 540], [160, 570], [210, 570], [220, 540]], { w: 2.4, d: 800, t: 300 })
+        ink(g, E(185, 540, 35, 7), { w: 1.6, d: 900, t: 200 })
+        const v = spin(g, 185, 548, 2000, 1200)
+        ink(v, E(185, 548, 18, 4, 0, 300), { w: 1.6, d: 1100, t: 200 })
+        for (const x of [260, 300]) fig(g, x, 640, 3, { d: 1000, arms: 'cross' })
       },
       aequator(g) {
-        ink(g, E(180, 470, 100), { w: 3, t: 800 })
-        ink(g, L([82, 470], [278, 470]), { w: 2.2, d: 600, t: 400 })
-        text(g, 180, 610, 'am Äquator: keine Ablenkung', { anchor: 'middle', cls: 's', d: 1000 })
+        // am Äquator laufen Bewegungen geradeaus, weiter im Norden und Süden biegen sie ab
+        earth(g, 180, 480, 140, 0, { lon: -10, lat: 0, grid: true })
+        ink(g, L([40, 480], [320, 480]), { w: 2.6, d: 600, t: 400 })
+        arrow(g, L([120, 480], [240, 480]), { w: 2.6, d: 1000, t: 300, head: 9 })
+        carrow(g, [120, 400], [240, 390], -20, { d: 1200 })
+        carrow(g, [120, 560], [240, 570], 20, { d: 1300 })
       },
       pendel(g) {
-        ink(g, L([180, 300], [180, 542]), { w: 2, t: 600 })
-        ball(g, 180, 560, 18, { fill: 'dicht', d: 400 })
-        ink(g, E(180, 620, 110, 26), { w: 2, d: 600, t: 700 })
-        for (let i = 0; i < 5; i++) {
-          const a = rad(-40 + i * 20)
-          ink(g, L([180 - Math.cos(a) * 90, 620 - Math.sin(a) * 18], [180 + Math.cos(a) * 90, 620 + Math.sin(a) * 18]), { w: 1, d: 1000 + i * 150, t: 200 })
+        // Foucault-Pendel unter einer Kuppel: langer Draht, Kugel, Sandkreis mit Spuren; die Schwingebene dreht sich
+        ink(g, B([60, 320], [100, 280], [260, 280], [300, 320]), { w: 2.6, t: 600 })
+        ink(g, L([180, 290], [180, 300]), { w: 2, d: 200, t: 80 })
+        const sw = wobble(g, { deg: 6, ox: 180, oy: 300, ms: 2600, d: 600 })
+        ink(sw, L([180, 300], [180, 552]), { w: 1.4, d: 400, t: 500 })
+        ball(sw, 180, 566, 16, { d: 600, fill: 'dicht', w: 2, t: 200 })
+        ink(sw, L([180, 582], [180, 592]), { w: 1.6, d: 700, t: 80 })
+        ink(g, E(180, 612, 130, 30), { w: 2.4, d: 300, t: 600 })
+        const tr = spin(g, 180, 612, 30000, 900)
+        for (let i = 0; i < 6; i++) {
+          const a = rad(-30 + i * 12)
+          ink(tr, L([180 - Math.cos(a) * 110, 612 - Math.sin(a) * 25], [180 + Math.cos(a) * 110, 612 + Math.sin(a) * 25]), { w: 0.9, d: 900 + i * 120, t: 200 })
         }
-        text(g, 180, 670, 'Foucault 1851, Paris', { anchor: 'middle', cls: 's', d: 1200 })
+        for (let k = 0; k < 10; k++) {
+          const a = rad(200 + k * 14)
+          ink(g, L([180 + Math.cos(a) * 124, 612 + Math.sin(a) * 28], [180 + Math.cos(a) * 124, 604 + Math.sin(a) * 28]), { w: 1.6, d: 1100 + k * 30, t: 60 })
+        }
       },
       ende(g) {
-        arcArrow(g, 140, 480, 40, 0, 300)
-        arcArrow(g, 230, 480, 40, 300, 0, { d: 300 })
-        question(g, 185, 380, 0.6, 700)
+        for (const [x, dir] of [[110, 1], [250, -1]] as const) {
+          ink(g, E(x, 480, 60, 20), { w: 2.4, t: 500 })
+          const v = spin(g, x, 480, dir * 2000, 500)
+          ink(v, Array.from({ length: 30 }, (_, i) => [x + Math.cos(dir * i * 0.4) * (4 + i * 1.6), 480 + Math.sin(dir * i * 0.4) * (4 + i * 1.6) * 0.33] as P), { w: 1.8, d: 400, t: 300 })
+        }
+        question(g, 180, 400, 0.6, 900)
       },
     },
     scenes: [
@@ -1919,7 +2026,7 @@ export const AHA_ERDE: Bite[] = [
       { t: T('Darum dreht sich dein Abfluss mal so, mal so – **egal**, wo du wohnst.', 64), gfx: { wanne: {} } },
       { t: T('Kann man den Effekt überhaupt messen? Der Ingenieur Ascher Shapiro versuchte es 1962 am **MIT**.', 64), gfx: { shapiro: {} } },
       { t: T('Er füllte ein großes, rundes, völlig symmetrisches Becken und ließ das Wasser **24 Stunden** lang ruhen.', 64), gfx: { becken: {} } },
-      { t: T('Erst dann zog er den Stöpsel – und das Wasser drehte sich langsam **gegen den Uhrzeiger**, wie für Boston erwartet.', 64), gfx: { becken: {} } },
+      { t: T('Erst dann zog er den Stöpsel – und das Wasser drehte sich langsam **gegen den Uhrzeiger**, wie für Boston erwartet.', 64), gfx: { becken: { cls: 'a1' } } },
       { t: T('So aufwendig muss man es machen. In Kenia oder Ecuador zeigen Straßenkünstler trotzdem Touristen den „Beweis“ **am Äquator**.', 64), gfx: { trick: {} } },
       { t: T('Ihr Trick: Sie gießen das Wasser **mit leichtem Schwung** ein. Ein paar Schritte weiter dreht es sich dann andersherum.', 64), gfx: { trick: {} } },
       { t: T('Dabei ist die waagrechte Ablenkung **am Äquator** selbst null. Darum entstehen direkt dort auch keine Wirbelstürme.', 64), gfx: { aequator: {} } },
