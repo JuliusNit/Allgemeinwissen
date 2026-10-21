@@ -639,6 +639,44 @@ span.star { cursor: default; }
 .recap-bar { width: 100%; height: auto; display: block; overflow: visible; }
 .recap-next { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
 @media (prefers-reduced-motion: reduce) { .recap-page { animation: none; } }
+
+/* Session geschafft */
+.done-back { position: fixed; inset: 0; z-index: 25; background: #fff; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: calc(20px + var(--sa-top)) 16px calc(20px + var(--sa-bottom)); }
+.done { max-width: 520px; margin: 0 auto; display: grid; gap: 18px; }
+.done-sec { opacity: 0; transform: translateY(10px); transition: opacity 0.4s ease-out, transform 0.4s ease-out; }
+.done-sec.on { opacity: 1; transform: none; }
+.done-title { display: flex; align-items: center; gap: 26px; }
+.done-title h1 { margin: 0; font-size: clamp(1.3rem, 5.4vw, 1.6rem); line-height: 1.2; }
+.done-coin { position: relative; flex: none; }
+.done-coin > svg:first-child { display: block; }
+.done-tick { position: absolute; right: -18px; bottom: -10px; width: 44px; height: 44px; overflow: visible; clip-path: inset(0 100% 0 0); }
+.on .done-tick { clip-path: inset(0 0 0 0); transition: clip-path 0.45s ease-in-out 0.35s; }
+.done-nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+.done-nums div { display: flex; flex-direction: column; }
+.done-nums b { font-size: 1.35rem; }
+.done-qa { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.done-qa li { display: flex; gap: 10px; align-items: baseline; font-size: 0.95rem; }
+.done-qa li.follow { padding-left: 18px; font-size: 0.88rem; }
+.done-qa .verdict { flex: none; width: 1em; font-weight: 800; text-align: center; }
+.verdict.offen { color: var(--bad); }
+.done-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.done-notes h3 { margin: 0 0 4px; font-size: 1rem; }
+.done-notes ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; font-size: 0.92rem; }
+.done-notes .good::marker { color: var(--good); }
+.done-notes .bad::marker { color: var(--bad); }
+.done-bar-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.done-bar-head .gain { font-weight: 700; color: var(--good); }
+.done-bar .gb-out, .done-bar .gb-gain { clip-path: inset(0 100% 0 0); }
+.on .done-bar .gb-out { clip-path: inset(0 0 0 0); transition: clip-path 0.55s ease-out; }
+.on .done-bar .gb-gain { clip-path: inset(0 0 0 0); transition: clip-path 0.9s ease-in-out 0.65s; }
+.on .done-bar-head .gain { animation: onb-in 0.3s ease-out 1.3s both; }
+.done-actions { display: flex; align-items: center; gap: 14px; position: sticky; bottom: calc(-20px - var(--sa-bottom)); padding: 10px 0 calc(14px + var(--sa-bottom)); background: #fff; }
+.done-actions .btn { flex: none; }
+.done-end { flex: 1 1 0; min-width: 0; width: 100%; max-width: 300px; margin-left: auto; height: auto; cursor: pointer; outline: none; overflow: visible; }
+.done-end:focus-visible { outline: 2px dashed var(--ink); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .done-sec, .done-tick, .done-bar .gb-out, .done-bar .gb-gain { transition: none !important; animation: none !important; }
+}
 .mode-list { display: grid; gap: 8px; margin: 12px 0; }
 .mode-list .level-opt:disabled { cursor: default; opacity: 0.55; }
 .after90-home { margin: 8px 0 16px; }

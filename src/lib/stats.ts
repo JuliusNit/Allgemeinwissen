@@ -4,10 +4,11 @@ import { stationOf, type BasisNode } from './path'
 import { dayState, type ChatMsg, type State } from './store'
 
 // Auswertung des Verstaendnischecks: das Modell setzt nach jeder Antwort einen Marker
-// [[BEWERTUNG: richtig|teilweise|falsch | 1-5]] (Ergebnis | Praezision), die Zeitstempel
-// der Nachrichten liefern die Antwortzeit.
+// [[BEWERTUNG: richtig|teilweise|falsch|offen | 1-5]] (Ergebnis | Praezision), die Zeitstempel
+// der Nachrichten liefern die Antwortzeit. „offen“ = nicht gewusst („keine Ahnung“), zaehlt wie falsch;
+// Rueckfragen, Tipps und Gegenfragen bekommen keinen Marker. Im Fazit: [[STAERKE: …]] / [[LUECKE: …]].
 
-export type Verdict = 'richtig' | 'teilweise' | 'falsch'
+export type Verdict = 'richtig' | 'teilweise' | 'falsch' | 'offen'
 
 export interface QA {
   question: string
@@ -18,22 +19,34 @@ export interface QA {
   ms?: number
 }
 
-const MARK = /\[\[BEWERTUNG:\s*(richtig|teilweise|falsch)\s*\|\s*([1-5])\s*\]\]/i
+const MARK = /\[\[BEWERTUNG:\s*(richtig|teilweise|falsch|offen)\s*\|\s*([1-5])\s*\]\]/i
 export const DONE_MARKER = '[[SESSION_ABGESCHLOSSEN]]'
+const NOTE = /\[\[(STAERKE|STÄRKE|LUECKE|LÜCKE):\s*([^\]]+)\]\]/gi
 
 export function stripMarks(t: string): string {
-  return t.replace(/\[\[BEWERTUNG[^\]]*\]\]\s*/gi, '').replace(DONE_MARKER, '').trim()
+  return t.replace(/\[\[(BEWERTUNG|STAERKE|STÄRKE|LUECKE|LÜCKE)[^\]]*\]\]\s*/gi, '').replace(DONE_MARKER, '').trim()
 }
 
-/** Nur der Frageteil einer Nachricht (ab „Frage n/m“), sonst alles */
-function questionPart(t: string): string {
+/** Staerken und Luecken aus dem Fazit des Checks */
+export function checkNotes(msgs: ChatMsg[] = []): { strong: string[]; weak: string[] } {
+  const strong: string[] = []
+  const weak: string[] = []
+  const last = [...msgs].reverse().find((m) => m.role === 'assistant' && m.content.includes(DONE_MARKER))
+  for (const m of last?.content.matchAll(NOTE) ?? []) (/^ST/i.test(m[1]) ? strong : weak).push(m[2].trim())
+  return { strong, weak }
+}
+
+/** Nur der Frageteil einer Nachricht (ab „Frage n/m“), sonst null */
+function questionPart(t: string): string | null {
   const clean = stripMarks(t)
   const m = [...clean.matchAll(/(\*\*|#+\s*)?Frage\s+\d/g)]
-  return m.length ? clean.slice(m[m.length - 1].index).trim() : clean
+  return m.length ? clean.slice(m[m.length - 1].index).trim() : null
 }
 
 export function parseCheck(msgs: ChatMsg[] = []): QA[] {
   const out: QA[] = []
+  // nach Tipp oder Rueckfrage (Antwort ohne Marker) gilt weiter die zuletzt gestellte Frage
+  let lastQ = ''
   for (let i = 2; i < msgs.length; i++) {
     const m = msgs[i]
     const prev = msgs[i - 1]
@@ -41,8 +54,10 @@ export function parseCheck(msgs: ChatMsg[] = []): QA[] {
     const next = msgs[i + 1]
     const mk = next?.role === 'assistant' ? MARK.exec(next.content) : null
     const ms = m.at && prev.at ? m.at - prev.at : undefined
+    const q = questionPart(prev.content)
+    if (q) lastQ = q
     out.push({
-      question: questionPart(prev.content),
+      question: q ?? (lastQ && !MARK.test(prev.content) ? lastQ : stripMarks(prev.content)),
       answer: m.content,
       feedback: next?.role === 'assistant' ? stripMarks(next.content) : '',
       verdict: mk ? (mk[1].toLowerCase() as Verdict) : undefined,
@@ -53,7 +68,7 @@ export function parseCheck(msgs: ChatMsg[] = []): QA[] {
   return out
 }
 
-export const VERDICT_SCORE: Record<Verdict, number> = { richtig: 1, teilweise: 0.5, falsch: 0 }
+export const VERDICT_SCORE: Record<Verdict, number> = { richtig: 1, teilweise: 0.5, falsch: 0, offen: 0 }
 
 function scoreOf(msgs: ChatMsg[] | undefined): number | null {
   const qa = parseCheck(msgs).filter((q) => q.verdict)

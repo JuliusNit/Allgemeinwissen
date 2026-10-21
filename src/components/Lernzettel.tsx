@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { toBlob } from 'html-to-image'
-import { loadSheet } from '../data/lernzettel'
+import { hasSheet, loadSheet } from '../data/lernzettel'
 import { line } from '../lib/ink'
 import { NATIVE, saveFile, shareFile } from '../lib/native'
 import { imagePdf } from '../lib/pdf'
@@ -34,6 +34,23 @@ export function Lernzettel({ day, title }: { day: number; title: string }) {
       {full && <SheetFull text={sheet.text ?? ''} title={title} onClose={() => setFull(false)} />}
     </>
   )
+}
+
+/** Lernzettel direkt im Vollbild (Abschluss einer Session); ohne vorgefertigten Zettel die KI-Zusammenfassung */
+export function LernzettelFull({ day, title, fallback, onClose }: { day: number; title: string; fallback?: string; onClose: () => void }) {
+  const [text, setText] = useState<string | null>(hasSheet(day) ? null : (fallback ?? ''))
+  useEffect(() => {
+    if (!hasSheet(day)) return
+    let on = true
+    loadSheet(day).then(
+      (t) => on && setText(t),
+      () => on && setText(fallback ?? 'Lernzettel konnte nicht geladen werden – offline?'),
+    )
+    return () => {
+      on = false
+    }
+  }, [day, fallback])
+  return text === null ? null : <SheetFull text={text} title={title} onClose={onClose} />
 }
 
 /** Lernzettel im Vollbild: als Bild teilen (Teilen-Menue: Fotos, Dateien, Nachrichten …), als PNG speichern oder als PDF (Web: drucken, App: Bild-PDF teilen) */

@@ -139,7 +139,7 @@ function TopicDetail({ area, day, go }: { area: AreaId; day: number; go: (hash: 
             {qa.map((q, i) => (
               <li key={i} className={q.verdict ?? ''}>
                 <div className="qa-top">
-                  <span className={`verdict ${q.verdict ?? ''}`}>{q.verdict === 'richtig' ? '✓ richtig' : q.verdict === 'teilweise' ? '~ teilweise' : q.verdict === 'falsch' ? '✗ falsch' : '–'}</span>
+                  <span className={`verdict ${q.verdict ?? ''}`}>{q.verdict === 'richtig' ? '✓ richtig' : q.verdict === 'teilweise' ? '~ teilweise' : q.verdict === 'falsch' ? '✗ falsch' : q.verdict === 'offen' ? '? nicht gewusst' : '–'}</span>
                   <span className="muted small">
                     {q.ms ? `${Math.round(q.ms / 1000)} s` : ''}
                     {q.precision ? ` · Präzision ${q.precision}/5` : ''}

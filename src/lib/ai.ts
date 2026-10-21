@@ -265,6 +265,16 @@ ${sessionContext(d)}`
 /** Nachfrage nach Fehler: Erklärung anwenden statt wiedergeben */
 const FOLLOW_UP = `Die Nachfrage darf NICHT mit deiner Erklärung beantwortbar sein (nicht dieselbe Frage neu formulieren, keine Auswahl „Masse, Energie, Impuls?“). Stelle stattdessen eine neue Situation zum gleichen Prinzip, in der man die Erklärung übertragen und selbst weiterdenken muss – z. B. abgewandelter Fall, Gegenbeispiel, Vorhersage („Was ändert sich, wenn…?“), Begründung eines Details.`
 
+/** Erst erkennen, was die Nachricht ist – nicht jede Eingabe ist eine Antwort, die richtig oder falsch sein kann */
+const adapt = () => `Lies jede Nachricht von ${nm()} zuerst darauf, WAS sie ist, und reagiere passend – nicht alles ist eine Antwort:
+  • Antwortversuch (auch kurz, umgangssprachlich, unsicher formuliert oder nur ein Teil): bewerten (Marker richtig/teilweise/falsch, siehe unten). Stimmt der Kern, ist es richtig – nicht auf Fachbegriffe, Vollständigkeit oder Formulierung pochen.
+  • „keine Ahnung“, „weiß nicht“, „sag mir die Lösung“, „?“ o. ä.: KEIN ✅/🟡/❌, nicht „falsch“ nennen. Locker bleiben („Kein Problem – so kommst du drauf:“), die Lösung kurz Schritt für Schritt herleiten und an Bekanntes anknüpfen, dann eine leichtere Nachfrage zum gleichen Punkt. Marker: [[BEWERTUNG: offen | 1]]
+  • Bitte um Tipp oder Hilfe („gib mir einen Tipp“, „hilf mir“, Ansatz mit Frage dahinter): einen Denkanstoß geben, der die Lösung nicht verrät, die Frage bleibt offen. KEIN Marker.
+  • Rückfrage zur Frage („was meinst du mit …?“, „wie genau?“): Frage klarer formulieren oder den Begriff erklären, ohne die Lösung. KEIN Marker.
+  • Inhaltliche Gegenfrage zum Thema: kurz beantworten, dann zur offenen Frage zurück. KEIN Marker.
+  • Sonstiges (Smalltalk, „weiter“, Off-Topic): kurz reagieren, offene Frage noch einmal stellen. KEIN Marker.
+  Passe dich an: Läuft es gut, werden die Fragen anspruchsvoller; hakt es, kleinere Schritte und konkretere Fragen. Ton wie ein Tutor, nicht wie ein Prüfer.`
+
 export function checkChat(day: number, history: ChatMsg[], onText: (t: string) => void) {
   const d = getDay(day)
   const system = `${persona()}
@@ -274,11 +284,12 @@ Phase „Verständnischeck“: ${nm()} hat „verstanden“ gesagt. Führe den C
 - ${isBlockMix(d) ? 'Gemischte Abfrage des ganzen Blocks plus Verknüpfungsfragen zwischen den Bereichen.' : isRepeat(getState().level, d.day) ? 'Wiederholung: abgefragt werden die Teilthemen (Schulstoff) – unabhängig davon, welche Videos gesehen wurden; Schwerpunkt Lücken und Verknüpfungen.' : 'Abgefragt wird nur, was in den ★-Pflichtvideos gelehrt wurde.'}
 - Keine reinen Wiedergabefragen, sondern: Teilthemen kombinieren („Was passiert mit X, wenn Y ausfällt?“), Anwendung auf Alltag/Nachrichten/Entscheidungen, Vorhersagen & Fallbeispiele („Warum…?“, „Was wäre, wenn…?“), Verknüpfung mit früheren Sessions UND anderen Bereichen.
 - Nummeriere die Fragen im Format „**Frage 2/4:** …“.
-- Nach JEDER Antwort von ${nm()} beginnt deine Nachricht in der ersten Zeile mit genau einem Bewertungs-Marker:
+- ${adapt()}
+- Nach jedem Antwortversuch beginnt deine Nachricht in der ersten Zeile mit genau einem Bewertungs-Marker:
   [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]
   P = Präzision der Antwort von 1 (vage) bis 5 (präzise, Fachbegriffe korrekt). Beispiel: [[BEWERTUNG: teilweise | 3]]
 - Danach kurz bewerten (✅ richtig / 🟡 unvollständig / ❌ falsch). Bei falsch/unvollständig: kurz erklären, dann eine Nachfrage zum GLEICHEN Punkt stellen, bevor es mit der nächsten Frage weitergeht. ${FOLLOW_UP}
-- Erst wenn alles sitzt: kurzes Fazit (was saß gut, was wiederholen) und schreibe dann in die letzte Zeile exakt: ${DONE_MARKER}
+- Erst wenn alles sitzt: ein Satz Fazit, darunter je eine Zeile [[STAERKE: …]] für 1–3 Dinge, die gut saßen, und [[LUECKE: …]] für 0–3 echte Lücken (je höchstens 6 Wörter, konkret zum Inhalt, z. B. [[LUECKE: Ursache der Inflation 1923]]). In die letzte Zeile exakt: ${DONE_MARKER}
 - Schreibe ${DONE_MARKER} niemals vorher.
 
 ${sessionContext(d)}`
@@ -301,8 +312,9 @@ Regeln:
 - Aufgabe 1 – Verständnis: Zusammenhänge erklären lassen, Ursachen/Folgen, „Was passiert, wenn…?“, Teilthemen kombinieren.
 - Aufgabe 2 – Transfer: Gib zuerst neues Material, das in der Session NICHT vorkam (ein kurzer Fall, eine Situation, ein Textauszug, Daten/eine kleine Tabelle, ein Ereignis aus einer anderen Epoche, einem anderen Land oder Bereich). Stelle dann eine Frage, die man nur mit dem Wissen aus diesem Thema beantworten oder sich erschließen kann. Das Material selbst enthält die Lösung nicht.
 - Stütze dich auf den Lernzettel und die Teilthemen; ${d.evidence ? 'ordne Gesundheits-/Psychologie-Aussagen nach Evidenz ein („belegt vs. Hype“). ' : ''}Schwerpunkt auf Punkten, die früher wackelig waren.
-- Nach JEDER Antwort beginnt deine Nachricht in der ersten Zeile mit genau einem Marker:
+- Nach JEDEM Antwortversuch beginnt deine Nachricht in der ersten Zeile mit genau einem Marker:
   [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]  (P = Präzision 1–5)
+  Stimmt der Kern, ist es richtig – nicht auf Formulierung pochen. Schreibt ${nm()} „keine Ahnung“, „weiß nicht“ o. ä.: Marker [[BEWERTUNG: offen | 1]], kein ❌, locker bleiben und gleich die Musterlösung erklären. Rückfrage zur Aufgabe oder Bitte um Tipp: Aufgabe klarer formulieren bzw. Denkanstoß ohne Lösung, KEIN Marker, Aufgabe bleibt offen.
 - Danach kurz bewerten (✅ / 🟡 / ❌) und die Musterlösung in 2–4 Stichpunkten zeigen – bei Transfer: welches Wissen aus dem Thema den Schlüssel liefert. Keine Nachfrage, weiter zur nächsten Aufgabe.
 - Nach der letzten Bewertung: Fazit in 2 Zeilen (was saß, was wiederholen) und dann in die letzte Zeile exakt: ${DONE_MARKER}
 - Schreibe ${DONE_MARKER} niemals vorher.
@@ -347,7 +359,8 @@ ${n.days.map((d) => `- ${dayLine(getDay(d))} – ${getDay(d).subtopics.join(' ·
 Regeln:
 - ${mix ? '6' : '4–6'} Fragen, IMMER nur EINE Frage pro Nachricht, dann auf die Antwort warten. Format „**Frage 2/5:** …“.
 - Quer über die Jahrgangsstufen und Lernbereiche; Kernwissen und Zusammenhänge statt Details, keine reinen Wiedergabefragen („Warum…?“, „Was passiert, wenn…?“, Einordnen auf Zeitstrahl/Karte).
-${mix ? '- Jede Frage verknüpft mindestens zwei Fächer oder Schulstoff mit einer neuen Session.\n' : ''}- Nach JEDER Antwort beginnt deine Nachricht in der ersten Zeile mit genau einem Marker:
+${mix ? '- Jede Frage verknüpft mindestens zwei Fächer oder Schulstoff mit einer neuen Session.\n' : ''}- ${adapt()}
+- Nach jedem Antwortversuch beginnt deine Nachricht in der ersten Zeile mit genau einem Marker:
   [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]  (P = Präzision 1–5)
 - Danach kurz bewerten (✅ / 🟡 / ❌). Bei Fehlern kurz erklären, dann eine Nachfrage zum GLEICHEN Punkt. ${FOLLOW_UP}
 - Zum Schluss: Fazit als Tabelle „Lernbereich | sitzt / Lücke“, und für jede Lücke die passende Session nennen („→ <Titel der Session> öffnen“). Dann in die letzte Zeile exakt: ${DONE_MARKER}

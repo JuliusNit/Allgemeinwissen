@@ -6,7 +6,7 @@ import { blockName, isRepeat, SCHOOL_GRADE } from '../data/school'
 import { fach, type FachId } from '../data/lehrplan'
 import { pathDays, sessionNo, stationOf, type BasisNode } from '../lib/path'
 import { addCards } from '../lib/srs'
-import { dayState, sortNotes, today, updateDay, useStore, videosOf } from '../lib/store'
+import { dayState, getState, sortNotes, today, updateDay, useStore, videosOf } from '../lib/store'
 import { haptic } from '../lib/native'
 import { fmtTime } from '../lib/video'
 import { VideoWatch } from '../components/VideoWatch'
@@ -19,6 +19,7 @@ import { CoinBadge } from '../components/Coin'
 import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
 import { AccountButton } from '../components/NeedAccount'
+import { SessionDone } from '../components/SessionDone'
 
 type Tab = 'fragen' | 'check' | 'zusammenfassung'
 
@@ -52,6 +53,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [checkGen, setCheckGen] = useState(0)
+  const [doneOpen, setDoneOpen] = useState(false)
   const block = BLOCKS[d.block]
   const mix = isBlockMix(d)
   const watched = new Set(ds.watched ?? [])
@@ -102,15 +104,26 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
     }
   }
 
+  /** Check fertig → sofort abgeschlossen, Bildschirm „Session geschafft“; Zusammenfassung + Karten entstehen dahinter */
+  function complete() {
+    const firstTime = dayState(getState(), day).status !== 'fertig'
+    if (firstTime) {
+      updateDay(day, (x) => ({ ...x, status: 'fertig', completedAt: x.completedAt ?? today() }))
+      haptic('erfolg')
+    }
+    setDoneOpen(true)
+    setTab('zusammenfassung')
+    if (firstTime || !dayState(getState(), day).summary) void finish()
+  }
+
   async function finish() {
     setBusy('Zusammenfassung und Karteikarten werden erstellt …')
     setError(null)
     try {
       const r = await makeSummary(day)
-      const firstTime = ds.status !== 'fertig'
       updateDay(day, (x) => ({ ...x, summary: r.summary_markdown, status: 'fertig', completedAt: x.completedAt ?? today() }))
-      if (firstTime) haptic('erfolg')
-      if (firstTime || confirm('Neue Karteikarten zusätzlich zu den vorhandenen anlegen?')) addCards(day, r.cards)
+      const hasCards = getState().cards.some((c) => c.day === day)
+      if (!hasCards || confirm('Neue Karteikarten zusätzlich zu den vorhandenen anlegen?')) addCards(day, r.cards)
       setTab('zusammenfassung')
     } catch (e) {
       setError(describeError(e))
@@ -129,6 +142,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
   return (
     <div className="day">
       {playing && <VideoWatch day={day} videos={videos} video={playing} at={at} open={openVideo} close={closeVideo} />}
+      {doneOpen && <SessionDone day={day} summary={ds.summary} busy={!!busy} onEnd={() => (setDoneOpen(false), back())} />}
       <div className="day-head">
         <div className="day-nav">
           <button className="icon-btn" onClick={back} aria-label="Zurück zum Lernpfad"><Icon name="BACK" size={26} /></button>
@@ -336,12 +350,13 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
                 placeholder="Deine Antwort …"
                 kickoff={mix ? 'Bereit für die Block-Abfrage.' : 'verstanden'}
                 disabled={!hasKey || checkDone}
+                onDone={complete}
               />
             )}
             <div className="row end">
               {(ds.check?.length ?? 0) > 0 && <button className="btn ghost small" onClick={resetCheck}>Check neu starten</button>}
               {checkDone && (
-                <button className="btn primary" onClick={finish} disabled={!!busy}>
+                <button className="btn primary" onClick={ds.status === 'fertig' ? finish : complete} disabled={!!busy}>
                   {ds.status === 'fertig' ? 'Zusammenfassung neu erzeugen' : 'Session abschließen'}
                 </button>
               )}
@@ -360,7 +375,11 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
                 </div>
               </>
             ) : (
-              <p className="muted">Die Zusammenfassung entsteht automatisch, sobald der Verständnischeck sitzt.</p>
+              ds.status === 'fertig' && !busy ? (
+                <div className="row end"><button className="btn" onClick={finish} disabled={!hasKey}>Zusammenfassung erzeugen</button></div>
+              ) : (
+                !busy && <p className="muted">Die Zusammenfassung entsteht automatisch, sobald der Verständnischeck sitzt.</p>
+              )
             )}
           </div>
         )}

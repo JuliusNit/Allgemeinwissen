@@ -86,7 +86,7 @@ function nodeLabel(n: PathNode, level: Level | undefined): string {
   return `Grundcheck ${n.fach === 'mix' ? 'gemischt' : fach(n.fach).name}`
 }
 
-const MARK =/\[\[BEWERTUNG:\s*(richtig|teilweise|falsch)/i
+const MARK =/\[\[BEWERTUNG:\s*(richtig|teilweise|falsch|offen)/i
 
 export function weekRecap(s: State): Recap {
   const end = mondayOf(today())
