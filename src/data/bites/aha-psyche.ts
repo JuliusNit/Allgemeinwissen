@@ -1,5 +1,5 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, car, check, clock, cross, crowd, dashes, eye, fig, hatch, ink, lie, mk, pop, question, rays, st, strike, text, timeline, vbars, type P } from './draw'
+import { B, E, HOOK, L, RR, T, arrow, blank, brain, bubble, car, check, clock, cross, crowd, dashes, eye, fig, hatch, ink, lie, mk, pop, question, rays, st, star, strike, text, timeline, vbars, type P } from './draw'
 import { LAND, axes, ball, box, bullets, coastPts, dot, flow, glide, heart, house, pie, plot, rad, ripple, smooth, spin, sun, waveP, wobble } from './kit'
 
 // Psychologie: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
@@ -64,6 +64,60 @@ function anchor(g: Element, x: number, y: number, s = 1, d = 0): void {
     ink(g, fl, { w: w * 0.7, d: d + 700, t: 150 })
   }
   ball(g, x, y, 8 * s, { d: d + 600, fill: 'dicht', w: 1.4, t: 60 })
+}
+
+/** Geldbündel: n Scheine leicht versetzt gestapelt, oben links (x, y) */
+function bills(g: Element, x: number, y: number, n: number, s = 1, d = 0, dense = false): void {
+  for (let k = 0; k < n; k++) {
+    const r = RR(x + k * 1.5 * s, y - k * 3 * s, 60 * s, 28 * s, 3)
+    blank(g, r)
+    if (dense && k === n - 1) hatch(g, r, d + k * 40 + 100)
+    ink(g, r, { w: 1.4, d: d + k * 40, t: 80 })
+  }
+  const top = y - (n - 1) * 3 * s
+  ink(g, E(x + (n - 1) * 1.5 * s + 30 * s, top + 14 * s, 8 * s), { w: 1, d: d + n * 40, t: 80 })
+}
+
+/** Wertfunktion nach Kahneman & Tversky: flach für Gewinne, steil für Verluste; Ursprung (cx, cy) */
+function valueCurve(g: Element, cx: number, cy: number, w: number, h: number, d = 0): void {
+  arrow(g, L([cx - w, cy], [cx + w, cy]), { w: 2, d, t: 400, head: 8 })
+  arrow(g, L([cx, cy + h], [cx, cy - h]), { w: 2, d, t: 400, head: 8 })
+  text(g, cx + w - 4, cy + 24, '+', { anchor: 'middle', size: 20, d: d + 200 })
+  text(g, cx - w + 4, cy + 24, '−', { anchor: 'middle', size: 20, d: d + 200 })
+  ink(g, Array.from({ length: 41 }, (_, i) => [cx + (i / 40) * w * 0.9, cy - Math.pow(i / 40, 0.6) * h * 0.45] as P), { w: 3, d: d + 400, t: 700 })
+  ink(g, Array.from({ length: 41 }, (_, i) => [cx - (i / 40) * w * 0.9, cy + Math.pow(i / 40, 0.6) * h * 0.9] as P), { w: 3, d: d + 900, t: 700 })
+}
+
+/** Münzseite: Kopf (Profil) oder Zahl (Ziffer und Eichenzweig) */
+function coinSide(g: Element, x: number, y: number, head: boolean, d = 0): void {
+  ball(g, x, y, 34, { d, fill: head ? 'hell' : 'leer', w: 2.6, t: 300 })
+  ink(g, E(x, y, 27), { w: 1, d: d + 200, t: 300 })
+  if (head) ink(g, smooth([[x + 6, y - 20], [x - 8, y - 18], [x - 12, y - 4], [x - 16, y + 2], [x - 10, y + 6], [x - 10, y + 16], [x + 4, y + 20]], 3), { w: 2, d: d + 400, t: 300 })
+  else {
+    ink(g, [[x - 8, y - 10], [x + 2, y - 18], [x + 2, y + 16]], { w: 2.6, d: d + 400, t: 200 })
+    ink(g, B([x - 18, y + 14], [x - 20, y], [x - 16, y - 10], [x - 10, y - 18]), { w: 1, d: d + 500, t: 150 })
+  }
+}
+
+/** Kapuzineraffe sitzend, Kopf mit Kappe und hellem Gesicht, Schwanz eingerollt; y = Boden */
+function capuchin(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const body: P[] = smooth([P(-26, 0), P(-30, -40), P(-20, -76), P(0, -84), P(20, -76), P(30, -40), P(26, 0), P(-26, 0)], 3)
+  blank(g, body)
+  hatch(g, body, d + 500, true)
+  ink(g, body, { w: 2.2, d, t: 500 })
+  ink(g, B(P(26, -6), P(60, 0), P(64, -40), P(46, -44)), { w: 2.4, d: d + 300, t: 300 })
+  ink(g, E(x + 46 * s, y - 36 * s, 6 * s), { w: 2, d: d + 400, t: 100 })
+  const hd: P[] = smooth([P(-20, -96), P(-18, -116), P(0, -124), P(18, -116), P(20, -96), P(0, -82), P(-20, -96)], 3)
+  blank(g, hd)
+  ink(g, hd, { w: 2.2, d: d + 300, t: 300 })
+  hatch(g, smooth([P(-18, -112), P(0, -124), P(18, -112), P(0, -114), P(-18, -112)], 3), d + 600, true)
+  for (const k of [-1, 1]) {
+    dot(g, x + k * 7 * s, y - 102 * s, 2.2 * s, d + 700)
+    ink(g, E(x + k * 24 * s, y - 100 * s, 6 * s, 8 * s), { w: 1.4, d: d + 600, t: 100 })
+  }
+  ink(g, B(P(-6, -90), P(-2, -86), P(2, -86), P(6, -90)), { w: 1.4, d: d + 800, t: 80 })
+  for (const k of [-1, 1]) ink(g, B(P(k * 20, -60), P(k * 34, -44), P(k * 30, -24), P(k * 16, -20)), { w: 2.2, d: d + 500, t: 200 })
 }
 
 export const AHA_PSYCHE: Bite[] = [
@@ -466,86 +520,153 @@ export const AHA_PSYCHE: Bite[] = [
     images: [],
     draw: {
       muenze(g) {
-        ball(g, 180, 250, 90, { fill: 'hell', w: 3.2, t: 800 })
-        ink(g, E(180, 250, 70), { w: 1.6, d: 400, t: 600 })
-        text(g, 180, 268, '€', { anchor: 'middle', size: 54, cls: 'halo', d: 700 })
+        // Euromünze mit Riffelrand und Sternenkranz, wird hochgeschnippt
+        const c = glide(g, 0, -40, { ms: 900, d: 1200, loop: true })
+        ball(c, 180, 250, 90, { fill: 'hell', w: 3.2, t: 800 })
+        ink(c, E(180, 250, 70), { w: 1.6, d: 400, t: 600 })
+        for (let k = 0; k < 60; k++) {
+          const a = rad(k * 6)
+          ink(c, L([180 + Math.cos(a) * 86, 250 + Math.sin(a) * 86], [180 + Math.cos(a) * 90, 250 + Math.sin(a) * 90]), { w: 0.8, d: 500 + k * 5, t: 30 })
+        }
+        for (let k = 0; k < 12; k++) star(c, 180 + Math.cos(rad(k * 30)) * 78, 250 + Math.sin(rad(k * 30)) * 78, 4, { d: 700 + k * 30 })
+        text(c, 180, 268, '€', { anchor: 'middle', size: 54, cls: 'halo', d: 700 })
+        ink(g, smooth([[120, 430], [140, 400], [180, 392], [210, 404], [214, 420], [180, 430], [120, 430]], 3), { w: 2.4, d: 300, t: 300 })
+        ink(g, B([206, 404], [214, 390], [224, 384], [230, 388]), { w: 2, d: 400, t: 150 })
       },
       wette(g) {
-        box(g, 30, 370, 140, 90, ['Kopf:', '+ 110 €'], { size: 18 })
-        box(g, 190, 370, 140, 90, ['Zahl:', '− 100 €'], { size: 18, d: 300, fill: true })
-        ball(g, 180, 560, 34, { d: 700, w: 2.8 })
-        question(g, 180, 572, 0.6, 1000)
+        // Kopf: ein Bündel kommt dazu (etwas dicker); Zahl: ein Bündel fliegt davon
+        coinSide(g, 90, 360, true, 0)
+        coinSide(g, 270, 360, false, 300)
+        arrow(g, L([90, 400], [90, 460]), { w: 2, d: 600, t: 200, head: 7 })
+        arrow(g, L([270, 400], [270, 460]), { w: 2, d: 700, t: 200, head: 7 })
+        bills(g, 60, 560, 11, 1, 900)
+        const fly = glide(g, 30, -60, { ms: 1600, d: 1600, loop: true })
+        bills(fly, 240, 560, 10, 1, 1000, true)
+        ink(g, L([20, 600], [340, 600]), { w: 2, d: 200, t: 400 })
       },
       ablehnen(g) {
+        // acht Leute: die meisten winken ab; erst bei einem viel dickeren Bündel stimmen sie zu
         crowd(g, 40, 600, 8, 40, 2.4, 0, 100)
         for (let i = 0; i < 8; i++) (i < 6 ? cross : check)(g, 40 + i * 40, 640, 0.5, 900 + i * 80)
-        text(g, 180, 420, 'erst ab ≈ 200 € Gewinn', { anchor: 'middle', d: 1500 })
+        bills(g, 50, 400, 11, 0.9, 1200)
+        cross(g, 80, 340, 0.6, 1500)
+        bills(g, 220, 420, 20, 0.9, 1400)
+        check(g, 250, 330, 0.6, 1900)
       },
       kurve(g) {
-        for (const [x0, n, up, d] of [[30, 'Gewinn', true, 0], [195, 'Verlust', false, 700]] as const) {
-          ink(g, L([x0, 470], [x0 + 140, 470]), { w: 2.2, d, t: 300 })
-          plot(g, x0 + 4, 470, 130, up ? 90 : -180, (t) => Math.pow(t, 0.6), { d: d + 300 })
-          text(g, x0 + 70, up ? 500 : 340, n, { anchor: 'middle', cls: 's', d: d + 500 })
+        // gleich große Beträge: der Verlust zieht die Kurve doppelt so weit hinunter
+        valueCurve(g, 180, 470, 150, 160, 0)
+        for (const [x, y, d] of [[260, 470 - Math.pow(80 / 135, 0.6) * 72, 1800], [100, 470 + Math.pow(80 / 135, 0.6) * 144, 2000]] as const) {
+          dashes(g, L([x, 470], [x, y]), { w: 1.2, d, dash: 3, gap: 3 })
+          dot(g, x, y, 4, d + 200)
         }
-        text(g, 180, 330, 'gleiche Summe, doppeltes Gefühl', { anchor: 'middle', cls: 's', d: 1500 })
       },
       tasse(g) {
-        ink(g, [[110, 380], [120, 560], [240, 560], [250, 380]], { w: 3.2, t: 700 })
-        ink(g, E(266, 460, 26, 40, -90, 90), { w: 3, d: 400, t: 400 })
-        text(g, 180, 620, 'geschenkt bekommen: plötzlich mehr wert', { anchor: 'middle', cls: 's', d: 900 })
+        // Becher mit Dampf; die Besitzerin hängt ein hohes Preisschild dran, der Käufer bietet ein niedriges
+        ink(g, [[120, 380], [130, 560], [230, 560], [240, 380]], { w: 3.2, t: 700 })
+        ink(g, E(180, 380, 60, 10), { w: 2, d: 200, t: 300 })
+        ink(g, E(254, 460, 24, 38, -90, 90), { w: 3, d: 400, t: 400 })
+        heart(g, 180, 470, 0.6, 600)
+        for (let k = 0; k < 3; k++) {
+          const w = wobble(g, { dx: 4, ms: 1400 + k * 200, d: 900 })
+          ink(w, B([160 + k * 20, 366], [152 + k * 20, 340], [170 + k * 20, 320], [162 + k * 20, 296]), { w: 1.4, d: 800 + k * 100, t: 300 })
+        }
+        for (const [x, h, d] of [[60, 80, 1000], [300, 40, 1300]] as const) {
+          ink(g, L([x, 620], [x, 620 - h]), { w: 1, d, t: 100 })
+          const r = RR(x - 14, 620 - h - 30, 28, 30, 3)
+          ink(g, r, { w: 2, d: d + 100, t: 150 })
+          for (let k = 0; k < Math.round(h / 20); k++) ink(g, E(x, 620 - h - 15 - 0, 6 + k * 2, 4 + k), { w: 1, d: d + 200 + k * 60, t: 60 })
+        }
       },
       aktie(g) {
+        // fallender Kurs, der Anleger hält die Aktie fest umklammert
         axes(g, 30, 600, 330, 330, { xl: 'Zeit', yl: 'Kurs' })
         ink(g, [[40, 380], [80, 400], [120, 450], [160, 430], [200, 500], [240, 520], [280, 560], [320, 570]], { w: 2.8, d: 400, t: 1200 })
-        text(g, 230, 400, '„Ich warte noch …“', { anchor: 'middle', cls: 'it', d: 1500 })
+        fig(g, 250, 460, 2.4, { d: 1200, arms: 'cross' })
+        ink(g, RR(236, 400, 28, 20, 3), { w: 1.6, d: 1500, t: 100 })
+        ink(g, [[240, 414], [248, 406], [254, 412], [260, 404]], { w: 1.2, d: 1600, t: 80 })
       },
       verpassen(g) {
-        box(g, 40, 380, 280, 70, '„Jetzt nicht verpassen!“', { size: 18, fill: true })
-        box(g, 40, 490, 280, 70, '„Jetzt gewinnen“', { size: 18, d: 500 })
-        text(g, 180, 610, 'drohender Verlust zieht stärker', { anchor: 'middle', cls: 's', d: 1000 })
+        // Sanduhr läuft ab neben dem Angebot; darunter das Probeabo als Geschenk, das sich später nicht kündigt
+        const hg: P[] = [[60, 340], [130, 340], [100, 400], [130, 460], [60, 460], [90, 400], [60, 340]]
+        ink(g, hg, { w: 2.4, t: 500 })
+        hatch(g, [[64, 344], [126, 344], [112, 370], [78, 370]], 600, true)
+        const s = glide(g, 0, 50, { ms: 1000, d: 900, loop: true })
+        dot(s, 95, 404, 1.6, 800)
+        hatch(g, [[70, 456], [120, 456], [105, 430], [85, 430]], 1200, true)
+        ink(g, RR(170, 350, 150, 90, 6), { w: 2.4, d: 300, t: 400 })
+        hatch(g, RR(176, 356, 138, 24, 4), 600, true)
+        for (let k = 0; k < 3; k++) ink(g, L([184, 396 + k * 12], [270 - k * 20, 396 + k * 12]), { w: 1, d: 700 + k * 60, t: 80 })
+        ink(g, RR(110, 520, 140, 90, 4), { w: 2.6, d: 900, t: 400 })
+        ink(g, L([180, 520], [180, 610]), { w: 2, d: 1000, t: 150 })
+        ink(g, L([110, 560], [250, 560]), { w: 2, d: 1050, t: 150 })
+        for (const k of [-1, 1]) ink(g, E(180 + k * 20, 510, 20, 10, k < 0 ? 0 : 180, k < 0 ? 180 : 360), { w: 2, d: 1100, t: 150 })
+        ink(g, E(280, 600, 14), { w: 1.6, d: 1300, t: 150 })
+        ink(g, L([280, 586], [280, 600]), { w: 1.6, d: 1400, t: 80 })
       },
       golf(g) {
+        // Grün mit Loch und Fahne, der Golfer puttet konzentriert, der Ball rollt
         ink(g, B([20, 600], [100, 580], [260, 580], [340, 600]), { w: 3, t: 700 })
         ink(g, E(260, 586, 14, 4), { w: 2.2, d: 300, t: 200 })
+        hatch(g, E(260, 587, 10, 2.6), 500, true)
         ink(g, L([260, 586], [260, 470]), { w: 2, d: 500, t: 300 })
-        ink(g, [[260, 470], [300, 484], [260, 498]], { w: 2, d: 700, t: 200 })
-        fig(g, 100, 580, 3, { d: 400 })
-        ball(g, 150, 576, 5, { d: 900, t: 0 })
-        text(g, 180, 420, 'konzentrierter, um zu verhindern', { anchor: 'middle', cls: 's', d: 1100 })
+        const fl = wobble(g, { deg: 6, ox: 260, oy: 472, ms: 700, d: 900 })
+        ink(fl, [[260, 470], [300, 484], [260, 498]], { w: 2, d: 700, t: 200 })
+        hatch(fl, [[260, 470], [300, 484], [260, 498]], 800, true)
+        fig(g, 100, 580, 3, { d: 400, arms: 'down' })
+        ink(g, L([104, 520], [130, 574]), { w: 2, d: 800, t: 150 })
+        ink(g, L([126, 574], [138, 574]), { w: 3, d: 850, t: 60 })
+        const b = glide(g, 100, 6, { ms: 2200, d: 1200, loop: true })
+        ball(b, 150, 574, 5, { d: 1000, w: 1.4, t: 60 })
+        dashes(g, B([150, 578], [190, 582], [230, 586], [256, 586]), { w: 1, d: 1300, dash: 3, gap: 4 })
       },
       affen(g) {
-        const monkey = (x: number, d: number) => {
-          ball(g, x, 470, 40, { d, w: 2.8 })
-          for (const k of [-1, 1]) ink(g, E(x + k * 42, 456, 12), { w: 2.4, d: d + 200, t: 300 })
-          for (const k of [-1, 1]) dot(g, x + k * 14, 462, 4, d + 400)
-          ink(g, B([x - 14, 490], [x - 6, 498], [x + 6, 498], [x + 14, 490]), { w: 2, d: d + 500, t: 200 })
+        // zwei Kapuzineraffen tauschen Wertmarken gegen Apfelstücke
+        capuchin(g, 100, 600, 1, 0)
+        capuchin(g, 260, 600, 1, 300)
+        for (const [x, y, d] of [[150, 470, 900], [210, 470, 1100]] as const) {
+          ink(g, E(x, y, 9), { w: 1.8, d, t: 100 })
+          ink(g, E(x, y, 4), { w: 1, d: d + 60, t: 60 })
         }
-        monkey(110, 0)
-        monkey(250, 300)
-        text(g, 180, 600, 'Kapuzineraffen: dieselbe Verlustscheu', { anchor: 'middle', cls: 's', d: 1000 })
+        const ap: P[] = [...E(180, 410, 16, 16, 200, 520)]
+        ink(g, [...ap, [180, 410], ap[0]], { w: 1.8, d: 1300, t: 200 })
+        ink(g, L([180, 394], [184, 382]), { w: 1.4, d: 1400, t: 60 })
       },
       bar(g) {
-        box(g, 30, 380, 140, 90, ['Rabatt bei', 'Barzahlung'], { size: 16 })
-        check(g, 100, 520, 1, 600)
-        box(g, 190, 380, 140, 90, ['Aufschlag bei', 'Kartenzahlung'], { size: 16, d: 400, fill: true })
-        cross(g, 260, 520, 1, 900)
-        text(g, 180, 610, 'dieselbe Rechnung, anderes Gefühl', { anchor: 'middle', cls: 's', d: 1200 })
+        // Bargeld mit Pfeil nach unten (Rabatt) – Karte mit Pfeil nach oben (Aufschlag): derselbe Betrag
+        bills(g, 50, 470, 4, 1.2, 0)
+        arrow(g, L([90, 380], [90, 430]), { w: 2.4, d: 600, t: 200, head: 8 })
+        check(g, 90, 560, 0.9, 900)
+        ink(g, RR(210, 420, 100, 64, 8), { w: 2.6, d: 300, t: 400 })
+        hatch(g, RR(210, 434, 100, 12, 0), 500, true)
+        ink(g, RR(222, 456, 20, 14, 2), { w: 1.4, d: 600, t: 100 })
+        arrow(g, L([260, 410], [260, 360]), { w: 2.4, d: 800, t: 200, head: 8 })
+        cross(g, 260, 560, 0.9, 1100)
       },
       vorfahren(g) {
-        fig(g, 120, 600, 4)
-        ink(g, E(260, 560, 40, 20), { w: 2.6, d: 400, t: 400 })
-        hatch(g, E(260, 560, 36, 16), 800)
-        text(g, 180, 400, 'Verlust konnte tödlich sein', { anchor: 'middle', cls: 's', d: 1000 })
+        // Höhle mit Vorräten; ein Wolf schleicht heran – Verlust konnte das Ende bedeuten
+        const cave: P[] = smooth([[20, 620], [40, 420], [140, 340], [260, 350], [320, 440], [340, 620]], 3)
+        ink(g, cave, { w: 3, t: 800 })
+        hatch(g, [...cave, [340, 650], [20, 650]], 300)
+        ink(g, B([90, 620], [110, 480], [230, 480], [250, 620]), { w: 2.4, d: 400, t: 500 })
+        fig(g, 140, 620, 3.2, { d: 600, arms: 'push' })
+        for (let k = 0; k < 3; k++) ink(g, E(200 + k * 14, 610 - k * 10, 12, 6), { w: 1.8, d: 800 + k * 80, t: 150 })
+        const wf = glide(g, -30, 0, { ms: 2400, d: 1200, loop: true })
+        const w: P[] = smooth([[290, 610], [300, 590], [330, 588], [346, 594], [350, 606], [340, 612], [300, 614], [290, 610]], 3)
+        hatch(wf, w, 1200, true)
+        ink(wf, w, { w: 1.6, d: 1100, t: 200 })
+        ink(wf, [[290, 600], [278, 590], [284, 604]], { w: 1.4, d: 1200, t: 80 })
       },
       neukauf(g) {
-        question(g, 180, 460, 1.6)
-        text(g, 180, 600, 'Würde ich es neu kaufen?', { anchor: 'middle', size: 20, d: 900 })
+        // vor dem Regal: würde ich das heute noch einmal kaufen?
+        ink(g, RR(40, 330, 140, 300, 4), { w: 2.4, t: 500 })
+        for (let k = 1; k < 4; k++) ink(g, L([40, 330 + k * 75], [180, 330 + k * 75]), { w: 1.8, d: 200 + k * 60, t: 200 })
+        for (let k = 0; k < 8; k++) ink(g, RR(52 + (k % 4) * 30, 352 + Math.floor(k / 4) * 75, 22, 50 - (k % 3) * 6, 2), { w: 1.4, d: 500 + k * 40, t: 80 })
+        fig(g, 260, 630, 4, { d: 600 })
+        question(g, 270, 380, 0.9, 1100)
       },
       ende(g) {
-        for (const [x0, up, d] of [[60, true, 0], [200, false, 400]] as const) {
-          ink(g, L([x0, 500], [x0 + 100, 500]), { w: 2.4, d, t: 300 })
-          plot(g, x0, 500, 96, up ? 50 : -100, (t) => Math.pow(t, 0.6), { d: d + 200 })
-        }
+        valueCurve(g, 180, 490, 130, 130, 0)
       },
     },
     scenes: [
