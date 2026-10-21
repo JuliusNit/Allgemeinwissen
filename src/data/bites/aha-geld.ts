@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
 import { B, E, HOOK, L, RR, T, arrow, blank, bubble, check, clock, coin, cross, crowd, dashes, eye, fig, group, hatch, ink, mk, mountain, pop, question, rays, st, star, strike, text, timeline, vbars, type P } from './draw'
-import { axes, ball, box, carrow, cloud, dot, drop, flame, flow, glide, heart, house, pie, plot, rad, ripple, smooth, spin, sun, travelWave, tree, waveP, wobble } from './kit'
+import { axes, ball, box, carrow, cloud, dot, drop, flame, flow, glide, heart, house, pie, plot, rad, ripple, smooth, spin, sun, sunDisk, travelWave, tree, wobble } from './kit'
 
 // Wirtschaft & Geld: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -23,14 +23,6 @@ function stack(g: Element, cx: number, y: number, n: number, d = 0, w = 50): voi
     ink(g, L([cx + w / 2, yy - 5], [cx + w / 2, yy - 13]), { w: 2, d: d + i * 40, t: 50 })
   }
   ink(g, E(cx, y - n * 10 - 3, w / 2, 8), { w: 2, d: d + n * 40, t: 200 })
-}
-
-/** Eisstand mit Schirm, Boden bei y */
-function stand(g: Element, x: number, y: number, label: string, d = 0): void {
-  ink(g, RR(x - 22, y - 36, 44, 36, 4), { w: 2.4, d, t: 300 })
-  ink(g, L([x, y - 36], [x, y - 64]), { w: 2, d: d + 200, t: 150 })
-  ink(g, [...B([x - 30, y - 62], [x - 20, y - 80], [x + 20, y - 80], [x + 30, y - 62]), [x - 30, y - 62]], { w: 2.4, d: d + 300, t: 300 })
-  text(g, x, y - 12, label, { anchor: 'middle', cls: 's', d: d + 400 })
 }
 
 /** Diamant */
@@ -137,6 +129,31 @@ function trawler(g: Element, x: number, y: number, s = 1, d = 0): void {
 function ammFish(g: Element, x: number, y: number, d = 0): void {
   ink(g, [...B([x, y], [x + 6, y - 6], [x + 16, y - 6], [x + 20, y]), ...B([x + 20, y], [x + 16, y + 6], [x + 6, y + 6], [x, y]).slice(1), [x - 6, y - 5], [x - 6, y + 5], [x, y]], { w: 1.6, d, t: 200 })
   dot(g, x + 15, y - 1, 1.2, d + 100)
+}
+
+/** Eiswagen: Kasten auf Rädern, Sonnenschirm, Eistüte als Schild, Buchstabe; Boden bei y */
+function stand(g: Element, x: number, y: number, label: string, d = 0): void {
+  ink(g, RR(x - 24, y - 40, 48, 32, 4), { w: 2.4, d, t: 300 })
+  for (const k of [-14, 14]) ink(g, E(x + k, y - 4, 5), { w: 1.6, d: d + 100, t: 80 })
+  ink(g, L([x, y - 40], [x, y - 70]), { w: 1.8, d: d + 200, t: 150 })
+  const um: P[] = [...B([x - 32, y - 66], [x - 22, y - 86], [x + 22, y - 86], [x + 32, y - 66]), [x - 32, y - 66]]
+  blank(g, um)
+  ink(g, um, { w: 2.2, d: d + 300, t: 300 })
+  for (let k = 0; k < 4; k++) if (k % 2) hatch(g, [[x - 32 + k * 16, y - 66], [x - 16 + k * 16, y - 66], [x, y - 84]], d + 400)
+  ink(g, [[x + 30, y - 40], [x + 36, y - 24], [x + 42, y - 40]], { w: 1.4, d: d + 400, t: 100 })
+  ink(g, E(x + 36, y - 44, 6, 5), { w: 1.4, d: d + 450, t: 100 })
+  text(g, x, y - 18, label, { anchor: 'middle', cls: 's', d: d + 400 })
+}
+
+/** Strand mit Meer im Hintergrund und gleichmäßig verteilten Badegästen (Handtücher) */
+function beach(g: Element, y: number, d = 0, n = 12): void {
+  travelWave(g, 20, 340, y + 50, 4, 50, { ms: 2600, d, w: 2 })
+  ink(g, L([30, y + 20], [330, y + 20]), { w: 3, d: d + 200, t: 500 })
+  for (let i = 0; i < n; i++) {
+    const x = 42 + i * (276 / (n - 1))
+    ink(g, RR(x - 8, y - 4, 16, 8, 2), { w: 1.2, d: d + 400 + i * 40, t: 60 })
+    dot(g, x + 4, y, 2.6, d + 500 + i * 40)
+  }
 }
 
 export const AHA_GELD: Bite[] = [
@@ -922,77 +939,118 @@ export const AHA_GELD: Bite[] = [
     images: [],
     draw: {
       laeden(g) {
+        // zwei konkurrierende Läden Wand an Wand, mit Markisen und Schildern; Passanten
         ink(g, L([20, 400], [340, 400]), { w: 3, t: 500 })
-        house(g, 100, 398, 70, 200)
-        house(g, 190, 398, 70, 400)
-        text(g, 135, 436, 'A', { anchor: 'middle', d: 800 })
-        text(g, 225, 436, 'B', { anchor: 'middle', d: 900 })
+        for (const [x, l, d] of [[60, 'A', 200], [180, 'B', 400]] as const) {
+          ink(g, RR(x, 240, 120, 160, 2), { w: 2.6, d, t: 500 })
+          ink(g, RR(x + 10, 250, 100, 26, 3), { w: 1.8, d: d + 200, t: 200 })
+          text(g, x + 60, 270, l, { anchor: 'middle', size: 18, d: d + 300 })
+          const aw: P[] = [[x, 290], [x + 120, 290], [x + 130, 316], [x - 10, 316], [x, 290]]
+          ink(g, aw, { w: 2, d: d + 300, t: 200 })
+          for (let k = 0; k < 7; k++) if (k % 2) hatch(g, [[x + k * 17, 290], [x + (k + 1) * 17, 290], [x + (k + 1) * 18.6 - 10, 316], [x + k * 18.6 - 10, 316]], d + 400)
+          ink(g, RR(x + 14, 330, 40, 70, 2), { w: 1.8, d: d + 400, t: 200 })
+          ink(g, RR(x + 66, 330, 44, 40, 2), { w: 1.6, d: d + 450, t: 200 })
+        }
+        crowd(g, 30, 400, 2, 20, 1.2, 800, 100)
+        crowd(g, 310, 400, 2, 20, 1.2, 900, 100)
       },
       strand(g) {
-        ink(g, waveP(20, 340, 600, 5, 50), { w: 2.2, t: 700 })
-        ink(g, L([30, 560], [330, 560]), { w: 3, d: 200, t: 500 })
-        for (let i = 0; i < 12; i++) dot(g, 42 + i * 25, 540, 4, 600 + i * 40)
-        text(g, 180, 500, '1 Kilometer Strand', { anchor: 'middle', cls: 's', d: 1000 })
+        beach(g, 540, 0)
+        sunDisk(g, 300, 360, 22, 600)
+        ink(g, L([30, 620], [330, 620]), { w: 1.4, d: 1000, t: 300 })
+        for (const x of [30, 330]) ink(g, L([x, 612], [x, 628]), { w: 1.6, d: 1100, t: 60 })
       },
       optimal(g) {
-        ink(g, L([30, 560], [330, 560]), { w: 3, t: 500 })
-        for (let i = 0; i < 12; i++) dot(g, 42 + i * 25, 540, 4, 200 + i * 30)
+        // Stände bei einem und drei Vierteln: jeder bedient seine Hälfte, kurze Wege
+        beach(g, 540, 0)
         stand(g, 105, 520, 'A', 600)
         stand(g, 255, 520, 'B', 700)
         dashes(g, L([180, 470], [180, 600]), { w: 1.4, d: 900 })
-        text(g, 180, 640, 'höchstens 250 m Weg', { anchor: 'middle', cls: 's', d: 1100 })
+        for (const [a, b] of [[[34, 600], [100, 600]], [[176, 600], [110, 600]], [[184, 600], [250, 600]], [[326, 600], [260, 600]]] as const) arrow(g, L(a as P, b as P), { w: 1.4, d: 1100, t: 200, head: 5 })
       },
       ruecken(g) {
-        ink(g, L([30, 560], [330, 560]), { w: 3, t: 500 })
-        for (let i = 0; i < 12; i++) dot(g, 42 + i * 25, 540, 4, 200 + i * 30)
+        beach(g, 540, 0)
         const a = st(g, 'm1', '--m1: translateX(42px); transition-duration: 1.8s')
         stand(a, 105, 520, 'A', 600)
         const b = st(g, 'm1', '--m1: translateX(-42px); transition-duration: 1.8s; --dl: 400ms')
         stand(b, 255, 520, 'B', 700)
-        text(st(g, 'f1', '--dl: 1600ms'), 180, 640, 'bis zu 500 m Weg', { anchor: 'middle', cls: 's', fade: false })
+        const f = st(g, 'f1', '--dl: 1600ms')
+        arrow(f, L([34, 610], [170, 610]), { w: 2.2, t: 0, head: 8 })
+        arrow(f, L([326, 610], [190, 610]), { w: 2.2, t: 0, head: 8 })
       },
       hotelling(g) {
-        timeline(g, 30, 330, 470, [{ at: 0.35, label: '1929', sub: 'Harold Hotelling', up: true }])
+        // Hotellings Modell auf Papier: eine Linie, zwei Punkte, Pfeile zur Mitte
+        const pg: P[] = [[40, 360], [320, 350], [326, 600], [46, 610], [40, 360]]
+        blank(g, pg)
+        ink(g, pg, { w: 2.4, t: 500 })
+        ink(g, L([70, 480], [296, 474]), { w: 2.6, d: 300, t: 400 })
+        for (const [x, d] of [[126, 500], [240, 600]] as const) ball(g, x, 478, 8, { d, fill: 'dicht', w: 1.6, t: 100 })
+        carrow(g, [126, 460], [174, 456], -20, { d: 900 })
+        carrow(g, [240, 456], [192, 456], 20, { d: 1000 })
+        dashes(g, L([183, 420], [183, 530]), { w: 1, d: 1200, dash: 3, gap: 3 })
+        for (let k = 0; k < 3; k++) ink(g, L([80, 550 + k * 14], [280 - k * 40, 548 + k * 14]), { w: 0.8, d: 1300 + k * 60, t: 100 })
       },
       tanke(g) {
+        // drei Tankstellen nebeneinander an derselben Straße: Dach, Zapfsäulen, Preistafel
         ink(g, L([20, 600], [340, 600]), { w: 3, t: 500 })
+        dashes(g, L([20, 630], [340, 630]), { w: 2, d: 100, dash: 14, gap: 10 })
         for (let i = 0; i < 3; i++) {
-          const x = 50 + i * 100
-          ink(g, RR(x, 500, 60, 100, 4), { w: 2.4, d: 200 + i * 200, t: 300 })
-          ink(g, RR(x + 10, 516, 40, 24, 3), { w: 1.6, d: 400 + i * 200, t: 200 })
+          const x = 30 + i * 105
+          ink(g, RR(x, 470, 90, 14, 2), { w: 2.4, d: 200 + i * 200, t: 300 })
+          for (const k of [8, 78]) ink(g, L([x + k, 484], [x + k, 600]), { w: 2, d: 300 + i * 200, t: 200 })
+          for (const k of [26, 54]) {
+            ink(g, RR(x + k - 7, 560, 14, 40, 2), { w: 1.8, d: 500 + i * 200, t: 150 })
+            ink(g, RR(x + k - 4, 566, 8, 8, 1), { w: 1, d: 600 + i * 200, t: 60 })
+          }
+          ink(g, L([x + 45, 470], [x + 45, 420]), { w: 1.8, d: 600 + i * 200, t: 150 })
+          ink(g, RR(x + 30, 396, 30, 26, 2), { w: 1.8, d: 700 + i * 200, t: 150 })
+          for (let k = 0; k < 2; k++) ink(g, L([x + 34, 404 + k * 8], [x + 56, 404 + k * 8]), { w: 0.8, d: 800 + i * 200, t: 60 })
         }
-        text(g, 180, 460, 'Tankstellen, Burger, Handyläden', { anchor: 'middle', cls: 's', d: 1000 })
       },
       vergleichen(g) {
-        fig(g, 180, 600, 4)
-        for (const x of [70, 290]) ink(g, RR(x - 40, 430, 80, 90, 6), { w: 2.4, d: 400, t: 300 })
+        // Kundin zwischen zwei Schaufenstern, schaut nach links und rechts
+        fig(g, 180, 620, 4)
+        for (const x of [60, 300]) {
+          ink(g, RR(x - 50, 400, 100, 120, 4), { w: 2.4, d: 400, t: 300 })
+          for (let k = 0; k < 3; k++) ink(g, RR(x - 40 + k * 28, 470, 22, 40, 3), { w: 1.4, d: 600 + k * 60, t: 100 })
+        }
         for (const [a, b] of [[[160, 480], [116, 476]], [[200, 480], [244, 476]]] as const) arrow(g, L(a as P, b as P), { w: 2, d: 800, t: 200, head: 7 })
-        text(g, 180, 650, 'leicht vergleichen, alles an einem Ort', { anchor: 'middle', cls: 's', d: 1000 })
+        ink(g, L([20, 622], [340, 622]), { w: 2, d: 200, t: 400 })
       },
       parteien(g) {
+        // Wählerverteilung von links bis rechts; beide großen Parteien drängen zur Mitte, kleine stehen am Rand
         axes(g, 30, 600, 330, 360)
         plot(g, 36, 596, 288, 200, (t) => Math.exp(-Math.pow((t - 0.5) / 0.18, 2)), { d: 400 })
-        text(g, 60, 628, 'links', { anchor: 'middle', cls: 's', d: 800 })
-        text(g, 180, 628, 'Mitte', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 300, 628, 'rechts', { anchor: 'middle', cls: 's', d: 1000 })
+        hatch(g, [[36, 596], ...Array.from({ length: 41 }, (_, i) => [36 + (i / 40) * 288, 596 - 200 * Math.exp(-Math.pow((i / 40 - 0.5) / 0.18, 2))] as P), [324, 596]], 900)
         ball(g, 160, 360, 10, { d: 1200, fill: 'dicht', t: 200 })
         ball(g, 200, 360, 10, { d: 1300, t: 200 })
+        for (const x of [60, 300]) ball(g, x, 560, 6, { d: 1500, fill: 'hell', w: 1.4, t: 100 })
+        arrow(g, L([100, 360], [146, 360]), { w: 1.6, d: 1400, t: 150, head: 6 })
+        arrow(g, L([260, 360], [214, 360]), { w: 1.6, d: 1400, t: 150, head: 6 })
       },
       gleich(g) {
-        for (let i = 0; i < 3; i++) ink(g, RR(60 + i * 90, 400, 60, 120, 12), { w: 2.6, d: i * 200, t: 400 })
-        text(g, 180, 580, 'alle zielen auf die Mitte', { anchor: 'middle', cls: 's', d: 900 })
+        // drei Smartphones, fast nicht zu unterscheiden
+        for (let i = 0; i < 3; i++) {
+          const x = 50 + i * 95
+          ink(g, RR(x, 380, 70, 140, 12), { w: 2.6, d: i * 200, t: 400 })
+          ink(g, RR(x + 6, 396, 58, 108, 4), { w: 1.2, d: i * 200 + 200, t: 300 })
+          ink(g, RR(x + 26, 386, 18, 4, 2), { w: 1, d: i * 200 + 300, t: 60 })
+          for (let k = 0; k < 6; k++) ink(g, RR(x + 12 + (k % 3) * 16, 410 + Math.floor(k / 3) * 18, 10, 10, 2), { w: 0.8, d: i * 200 + 400 + k * 20, t: 40 })
+        }
+        for (let i = 0; i < 2; i++) text(g, 132 + i * 95, 460, '=', { anchor: 'middle', size: 22, d: 1200 + i * 100 })
       },
       luecke(g) {
-        ink(g, L([30, 560], [330, 560]), { w: 3, t: 500 })
+        beach(g, 540, 0)
         stand(g, 147, 520, 'A', 300)
         stand(g, 213, 520, 'B', 400)
-        stand(g, 60, 520, 'C', 900)
-        text(g, 60, 600, 'besetzt die Lücke', { anchor: 'middle', cls: 's', d: 1100 })
+        const c = glide(g, -40, 0, { ms: 1400, d: 900 })
+        stand(c, 100, 520, 'C', 900)
+        ripple(g, 60, 560, 8, 40, { n: 2, ms: 1600, d: 1500, w: 1, ry: 0.4 })
       },
       ende(g) {
-        ink(g, L([30, 560], [330, 560]), { w: 3, t: 500 })
-        stand(g, 147, 520, 'A', 300)
-        stand(g, 213, 520, 'B', 400)
+        beach(g, 540, 0)
+        stand(g, 160, 520, 'A', 300)
+        stand(g, 210, 520, 'B', 400)
       },
     },
     scenes: [
