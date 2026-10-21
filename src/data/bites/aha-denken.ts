@@ -564,7 +564,7 @@ export const AHA_DENKEN: Bite[] = [
         cassette(g, 120, 520, 0.8, 1200, true)
         ink(g, RR(270, 330, 40, 290, 6), { w: 2.4, d: 300, t: 500 })
         for (const [frac, dd] of [[0.02, 400], [0.12, 900], [0.9, 2000]] as const) {
-          const gr = group(g, 'grow-y', `--d:${dd}ms;transform-origin:290px 616px`)
+          const gr = group(g, 'grow-y', `--d:${dd}ms`)
           hatch(gr, RR(274, 616 - 282 * frac, 32, 282 * frac, 3), dd, true)
         }
         arrow(g, L([210, 380], [262, 560]), { w: 1.6, d: 900, t: 300, head: 7 })

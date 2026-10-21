@@ -744,6 +744,8 @@ body.sheet-full-on { overflow: hidden; }
 .st-gfx .pop { transform-box: fill-box; animation: st-pop 0.5s var(--d, 0s) cubic-bezier(0.3, 1.6, 0.5, 1) both; }
 @keyframes st-pop { from { transform: scale(0); opacity: 0; } }
 .st-gfx .grow-y { transform-box: fill-box; transform-origin: 50% 100%; animation: st-gy 1s var(--d, 0s) cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.st-gfx .shrink-y { transform-box: fill-box; transform-origin: 50% 100%; animation: st-sy 1.2s var(--d, 0s) ease-in-out both; }
+@keyframes st-sy { from { transform: scaleY(1); } to { transform: scaleY(0.02); } }
 @keyframes st-gy { from { transform: scaleY(0); } }
 .st-gfx .grow-x { transform-box: fill-box; transform-origin: 0 50%; animation: st-gx 1.2s var(--d, 0s) cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @keyframes st-gx { from { transform: scaleX(0); } }

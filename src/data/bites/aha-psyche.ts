@@ -1,6 +1,6 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, bolt, brain, bubble, car, check, clock, cross, crowd, dashes, eye, fig, hatch, ink, lie, mk, pop, question, rays, st, star, strike, text, timeline, vbars, type P } from './draw'
-import { LAND, axes, bact, ball, bullets, carrow, cell, cloud, coastPts, dot, drop, flow, glide, head, heart, house, moonFace, pie, plot, rad, ripple, smooth, spin, sun, sunDisk, travelWave, waveP, wobble } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, bolt, brain, bubble, bulb, car, check, clock, cross, crowd, dashes, eye, fig, hatch, ink, lie, mk, pop, question, rays, st, star, strike, text, type P } from './draw'
+import { LAND, axes, bact, ball, carrow, cell, cloud, coastPts, dot, drop, flake, flame, flow, glide, head, heart, house, leaf, moonFace, pie, plot, rad, ripple, smooth, spin, sunDisk, travelWave, waveP, wobble } from './kit'
 
 // Psychologie: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
 
@@ -1363,85 +1363,167 @@ export const AHA_PSYCHE: Bite[] = [
     images: [],
     draw: {
       party(g) {
-        crowd(g, 40, 400, 8, 40, 2.2, 0, 80)
-        for (let i = 0; i < 4; i++) bubble(g, 30 + i * 80, 150 + (i % 2) * 60, 60, 36, i % 2 ? 'r' : 'l', 600 + i * 150)
+        // Party: Kronleuchter, Gruppen im Gespräch mit Gläsern, Schall prallt von harten Wänden zurück
+        ink(g, L([180, 40], [180, 80]), { w: 1.6, t: 200 })
+        ink(g, B([130, 90], [150, 110], [210, 110], [230, 90]), { w: 2.2, d: 200, t: 300 })
+        for (let k = 0; k < 5; k++) {
+          const x = 136 + k * 22
+          ink(g, L([x, 96], [x, 110]), { w: 1, d: 300, t: 60 })
+          flame(g, x, 96, 0.08, 500 + k * 40)
+        }
+        crowd(g, 30, 400, 3, 30, 2.2, 0, 80)
+        crowd(g, 200, 400, 4, 30, 2.2, 300, 80)
+        for (const x of [60, 230, 290]) {
+          ink(g, [[x - 5, 316], [x + 5, 316], [x + 1, 330], [x + 1, 340], [x - 1, 340], [x - 1, 330], [x - 5, 316]], { w: 1.2, d: 800, t: 100 })
+        }
+        for (let i = 0; i < 4; i++) {
+          bubble(g, 20 + i * 82, 160 + (i % 2) * 50, 64, 36, i % 2 ? 'r' : 'l', 600 + i * 150)
+          ink(g, waveP(30 + i * 82, 74 + i * 82, 178 + (i % 2) * 50, 3, 8), { w: 1.2, d: 800 + i * 150, t: 200 })
+        }
+        for (const [a, b] of [[[340, 240], [300, 270]], [[20, 260], [56, 290]]] as const) carrow(g, a as P, b as P, 16, { d: 1300 })
+        for (const x of [12, 348]) ink(g, L([x, 120], [x, 400]), { w: 2.4, d: 200, t: 400 })
       },
       zuhoeren(g) {
+        // zwei im Gespräch: gebündelte Schallwellen zwischen ihnen, ringsum gedämpftes Gemurmel
         fig(g, 70, 600, 3.6)
         fig(g, 180, 600, 3.6, { d: 200 })
-        for (let i = 0; i < 3; i++) ink(g, E(150, 498, 12 + i * 10, 12 + i * 10, 160, 200), { w: 2, d: 700 + i * 120, t: 200 })
+        for (let i = 0; i < 3; i++) ink(g, E(150, 498, 12 + i * 10, 12 + i * 10, 160, 200), { w: 2.2, d: 700 + i * 120, t: 200 })
         crowd(g, 250, 600, 3, 30, 1.8, 400, 80)
-        for (const [x, y] of [[260, 470], [300, 450], [320, 490]] as const) ink(g, waveP(x - 12, x + 12, y, 3, 8), { w: 1.2, d: 900, t: 200 })
+        for (const [x, y] of [[260, 470], [300, 450], [320, 490], [240, 420]] as const) {
+          const st0 = mk('g', { style: 'opacity:0.4' }, g)
+          ink(st0, waveP(x - 12, x + 12, y, 3, 8), { w: 1.2, d: 900, t: 200 })
+        }
+        ink(g, [[100, 470], [120, 480], [100, 490]], { w: 1.2, d: 900, t: 80 })
       },
       cherry(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.25, label: '1953', sub: 'Colin Cherry, London', up: true },
-          { at: 0.85, label: 'heute', up: true },
-        ])
+        // Tonbandgerät mit zwei Spulen, Kabel zu Kopfhörern; Versuchsperson spricht nach
+        ink(g, RR(30, 400, 160, 120, 8), { w: 2.8, t: 500 })
+        for (const x of [70, 150]) {
+          ink(g, E(x, 440, 26), { w: 2.2, d: 300, t: 300 })
+          const sp = spin(g, x, 440, 1600, 900)
+          for (let k = 0; k < 3; k++) ink(sp, L([x, 440], [x + Math.cos(rad(k * 120)) * 20, 440 + Math.sin(rad(k * 120)) * 20]), { w: 1.4, d: 600, t: 80 })
+        }
+        ink(g, L([70, 466], [150, 466]), { w: 1.4, d: 700, t: 200 })
+        for (let k = 0; k < 4; k++) ink(g, E(60 + k * 22, 500, 6), { w: 1.4, d: 800 + k * 60, t: 80 })
+        ink(g, B([190, 470], [230, 470], [240, 420], [262, 400]), { w: 1.4, d: 900, t: 300 })
+        head(g, 280, 470, 0.7, 600, { neck: true })
+        ink(g, B([236, 456], [236, 380], [324, 380], [324, 456]), { w: 2.4, d: 1000, t: 300 })
+        for (const k of [-1, 1]) ink(g, RR(280 + k * 44 - 8, 446, 16, 28, 5), { w: 2, d: 1100, t: 150 })
       },
       hinweise(g) {
-        bullets(g, 50, 380, ['Richtung der Stimme', 'Tonhöhe und Klang', 'Lippenbewegungen', 'Sinn des Satzes'], { gap: 50, size: 19 })
+        // Richtung (Pfeil zum Ohr), Tonhöhe (Wellenform), Lippen, Sinn (Sprechblase mit Glühbirne)
+        ink(g, E(80, 420, 22, 34), { w: 2.4, t: 300 })
+        ink(g, B([84, 400], [70, 404], [70, 430], [84, 436]), { w: 1.6, d: 200, t: 150 })
+        arrow(g, L([150, 380], [108, 410]), { w: 2.2, d: 400, t: 200, head: 8 })
+        ink(g, waveP(200, 330, 410, 14, 22), { w: 2.2, d: 500, t: 400 })
+        ink(g, waveP(200, 330, 440, 5, 12), { w: 1.2, d: 600, t: 400 })
+        const m: P[] = [...B([40, 560], [70, 530], [120, 530], [150, 560]), ...B([150, 560], [120, 600], [70, 600], [40, 560]).slice(1)]
+        ink(g, m, { w: 2.6, d: 800, t: 400 })
+        ink(g, L([46, 560], [144, 560]), { w: 1.4, d: 900, t: 200 })
+        bubble(g, 200, 510, 120, 80, 'l', 1000)
+        bulb(g, 260, 550, 0.6, 1200)
       },
       ohren(g) {
-        ball(g, 180, 460, 70, { w: 3 })
-        for (const k of [-1, 1]) ink(g, E(180 + k * 74, 460, 10, 20), { w: 2.6, d: 400, t: 300 })
-        arrow(g, L([340, 380], [262, 450]), { w: 2.4, d: 700, t: 400, head: 9 })
-        text(g, 180, 600, 'rechts minimal früher', { anchor: 'middle', cls: 's', d: 1000 })
+        // Kopf von oben, Schall kommt von rechts: das rechte Ohr wird zuerst getroffen
+        ink(g, E(180, 470, 70, 84), { w: 3, t: 700 })
+        ink(g, B([168, 386], [174, 376], [186, 376], [192, 386]), { w: 2, d: 300, t: 150 })
+        for (const k of [-1, 1]) ink(g, E(180 + k * 74, 470, 10, 22), { w: 2.6, d: 400, t: 300 })
+        for (let i = 0; i < 4; i++) {
+          const w = glide(g, -120, 0, { ms: 2000, d: 800 + i * 500, loop: true })
+          ink(w, E(420, 470, 140, 140, 150, 210), { w: 1.6, d: 700 + i * 500, t: 200 })
+        }
+        ripple(g, 254, 470, 6, 24, { n: 2, ms: 1000, d: 1200, w: 1.4 })
+        ripple(g, 106, 470, 4, 16, { n: 2, ms: 1000, d: 1500, w: 0.9 })
       },
       kopfhoerer(g) {
-        ball(g, 180, 460, 60, { w: 3 })
-        ink(g, B([110, 450], [110, 360], [250, 360], [250, 450]), { w: 3, d: 300, t: 500 })
-        for (const k of [-1, 1]) ink(g, RR(180 + k * 70 - 12, 430, 24, 50, 8), { w: 2.6, d: 500, t: 300 })
-        text(g, 60, 560, 'Text 1', { anchor: 'middle', cls: 's', d: 800 })
-        text(g, 300, 560, 'Text 2', { anchor: 'middle', cls: 's', d: 900 })
+        // zwei Texte, einer je Ohr: der linke wird nachgesprochen, der rechte rauscht vorbei
+        head(g, 180, 470, 0.8, 0, { neck: false })
+        ink(g, B([122, 456], [122, 360], [238, 360], [238, 456]), { w: 3, d: 300, t: 500 })
+        for (const k of [-1, 1]) ink(g, RR(180 + k * 62 - 12, 440, 24, 44, 8), { w: 2.6, d: 500, t: 300 })
+        for (let k = 0; k < 4; k++) ink(g, L([20, 420 + k * 16], [96, 420 + k * 16]), { w: 2, d: 700 + k * 80, t: 150 })
+        for (let k = 0; k < 4; k++) {
+          const f = mk('g', { style: 'opacity:0.35' }, g)
+          ink(f, L([264, 420 + k * 16], [340, 420 + k * 16]), { w: 1, d: 700 + k * 80, t: 150 })
+        }
+        bubble(g, 90, 560, 120, 50, 'l', 1300)
+        for (let k = 0; k < 3; k++) ink(g, L([104, 576 + k * 10], [196 - k * 20, 576 + k * 10]), { w: 1.6, d: 1500 + k * 60, t: 100 })
       },
       name(g) {
-        ball(g, 180, 460, 60, { w: 3 })
-        for (const k of [-1, 1]) ink(g, RR(180 + k * 70 - 12, 430, 24, 50, 8), { w: 2.6, d: 200, t: 300 })
-        bubble(g, 220, 330, 120, 50, 'l', 600)
-        text(g, 280, 362, '… dein Name …', { anchor: 'middle', cls: 's', d: 800 })
-        text(g, 180, 580, 'eigener Name: man horcht auf', { anchor: 'middle', cls: 's', d: 1100 })
+        // auf dem ignorierten Ohr fällt der eigene Name – das Namensschild leuchtet auf
+        head(g, 180, 470, 0.8, 0, { neck: false })
+        ink(g, B([122, 456], [122, 360], [238, 360], [238, 456]), { w: 3, d: 200, t: 400 })
+        for (const k of [-1, 1]) ink(g, RR(180 + k * 62 - 12, 440, 24, 44, 8), { w: 2.6, d: 300, t: 300 })
+        const tag = pop(g, 900, '50% 50%')
+        ink(tag, RR(250, 320, 90, 50, 6), { w: 2.4, t: 0 })
+        hatch(tag, RR(250, 320, 90, 14, 4), 0, true)
+        for (let k = 0; k < 2; k++) ink(tag, L([262, 346 + k * 10], [326 - k * 20, 346 + k * 10]), { w: 1.6, t: 0 })
+        rays(g, 295, 345, 52, 66, 10, 1100)
+        arrow(g, B([270, 380], [266, 410], [256, 430], [246, 444]), { w: 2, d: 1300, t: 200, head: 7 })
       },
       filter(g) {
+        // Trichter: das Stimmengewirr bleibt hängen, nur Bedeutsames (Stern) fällt durch
         ink(g, [[60, 360], [300, 360], [200, 480], [200, 560], [160, 560], [160, 480], [60, 360]], { w: 3, t: 900 })
         for (let i = 0; i < 8; i++) ink(g, waveP(70 + i * 28, 90 + i * 28, 330, 3, 8), { w: 1.4, d: 300 + i * 50, t: 150 })
-        text(g, 180, 600, 'nach Bedeutung gefiltert', { anchor: 'middle', cls: 's', d: 1200 })
+        const s = glide(g, 0, 240, { ms: 2000, d: 1200, loop: true })
+        star(s, 180, 340, 10, { d: 1100, fill: true })
+        for (const x of [100, 260]) {
+          const w = wobble(g, { dx: 4, ms: 800, d: 1300 })
+          ink(w, waveP(x - 14, x + 14, 400, 3, 8), { w: 1.2, d: 1200, t: 150 })
+        }
       },
       alter(g) {
-        fig(g, 110, 600, 4)
-        ink(g, B([92, 470], [80, 470], [80, 490], [92, 490]), { w: 2, d: 500, t: 200 })
-        for (let i = 0; i < 4; i++) bubble(g, 170 + (i % 2) * 80, 360 + Math.floor(i / 2) * 70, 60, 36, 'l', 700 + i * 100)
-        text(g, 180, 650, 'mit dem Alter anstrengender', { anchor: 'middle', cls: 's', d: 1200 })
+        // älterer Mensch mit Hörgerät, ringsum dichtes Stimmengewirr
+        fig(g, 110, 620, 4)
+        ink(g, B([92, 480], [80, 480], [80, 500], [92, 500]), { w: 2, d: 500, t: 200 })
+        dot(g, 84, 500, 2.4, 600)
+        for (let i = 0; i < 6; i++) {
+          bubble(g, 170 + (i % 2) * 80, 330 + Math.floor(i / 2) * 70, 60, 36, 'l', 700 + i * 100)
+          ink(g, waveP(178 + (i % 2) * 80, 222 + (i % 2) * 80, 348 + Math.floor(i / 2) * 70, 3, 6), { w: 1, d: 800 + i * 100, t: 100 })
+        }
       },
       stimme(g) {
-        ink(g, waveP(30, 330, 400, 26, 60), { w: 3, t: 900 })
-        ink(g, waveP(30, 330, 520, 10, 34), { w: 1.6, d: 400, t: 900 })
-        text(g, 30, 360, 'gesuchte Stimme', { cls: 's', d: 600 })
-        text(g, 30, 580, 'die anderen', { cls: 's', d: 800 })
-        text(g, 180, 640, 'Hirnaktivität folgt der gesuchten Stimme', { anchor: 'middle', cls: 's', d: 1200 })
+        // oben die gesuchte Stimme (kräftig), unten die anderen (fein); dazwischen die Hirnaktivität, die der kräftigen folgt
+        ink(g, waveP(30, 330, 380, 26, 60), { w: 3, t: 900 })
+        brain(g, 40, 470, 0.3, 300)
+        dashes(g, waveP(80, 330, 470, 22, 60), { w: 2, d: 900, dash: 6, gap: 3 })
+        const f = mk('g', { style: 'opacity:0.4' }, g)
+        ink(f, waveP(30, 330, 570, 10, 34), { w: 1.4, d: 400, t: 900 })
+        ink(f, waveP(30, 330, 600, 8, 22, 1), { w: 1.2, d: 500, t: 900 })
       },
       vertraut(g) {
-        fig(g, 90, 600, 3.6)
-        fig(g, 180, 600, 3.6, { d: 200 })
+        // ein Paar: die vertraute Stimme kommt klar durch
+        fig(g, 90, 620, 3.6)
+        fig(g, 180, 620, 3.6, { d: 200 })
         heart(g, 135, 420, 0.6, 600)
-        text(g, 180, 650, 'vertraute Stimmen hört man leichter heraus', { anchor: 'middle', cls: 's', d: 1000 })
+        for (let i = 0; i < 3; i++) ink(g, E(160, 516, 12 + i * 10, 12 + i * 10, 160, 200), { w: 2.2, d: 800 + i * 120, t: 200 })
+        crowd(g, 250, 620, 3, 30, 1.8, 600, 80)
       },
       lippen(g) {
-        eye(g, 120, 420, 1)
-        eye(g, 240, 420, 1, 200)
+        // Blick auf den Mund: die Lippenbewegung hilft beim Verstehen
+        eye(g, 120, 400, 1, 0)
+        eye(g, 240, 400, 1, 200)
         const m: P[] = [...B([120, 540], [150, 510], [210, 510], [240, 540]), ...B([240, 540], [210, 580], [150, 580], [120, 540]).slice(1)]
-        ink(g, m, { w: 3, d: 500, t: 600 })
-        text(g, 180, 630, 'Hinschauen hilft beim Verstehen', { anchor: 'middle', cls: 's', d: 1000 })
+        const mw = wobble(g, { dy: 3, ms: 300, d: 900 })
+        ink(mw, m, { w: 3, d: 500, t: 600 })
+        ink(mw, L([126, 540], [234, 540]), { w: 1.4, d: 700, t: 200 })
+        for (const x of [120, 240]) dashes(g, L([x, 420], [180, 520]), { w: 1, d: 1100, dash: 3, gap: 4 })
       },
       baby(g) {
+        // Baby: großer Kopf, Haarlocke, große Augen; Schallwellen müssen deutlich stärker sein
         ball(g, 180, 470, 80, { w: 3 })
-        for (const x of [150, 210]) dot(g, x, 460, 5, 500)
-        ink(g, B([160, 500], [172, 512], [188, 512], [200, 500]), { w: 2.2, d: 600, t: 200 })
-        text(g, 180, 600, 'Babys: erkennen ihren Namen früh', { anchor: 'middle', cls: 's', d: 1000 })
+        ink(g, B([170, 392], [176, 380], [190, 382], [186, 396]), { w: 2, d: 300, t: 150 })
+        for (const x of [150, 210]) {
+          ink(g, E(x, 462, 11, 12), { w: 2, d: 500, t: 150 })
+          dot(g, x + 2, 464, 5, 600)
+        }
+        ink(g, B([164, 506], [172, 516], [188, 516], [196, 506]), { w: 2.2, d: 600, t: 200 })
+        for (const k of [-1, 1]) ink(g, E(180 + k * 82, 470, 10, 18), { w: 2.4, d: 400, t: 200 })
+        for (let i = 0; i < 4; i++) ink(g, E(360, 470, 40 + i * 20, 40 + i * 20, 150, 210), { w: 3 - i * 0.4, d: 900 + i * 150, t: 200 })
       },
       ende(g) {
         ball(g, 180, 480, 60, { w: 3 })
         for (const k of [-1, 1]) ink(g, E(180 + k * 64, 480, 9, 18), { w: 2.6, d: 400, t: 300 })
+        ripple(g, 180, 480, 64, 120, { n: 2, ms: 2000, d: 900, w: 1 })
       },
     },
     scenes: [
@@ -1477,76 +1559,158 @@ export const AHA_PSYCHE: Bite[] = [
     images: [],
     draw: {
       uhr(g) {
-        clock(g, 180, 250, 120, 300, 60)
+        // Pendeluhr, daneben fliegen Kalenderblätter davon
+        ink(g, RR(130, 90, 100, 330, 10), { w: 3, t: 700 })
+        clock(g, 180, 160, 42, 300, 60, 200)
+        const pd = wobble(g, { deg: 14, ox: 180, oy: 210, ms: 1600, d: 900 })
+        ink(pd, L([180, 210], [180, 360]), { w: 1.6, d: 600, t: 300 })
+        ball(pd, 180, 370, 16, { d: 800, fill: 'hell', w: 2, t: 200 })
+        for (let k = 0; k < 4; k++) {
+          const p = glide(g, 50 + k * 10, -60 - k * 10, { ms: 2400, d: 900 + k * 400, loop: true })
+          ink(p, RR(250, 300 + k * 10, 50, 56, 3), { w: 1.6, d: 800 + k * 400, t: 150 })
+          hatch(p, RR(250, 300 + k * 10, 50, 12, 2), 900 + k * 400, true)
+        }
       },
       ferien(g) {
-        sun(g, 260, 360, 30)
-        fig(g, 110, 600, 3, { arms: 'up' })
-        for (const [y, d] of [[560, 400], [600, 500]] as const) ink(g, waveP(20, 340, y, 5, 50), { w: 2.2, d, t: 700 })
-        text(g, 180, 650, 'damals: eine Ewigkeit', { anchor: 'middle', cls: 's', d: 1100 })
+        // Sommerferien am Meer: Sonne, Wellen, Sandburg, Kind mit Eis
+        sunDisk(g, 280, 360, 30, 0)
+        for (const [y, d] of [[540, 400], [570, 500]] as const) travelWave(g, 20, 340, y, 5, 50, { ms: 2600 + y, d, w: 2 })
+        ink(g, B([20, 600], [100, 590], [260, 596], [340, 590]), { w: 2.4, d: 300, t: 500 })
+        const castle: P[] = [[200, 600], [200, 560], [210, 560], [210, 552], [220, 552], [220, 560], [240, 560], [240, 552], [250, 552], [250, 560], [260, 560], [260, 600]]
+        ink(g, castle, { w: 2, d: 800, t: 400 })
+        hatch(g, [...castle, [200, 600]], 1000)
+        fig(g, 110, 600, 2.6, { arms: 'up', d: 600 })
+        ink(g, [[124, 520], [130, 540], [136, 520]], { w: 1.6, d: 1100, t: 100 })
+        ball(g, 130, 514, 7, { d: 1200, fill: 'hell', w: 1.4, t: 60 })
       },
       anteil(g) {
-        vbars(g, [
-          { label: 'mit 5 Jahren', v: 20, fmt: (v) => `${Math.round(v)} %` },
-          { label: 'mit 50 Jahren', v: 2, fmt: (v) => `${Math.round(v)} %`, dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 250 })
-        text(g, 180, 320, 'ein Jahr als Anteil des Lebens', { anchor: 'middle', cls: 's', d: 1200 })
+        // Lebenslinie als Kette von Jahren: beim Kind ist ein Jahr ein Fünftel, beim Erwachsenen ein Fünfzigstel
+        fig(g, 40, 450, 1.4, { d: 0 })
+        for (let k = 0; k < 5; k++) {
+          const r = RR(70 + k * 56, 410, 52, 30, 2)
+          if (k === 4) hatch(g, r, 600, true)
+          ink(g, r, { w: 1.8, d: 200 + k * 60, t: 100 })
+        }
+        fig(g, 40, 590, 2.2, { d: 400 })
+        for (let k = 0; k < 50; k++) {
+          const r = RR(70 + (k % 25) * 11, 530 + Math.floor(k / 25) * 22, 10, 18, 1)
+          if (k === 49) hatch(g, r, 1600, true)
+          ink(g, r, { w: 0.9, d: 600 + k * 20, t: 40 })
+        }
       },
       neues(g) {
-        bullets(g, 50, 380, ['erster Schultag', 'erstes Mal am Meer', 'erstes Fahrrad', 'erster Schnee'], { gap: 50, size: 19 })
+        // vieles zum ersten Mal: Schultüte, Meer, Fahrrad, Schnee
+        const cone: P[] = [[60, 340], [120, 340], [90, 470], [60, 340]]
+        ink(g, cone, { w: 2.4, t: 400 })
+        hatch(g, [[64, 352], [116, 352], [104, 400], [76, 400]], 300)
+        ink(g, B([60, 340], [70, 320], [110, 320], [120, 340]), { w: 1.6, d: 300, t: 200 })
+        for (const [y, d] of [[400, 400], [420, 500]] as const) ink(g, waveP(200, 320, y, 5, 30), { w: 2, d, t: 300 })
+        sunDisk(g, 300, 350, 14, 600)
+        for (const x of [70, 140]) ink(g, E(x, 590, 26), { w: 2.2, d: 700, t: 300 })
+        ink(g, [[70, 590], [100, 550], [130, 550], [140, 590], [104, 590], [70, 590]], { w: 2, d: 900, t: 300 })
+        ink(g, [[100, 550], [96, 536], [106, 536]], { w: 1.6, d: 1000, t: 100 })
+        ink(g, [[130, 550], [134, 534]], { w: 1.6, d: 1000, t: 100 })
+        for (const [x, y] of [[230, 540], [280, 580], [300, 520]] as const) flake(g, x, y, 14, 1100)
       },
       erinnerung(g) {
-        for (let i = 0; i < 14; i++) dot(g, 40 + i * 21, 420 + (i % 3) * 14, 5, i * 60)
-        text(g, 180, 380, 'viele Erinnerungen: lang', { anchor: 'middle', cls: 's', d: 300 })
-        for (let i = 0; i < 3; i++) dot(g, 120 + i * 60, 560, 5, 1100 + i * 100)
-        text(g, 180, 520, 'wenige Erinnerungen: kurz', { anchor: 'middle', cls: 's', d: 1000 })
+        // oben ein langer Filmstreifen voller Bilder (ereignisreich), unten ein kurzer mit wenigen
+        const strip = (y: number, n: number, d: number) => {
+          ink(g, RR(30, y, n * 30 + 10, 56, 2), { w: 2.2, d, t: 300 })
+          for (let k = 0; k < n * 2; k++) {
+            ink(g, RR(36 + k * 15, y + 4, 8, 6, 1), { w: 0.8, d: d + 100, t: 40 })
+            ink(g, RR(36 + k * 15, y + 46, 8, 6, 1), { w: 0.8, d: d + 100, t: 40 })
+          }
+          for (let k = 0; k < n; k++) {
+            ink(g, RR(38 + k * 30, y + 14, 24, 28, 2), { w: 1.2, d: d + 200 + k * 40, t: 60 })
+            if (k % 3 === 0) hatch(g, RR(40 + k * 30, y + 16, 20, 24, 2), d + 300 + k * 40)
+          }
+        }
+        strip(370, 10, 0)
+        strip(530, 3, 900)
       },
       routine(g) {
+        // fünf fast gleiche Tage schieben sich zu einem einzigen Blatt zusammen
         for (let i = 0; i < 5; i++) {
+          const p = glide(g, (2 - i) * 62, 0, { ms: 1400, d: 1400 })
           const x = 40 + i * 62
-          ink(g, RR(x, 420, 50, 80, 6), { w: 2.2, d: i * 150, t: 300 })
-          ink(g, L([x + 10, 450], [x + 40, 450]), { w: 1.6, d: i * 150 + 200, t: 100 })
-          ink(g, L([x + 10, 470], [x + 40, 470]), { w: 1.6, d: i * 150 + 250, t: 100 })
+          ink(p, RR(x, 420, 50, 80, 6), { w: 2.2, d: i * 150, t: 300 })
+          hatch(p, RR(x, 420, 50, 14, 4), i * 150 + 200, true)
+          clock(p, x + 25, 470, 14, 240, 0, i * 150 + 300)
         }
-        text(g, 180, 560, 'gleiche Tage verschmelzen', { anchor: 'middle', cls: 's', d: 1100 })
       },
       urlaub(g) {
-        for (const [x0, n, a, b, d] of [[30, 'Urlaub', 'im Moment: schnell', 'im Rückblick: lang', 0], [190, 'Wartezimmer', 'im Moment: zäh', 'im Rückblick: kurz', 600]] as const) {
-          ink(g, RR(x0, 380, 140, 160, 12), { w: 2.6, d, t: 500 })
-          text(g, x0 + 70, 420, n, { anchor: 'middle', d: d + 200 })
-          text(g, x0 + 70, 470, a, { anchor: 'middle', cls: 's', d: d + 300 })
-          text(g, x0 + 70, 500, b, { anchor: 'middle', cls: 's', d: d + 400 })
-        }
+        // links Urlaub: Palme, Koffer, viele Bilder im Rückblick; rechts Wartezimmer: Stühle, zäh tickende Uhr, ein Bild
+        ink(g, RR(20, 340, 150, 280, 10), { w: 2.4, t: 500 })
+        ink(g, RR(190, 340, 150, 280, 10), { w: 2.4, d: 200, t: 500 })
+        ink(g, B([70, 470], [72, 420], [80, 380], [90, 360]), { w: 2.2, d: 400, t: 300 })
+        for (let k = 0; k < 5; k++) ink(g, B([90, 360], [90 + Math.cos(rad(-160 + k * 35)) * 20, 360 + Math.sin(rad(-160 + k * 35)) * 14], [90 + Math.cos(rad(-160 + k * 35)) * 32, 362 + Math.sin(rad(-160 + k * 35)) * 10], [90 + Math.cos(rad(-160 + k * 35)) * 36, 372 + Math.sin(rad(-160 + k * 35)) * 8]), { w: 1.4, d: 500 + k * 40, t: 100 })
+        ink(g, RR(110, 440, 40, 30, 4), { w: 2, d: 600, t: 150 })
+        for (let k = 0; k < 8; k++) ink(g, RR(30 + (k % 4) * 34, 520 + Math.floor(k / 4) * 40, 28, 32, 2), { w: 1.2, d: 900 + k * 60, t: 60 })
+        for (let k = 0; k < 3; k++) ink(g, [[204 + k * 40, 470], [204 + k * 40, 440], [230 + k * 40, 440], [230 + k * 40, 470], [204 + k * 40, 470], [204 + k * 40, 486]], { w: 1.6, d: 600 + k * 80, t: 150 })
+        clock(g, 300, 380, 22, 300, 0, 700)
+        ink(g, RR(250, 540, 28, 32, 2), { w: 1.2, d: 1300, t: 60 })
       },
       takt(g) {
-        brain(g, 180, 440, 1)
-        for (let i = 0; i < 6; i++) ink(g, RR(60 + i * 42, 560, 30, 40, 4), { w: 1.8, d: 900 + i * 80, t: 150 })
-        text(g, 180, 640, 'Hypothese: weniger „Bilder“ pro Sekunde', { anchor: 'middle', cls: 's', d: 1400 })
+        // vermutet: weniger Einzelbilder pro Sekunde – Filmstreifen jung (viele) und alt (weniger)
+        brain(g, 180, 400, 0.8)
+        for (const [y, n, d] of [[520, 10, 800], [600, 5, 1200]] as const) {
+          ink(g, L([30, y], [330, y]), { w: 1, d, t: 300 })
+          for (let k = 0; k < n; k++) ink(g, RR(34 + k * (296 / n), y - 18, 296 / n - 6, 30, 2), { w: 1.4, d: d + k * 50, t: 60 })
+        }
       },
       fall(g) {
-        ink(g, L([60, 330], [60, 620]), { w: 2.6, t: 600 })
-        ink(g, L([40, 330], [120, 330]), { w: 2.6, d: 200, t: 300 })
-        fig(g, 200, 450, 3, { arms: 'up', d: 400 })
-        arrow(g, L([260, 380], [260, 520]), { w: 2.6, d: 700, t: 400, head: 9 })
-        text(g, 180, 650, 'Schreck: dichtere Erinnerung, nicht schnelleres Sehen', { anchor: 'middle', cls: 's', d: 1100 })
+        // Fallturm mit Netz: am Handgelenk eine blitzende Zahlenanzeige, die Person soll sie im Fallen ablesen
+        ink(g, L([60, 320], [60, 640]), { w: 2.6, t: 600 })
+        ink(g, L([40, 320], [130, 320]), { w: 2.6, d: 200, t: 300 })
+        const f = glide(g, 0, 160, { ms: 1400, d: 700 })
+        fig(f, 200, 450, 3, { arms: 'up', d: 400 })
+        ink(f, RR(224, 340, 26, 16, 2), { w: 1.6, d: 900, t: 100 })
+        for (let k = 0; k < 3; k++) {
+          const p = mk('g', { class: 'blink', style: `--d:${1100 + k * 200}ms` }, f)
+          ink(p, L([229 + k * 7, 344], [229 + k * 7, 352]), { w: 1.6, t: 0 })
+        }
+        ink(g, B([110, 620], [160, 650], [260, 650], [310, 620]), { w: 2.2, d: 500, t: 400 })
+        for (let k = 0; k < 6; k++) ink(g, L([130 + k * 30, 628], [146 + k * 30, 646]), { w: 0.8, d: 700, t: 60 })
       },
       huegel(g) {
         axes(g, 30, 600, 330, 330, { xl: 'Alter', yl: 'Erinnerungen' })
         plot(g, 36, 596, 280, 220, (t) => 0.2 + 0.7 * Math.exp(-Math.pow((t - 0.3) / 0.12, 2)), { d: 400 })
-        text(g, 120, 380, '15 bis 25', { anchor: 'middle', cls: 's', d: 1300 })
+        hatch(g, RR(36 + 0.22 * 280, 380, 0.16 * 280, 216, 2), 1300)
       },
       gegen(g) {
-        bullets(g, 50, 380, ['neue Orte', 'neue Hobbys', 'neue Menschen', 'anderer Weg zur Arbeit'], { gap: 50, size: 19 })
+        // Neues ausprobieren: Ortsnadel, Gitarre, neue Leute, ein anderer Weg
+        ink(g, [...B([80, 420], [50, 380], [60, 340], [80, 340]), ...B([80, 340], [100, 340], [110, 380], [80, 420]).slice(1)], { w: 2.4, t: 400 })
+        ink(g, E(80, 362, 8), { w: 1.6, d: 200, t: 100 })
+        ink(g, E(250, 400, 34, 26), { w: 2.4, d: 300, t: 300 })
+        ink(g, E(250, 400, 9), { w: 1.4, d: 400, t: 100 })
+        ink(g, RR(280, 340, 60, 12, 3), { w: 2, d: 500, t: 200 })
+        for (let k = 0; k < 3; k++) ink(g, L([216, 396 + k * 4], [330, 344 + k * 3]), { w: 0.7, d: 600, t: 150 })
+        crowd(g, 40, 620, 3, 34, 2, 700, 80)
+        ink(g, RR(200, 520, 130, 100, 4), { w: 1.6, d: 900, t: 300 })
+        ink(g, [[210, 610], [260, 610], [260, 540], [320, 540]], { w: 1.2, d: 1000, t: 300 })
+        dashes(g, [[210, 610], [210, 570], [300, 570], [300, 540], [320, 540]], { w: 2.2, d: 1300, dash: 5, gap: 4 })
       },
       tagebuch(g) {
-        ink(g, RR(100, 360, 160, 220, 8), { w: 3, t: 700 })
-        ink(g, L([120, 360], [120, 580]), { w: 2, d: 300, t: 400 })
-        for (let i = 0; i < 6; i++) ink(g, L([136, 400 + i * 28], [240, 400 + i * 28]), { w: 1.4, d: 500 + i * 80, t: 200 })
-        text(g, 180, 630, 'mehr Erinnerungen, vollere Monate', { anchor: 'middle', cls: 's', d: 1100 })
+        // aufgeschlagenes Tagebuch mit Lesebändchen, Füller schreibt
+        ink(g, RR(70, 380, 220, 200, 8), { w: 3, t: 700 })
+        ink(g, L([180, 380], [180, 580]), { w: 2, d: 300, t: 400 })
+        for (let i = 0; i < 7; i++) {
+          ink(g, L([86, 410 + i * 22], [170, 410 + i * 22]), { w: 1, d: 500 + i * 60, t: 100 })
+          ink(g, L([190, 410 + i * 22], [274 - (i === 6 ? 40 : 0), 410 + i * 22]), { w: 1, d: 900 + i * 60, t: 100 })
+        }
+        ink(g, B([180, 580], [184, 600], [178, 620], [184, 640]), { w: 2, d: 1300, t: 150 })
+        const pn = wobble(g, { dx: 6, ms: 500, d: 1400 })
+        ink(pn, [[236, 548], [300, 470], [306, 476], [242, 554], [236, 548]], { w: 2, d: 1300, t: 200 })
       },
       achtsam(g) {
-        eye(g, 180, 460, 2.2)
-        text(g, 180, 600, 'bewusst wahrnehmen: mehr Details', { anchor: 'middle', cls: 's', d: 1000 })
+        // Auge und Lupe über einem Blatt: Adern, Tautropfen – mehr Einzelheiten
+        eye(g, 90, 400, 1.2, 0)
+        leaf(g, 230, 520, 1.3, 300)
+        blank(g, E(230, 520, 46))
+        ink(g, E(230, 520, 46), { w: 2.6, d: 900, t: 300 })
+        ink(g, L([262, 552], [300, 600]), { w: 4, d: 1000, t: 150 })
+        for (let k = 0; k < 6; k++) ink(g, L([200 + k * 10, 500], [212 + k * 10, 540]), { w: 0.8, d: 1100 + k * 40, t: 60 })
+        drop(g, 220, 512, 0.25, 1300, false)
       },
       ende(g) {
         clock(g, 180, 500, 80, 120, 300)

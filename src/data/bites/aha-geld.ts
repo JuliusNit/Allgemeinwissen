@@ -1,17 +1,8 @@
 import type { Bite } from '../feed'
-import { B, E, HOOK, L, RR, T, arrow, blank, check, coin, cross, crowd, dashes, fig, hatch, hbars, ink, mountain, question, rays, st, text, timeline, vbars, clock, type P } from './draw'
-import { axes, ball, box, bullets, dot, drop, flame, carrow, house, pie, plot, rad, sun, waveP } from './kit'
+import { B, E, HOOK, L, RR, T, arrow, blank, check, clock, coin, cross, crowd, dashes, fig, group, hatch, ink, mountain, pop, question, rays, st, strike, text, timeline, vbars, type P } from './draw'
+import { axes, ball, box, bullets, carrow, dot, drop, flame, flow, glide, heart, house, pie, plot, rad, ripple, smooth, spin, sun, tree, waveP, wobble } from './kit'
 
 // Wirtschaft & Geld: Phänomene zum Staunen, je etwa zwei Minuten (Layout-Regeln in kit.ts)
-
-/** Bankgebäude mit Säulen, Grundlinie y */
-function bank(g: Element, cx: number, y: number, s = 1, d = 0): void {
-  const P = (a: number, b: number): P => [cx + a * s, y + b * s]
-  ink(g, [P(-90, -150), P(0, -200), P(90, -150), P(-90, -150)], { w: 3, d, t: 600 })
-  ink(g, RR(cx - 90 * s, y - 150 * s, 180 * s, 16 * s, 2), { w: 2.4, d: d + 200, t: 400 })
-  for (let k = 0; k < 4; k++) ink(g, RR(cx + (-70 + k * 40) * s, y - 128 * s, 20 * s, 116 * s, 3), { w: 2.2, d: d + 400 + k * 80, t: 300 })
-  ink(g, RR(cx - 100 * s, y - 12 * s, 200 * s, 12 * s, 2), { w: 2.6, d: d + 300, t: 400 })
-}
 
 /** Geldschein mit Zahl */
 function note(g: Element, x: number, y: number, w: number, label: string, d = 0, size = 18): void {
@@ -86,6 +77,42 @@ function bulb(g: Element, cx: number, cy: number, s = 1, d = 0): void {
   for (let k = 0; k < 3; k++) ink(g, L(P(-12, 30 + k * 7), P(12, 30 + k * 7)), { w: 2, d: d + 400 + k * 80, t: 100 })
 }
 
+/** Bankgebäude im klassischen Stil: Giebel mit Relief, kannelierte Säulen, Treppe, Tür; Grundlinie y */
+function bank(g: Element, cx: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [cx + a * s, y + b * s]
+  const ped: P[] = [P(-96, -150), P(0, -200), P(96, -150), P(-96, -150)]
+  blank(g, ped)
+  ink(g, ped, { w: 3 * Math.min(1.2, s), d, t: 600 })
+  ink(g, [P(-70, -156), P(0, -190), P(70, -156), P(-70, -156)], { w: 1, d: d + 200, t: 400 })
+  ink(g, E(cx, y - 168 * s, 10 * s, 7 * s), { w: 1.2, d: d + 300, t: 150 })
+  ink(g, RR(cx - 96 * s, y - 150 * s, 192 * s, 18 * s, 2), { w: 2.4, d: d + 200, t: 400 })
+  for (let k = 0; k < 6; k++) ink(g, L(P(-90 + k * 36, -138), P(-82 + k * 36, -138)), { w: 1, d: d + 300, t: 40 })
+  for (let k = 0; k < 4; k++) {
+    const x = -70 + k * 40
+    ink(g, RR(cx + (x - 2) * s, y - 132 * s, 24 * s, 8 * s, 1), { w: 1.4, d: d + 350 + k * 60, t: 80 })
+    ink(g, RR(cx + x * s, y - 124 * s, 20 * s, 104 * s, 2), { w: 2.2, d: d + 400 + k * 80, t: 300 })
+    for (let j = 1; j < 3; j++) ink(g, L(P(x + j * 6.6, -122), P(x + j * 6.6, -22)), { w: 0.6, d: d + 600 + k * 80, t: 150 })
+  }
+  ink(g, RR(cx - 12 * s, y - 70 * s, 24 * s, 50 * s, 2), { w: 1.8, d: d + 700, t: 200 })
+  hatch(g, RR(cx - 12 * s, y - 70 * s, 24 * s, 50 * s, 2), d + 800, true)
+  for (let k = 0; k < 3; k++) ink(g, RR(cx - (100 + k * 6) * s, y - (20 - k * 7) * s, (200 + k * 12) * s, 7 * s, 1), { w: 1.8, d: d + 300 + k * 60, t: 200 })
+}
+
+/** Sparschwein von der Seite, Füße auf y */
+function piggy(g: Element, x: number, y: number, s = 1, d = 0): void {
+  const P = (a: number, b: number): P => [x + a * s, y + b * s]
+  const body: P[] = smooth([P(-40, -30), P(-30, -56), P(10, -62), P(36, -50), P(48, -36), P(44, -18), P(20, -8), P(-24, -8), P(-42, -18), P(-40, -30)], 3)
+  blank(g, body)
+  hatch(g, body, d + 400)
+  ink(g, body, { w: 2.4 * Math.max(0.6, s), d, t: 400 })
+  ink(g, RR(x + 44 * s, y - 38 * s, 10 * s, 16 * s, 4 * s), { w: 1.6, d: d + 200, t: 100 })
+  ink(g, [P(14, -60), P(20, -74), P(26, -58)], { w: 1.6, d: d + 250, t: 100 })
+  ink(g, L(P(-10, -60), P(6, -60)), { w: 2.4, d: d + 300, t: 60 })
+  for (const a of [-26, -8, 12, 28]) ink(g, L(P(a, -10), P(a, 0)), { w: 2 * Math.max(0.6, s), d: d + 300, t: 60 })
+  dot(g, x + 30 * s, y - 44 * s, 1.6 * s, d + 400)
+  ink(g, B(P(-40, -30), P(-50, -34), P(-54, -24), P(-46, -24)), { w: 1.2, d: d + 400, t: 80 })
+}
+
 export const AHA_GELD: Bite[] = [
   {
     id: 'giralgeld',
@@ -98,47 +125,93 @@ export const AHA_GELD: Bite[] = [
     draw: {
       bankbild(g) {
         bank(g, 180, 400, 1.2)
-        coin(g, 60, 150, 26, '€', 900)
+        const c = glide(g, 0, 140, { ms: 1600, d: 1200, loop: true })
+        coin(c, 300, 120, 22, '€', 900)
       },
       lager(g) {
-        bank(g, 120, 600, 0.9)
-        stack(g, 270, 600, 8, 700)
-        text(g, 180, 380, 'ein Lager voller Münzen?', { anchor: 'middle', cls: 's', d: 1000 })
-        question(g, 300, 470, 0.7, 1200)
+        // Tresorraum: runde Tresortür mit Riegeln, dahinter Münzstapel – stimmt das Bild?
+        ink(g, E(120, 480, 100), { w: 3.4, t: 700 })
+        ink(g, E(120, 480, 84), { w: 1.6, d: 200, t: 600 })
+        const wh = spin(g, 120, 480, 6000, 900)
+        for (let k = 0; k < 6; k++) ink(wh, L([120, 480], [120 + Math.cos(rad(k * 60)) * 40, 480 + Math.sin(rad(k * 60)) * 40]), { w: 2.6, d: 500, t: 150 })
+        ink(g, E(120, 480, 14), { w: 2.4, d: 600, t: 150 })
+        for (let k = 0; k < 8; k++) ball(g, 120 + Math.cos(rad(k * 45)) * 92, 480 + Math.sin(rad(k * 45)) * 92, 4, { d: 700 + k * 40, fill: 'dicht', w: 1, t: 40 })
+        stack(g, 250, 620, 8, 900)
+        stack(g, 310, 620, 5, 1100, 40)
+        question(g, 280, 400, 0.7, 1500)
       },
       kredit(g) {
-        ink(g, RR(60, 360, 240, 150, 10), { w: 3, t: 700 })
-        ink(g, RR(80, 380, 200, 90, 6), { w: 2, d: 300, t: 500 })
-        text(g, 180, 434, '+ 10.000 €', { anchor: 'middle', size: 26, d: 900 })
-        ink(g, RR(110, 530, 140, 40, 6), { w: 2.4, d: 500, t: 300 })
-        for (let i = 0; i < 6; i++) ink(g, RR(118 + i * 22, 538, 16, 10, 2), { w: 1.4, d: 700 + i * 40, t: 80 })
-        text(g, 180, 630, 'Kredit: per Tastendruck aufs Konto', { anchor: 'middle', cls: 's', d: 1200 })
+        // Tastendruck am Bankrechner: der Kontostand-Balken wächst aus dem Nichts
+        ink(g, RR(60, 330, 240, 170, 10), { w: 3, t: 700 })
+        ink(g, RR(76, 346, 208, 120, 6), { w: 1.6, d: 300, t: 500 })
+        ink(g, L([100, 446], [260, 446]), { w: 1.4, d: 500, t: 300 })
+        const gr = group(g, 'grow-y', '--d:1400ms')
+        hatch(gr, RR(150, 370, 60, 76, 3), 1400, true)
+        ink(gr, RR(150, 370, 60, 76, 3), { w: 2, d: 1400, t: 0 })
+        ink(g, RR(90, 530, 180, 60, 6), { w: 2.4, d: 500, t: 300 })
+        for (let r = 0; r < 3; r++) for (let i = 0; i < 8; i++) ink(g, RR(98 + i * 21, 538 + r * 17, 16, 12, 2), { w: 1, d: 700 + (r * 8 + i) * 15, t: 50 })
+        const k = pop(g, 1200, '50% 50%')
+        hatch(k, RR(224, 572, 37, 12, 2), 0, true)
+        ripple(g, 242, 578, 6, 30, { n: 2, ms: 1200, d: 1300, w: 1, ry: 0.5 })
       },
       neu(g) {
+        // die Sparerinnen und Sparer behalten alles: jedes Sparschwein ist noch voll
         crowd(g, 50, 600, 6, 52, 2.4, 0, 80)
-        for (let i = 0; i < 6; i++) check(g, 50 + i * 52, 640, 0.5, 700 + i * 60)
-        text(g, 180, 400, 'kein Sparer hat weniger', { anchor: 'middle', cls: 's', d: 1100 })
+        for (let i = 0; i < 6; i++) {
+          const x = 50 + i * 52
+          piggy(g, x, 640, 0.45, 600 + i * 80)
+          check(g, x, 420, 0.4, 1200 + i * 60)
+        }
       },
       anteil(g) {
+        // großer Teil: Geld auf Konten (Karte), kleiner Teil: Bargeld (Schein, Münze)
         pie(g, 180, 460, 110, 0.9)
-        text(g, 180, 610, 'Geld auf Konten ≈ 90 %', { anchor: 'middle', d: 1100 })
-        text(g, 180, 636, 'Bargeld ≈ 10 %', { anchor: 'middle', cls: 's', d: 1300 })
+        ink(g, RR(240, 590, 70, 44, 6), { w: 2.2, d: 1200, t: 200 })
+        hatch(g, RR(240, 600, 70, 8, 0), 1300, true)
+        ink(g, RR(250, 616, 14, 10, 2), { w: 1, d: 1300, t: 60 })
+        ink(g, RR(40, 300, 70, 36, 3), { w: 2, d: 1400, t: 200 })
+        coin(g, 130, 320, 14, '€', 1500)
+        ink(g, L([110, 340], [160, 360]), { w: 1, d: 1500, t: 100 })
       },
       tilgung(g) {
-        ink(g, RR(60, 380, 240, 120, 10), { w: 3, t: 700 })
-        text(g, 180, 450, '− 10.000 €', { anchor: 'middle', size: 26, d: 600 })
-        text(g, 180, 580, 'zurückgezahlt: Geld verschwindet', { anchor: 'middle', cls: 's', d: 1100 })
+        // Kredit zurückgezahlt: der Balken schrumpft, ein Radiergummi löscht ihn
+        ink(g, RR(60, 330, 240, 170, 10), { w: 3, t: 700 })
+        ink(g, L([100, 446], [260, 446]), { w: 1.4, d: 300, t: 300 })
+        const gr = group(g, 'shrink-y', '--d:1400ms')
+        hatch(gr, RR(150, 370, 60, 76, 3), 400, true)
+        ink(gr, RR(150, 370, 60, 76, 3), { w: 2, d: 400, t: 200 })
+        const er = glide(g, -60, 0, { ms: 1400, d: 1200 })
+        ink(er, [[220, 560], [290, 540], [300, 570], [230, 590], [220, 560]], { w: 2.2, d: 900, t: 200 })
+        hatch(er, [[220, 560], [250, 552], [260, 582], [230, 590]], 1000, true)
+        for (let k = 0; k < 5; k++) dot(g, 140 + k * 16, 610 + (k % 2) * 6, 1.6, 2000 + k * 40)
       },
       zentralbanken(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.2, label: '2014', sub: 'Bank of England', up: true },
-          { at: 0.65, label: '2017', sub: 'Bundesbank' },
-        ])
+        // zwei Notenbank-Gebäude: klassizistische Fassade (London) und Hochhausblock (Frankfurt), dazu Berichte
+        bank(g, 100, 560, 0.7, 0)
+        ink(g, RR(210, 380, 120, 180, 2), { w: 2.8, d: 400, t: 600 })
+        for (let r = 0; r < 8; r++) ink(g, L([216, 396 + r * 20], [324, 396 + r * 20]), { w: 0.9, d: 600 + r * 40, t: 150 })
+        for (let c = 0; c < 6; c++) ink(g, L([226 + c * 18, 384], [226 + c * 18, 556]), { w: 0.6, d: 800 + c * 30, t: 150 })
+        ink(g, L([20, 562], [340, 562]), { w: 2.4, d: 200, t: 400 })
+        for (const [x, d] of [[70, 1200], [250, 1400]] as const) {
+          ink(g, [[x, 600], [x + 50, 596], [x + 52, 640], [x + 2, 644], [x, 600]], { w: 1.8, d, t: 200 })
+          for (let k = 0; k < 3; k++) ink(g, L([x + 8, 610 + k * 9], [x + 42, 608 + k * 9]), { w: 0.8, d: d + 100, t: 60 })
+        }
       },
       grenzen(g) {
-        bullets(g, 50, 380, ['Kredit kann ausfallen', 'Eigenkapital nötig', 'Reserven bei der Zentralbank', 'Leitzins macht Kredit teurer'], { gap: 50, size: 18 })
+        // Kredit kann ausfallen (gerissene Kette), Eigenkapital (Tresor mit Stapel), Vorschriften (Paragraf), Reserven
+        for (const [x, y, broken] of [[60, 380, false], [90, 380, true], [120, 380, false]] as const) {
+          ink(g, E(x, y, 14, 9), { w: 2.4, d: x * 3, t: 150 })
+          if (broken) ink(g, L([x + 10, y - 10], [x + 18, y + 10]), { w: 3, d: 800, t: 80 })
+        }
+        cross(g, 90, 430, 0.6, 1000)
+        ink(g, RR(210, 340, 100, 100, 6), { w: 2.6, d: 400, t: 400 })
+        ink(g, E(260, 390, 20), { w: 2, d: 600, t: 200 })
+        stack(g, 260, 410, 3, 800, 30)
+        text(g, 90, 580, '§', { anchor: 'middle', size: 70, d: 900 })
+        bank(g, 260, 620, 0.5, 1100)
       },
       leitzins(g) {
+        // Drehregler der Zentralbank: von tief (−) nach hoch (+)
         ink(g, E(180, 470, 100), { w: 3, t: 800 })
         for (let k = 0; k <= 8; k++) {
           const a = rad(150 + k * 30)
@@ -147,34 +220,67 @@ export const AHA_GELD: Bite[] = [
         const n = st(g, 'm1', '--m1: rotate(70deg); transform-origin: 180px 470px; transition-duration: 1.6s')
         ink(n, L([180, 470], [180 + Math.cos(rad(220)) * 76, 470 + Math.sin(rad(220)) * 76]), { w: 4, d: 700, t: 300 })
         ball(g, 180, 470, 10, { d: 600, fill: 'dicht', t: 200 })
-        text(g, 80, 610, 'Zins tief', { anchor: 'middle', cls: 's', d: 900 })
-        text(g, 280, 610, 'Zins hoch', { anchor: 'middle', cls: 's', d: 1000 })
+        text(g, 80, 610, '−', { anchor: 'middle', size: 30, d: 900 })
+        text(g, 280, 610, '+', { anchor: 'middle', size: 30, d: 1000 })
+        bank(g, 180, 680, 0.3, 1100)
       },
       inflation(g) {
-        for (let i = 0; i < 5; i++) note(g, 40 + i * 14, 380 + i * 14, 120, i === 4 ? '€' : '', i * 120, 14)
-        arrow(g, L([200, 440], [250, 440]), { w: 2.6, d: 900, t: 300, head: 9 })
-        text(g, 300, 450, 'Preise ↑', { anchor: 'middle', size: 20, d: 1100 })
+        // der Geldberg wächst schneller als der Warenkorb – das Preisschild klettert
+        for (let i = 0; i < 6; i++) note(g, 40 + i * 10, 520 - i * 20, 110, '', 200 + i * 150, 14)
+        ink(g, [[210, 520], [220, 580], [300, 580], [310, 520], [210, 520]], { w: 2.4, d: 600, t: 300 })
+        for (const x of [230, 300]) ink(g, E(x, 596, 8), { w: 1.8, d: 700, t: 100 })
+        ink(g, L([310, 520], [326, 500]), { w: 2.2, d: 700, t: 100 })
+        for (let k = 0; k < 3; k++) ink(g, E(236 + k * 24, 508, 12, 10), { w: 1.6, d: 900 + k * 80, t: 100 })
+        const t = glide(g, 0, -80, { ms: 2400, d: 1300, loop: true })
+        ink(t, [[250, 450], [300, 450], [314, 466], [300, 482], [250, 482], [250, 450]], { w: 2, d: 1200, t: 150 })
+        arrow(t, L([276, 478], [276, 456]), { w: 1.6, d: 1300, t: 100, head: 5 })
       },
       sturm(g) {
+        // eine lange Schlange drängt zur verschlossenen Bank
         bank(g, 180, 480, 0.8)
-        crowd(g, 30, 620, 9, 36, 2.2, 600, 60)
-        text(g, 180, 300, 'alle wollen gleichzeitig Bargeld', { anchor: 'middle', cls: 's', d: 1100 })
+        ink(g, RR(160, 420, 40, 60, 2), { w: 2.6, d: 600, t: 200 })
+        ink(g, L([160, 450], [200, 450]), { w: 3, d: 700, t: 100 })
+        for (let i = 0; i < 9; i++) {
+          const f = wobble(g, { dx: 3, ms: 400 + i * 40, d: 1000 })
+          fig(f, 30 + i * 36, 620, 2.2, { d: 600 + i * 60, arms: i % 3 === 0 ? 'up' : 'push' })
+        }
       },
       sicherung(g) {
-        const sh: P[] = [[180, 360], [270, 390], [260, 510], [180, 580], [100, 510], [90, 390], [180, 360]]
+        // Schutzschild mit Schloss über einem Münzstapel
+        const sh: P[] = [[180, 340], [270, 370], [260, 500], [180, 570], [100, 500], [90, 370], [180, 340]]
         hatch(g, sh, 600)
         ink(g, sh, { w: 3.2, t: 900 })
-        text(g, 180, 640, 'bis 100.000 € pro Person und Bank', { anchor: 'middle', cls: 's', d: 1100 })
+        ink(g, RR(156, 440, 48, 40, 4), { w: 2.6, d: 900, t: 200 })
+        ink(g, B([164, 440], [164, 410], [196, 410], [196, 440]), { w: 2.4, d: 1000, t: 200 })
+        stack(g, 180, 640, 4, 1100, 60)
       },
       gold(g) {
-        timeline(g, 30, 330, 470, [
-          { at: 0.15, label: 'bis 1971', sub: 'Dollar in Gold tauschbar', up: true },
-          { at: 0.85, label: 'heute', sub: 'Geld durch Vertrauen', up: true },
-        ])
+        // Goldbarren durchgestrichen – heute zählt der Handschlag, das Vertrauen
+        for (let r = 0; r < 3; r++) for (let k = 0; k < 3 - r; k++) {
+          const x = 40 + k * 50 + r * 25
+          const y = 480 - r * 26
+          ink(g, [[x, y], [x + 8, y - 22], [x + 42, y - 22], [x + 50, y], [x, y]], { w: 2, d: (r * 3 + k) * 80, t: 150 })
+          hatch(g, [[x, y], [x + 8, y - 22], [x + 42, y - 22], [x + 50, y]], 300 + (r * 3 + k) * 80)
+        }
+        strike(g, [30, 400], [200, 490], 900)
+        for (const k of [-1, 1]) ink(g, smooth([[260 + k * 70, 600], [260 + k * 40, 590], [260 + k * 14, 580], [260, 576]], 3), { w: 6, d: 1200, t: 300 })
+        ink(g, E(260, 576, 16, 10), { w: 2.2, d: 1500, t: 150 })
+        heart(g, 260, 520, 0.4, 1700)
       },
       ende(g) {
-        ink(g, RR(110, 470, 140, 50, 8), { w: 3, t: 600 })
-        for (let i = 0; i < 5; i++) ink(g, RR(118 + i * 26, 480, 20, 12, 2), { w: 1.6, d: 400 + i * 50, t: 80 })
+        ink(g, RR(90, 470, 180, 60, 6), { w: 3, t: 600 })
+        for (let r = 0; r < 3; r++) for (let i = 0; i < 8; i++) ink(g, RR(98 + i * 21, 478 + r * 17, 16, 12, 2), { w: 1, d: 300 + (r * 8 + i) * 15, t: 50 })
+        ripple(g, 242, 512, 6, 30, { n: 2, ms: 1200, d: 900, w: 1, ry: 0.5 })
+      },
+      ausgleich(g) {
+        // Überweisung zwischen zwei Banken: ausgeglichen wird mit Geld der Zentralbank (Mitte)
+        bank(g, 70, 620, 0.45, 0)
+        bank(g, 290, 620, 0.45, 200)
+        bank(g, 180, 470, 0.55, 400)
+        for (const [a, b, d] of [[[100, 540], [150, 440], 900], [[210, 440], [260, 540], 1300]] as const) {
+          carrow(g, a as P, b as P, -20, { d })
+          flow(g, B(a as P, [((a as P)[0] + (b as P)[0]) / 2, Math.min((a as P)[1], (b as P)[1]) - 20], [((a as P)[0] + (b as P)[0]) / 2, Math.min((a as P)[1], (b as P)[1]) - 20], b as P), { n: 2, ms: 1600, d: d + 300, r: 3 })
+        }
       },
     },
     scenes: [
@@ -191,7 +297,7 @@ export const AHA_GELD: Bite[] = [
       { t: T('Außerdem braucht sie **Eigenkapital** und Reserven bei der Zentralbank – das schreiben Gesetze vor.', 64), gfx: { grenzen: {} } },
       { t: T('Und die Zentralbank steuert über den **Leitzins**, wie teuer Kredite sind: Hohe Zinsen bremsen die Geldschöpfung, niedrige beschleunigen sie.', 64), gfx: { leitzins: { cls: 'a1' } } },
       { t: T('Wächst die Geldmenge schneller als die Menge an Waren, kann das zu **Inflation** führen.', 64), gfx: { inflation: {} } },
-      { t: T('Überweist du Geld zu einer anderen Bank, gleichen die Banken das untereinander mit **Zentralbankgeld** aus.', 64), gfx: { zentralbanken: {} } },
+      { t: T('Überweist du Geld zu einer anderen Bank, gleichen die Banken das untereinander mit **Zentralbankgeld** aus.', 64), gfx: { ausgleich: {} } },
       { t: T('Darum ist Vertrauen alles: Wollen plötzlich alle ihr Geld bar abheben, hat keine Bank genug – ein **Bankensturm**.', 64), gfx: { sturm: {} } },
       { t: T('Deshalb gibt es die **Einlagensicherung**: In der EU sind bis 100.000 Euro pro Person und Bank geschützt.', 64), gfx: { sicherung: {} } },
       { t: T('Früher war Geld an Gold gebunden. Seit 1971 ist auch der Dollar nicht mehr in Gold tauschbar – heutiges Geld beruht auf **Vertrauen**.', 64), gfx: { gold: {} } },
@@ -210,83 +316,158 @@ export const AHA_GELD: Bite[] = [
     images: [],
     draw: {
       stapel(g) {
+        // drei Münzstapel, aus jedem wächst ein Bäumchen – je älter, desto größer
         stack(g, 80, 400, 3, 0)
         stack(g, 180, 400, 8, 400)
         stack(g, 280, 400, 22, 800)
+        for (const [x, top, s, d] of [[80, 366, 0.12, 1200], [180, 316, 0.2, 1400], [280, 176, 0.32, 1600]] as const) tree(g, x, top, s, d)
+        ink(g, L([20, 402], [340, 402]), { w: 2, d: 200, t: 400 })
       },
       start(g) {
-        note(g, 90, 400, 180, '100 €', 0, 22)
-        text(g, 180, 560, '7 % Zinsen pro Jahr', { anchor: 'middle', size: 20, d: 800 })
+        // ein Schein, daneben ein Prozent-Plättchen, das jedes Jahr etwas dazulegt
+        note(g, 70, 400, 170, '€', 0, 30)
+        ball(g, 290, 440, 30, { d: 600, fill: 'hell', w: 2.4, t: 300 })
+        text(g, 290, 452, '%', { anchor: 'middle', size: 30, cls: 'halo', d: 800 })
+        carrow(g, [270, 470], [220, 500], 20, { d: 1000 })
+        const c = glide(g, 0, 40, { ms: 1200, d: 1300, loop: true })
+        coin(c, 250, 520, 10, '', 1200)
       },
       jahr1(g) {
-        note(g, 40, 420, 120, '100 €', 0, 16)
-        arrow(g, L([170, 450], [200, 450]), { w: 2.4, d: 500, t: 300, head: 9 })
-        note(g, 210, 420, 120, '107 €', 700, 16)
-        text(g, 180, 580, 'nächstes Jahr: 7 % von 107', { anchor: 'middle', cls: 's', d: 1100 })
-      },
-      kurve(g) {
-        axes(g, 40, 600, 330, 320, { xl: 'Jahre', yl: 'Euro' })
-        plot(g, 46, 596, 270, 250, (t) => (Math.pow(1.07, t * 35) - 1) / (Math.pow(1.07, 35) - 1), { d: 400 })
-        for (const [yr, v] of [[10, 197], [20, 387], [30, 761], [35, 1068]] as const) {
-          const x = 46 + (yr / 35) * 270
-          const y = 596 - ((v - 100) / 968) * 250
-          dot(g, x, y, 4.5, 1200 + yr * 30)
-          text(g, x - 8, y - 10, `${v} €`, { anchor: 'end', cls: 's', d: 1300 + yr * 30 })
+        // jedes Jahr kommt eine Scheibe dazu – und jede neue ist ein bisschen dicker als die vorige
+        ink(g, L([30, 600], [330, 600]), { w: 2.4, t: 400 })
+        let h = 100
+        for (let k = 0; k < 6; k++) {
+          const x = 40 + k * 50
+          const add = h * 0.07 * 4
+          ink(g, RR(x, 600 - h, 36, h, 2), { w: 1.8, d: k * 200, t: 200 })
+          hatch(g, RR(x, 600 - h, 36, h - (k ? add / 1.07 : 0), 2), k * 200 + 100)
+          if (k) {
+            hatch(g, RR(x, 600 - h, 36, add, 1), k * 200 + 200, true)
+            ink(g, RR(x, 600 - h, 36, add, 1), { w: 1.2, d: k * 200 + 200, t: 80 })
+          }
+          h *= 1.07 * 1.12
         }
       },
+      kurve(g) {
+        // 100 € bei 7 %: alle zehn Jahre eine Verdopplung
+        axes(g, 40, 600, 330, 320, { yl: 'Euro' })
+        const f = (t: number) => (Math.pow(1.07, t * 35) - 1) / (Math.pow(1.07, 35) - 1)
+        plot(g, 46, 596, 270, 250, f, { d: 400 })
+        for (const yr of [10, 20, 30, 35]) {
+          const x = 46 + (yr / 35) * 270
+          const y = 596 - f(yr / 35) * 250
+          dashes(g, L([x, 596], [x, y]), { w: 1, d: 1200 + yr * 30, dash: 3, gap: 3 })
+          dot(g, x, y, 4.5, 1300 + yr * 30)
+          text(g, x, 620, String(yr), { anchor: 'middle', cls: 's', d: 1300 + yr * 30 })
+        }
+        for (const [a, b] of [[10, 20], [20, 30]] as const) carrow(g, [46 + (a / 35) * 270, 596 - f(a / 35) * 250 - 12], [46 + (b / 35) * 270 - 6, 596 - f(b / 35) * 250 - 12], -20, { d: 1800 + a * 20 })
+      },
       regel(g) {
-        hbars(g, [
-          { label: '2 % Zins', v: 36, fmt: (v) => `${Math.round(v)} Jahre` },
-          { label: '7 % Zins', v: 10, fmt: (v) => `${Math.round(v)} Jahre` },
-          { label: '10 % Zins', v: 7, fmt: (v) => `${Math.round(v)} Jahre`, dense: true },
-        ], { y: 340, gap: 100 })
-        text(g, 30, 640, 'bis zur Verdopplung', { cls: 's', d: 1400 })
+        // drei Zinssätze: auf der Zeitleiste markiert, wann sich das Geld jeweils verdoppelt
+        for (const [i, step, n] of [[0, 36, 1], [1, 10, 3], [2, 7, 5]] as const) {
+          const y = 380 + i * 100
+          for (let k = 0; k < n; k++) coin(g, 30 + k * 10, y, 8, '', i * 300 + k * 60)
+          ink(g, L([90, y], [330, y]), { w: 2, d: 200 + i * 300, t: 400 })
+          for (let t = step; t <= 36; t += step) {
+            const x = 90 + (t / 36) * 240
+            ink(g, L([x, y - 10], [x, y + 10]), { w: 2.4, d: 600 + i * 300 + t * 20, t: 60 })
+            ball(g, x, y - 20, 4 + t / 6, { d: 700 + i * 300 + t * 20, fill: 'hell', w: 1.2, t: 60 })
+          }
+        }
       },
       anna(g) {
-        timeline(g, 30, 330, 420, [
-          { at: 0, label: '25', up: true },
-          { at: 0.25, label: '35', up: true },
-          { at: 1, label: '65', up: true },
-        ], 0, 300)
-        hatch(g, RR(30, 440, 71, 18, 4), 900, true)
-        ink(g, RR(30, 440, 71, 18, 4), { w: 2, d: 800, t: 300 })
-        text(g, 110, 454, 'Anna zahlt ein', { cls: 's', d: 1000 })
-        hatch(g, RR(101, 520, 213, 18, 4), 1200)
-        ink(g, RR(101, 520, 213, 18, 4), { w: 2, d: 1100, t: 400 })
-        text(g, 101, 510, 'Ben zahlt ein', { cls: 's', d: 1300 })
+        // Zeitachse vom Alter 25 bis 65: oben die frühe Sparerin (nur zehn Jahre), unten der späte Sparer (dreißig Jahre)
+        ink(g, L([60, 600], [330, 600]), { w: 2.4, t: 400 })
+        for (const [age, l] of [[25, '25'], [35, '35'], [65, '65']] as const) {
+          const x = 60 + ((age - 25) / 40) * 270
+          ink(g, L([x, 592], [x, 608]), { w: 2, d: 300, t: 60 })
+          text(g, x, 630, l, { anchor: 'middle', cls: 's', d: 400 })
+        }
+        fig(g, 34, 460, 1.8, { d: 500 })
+        ink(g, B([26, 400], [30, 392], [40, 392], [44, 404]), { w: 3, d: 600, t: 100 })
+        fig(g, 34, 560, 1.8, { d: 700 })
+        for (const [y, a, b, d] of [[440, 25, 35, 900], [540, 35, 65, 1200]] as const) {
+          const x0 = 60 + ((a - 25) / 40) * 270
+          const x1 = 60 + ((b - 25) / 40) * 270
+          hatch(g, RR(x0, y, x1 - x0, 18, 3), d + 100, true)
+          ink(g, RR(x0, y, x1 - x0, 18, 3), { w: 2, d, t: 300 })
+          for (let k = 0; k < (b - a) / 5; k++) coin(g, x0 + 10 + k * ((x1 - x0) / ((b - a) / 5)), y - 14, 6, '', d + 200 + k * 60)
+        }
       },
       ergebnis(g) {
-        vbars(g, [
-          { label: 'Anna (20.000 €)', v: 225, fmt: (v) => `${Math.round(v)}.000 €` },
-          { label: 'Ben (60.000 €)', v: 202, fmt: (v) => `${Math.round(v)}.000 €`, dense: true },
-        ], { x: 80, base: 600, w: 70, gap: 130, h: 250 })
-        text(g, 180, 320, 'Wert mit 65, bei 7 %', { anchor: 'middle', cls: 's', d: 1200 })
+        // Endwerte mit 65: eingezahlter Anteil dunkel, Zinseszins hell – die Frühe liegt vorn
+        for (const [x, total, paid, d] of [[110, 225, 20, 0], [250, 202, 60, 400]] as const) {
+          const H = 250 / 225
+          const r = RR(x - 35, 600 - total * H, 70, total * H, 3)
+          hatch(g, r, d + 300)
+          ink(g, r, { w: 2.4, d, t: 400 })
+          hatch(g, RR(x - 35, 600 - paid * H, 70, paid * H, 2), d + 600, true)
+          fig(g, x, 650, 1.4, { d: d + 200 })
+        }
+        ink(g, B([102, 608], [104, 600], [116, 600], [118, 608]), { w: 3, d: 900, t: 100 })
+        ink(g, L([40, 602], [320, 602]), { w: 2.4, d: 200, t: 400 })
       },
       schulden(g) {
-        note(g, 90, 400, 180, '− 1.000 €', 0, 20)
-        text(g, 180, 560, 'Dispo 12 %: doppelt in ≈ 6 Jahren', { anchor: 'middle', cls: 's', d: 900 })
+        // Dispo-Schuld als Kugel am Bein: Jahr für Jahr größer
+        fig(g, 70, 620, 3.4, { d: 0 })
+        for (const [x, r, d] of [[150, 14, 400], [210, 20, 700], [290, 30, 1000]] as const) {
+          ink(g, L([70, 616], [x - r, 640 - r]), { w: 1.2, d, t: 200 })
+          ball(g, x, 640 - r, r, { d: d + 100, fill: 'dicht', w: 2, t: 200 })
+          text(g, x, 640 - r + 6, '−', { anchor: 'middle', size: r, cls: 'halo', d: d + 300 })
+        }
+        ink(g, L([20, 642], [340, 642]), { w: 2, d: 200, t: 400 })
       },
       kaufkraft(g) {
-        note(g, 40, 420, 120, '100 €', 0, 16)
-        arrow(g, L([170, 450], [200, 450]), { w: 2.4, d: 500, t: 300, head: 9 })
-        note(g, 230, 435, 80, '50 €', 700, 12)
-        text(g, 180, 580, '2 % Inflation: Kaufkraft halb in ≈ 36 Jahren', { anchor: 'middle', cls: 's', d: 1100 })
+        // derselbe Schein: heute ein voller Einkaufskorb, Jahrzehnte später nur noch ein halber
+        for (const [x, full, d] of [[90, true, 0], [270, false, 600]] as const) {
+          note(g, x - 50, 360, 100, '€', d, 22)
+          ink(g, [[x - 50, 520], [x - 40, 600], [x + 40, 600], [x + 50, 520], [x - 50, 520]], { w: 2.4, d: d + 300, t: 300 })
+          ink(g, B([x - 40, 520], [x - 30, 470], [x + 30, 470], [x + 40, 520]), { w: 2, d: d + 400, t: 200 })
+          const n = full ? 6 : 3
+          for (let k = 0; k < n; k++) ink(g, E(x - 30 + (k % 3) * 30, 508 - Math.floor(k / 3) * 18, 12, 9), { w: 1.6, d: d + 500 + k * 60, t: 80 })
+        }
+        arrow(g, L([160, 560], [200, 560]), { w: 2.4, d: 900, t: 300, head: 9 })
       },
       gebuehr(g) {
-        vbars(g, [
-          { label: '0,2 % Kosten', v: 100, fmt: () => '' },
-          { label: '2 % Kosten', v: 58, fmt: () => 'deutlich weniger', dense: true },
-        ], { x: 90, base: 600, w: 70, gap: 110, h: 240 })
-        text(g, 180, 320, 'gleicher Ertrag, nach 30 Jahren', { anchor: 'middle', cls: 's', d: 1200 })
+        // zwei Wachstumskurven; aus der unteren tropfen jedes Jahr Gebühren ab
+        axes(g, 40, 600, 330, 320, {})
+        plot(g, 46, 596, 270, 250, (t) => (Math.pow(1.06, t * 30) - 1) / (Math.pow(1.06, 30) - 1), { d: 400 })
+        plot(g, 46, 596, 270, 250, (t) => (Math.pow(1.04, t * 30) - 1) / (Math.pow(1.06, 30) - 1), { d: 800, w: 2 })
+        for (let k = 0; k < 4; k++) {
+          const t = 0.4 + k * 0.18
+          const x = 46 + t * 270
+          const y = 596 - ((Math.pow(1.04, t * 30) - 1) / (Math.pow(1.06, 30) - 1)) * 250
+          const dr = glide(g, 0, 30, { ms: 1200, d: 1400 + k * 200, loop: true })
+          drop(dr, x, y + 14, 0.25, 1300)
+        }
       },
       risiko(g) {
+        // Kurs mit Zacken gegenüber der ruhigen Linie: höhere Rendite, mehr Schwankung
         axes(g, 40, 600, 330, 330, { xl: 'Jahre', yl: 'Wert' })
-        ink(g, [[46, 560], [80, 520], [110, 540], [140, 470], [170, 500], [200, 420], [230, 460], [260, 390], [290, 400], [320, 350]], { w: 2.6, d: 400, t: 1200 })
-        text(g, 180, 650, 'mehr Rendite heißt mehr Schwankung', { anchor: 'middle', cls: 's', d: 1300 })
+        dashes(g, L([46, 560], [320, 420]), { w: 1.4, d: 300, dash: 5, gap: 4 })
+        ink(g, [[46, 560], [80, 520], [110, 540], [140, 470], [170, 500], [200, 420], [230, 460], [260, 390], [290, 400], [320, 350]], { w: 2.6, d: 600, t: 1200 })
+        const w = wobble(g, { dy: 8, ms: 600, d: 1600 })
+        dot(w, 320, 350, 5, 1600)
       },
       ende(g) {
         stack(g, 120, 600, 4)
         stack(g, 240, 600, 14, 400)
+        tree(g, 240, 456, 0.24, 1200)
+      },
+      regel72(g) {
+        // 72 Münzen, aufgeteilt in Häufchen zu je 7: rund zehn Häufchen
+        for (let i = 0; i < 72; i++) {
+          const grp = Math.floor(i / 7)
+          const j = i % 7
+          const x = 40 + (grp % 5) * 62 + (j % 4) * 11
+          const y = 400 + Math.floor(grp / 5) * 110 + Math.floor(j / 4) * 12
+          ink(g, E(x, y, 5, 3), { w: 1.2, d: grp * 120 + j * 20, t: 40 })
+        }
+        for (let grp = 0; grp < 11; grp++) {
+          const x = 30 + (grp % 5) * 62
+          const y = 386 + Math.floor(grp / 5) * 110
+          dashes(g, RR(x, y, 52, 34, 6), { w: 1, d: 1500 + grp * 60, dash: 3, gap: 3 })
+        }
       },
     },
     scenes: [
@@ -297,7 +478,7 @@ export const AHA_GELD: Bite[] = [
       { t: T('Nach 10 Jahren hast du knapp **200 Euro**. Das Geld hat sich verdoppelt.', 64), gfx: { kurve: {} } },
       { t: T('Nach 20 Jahren rund **390 Euro**, nach 30 Jahren rund 760 Euro.', 64), gfx: { kurve: {} } },
       { t: T('Nach 35 Jahren über **1.000 Euro**. Aus 100 wurde das Zehnfache – ohne einen Cent dazuzulegen.', 64), gfx: { kurve: {} } },
-      { t: T('Eine Faustregel ist die **72er-Regel**: 72 geteilt durch den Zinssatz ergibt die Jahre bis zur Verdopplung.', 64), gfx: { f1: { draw: 'formel', args: [['72', '÷', 'Zinssatz', '≈', 'Jahre bis zur Verdopplung'], 340] } } },
+      { t: T('Eine Faustregel ist die **72er-Regel**: 72 geteilt durch den Zinssatz ergibt die Jahre bis zur Verdopplung.', 64), gfx: { regel72: {} } },
       { t: T('Bei 7 Prozent sind das rund 10 Jahre, bei 2 Prozent **36 Jahre**, bei 10 Prozent nur 7.', 64), gfx: { regel: {} } },
       { t: T('Darum zählt vor allem die **Zeit**: Wer früh anfängt, hat mehr Verdopplungen vor sich.', 64), gfx: { kurve: {} } },
       { t: T('Ein Rechenbeispiel: Anna legt von 25 bis 35 jedes Jahr 2.000 Euro an – dann nie wieder. Ben fängt erst mit 35 an und zahlt **30 Jahre** lang ein.', 64), gfx: { anna: {} } },
