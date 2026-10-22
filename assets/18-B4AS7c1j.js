@@ -2,7 +2,7 @@ var e=`## Vom Dorf zur Stadt
 
 \`\`\`zeitstrahl
 ~9500 v. Chr. | **Jericho** (Jordantal): Natufier – noch **Jäger und Sammler** – bleiben an einer reichen Quelle; Handel mit Obsidian und Salz
-~8000 v. Chr. | Jericho baut eine 6 m hohe Steinmauer für ~2000 Menschen
+~8000 v. Chr. | Jericho baut eine Steinmauer mit 8 m hohem Turm für ~2000 Menschen
 ~7500 v. Chr. | **Ali Kosch** (Iran): Weizen, Gerste, Linsen angebaut; hornlose Schafe = gezüchtet
 ~6500 v. Chr. | **Çatalhöyük** (Türkei): ~6000 Menschen, über 40 Heiligtümer, Wandbilder
 ~6000 v. Chr. | Landwirtschaft erreicht Griechenland; bald darauf in Mesopotamien künstliche **Bewässerung**
@@ -10,6 +10,19 @@ ebenso | Landwirtschaft entsteht **unabhängig** auch in China, Neuguinea und Am
 ~2800 v. Chr. | **Uruk** (Sumer): ~50 000 Einwohner
 \`\`\`
 
+- angebaut wird, was vor Ort wächst: **Weizen** (Nahost), **Reis** (Asien), **Mais, Kartoffeln** (Amerika), **Yams** (Afrika); zugleich **Tongefäße** zum Lagern der Ernte
+- warum? Ungeklärt – Bevölkerungsdruck, Überfluss mit Zeit zum Ausprobieren, Zufall, Rituale, Bier …
+
+\`\`\`kette
+Ackerbau + Viehzucht | Ernte braucht Monate
+→ sesshaft, Vorräte
+Nahrungsüberschuss | einer erntet mehr, als er isst
+→ andere werden frei
+Arbeitsteilung | Töpfer, Händler, Priester
+Städte
+\`\`\`
+
+- Preis: feste Arbeitszeiten nach dem Rhythmus des Ackers statt Jagen nach Bedarf; Neolithische Revolution = eine von drei weltweiten Umwälzungen (mit Industrieller und digitaler Revolution)
 - Plot-Twist: Die erste Stadtmauer bauten **Jäger und Sammler** – nicht Landwirtschaft zuerst, dann Stadt, sondern beides verschränkt
 - Landwirtschaft war ein **Deal mit Nachteilen**: mehr Kinder, aber enge Siedlungen → **Seuchen**, Streit um Land, harte Arbeit, einseitige Nahrung
 - Not machte erfinderisch: **Brache** (Boden ruhen lassen), Bewässerung, Hacke → Pflug

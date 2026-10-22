@@ -106,7 +106,8 @@ Enzym + Produkte | Enzym unverändert, wieder einsatzbereit\r
 \r
 ## ATP: die Energiewährung\r
 \r
-- **Adenosintriphosphat** = Adenosin + **3 Phosphatgruppen**\r
+- **Adenosintriphosphat** = Base **Adenin** + Zucker **Ribose** + **3 Phosphatgruppen** (ADP = 2, AMP = 1)\r
+- **Kopplung**: Abbau von Glucose (Oxidation, exergon) liefert die Energie, um ADP + Phosphat zu ATP aufzuladen (endergon); **Hydrolyse** ATP → ADP + Phosphat gibt sie dort wieder ab, wo sie gebraucht wird – ATP als „Energie-Taxi“\r
 - Phosphatgruppen sind negativ geladen → stoßen sich ab → wie eine **gespannte Feder**; Abspalten des 3. Phosphats setzt Energie frei\r
 - **Phosphorylierung**: ATP hängt sein Phosphat an ein Protein → Protein ändert seine Form → erledigt Arbeit (z. B. Pumpe, Muskelprotein)\r
 - universell: fast alle Lebewesen „bezahlen“ mit ATP – Muskel, Herzschlag, Nervenimpulse, Ionenpumpen\r

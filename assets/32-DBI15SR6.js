@@ -1,6 +1,9 @@
 var e=`## Drei abrahamitische Religionen
 
 - alle drei sind **monotheistisch** (ein Gott) und berufen sich auf **Abraham** als Stammvater
+- Abraham ist überall Vorbild: **Bund** mit Gott (Judentum), „Vater aller Glaubenden“ (Paulus), der Islam versteht sich als *millat Ibrahim* („Religion Abrahams“)
+- zwei gemeinsame Motive: Abraham bekämpft die **Götzen** seines Vaters (radikaler Glaube an den einen Gott) und bewirtet **drei Fremde/Engel** → **Gastfreundschaft** als hohes Gut in allen drei
+- „abrahamische Ökumene“ (Theologe Karl-Josef Kuschel): Unterschiede nicht verwischen, aber aus der gemeinsamen Wurzel Verständigung suchen
 
 \`\`\`baum
 Abraham | ~1800 v. Chr. (Überlieferung), Bund mit dem einen Gott
