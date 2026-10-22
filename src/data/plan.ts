@@ -1,5 +1,6 @@
 // Lernplan – Allgemeinwissen. Inhalt 1:1 aus dem Plan, Teilthemen fuer Phase 2 ergaenzt.
-import { VIDEO_PICKS } from './videos'
+import { RETIRED_VIDEOS, VIDEO_PICKS } from './videos'
+import { parseVideoUrl } from '../lib/video'
 
 export type AreaId =
   | 'BIO' | 'CHE' | 'NERV' | 'MIX'
@@ -231,13 +232,18 @@ function buildDefaultVideos(d: Day): Video[] {
   })
 }
 
-/** Gespeicherte Liste: unveraenderte Suchlinks durch das ausgewaehlte Video ersetzen */
+function isRetired(url: string): boolean {
+  const e = parseVideoUrl(url)
+  return e.kind === 'youtube' && RETIRED_VIDEOS.has(e.id)
+}
+
+/** Gespeicherte Liste: unveraenderte Suchlinks und ausgemusterte (KI-)Videos durch das ausgewaehlte Video ersetzen */
 export function upgradeVideos(d: Day, videos: Video[]): Video[] {
   const defs = defaultVideos(d)
   let changed = false
   const out = videos.map((v) => {
     const def = defs.find((x) => x.id === v.id)
-    if (def && v.url === youtubeSearch(`${v.title} einfach erklärt`) && def.url !== v.url) {
+    if (def && def.url !== v.url && (v.url === youtubeSearch(`${v.title} einfach erklärt`) || isRetired(v.url))) {
       changed = true
       return { ...v, url: def.url, source: def.source }
     }

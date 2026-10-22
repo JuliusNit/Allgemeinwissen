@@ -284,9 +284,7 @@ const upgraded = new WeakMap<Video[], Video[]>()
 
 export function videosOf(s: State, day: number): Video[] {
   // Reihenfolge: vom Editor veroeffentlicht → fruehere lokale Aenderung → Standard
-  const pub = s.content[day]
-  if (pub) return pub
-  const stored = dayState(s, day).videos
+  const stored = s.content[day] ?? dayState(s, day).videos
   if (!stored) return defaultVideos(getDay(day))
   let v = upgraded.get(stored)
   if (!v) {

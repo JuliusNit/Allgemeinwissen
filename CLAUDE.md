@@ -16,10 +16,15 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   `links` (frühere Sessions zum Anknüpfen). Phase-2-Teilthemen und Verknüpfungen wurden ergänzt, nicht von Julius vorgegeben.
   Videos: pro Teilthema ein ausgewähltes YouTube-Video aus `src/data/videos.ts` (per Suche gefunden, von Hand gewählt,
   per oEmbed auf „existiert + einbettbar“ geprüft; bevorzugt Studyflix, simpleclub, MrWissen2go, Terra X, Kurzgesagt).
+  **Keine KI-generierten Videos** (Julius, 22.10.2026: kein NotebookLM-Folienfilm, keine KI-Bilder/-Stimme, keine
+  Stockfootage-Kanäle). Suchtreffer sind voll davon (neue Kanäle mit Titel-Schema „X | EINFACH ERKLÄRT“, „… zum Einschlafen“).
+  Neue Kandidaten prüfen: Storyboard-Vorschaubilder (Innertube-Player, Client ANDROID → `storyboards`) ansehen + Kanalverlauf
+  (RSS `feeds/videos.xml?channel_id=`). Ausgemusterte IDs in `RETIRED_VIDEOS` (`videos.ts`); `upgradeVideos` ersetzt sie
+  auch in gespeicherten und vom Editor veröffentlichten Listen.
 - `src/data/lernzettel/NN.md` – Lernzettel je Session (Kasten „3 · Lernzettel“ zwischen Videos und Notizen, standardmäßig zu wie die Videos
   (`sheetOpen`, `videosOpen`); Antippen → Vollbild mit Teilen/Bild speichern (PNG über html-to-image)/PDF (Web: Drucken, App: Bild-PDF aus `src/lib/pdf.ts` übers Teilen-Menü); lädt lazy über `src/data/lernzettel.ts`). Geschrieben nach den Transkripten (YouTube-Untertitel) der Videos aus
   `videos.ts`, nach Thema gegliedert, nicht nach Video; max. 2 Seiten, Stichpunkte + Diagramme. Ohne Untertitel (nach Titel,
-  Beschreibung, Fachwissen): 45-2, 63-1, 67-2, 76-2, 76-3, 85-0, 85-2. Wird ein Video getauscht, Lernzettel prüfen.
+  Beschreibung, Fachwissen): 45-3, 63-1, 67-2, 76-2, 76-3, 85-0, 85-2. Wird ein Video getauscht, Lernzettel prüfen.
   Diagramme = Markdown-Codeblöcke ```kette/kreis/zeitstrahl/baum/gruppen/pyramide/schichten/kurve/balken
   (`src/components/Diagram.tsx`, Syntax im Kopfkommentar), Merkzeile mit `> …`.
   Fehlt ein Eintrag, gibt es einen Suchlink. Gespeicherte, unveränderte Suchlinks ersetzt `upgradeVideos` automatisch;

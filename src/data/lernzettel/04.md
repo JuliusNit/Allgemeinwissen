@@ -76,7 +76,8 @@ Transmitter werden abgebaut oder wieder aufgenommen | sonst Dauererregung
 | **GABA** (+ Glycin) | wichtigster **hemmender** („Bremse“) | Benzodiazepine verstärken GABA → beruhigen, gegen Anfälle |
 | **Acetylcholin** | Nerv → Muskel; Parasympathikus | Botox blockiert seine Ausschüttung → Muskel gelähmt |
 | **Noradrenalin** | Sympathikus, Wachheit | Kampf oder Flucht |
-| **Dopamin** | Motivation, Belohnungserwartung | eher „Will-ich-haben“ als Glück; Sucht |
+| **Dopamin** | Motivation, Belohnungserwartung, Bewegung | eher „Will-ich-haben“ als Glück; Sucht; Mangel in der Substantia nigra → Parkinson |
+| **Endorphine** | körpereigene Opioide: Schmerz ↓, Hochgefühl | „Runner's High“; das eigentliche Glücksgefühl (mit Oxytocin), nicht Dopamin |
 | **Serotonin** | Zufriedenheit, Stimmung, Schlaf | ~90 % entsteht im Darm – kommt aber nicht ins Gehirn |
 
 - **Blut-Hirn-Schranke**: Darm-Serotonin und -Dopamin wirken nur dort; das Gehirn bildet seine Transmitter selbst

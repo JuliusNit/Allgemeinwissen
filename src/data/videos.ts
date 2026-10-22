@@ -1,12 +1,13 @@
 // Ausgewaehlte YouTube-Videos je Teilthema (Tag-Index → [Video-ID, Kanal]).
 // Per Suche gefunden, von Hand ausgewaehlt und per oEmbed geprueft (existiert, einbettbar) am 2026-10-04.
 // Bevorzugt: Studyflix, simpleclub, MrWissen2go/musstewissen, Terra X, Kurzgesagt, Sommers Weltliteratur.
+// Keine KI-generierten Videos (Julius, 22.10.2026): neue Kanäle vorher über Storyboard/Kanalverlauf prüfen (RETIRED_VIDEOS).
 export const VIDEO_PICKS: Record<string, [string, string]> = {
   '1-0': ['upePNQNNDPY', 'Studyflix'], // Zellorganellen und ihre Funktionen - einfach erklärt!
   '1-1': ['hu37M7pQa-M', 'Studyflix'], // Zellmembran - Aufbau und Funktion
   '1-2': ['XI0pIFX-1oM', 'Biologie - simpleclub'], // Transport durch die Zellmembran - Überblick
   '1-3': ['QsViPW2eu3k', 'Die Merkhilfe'], // Enzyme als Biokatalysatoren einfach erklärt - Was sind Enzyme? Enzymak
-  '1-4': ['2_NXbfGrXOo', 'StudioEinfach - Wissen, das Klick macht!'], // Was ist Adenosintriphosphat (ATP) | EINFACH ERKLÄRT
+  '1-4': ['UY6aVS1fs64', 'TeacherToby'], // ATP [Adenosintriphosphat] - Aufbau, Synthese und Funktion [Biologie, O
   '2-0': ['szus13YZifE', 'Die Merkhilfe'], // Kohlenhydrate 1 - Aufbau, Strukturformeln & Ablauf Energieherstellung 
   '2-1': ['SSLIzJdNiR4', 'Die Merkhilfe'], // Fette einfach erklärt - Aufbau, Arten, Entstehung, Eigenschaften, Unte
   '2-2': ['pcJ_b_JP3J4', 'Die Merkhilfe'], // Proteine - Bau & Struktur einfach erklärt - Genetik & Stoffwechselbiol
@@ -20,7 +21,7 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '4-0': ['prK8Hw0GCDg', 'Die Merkhilfe'], // Bau & Funktion von Nervenzellen - Nervensystem einfach erklärt - Neuro
   '4-1': ['lqq6lu3WouY', 'Biologie - simpleclub'], // Ruhepotential - Aktionspotential - einfach erklärt!
   '4-2': ['bmvUnIGyfoI', 'Biologie - simpleclub'], // Synapse - Reizübertragung
-  '4-3': ['e33XCF0nRWQ', 'StudioEinfach - Wissen, das Klick macht!'], // Neurotransmitter | EINFACH ERKLÄRT
+  '4-3': ['35Z1OSHdfeM', 'Biologie - simpleclub'], // Wie wirken Drogen?! 2 - Neurotransmittersysteme und Hormone
   '4-4': ['EbKOx6sriFc', 'Duden Learnattack'], // Blutzuckerspiegel: Hunger, Insulin und Diabetes – Biologie | Duden Lea
   '5-0': ['yzkVtesys5E', 'musstewissen Physik'], // Was ist Kraft? I musstewissen Physik
   '5-1': ['i7lM-E2H0o8', 'musstewissen Physik'], // Mechanische Leistung und Arbeit I musstewissen Physik
@@ -51,17 +52,17 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '11-1': ['uWNHZgLeOB4', 'Wirtschaft - simpleclub'], // Angebot und Nachfrage
   '11-2': ['3oaAaid0XKA', 'Wirtschaft - simpleclub'], // Marktgleichgewicht
   '11-3': ['FBWJYH8DZ1g', 'Khan Academy'], // Introduction to price elasticity of demand | APⓇ Microeconomics | Khan
-  '12-0': ['IxZ52y1IejU', 'Psychologie Philosophie'], // Karl Popper erklärt | Falsifikation & Offene Gesellschaft | Warum Wiss
+  '12-0': ['x0-yRHJmOkM', '3sat NANO'], // Wann Wissenschaft wahr ist – nach Karl Popper | Gert Scobel
   '12-1': ['3vMxWdJSodk', 'Pharmalogisch!'], // Placebokontrolliert, randomisiert und doppelblind
   '12-2': ['CLUiA2Id7KQ', 'shaussner'], // Von Expertenmeinung zu Meta-Analyse - Evidenzpyramide für die Politikw
-  '12-3': ['MQsxTNckYSo', 'StudioEinfach - Wissen, das Klick macht!'], // Die Replikationskrise | EINFACH ERKLÄRT
+  '12-3': ['SzO6b2XJHwA', 'Quarks Science Cops'], // Peer Review: Wie Wissenschaft sich vor Dummfug schützt
   '13-0': ['34yjxCKh_tM', 'immocentrum'], // Romanik & Gotik in der Architektur🏰⛲Übergang der Baustile-Lebendiges 
   '13-1': ['2JOsATFv7vY', 'Art Explained Simply & Quickly'], // How to Tell Renaissance, Baroque, and Rococo Apart in 5 Minutes
   '13-2': ['7kDmF17k15M', 'MiMa'], // Epochen der Kunst - Klassizismus, Romantik, Realismus
   '13-3': ['8I9DaMpNv68', 'Ars Vitae'], // Stil-Epochen - Moderne, Postmoderne und zeitgenössische Kunst (1945 bi
   '14-0': ['dMLoLNy89vw', 'PhilosophiePlus'], // PhiloBasics 2: Die 4 Grundfragen nach Kant und die Disziplinen der Phi
   '14-1': ['TmxNs931Z8I', 'Held des Wissens'], // Erkenntnistheorie - Wissenschaftstheorie - Epistemologie - Abitur Wiss
-  '14-2': ['5p-UD1cnRVg', 'Lars Reimers'], // Ethik erklärt: Von Aristoteles bis Kant – Eine Reise durch die Geschic
+  '14-2': ['jQm4CT0XqC0', 'Samuel Jalalian'], // Ethik Abitur: Wichtige Grundbegriffe erklärt!
   '14-3': ['b3jaHlIOul4', 'PhrasenDrescher'], // 30 philosophische Strömungen in 13 Minuten
   '15-0': ['PmDVudkhk7Y', 'MrWissen2go Geschichte | Terra X'], // Das Grundgesetz erklärt | Geschichte
   '15-1': ['tYWQs7I7NCQ', 'Die Merkhilfe'], // Grundrechte im Grundgesetz - Grundrechte, Menschenrechte, Menschenwürd
@@ -71,7 +72,7 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '16-1': ['8HtnfA0nErw', 'Dinge Erklärt – Kurzgesagt'], // Was ist Intelligenz?
   '16-2': ['WC7PrWmB1_8', 'studybreak'], // Fluide Intelligenz, Kristalline Intelligenz | Wirtschaftsdidaktik
   '16-3': ['UrOpDurkvMk', 'Quarks'], // Zwillinge – Was sie über die Macht der Gene verraten | Quarks
-  '18-0': ['6wkHF8Gaq8s', 'Geschichte 101'], // Die ersten Dörfer der Menschheit, oder: die neolithische Revolution
+  '18-0': ['dZjzF5M15BU', 'Jule Sommersberg'], // Neolithische Revolution
   '18-1': ['cx6cDSyaQPY', 'Einfach Antike'], // Der Codex Hammurabi | Das älteste Gesetzeswerk der Menschheitsgeschich
   '18-2': ['UXKvwL8Ox6k', 'MrWissen2go Geschichte | Terra X'], // Das Alte Ägypten: Hochkultur am Nil
   '18-3': ['0jQfYa1t518', 'Andere Geschichten'], // Die Induskultur - Eine rätselhafte Hochkultur (Doku Hörbuch)
@@ -89,7 +90,7 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '21-3': ['MZCNNo2-T-Q', 'MrWissen2go Geschichte | Terra X'], // Alexander der Große I Geschichte
   '22-0': ['rur4haEjHQ0', 'Dr. Johannes Hartl'], // Philosophie to go 1: Die Vorsokratiker
   '22-1': ['CzqtmuUC8EU', 'David Johann Lensing'], // Die sokratische Methode · Platons Dialoge ft. Sokrates
-  '22-2': ['8a36S_mXgB0', 'Psychologie Philosophie'], //  Platon erklärt | Ideenlehre & Höhlengleichnis | Wahrheit, Seele & Sta
+  '22-2': ['Xco8thmkXbY', 'LitosoPHie'], // Ideenwelt, Höhlengleichnis, Staat | Platon | Einführung Philosophie
   '22-3': ['qPNcKBWcHBk', 'LitosoPHie'], // Wie man so richtig ruhig bleibt | Stoa & Stoizismus | Einführung Philo
   '23-0': ['dA-DBhuNB9o', 'Die Merkhilfe'], // Mendelsche Regeln - Zusammenfassung Abitur - 1., 2. & 3. Mendelsche Re
   '23-1': ['rYFS4kvMAVI', 'Studyflix'], // DNA Replikation einfach erklärt!
@@ -126,7 +127,7 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '32-0': ['NeZ8z7YiJdU', 'MrWissen2go'], // Judentum erklärt | Eine Religion in (fast) fünf Minuten
   '32-1': ['10mdxRtpqUQ', 'MrWissen2go'], // Christentum erklärt | Eine Religion in (fast) fünf Minuten
   '32-2': ['ESLa3YT1nps', 'MrWissen2go'], // Islam erklärt | Eine Religion in (fast) fünf Minuten
-  '32-3': ['A8-i_sgRDCI', 'Faktenkompass'], // Judentum, Christentum, Islam: Wie unterschiedlich sind die Religionen 
+  '32-3': ['oy5_QqCcdeo', '3ALOG - TRIALOG - DIALOGPLATTFORM RELIGION & KULTUR'], // Abraham im Judentum, Christentum & Islam - Prof. Dr. Karl-Josef Kusche
   '33-0': ['wGVgIcTpZkk', 'Bozeman Science'], // The Three Domains of Life
   '33-1': ['e1Tp0-2jrDA', 'Studyflix'], // Nahrungskette - Nahrungsnetz, Trophieebenen, Ökologie | Studyflix
   '33-2': ['oaPVSX3MLCk', 'Biologie - simpleclub'], // Stoffkreisläufe und Energiefluss - Ökologie
@@ -138,9 +139,9 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '35-0': ['3OnTUTuqC_4', 'MrWissen2go Geschichte | Terra X'], // Renaissance und Humanismus I musstewissen Geschichte
   '35-1': ['v04-wcKE3Pk', 'MrWissen2go Geschichte | Terra X'], // Johannes Gutenberg - Erfinder des Buchdrucks? Geschichte einfach erklä
   '35-2': ['At3W6lniGNE', 'MrWissen2go Geschichte | Terra X'], // Martin Luther und die Reformation I musstewissen Geschichte
-  '35-3': ['6GpZkNK_lH0', 'StudioEinfach - Wissen, das Klick macht!'], // Das Zeitalter der Entdeckungen | EINFACH ERKLÄRT
+  '35-3': ['gWxNW0FiA34', 'evulpo auf deutsch'], // Entdeckungsfahrten: Ursachen und Folgen
   '36-0': ['sDG5YLbCvU8', 'shribe! - master your studies'], // Induktion und Deduktion mit Beispielen erklärt (Superschnelles 5-Minut
-  '36-1': ['fWEsMCC0rFc', 'StudioEinfach - Wissen, das Klick macht!'], // Gültige Argumente (Logik) | EINFACH ERKLÄRT
+  '36-1': ['_9zk69MSitA', 'BiasedSkeptic'], // Syllogismus und logische Gültigkeit erklärt
   '36-2': ['LdAupXWxHjQ', 'BiasedSkeptic'], // Bitte nicht! Logische FEHLSCHLÜSSE erklärt (Top 10)
   '36-3': ['kg54IX7j3DY', 'ExActa'], // Kurz geklärt: Dammbruchargument
   '37-0': ['irh9kFv68sA', 'Physik - simpleclub'], // Stromstärke & Spannung Grundlagen - REMAKE
@@ -173,8 +174,8 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '44-3': ['gdJWH10sAZ8', 'STARK Verlag'], // Die Reichseinigung 1864 – 1871 | STARK erklärt
   '45-0': ['9dgHhsqsVyw', 'Terra X History'], // 15. Jahrhundert – Die Buchdruck-Revolution – wie Gutenberg die Welt ve
   '45-1': ['ArvQYJwd6jE', 'Physik - simpleclub'], // Wie funktioniert die Dampfmaschine?
-  '45-2': ['RpxjwDQfurQ', 'Grundwissen'], // Die Entdeckung des elektrischen Stroms und die Erfindung der Glühbirne
-  '45-3': ['NtFUz-hOx6I', 'erklaerung-und-mehr'], // Die Geschichte der Medizin (einfach und kurz erklärt)
+  '45-2': ['eRT9gVjkiPA', 'EINFACH GESCHICHTE'], // Es werde Licht! - Die Erfindung der Glühbirne I DIE INDUSTRIELLE REVOL
+  '45-3': ['hw4_nnMXxPY', 'Histoclips'], // 1928 - Die Jahrhundertmedizin
   '46-0': ['GmbhVxUVrGI', 'LetsDenk'], // Utilitarismus nach Bentham & Mill einfach erklärt [Ethik] - Let's Expl
   '46-1': ['6DtchCPwpHI', 'PhiloGramm'], // Die Pflichtethik von Immanuel Kant
   '46-2': ['K7Z9Rk2RHfs', 'David Johann Lensing'], // Tugendethik bei Aristoteles · Eudämonie als Ziel
@@ -200,7 +201,7 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '51-2': ['gUNI79hwyuI', 'Musik mit Matthias'], // Epochen des Musikgeschichte: Romantik
   '51-3': ['jigomONn2OI', 'selbstorientiert'], // Die Sinfonie einfach erklärt - Beethoven & Definition - Begriff Sinfon
   '52-0': ['RProbwdCt7s', 'Wirtschaft - Animiert Kapiert'], // Der Liberalismus - Politische Ideologie - einfach erklärt
-  '52-1': ['EdcyEmYEykE', 'StudioEinfach - Wissen, das Klick macht!'], // Konservatismus | EINFACH ERKLÄRT
+  '52-1': ['bGJHLIbV1Dw', 'Milchschaum Politik'], // Konservatismus - politische Grundrichtung / Grundströmung
   '52-2': ['bmhVLGWszQc', 'MrWissen2go Geschichte | Terra X'], // Kommunismus, Sozialismus und Bolschewismus | Geschichte
   '52-3': ['ggync-m0WIo', 'Wirtschaft - Animiert Kapiert'], // Nationalismus Definition und Geschichte - einfach erklärt
   '53-0': ['QhcPiAUgluA', 'Biologie - simpleclub'], // Unspezifische Immunabwehr - Immunsystem
@@ -217,7 +218,7 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '55-3': ['9VEH-DKh2ZM', 'Biologie - simpleclub'], // Wie wirken Drogen?! 3 – Das körpereigene Belohnungssystem
   '57-0': ['WHVN93ry7LQ', 'Studyflix'], // Weimarer Republik: Das Wichtigste! - Studyflix
   '57-1': ['RPCS-cJMCDk', 'MrWissen2go Geschichte | Terra X'], // Adolf Hitlers Aufstieg: Vom „Niemand" zum Diktator
-  '57-2': ['om31s8T5UlE', 'StudioEinfach - Wissen, das Klick macht!'], // Judenverfolgung ab 1933 | EINFACH ERKLÄRT
+  '57-2': ['pFo2kXMqa98', 'MrWissen2go Geschichte | Terra X'], // Der Holocaust: Völkermord an den europäischen Juden
   '57-3': ['ihKFqag1QgA', 'Terra X History'], // 10 Fakten, die man über den Zweiten Weltkrieg wissen muss | MrWissen2g
   '58-0': ['vBXaINQwpZ0', 'Chemie - simpleclub'], // Welche Atommodelle gibt es?! - Teil 1
   '58-1': ['bbjGzpHTKXs', 'Chemie - simpleclub'], // Was ist das Periodensystem?!
@@ -233,7 +234,7 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '60-3': ['M_zbc3qa160', 'ZeigMal!'], // Warhol und die Pop Art: "32 Campbell's Soup Cans"
   '61-0': ['7OOrhIm_PVQ', 'EINFACH GESCHICHTE'], // Der Eiserne Vorhang und die Teilung Deutschlands I DER KALTE KRIEG
   '61-1': ['fvKJ1rbR4ig', 'EINFACH GESCHICHTE'], // Die Kubakrise und Spionage im Kalten Krieg I DER KALTE KRIEG
-  '61-2': ['4Z7M7_Jhork', 'selbstorientiert'], // Dekolonisation und Unabhängigkeitsbewegungen einfach erklärt - Kriege 
+  '61-2': ['zI7FywIDv6s', 'MrWissen2go Geschichte | Terra X'], // Blutiger Kampf: So endete die Kolonialzeit in Afrika
   '61-3': ['i52NTWGqoP4', 'MrWissen2go Geschichte | Terra X'], // Von Gorbatschow zu Putin: So zerfällt die Sowjetunion
   '62-0': ['0Exik_Q3kDk', 'Informatik - simpleclub'], // Bits und Bytes: Binärziffern 0 und 1 - Arithmetik in Computern 1
   '62-1': ['Rtgro8pqtMQ', 'Informatik und Mathematik by Dr. Gebhardt'], // Logikgatter (Digitaltechnik)
@@ -288,12 +289,12 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '75-2': ['rpfZ2GR3Vps', 'Marvin McKay - Winkeladvokat'], // Mietrecht: 10 wichtige Rechte des Mieters | Was Du als Mieter darfst |
   '75-3': ['-EF-xhmQkYI', 'Mission Bachelor'], // Arbeitsrecht | Individuelles und kollektives Arbeitsrecht einfach erkl
   '76-0': ['lWsp-mVgiZY', 'erklaerung-und-mehr'], // Geschichte des Jazz
-  '76-1': ['pDrm4OglI4Q', 'Musiklehrer'], // Popmusik - Eine kurze Einführung in die Entwicklung der Popularmusik
+  '76-1': ['6yMDrOez4Yw', 'Arte TRACKS'], // Wie Techno aus Detroit Berlin erobert hat (Vintage 2018)
   '76-2': ['FXRR4KNyBE0', 'Cman1337'], // 5 Minuten Filmgeschichte | 1880 - 2020
   '76-3': ['okmFIimKq2w', 'outdoortrainer'], // Kleine Filmschule - Teil 1 - Elemente der Filmsprache
   '77-0': ['obExlY4s3qI', 'Geographie - simpleclub'], // Demographischer Übergang - Modell einfach erklärt - Demographie 3
   '77-1': ['rTrNSrx2OT8', 'Studyflix'], // Urbanisierung: einfach erklärt -- Studyflix
-  '77-2': ['AHOj4GScXpw', 'MOOCit Education Matters Lernvideos für die Schule'], // Flucht und Migration: Ursachen, Wandel und globale Folgen | Geschichts
+  '77-2': ['PsOhYH-uErM', 'Geographie - simpleclub'], // Migration
   '77-3': ['dPZ17WUXwWI', 'Wirtschaft - simpleclub'], // Demografischer Wandel – Grundbegriffe der Wirtschaft
   '78-0': ['F81V7apquBM', 'Studyflix'], // EXPONENTIELLES WACHSTUM | Erklärung + Formel mit anschaulichem Beispie
   '78-1': ['W9Bd03YVVnA', 'Republik Magazin'], // Was sind eigentlich Kipppunkte? Klimaforscher Stefan Rahmstorf erklärt
@@ -302,7 +303,7 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '79-0': ['BDcFTvHyVLk', 'Die Merkhilfe'], // Erneuerbare Energien - Primärenergiequellen, Potenzial & Probleme / Na
   '79-1': ['szJQ5Pf9Aus', 'Agentur für Erneuerbare Energien e. V.'], // Wie funktioniert das Stromnetz heute und in Zukunft?
   '79-2': ['ZAz1GutJGbg', 'Dinge Erklärt – Kurzgesagt'], // CRISPR - Gentechnik wird alles für immer verändern
-  '79-3': ['gLoIuAWAY7w', 'StudioEinfach - Wissen, das Klick macht!'], // mRNA-Impfstoffe | EINFACH ERKLÄRT
+  '79-3': ['dO2eSeePwRI', 'Open Science - Lebenswissenschaften im Dialog'], // SARS-CoV-2: Corona-Impfstoffe im Vergleich (mRNA und Vektor)
   '80-0': ['ghJhy40yCfM', 'explainity ® Erklärvideos'], // Steuern in Deutschland einfach erklärt (explainity® Erklärvideo)
   '80-1': ['fhm7oxpeFP0', 'MrWissen2go'], // Wohin geht unser Geld? - Sozialversicherung & Co. erklärt
   '80-2': ['wCTCXoZNsHE', 'Finanzfluss'], // ETF Erklärung: Was sind ETFs? In nur 4 Minuten erklärt! | Finanzlexiko
@@ -314,7 +315,7 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '83-0': ['IhFuFcl20_A', 'Politik.Macht.Geld!'], // Carlo Masala erklärt wie sich die neue Weltordnung herausbilden wird
   '83-1': ['9EtLWnQiy40', 'ARTEde'], // Erdgas und Erdöl: Regieren Rohstoffe die Welt? | Mit offenen Karten | 
   '83-2': ['IAD_fVFE6y8', 'MrWissen2go Geschichte | Terra X'], // Die Konflikte im Nahen Osten erklärt
-  '83-3': ['KwwakhyAy6E', 'Geo Karten'], // So hat Geografie die USA zur Weltmacht gemacht!
+  '83-3': ['IwiqwXjB2RM', 'Tim Marshall'], // Tim Marshall talks about Prisoners of Geography (German, 3sat)
   '84-0': ['bHM-PSA8SMc', 'Physik - simpleclub'], // Das Sonnensystem – Unsere Heimat
   '84-1': ['BzlHLd1-7qk', 'Quarks'], // Wie die Sonne entstanden ist – und wie sie sterben wird | Quarks
   '84-2': ['jbNSeTxUvvw', 'Breaking Lab'], // Dunkle Materie: Woraus besteht unser Universum wirklich?
@@ -327,7 +328,7 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '86-1': ['Vl4FotUbbBA', 'Dinge Erklärt – Kurzgesagt'], // Wie entstand unser Bewusstsein? (feat. Simplicissimus)
   '86-2': ['oGm_z7PGRq4', 'Die Merkhilfe'], // Evolution des Menschen - einfach erklärt! + Wasseraffen- & Savannenthe
   '86-3': ['zf591BzyTMU', 'Quarks'], // Darum hat sich der Homo sapiens durchgesetzt | Quarks
-  '87-0': ['HFKC3trVsL4', 'StrateGems Strategie & Methoden'], // Alle Propagandatechniken erklärt - Teil 1/2
+  '87-0': ['amzqgKpI88E', 'MrWissen2go'], // Mache ich Propaganda?
   '87-1': ['VLakJnRTVlo', 'AustroTV'], // Filterblasen und Echokammern – Wie Algorithmen unsere Wahrnehmung beei
   '87-2': ['gYoBsdoCFRE', 'BM für Forschung, Technologie und Raumfahrt'], // Forschung gegen Fake News – Desinformation erkennen, verstehen, bekämp
   '87-3': ['oBfZuyy-zQY', 'DW Deutsch'], // Video Faktencheck: Wie erkenne ich Fake News?
@@ -337,6 +338,17 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '88-3': ['MEqjcanuBok', 'Verwaltungspunk'], // Ethos, Pathos, Logos - Argumentationsgrundlagen der Rhetorik
   '89-0': ['vYtTfXvxxkw', 'ARTEde'], // Ging Rom an seiner Dekadenz zugrunde? | Stimmt es, dass ...? | ARTE
   '89-1': ['2sDGf0_ooQs', 'Thomas Witzler'], // Abenteuer Wirtschaft: Warum Nationen scheitern - “Wenn sich Leistung n
-  '89-2': ['w8QKrArC4SM', 'Die Stärke der Hikma'], // GANZES VIDEO Ibn Khaldun | Der Kreislauf der Zivilisation
+  '89-2': ['yqvmMFJQtm0', 'Overly Sarcastic Productions'], // History-Makers: Ibn Khaldun (englisch)
   '89-3': ['PbYXKuq_1hk', 'MrWissen2go Geschichte | Terra X'], // Wozu Geschichte lernen? | musstewissen Geschichte
 }
+
+// Ausgemustert am 2026-10-22: KI-generierte Videos (NotebookLM-Folien, KI-Bilder/-Stimme, Stockfootage-Kanäle).
+// Geprüft über Storyboard-Vorschaubilder + Kanalverlauf; ersetzt durch Videos von Menschen. Stehen sie noch in einer
+// gespeicherten oder veröffentlichten Liste, tauscht upgradeVideos sie gegen den aktuellen Pick.
+export const RETIRED_VIDEOS = new Set([
+  '2_NXbfGrXOo', 'e33XCF0nRWQ', 'MQsxTNckYSo', '6GpZkNK_lH0', 'fWEsMCC0rFc', 'EdcyEmYEykE', 'om31s8T5UlE', 'gLoIuAWAY7w', // StudioEinfach
+  'IxZ52y1IejU', '8a36S_mXgB0', // Psychologie Philosophie
+  '6wkHF8Gaq8s', 'AHOj4GScXpw', // Geschichte 101, MOOCit
+  'RpxjwDQfurQ', 'NtFUz-hOx6I', 'KwwakhyAy6E', 'HFKC3trVsL4', 'w8QKrArC4SM', 'A8-i_sgRDCI', // Grundwissen, erklaerung-und-mehr, Geo Karten, StrateGems, Hikma, Faktenkompass
+  '5p-UD1cnRVg', 'pDrm4OglI4Q', '4Z7M7_Jhork', // Lars Reimers (2024), Musiklehrer, selbstorientiert (2024)
+])
