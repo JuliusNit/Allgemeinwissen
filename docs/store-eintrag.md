@@ -48,7 +48,7 @@ Alles hier ist ein **Vorschlag**: Julius prüft und trägt es in App Store Conne
 > • Lernzettel als Bild oder PDF teilen und speichern.
 >
 > ENTDECKEN
-> Wissenshäppchen wie kurze Videos: ein Aufhänger, drei Absätze mit Fotos und Ton, dann der Faktencheck – belegt, umstritten oder Hype? Die Reihenfolge passt sich an das an, was dich interessiert.
+> Wissenshäppchen als kurze Filme von rund zwei Minuten: gezeichnete Animationen, Fotos und Ton erklären ein Phänomen, am Ende das Wichtigste kurz gesagt und die Quellen. Die Reihenfolge passt sich an das an, was dich interessiert.
 >
 > OHNE KONTO NUTZBAR
 > Lernpfad, Videos, Lernzettel und Karteikarten funktionieren ohne Anmeldung. Ein Konto brauchst du nur für die KI und die Sicherung deines Fortschritts.

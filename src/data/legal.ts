@@ -111,7 +111,7 @@ Telefon: **[PLATZHALTER: Telefonnummer oder zweiter schneller Kontaktweg]**
 
 ## Inhalte
 
-Lehrplan, Lernzettel und Texte der App: **[PLATZHALTER: Name]**. Die eingebetteten Lernvideos stammen von Dritten (u. a. YouTube-Kanäle von Studyflix, simpleclub, MrWissen2go, Terra X, Kurzgesagt); für deren Inhalt sind die jeweiligen Anbieter verantwortlich. KI-Antworten werden automatisch erzeugt und können Fehler enthalten. Fotos in „Entdecken“: Wikimedia Commons, Urheber und Lizenz stehen am Ende jedes Häppchens.
+Lehrplan, Lernzettel und Texte der App: **[PLATZHALTER: Name]**. Die eingebetteten Lernvideos stammen von Dritten (u. a. YouTube-Kanäle von Studyflix, simpleclub, MrWissen2go, Terra X, Kurzgesagt); für deren Inhalt sind die jeweiligen Anbieter verantwortlich. KI-Antworten werden automatisch erzeugt und können Fehler enthalten. Fotos und Gemälde in „Entdecken“: Wikimedia Commons, Urheber und Lizenz stehen gesammelt im Bildnachweis.
 
 ## Haftung für Links und eingebettete Inhalte
 
