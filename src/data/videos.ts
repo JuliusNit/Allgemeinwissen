@@ -340,6 +340,260 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '89-1': ['2sDGf0_ooQs', 'Thomas Witzler'], // Abenteuer Wirtschaft: Warum Nationen scheitern - “Wenn sich Leistung n
   '89-2': ['yqvmMFJQtm0', 'Overly Sarcastic Productions'], // History-Makers: Ibn Khaldun (englisch)
   '89-3': ['PbYXKuq_1hk', 'MrWissen2go Geschichte | Terra X'], // Wozu Geschichte lernen? | musstewissen Geschichte
+
+  // Vertiefung nach Tag 90 (data/deep.ts), gesucht und geprüft am 2026-10-26
+  '91-0': ['AArt1nUlhfY', '5 Minuten Deutschland'], // Was ist Quellenkritik? - Grundlagen Geschichte
+  '91-1': ['8_qpYwSXL54', 'Anarchäologie'], // Die C14-Methode einfach erklärt! Wie datiert man in der Archäologie
+  '91-2': ['uUJl-CLiJwY', 'ZDFheute Nachrichten'], // Holocaust-Erinnerung: So stehen die Deutschen dazu | Politbarometer2go
+  '92-0': ['jlr-oxi1Bw8', 'MrWissen2go Geschichte | Terra X'], // Absolutismus unter dem Sonnenkönig I musstewissen Geschichte
+  '92-1': ['6ynUOtswM2E', 'EinfachSchule'], // Was war der Merkantilismus? - Wirtschaftssystem unter Ludwig XIV. - Co
+  '92-2': ['LyQipaToaUQ', 'Geschichte in fünf'], // Die Glorreiche Revolution & die Bill of Rights (1688-1689)
+  '93-0': ['dL_5C-iITiY', 'MrWissen2go Geschichte | Terra X'], // Die Hanse: Europas große Handelsmacht 1150–1650
+  '93-1': ['ZaHcVELvzQM', 'Terra X Nature'], // Seuchen in Europa – die Pest im 14. Jahrhundert | Terra X
+  '93-2': ['uSjlWLT9PqY', 'Terra X Nature'], // Menschenrechte im Mittelalter – das Manifest der Bauern | Terra X
+  '94-0': ['N_LRL_TS8ME', 'Bleib neugierig — TED-Ed'], // Der atlantische Sklavenhandel: Was man in den Geschichtsbüchern oft ni
+  '94-1': ['uykwq3El_fI', 'OER Project'], // The Columbian Exchange Explained: How 1492 Changed the World
+  '94-2': ['wqq8DpE4xoY', 'ARTEde'], // Wie wurde Europa zum Mittelpunkt der Welt? | Offene Ideen | ARTE
+  '95-0': ['Jyto13xPzWY', 'MrWissen2go Geschichte | Terra X'], // Die Dolchstoßlegende: Darum war sie so verheerend
+  '95-1': ['sVkEY87L-xI', 'MrWissen2go Geschichte | Terra X'], // Die Weimarer Republik I Das Krisenjahr 1923 I musstewissen Geschichte
+  '95-2': ['tDI4SxeoH6k', 'MrWissen2go Geschichte | Terra X'], // Der Untergang der Weimarer Republik: Eine Warnung für heute?
+  '96-0': ['5ObdahQg0-g', 'Terra X History'], // Völkermord in den deutschen Kolonien
+  '96-1': ['c8-3hS0cHKk', 'EinfachSchule'], // Kongokonferenz - Westafrika-Konferenz - Verlauf, Folgen, Ergebnisse - 
+  '96-2': ['nE89z19uha4', 'ZDF MAGAZIN ROYALE'], // Koloniale Raubkunst - Prof. Dr. Bénédicte Savoy im Interview | ZDF Mag
+  '97-0': ['GpqMT88zWlc', 'MrWissen2go Geschichte | Terra X'], // „Altnazis“ in BRD und DDR: Zweite Karriere trotz NS-Vergangenheit
+  '97-1': ['c7RSHQ44hyQ', 'DER SPIEGEL'], // Denkmäler stürzen oder nicht?: »Man könnte Bismarck auf den Kopf stell
+  '97-2': ['CWhoALa6bTU', 'MrWissen2go Geschichte | Terra X'], // Der Ukraine-Konflikt: Die Geschichte dahinter
+  '99-0': ['D1Lfl4WmySE', 'Samuel Jalalian'], // Das Leib-Seele-Problem: Monismus und Dualismus einfach erklärt!
+  '99-1': ['SAFqeDADbRg', '3sat NANO'], // Phänomenales Bewusstsein – warum unsere Existenz fast unerklärlich ist
+  '99-2': ['C7YSy-Mr-d8', 'Dinge Erklärt – Kurzgesagt'], // Hast du einen freien Willen?
+  '100-0': ['VOMEd9qiiik', 'LitosoPHie'], // David Hume erklärt: Grenzen des Verstandes - Kausalität & Induktionspr
+  '100-1': ['kFwShmat7Go', 'Held des Wissens'], // Induktion und Deduktion, Karl Popper, Falsifikation, Abitur Wissen Phi
+  '100-2': ['2dR9hlgyY4Q', 'Christian Weilmeier'], // Thomas S. Kuhn über Wissenschaft und Paradigma / von Dr. Christian Wei
+  '101-0': ['MYjQHuIcnH8', 'Was zur Hölle?! Theologie kompakt erklärt'], // Gottesbeweise kompakt erklärt
+  '101-1': ['IwKn4WKBOl0', 'Terra X Lesch & Co'], // Wie kann ein allmächtiger Gott das Böse zulassen? | Harald Lesch
+  '101-2': ['aOFFgszR_a0', 'David Johann Lensing'], // Feuerbach · Religionskritik und Projektionstheorie
+  '102-0': ['atJbJ_3tWno', 'Die Merkhilfe'], // Aristoteles: Grundsätze der Gerechtigkeit | Gerechtigkeit 3
+  '102-1': ['NX-IVGd6qhM', 'LetsDenk'], // John Rawls' geniale Theorie der Gerechtigkeit einfach erklärt | Let’s 
+  '102-2': ['wvihqK3RSzU', 'Wirtschaft - Animiert Kapiert'], // Was ist soziale Gerechtigkeit? - Die Dimensionen der Gerechtigkeit ein
+  '103-0': ['k1n7Vp4s_sU', 'unirostock'], // Soziologie studieren: Theodor W. Adorno - Kulturindustrie
+  '103-1': ['L3huxMGnLu8', 'Christian Weilmeier'], // Diskursethik nach Habermas / von Philosoph Dr. Christian Weilmeier
+  '103-2': ['7qRYu03C7-s', 'Herr Fuchs'], // Philosophie Grundkurs Q2:Staatstheorie Corona Special: Michel Foucault
+  '104-0': ['wnnseWkJKb0', 'Samuel Jalalian'], // Peter Singer: Tier- und Medizinethik einfach erklärt!
+  '104-1': ['uYr90m8SZlU', 'Christian Weilmeier'], // Ethik: aktive und passive Sterbehilfe / von Philosoph Dr. Christian We
+  '104-2': ['2_NON7fHsQQ', 'MaxPlanckSociety'], // Designerbabys & Genom-Editierung – Science oder Fiction? | Gattaca | W
+  '105-0': ['3ZFLF9EPIrA', 'Bleib neugierig — TED-Ed'], // Das ethische Dilamma von selbstfahrenden Autos - Patrick Lin
+  '105-1': ['HeQsQU90aGU', 'Animation / Thomas Kaufmann'], // WDR / Quarks & Co: Transhumanismus – Die nächste Evolutionsstufe
+  '105-2': ['Lm7CNLiYqI4', 'Die Merkhilfe'], // Hans Jonas: Technikethik / Verantwortungsethik (Neue Version)
+  '107-0': ['xvDwOeOzyIY', 'Physik - simpleclub'], // Zentripetalkraft
+  '107-1': ['VFYK5s_bhJI', 'Think Logic'], // Drehimpuls - einfache Erklärung, Berechnung, Physik
+  '107-2': ['xcjv_vQJO7U', 'Physik - simpleclub'], // Erzwungene Schwingung - Resonanzkatastrophe
+  '108-0': ['B9_ZFC2clE0', 'DER SPIEGEL'], // Wärmepumpe: Heizen ohne Flamme – wie funktioniert das eigentlich? | DE
+  '108-1': ['iizUT01u9mA', 'Physik - simpleclub'], // Wärmeübertragung
+  '108-2': ['kEFx1X5F2fU', 'musstewissen Chemie'], // Aggregatzustände I fest I flüssig I gasförmig I musstewissen Chemie
+  '109-0': ['Ue3EfnzfMa8', 'Physik - simpleclub'], // Ausbreitung von elektromagnetischen Wellen
+  '109-1': ['KBuc4XpzUUA', 'physikdigital • de'], // Elektromagnetisches Spektrum (einfach und anschaulich erklärt)
+  '109-2': ['xFy9DNN0j4M', 'MaxPlanckSociety'], // Laser - Licht in Formation
+  '110-0': ['lKZaHgNmQ_o', '100SekundenPhysik'], // Das Geheimnis der Quanten - Doppelspaltexperiment
+  '110-1': ['deEyG4Nm9MA', 'Apolins Physik-Universum'], // Quantenmechanik 5: Heisenbergsche Unschärferelation
+  '110-2': ['P21d40y-gPo', 'Terra X Lesch & Co'], // Schrödingers Katze – Tot oder lebendig? | Harald Lesch
+  '111-0': ['bLECxDi6XlQ', 'Physik Academy'], // Standardmodell der Elementarteilchenphysik | Quarks, Leptonen, Bosonen
+  '111-1': ['ACD_qndPwws', 'Terra X Lesch & Co'], // Das Higgs-Boson – Gottes Teilchen? | Harald Lesch
+  '111-2': ['P2sIySmyUPg', 'Physik - simpleclub'], // Was ist Antimaterie?
+  '112-0': ['3IpcM5gqRM4', 'Dinge Erklärt – Kurzgesagt'], // Schwarze Löcher Erklärt - Von der Geburt bis zum Tod
+  '112-1': ['0ZGIX7N-n7Y', 'Terra X Lesch & Co'], // Dunkle Energie: was steckt dahinter? Krise der Kosmologie Teil 1 | Har
+  '112-2': ['T87ZtZAoiiQ', 'Dinge Erklärt – Kurzgesagt'], // Wie funktioniert das Universum? - Die Stringtheorie erklärt
+  '113-0': ['lj4IC70kDIU', 'Dinge Erklärt – Kurzgesagt'], // Energie der Zukunft oder kompletter Reinfall? - Fusionsenergie erklärt
+  '113-1': ['h7G4-WgAPJk', 'Terra X Lesch & Co'], // Atommüll: So gefährlich ist er wirklich | Harald Lesch | Terra X Lesch
+  '113-2': ['3s2bPNzOlFM', 'Fraunhofer-Institut für Angewandte Festkörperphysik IAF'], // Quantencomputer: Funktionsweise und Anwendungen
+  '115-0': ['Y2KHvzPOxAM', 'AOK - Der Gesundheitskanal'], // Viren vs. Bakterien: Was ist der Unterschied?
+  '115-1': ['_WP9Piwsexo', 'Dinge Erklärt – Kurzgesagt'], // Wie Bakterien unseren Körper beherrschen – Das Mikrobiom
+  '115-2': ['fCYoQLwujNU', 'Biologie - simpleclub'], // Stammzellen - Wie entsteht ein Mensch?
+  '116-0': ['wyKXI7j3Ob4', 'TeacherToby'], // Sexuelle Selektion - Geschlechtsdimorphismus [Evolutionsmechanismus, 5
+  '116-1': ['EWvcWNj_eoQ', 'TeacherToby'], // Was ist Koevolution? Mechanismus+ Beispiele (Biologie, Evolution)
+  '116-2': ['BLw1eXerF-E', 'Quarks Dimension Ralph'], // Epigenetik: Wie kann ich meine Gene beeinflussen? | Quarks Dimension R
+  '117-0': ['RwYqOnwQ6O0', 'Biologie - simpleclub'], // Wie funktioniert die Photosynthese - REMAKE!
+  '117-1': ['YeT5wTA0nPo', 'Die Merkhilfe'], // Lotka-Volterra-Regeln - Räuber-Beute-Beziehung - Regulation von Popula
+  '117-2': ['XO9SvH8L1cg', 'planet schule'], // Wie invasive Arten Ökosysteme durcheinander bringen! | Woher wissen wi
+  '118-0': ['NNijmxsKGbc', 'Stated Clearly'], // What Was The Miller-Urey Experiment?
+  '118-1': ['b8CNQOe-Rbs', 'Terra X Lesch & Co'], // Entstand so das Leben? Die RNA-Welt | Mai Thi Nguyen-Kim
+  '118-2': ['9LTMDLDsL98', 'MaxPlanckSociety'], // Zellorganellen - Die Endosymbiontentheorie
+  '119-0': ['rGaU4CXbERE', 'Biologie - simpleclub'], // Krebs - Entstehung
+  '119-1': ['v9HfNOC1AJs', 'Biologie - simpleclub'], // Warum altern wir?!
+  '119-2': ['oplNop77Tiw', 'Krebsliga'], // Wie wirken Immuntherapien?
+  '120-0': ['DE11uy4spho', 'Dinge Erklärt – Kurzgesagt'], // Gentechnik in unserem Essen - Grund zur Panik?
+  '120-1': ['ojVvtlNyJu8', 'Die Merkhilfe'], // Gentherapie / Somatische Gentherapie - Gentherapie bei Krebs & an der 
+  '120-2': ['KRg1TmTKc8o', 'Biologie - simpleclub'], // Dolly, ein geklontes Schaf?!
+  '121-0': ['vLEcf4OaZAQ', 'Breaking Lab'], // 700mg pro Tag? So gefährlich ist Mikroplastik! Faktencheck
+  '121-1': ['ZDWIgzpZkCk', 'Quarks'], // Insektensterben: Wie schlimm ist es mittlerweile? | Studio Q
+  '121-2': ['4YsaZQzT7Z8', 'Dinge Erklärt – Kurzgesagt'], // Die Antibiotika Apokalypse erklärt
+  '123-0': ['CYQZ_GrJwLA', 'ARTEde'], // Denken in Wahrscheinlichkeiten - Das Ziegenproblem | Mathewelten | ART
+  '123-1': ['P1MWia09Kx4', 'Bleib neugierig — TED-Ed'], // Wie gut ist deine Intuition? Das Geburtstagsparadoxon – David Knuffke
+  '123-2': ['6TFomA_XnQQ', 'Duden Learnattack'], // Das empirische Gesetz der großen Zahlen: Das musst du wissen – Mathe |
+  '124-0': ['OM90fGYTj_w', 'Mathe by Daniel Jung'], // Mittelwert, Median, Modalwert | Statistik | Mathe by Daniel Jung
+  '124-1': ['_rVt6qTkea8', 'Mathe - simpleclub'], // Normalverteilung / Gaußverteilung
+  '124-2': ['ZnSWQfhYyDc', 'SEOTADEO'], // Lügen mit Statistik: Manipulative Diagramme und Grafiken (Teil 2)
+  '125-0': ['WylD-eQUm-g', 'Sprouts Deutschland'], // Das Pareto-Prinzip - Die 20/80 Regel
+  '125-1': ['DCoekhDNDGY', 'Ultralativ'], // Warum im Internet so viele Monopole sind | Der Netzwerkeffekt
+  '125-2': ['pb4YoMjcYM4', 'Dinge Erklärt – Kurzgesagt'], // Wie dumme Einzelteile zusammen intelligent werden - Emergenz
+  '126-0': ['Q4j4DIUHzYM', 'shribe! - master your studies'], // Ockhams Rasiermesser | Das Sparsamkeitsprinzip einfach erklärt 🔬
+  '126-1': ['TwnWnl3kf1I', 'SRF Kultur Sternstunden'], // «TEEKANNE» – das philosophische Gedankenexperiment | #filosofix
+  '126-2': ['iElYEW1v0IU', 'Magda liebt Mathe'], // Der Satz von Bayes | einfach erklärt | mit überraschend simpler Herlei
+  '127-0': ['eUywVvl_1oE', 'ARTEde'], // Der Gödelsche Unvollständigkeitssatz | Mathewelten - ARTE
+  '127-1': ['XTsaZRKx9UI', 'Christian Spannagel'], // Hilberts Hotel
+  '127-2': ['WiPlFycsQ2s', 'Theo Reto'], // Das Russell'sche Paradox (TU Berlin)
+  '128-0': ['tq7i9OzSNSQ', 'Dinge Erklärt – Kurzgesagt'], // Homöopathie – Sanfte Alternative oder dreister Humbug?
+  '128-1': ['wXZ_gn5txU8', 'Simplicissimus'], // Warum Menschen an Verschwörungstheorien glauben
+  '128-2': ['MWONKqdbiyY', 'Terra X Lesch & Co'], // Wie Pseudowissenschaftler uns belügen | Harald Lesch
+  '129-0': ['uH813u7_b0s', 'youknow'], // Big Data in 3 Minuten erklärt
+  '129-1': ['r5rtUf8r4ok', '3sat NANO'], // Google & Co.: Im Netz des Überwachungskapitalismus
+  '129-2': ['9WPyD2BLooo', 'Doktor Whatson'], // Wie (und warum) Künstliche Intelligenz diskriminiert... und wie wir es
+  '131-0': ['Xqer4ADWUd8', 'Finanzfluss'], // Unternehmensformen erklärt: GmbH, AG, UG, GbR, Inc., Ltd uvm. einfach 
+  '131-1': ['h0lJ2goopnI', 'Finanzfluss'], // In 10 min. mehr über Börse & Aktien verstehen als 90% aller Menschen
+  '131-2': ['B1EeV7JtuSI', 'explainity ® Erklärvideos'], // Bilanzen einfach erklärt (explainity® Erklärvideo)
+  '132-0': ['QPbacRM8rXk', 'NZZ'], // Schuldenbremse: Deutschlands Staatsschulden erklärt
+  '132-1': ['UATCJ-XA3E4', 'Friedrich-Ebert-Stiftung'], // Sozialstaat und Soziale Demokratie (Untertitel)
+  '132-2': ['B4XzALJqAoA', 'explainity ® Erklärvideos'], // Keynesianismus vs. Monetarismus einfach erklärt (explainity® Erklärvid
+  '133-0': ['MCvJGiYyqKY', 'Wirtschaft - simpleclub'], // Arten der Arbeitslosigkeit - Makroökonomie
+  '133-1': ['qBkoAkY5mus', 'contraPro'], // Mindestlohn - Pro vs. Contra
+  '133-2': ['MoyY7Neh4gI', 'Hans-Böckler-Stiftung'], // Tarifvertrag – einfach erklärt
+  '134-0': ['X5ZMD6dvXew', 'MrWissen2go Geschichte | Terra X'], // Die Weimarer Republik | Die Weltwirtschaftskrise 1929 | musstewissen G
+  '134-1': ['ci4yFt5gCbc', 'EinfachSchule'], // Finanzkrise 2008 einfach erklärt - Finanzkrise in Europa - Lehmann Bro
+  '134-2': ['cEWw5pNekiY', 'EinfachSchule'], // Eurokrise einfach erklärt - Die Europäische Finanz- und Eurokrise - Eu
+  '135-0': ['Kp3FahlOYmg', 'Globale Wirtschaft Verstehen'], // Warum sind manche Länder arm und andere reich? - Part 1
+  '135-1': ['_kbPY3MhaOc', 'ARTEde'], // Entwicklungshilfe: Wer hilft wirklich wem? | Agree to Disagree! | ARTE
+  '135-2': ['ivzVcA3FNf8', 'Simple SoWi'], // Lorenzkurve und Gini-Koeffizient | Simple SoWi
+  '136-0': ['rcEU8Bgk9e0', 'Quarks'], // Explodierende CO2-Preise ab 2027: Wird Tanken und Heizen unbezahlbar? 
+  '136-1': ['gF6YCN0AWls', 'EVERGREEN'], // Green Growth: Ist Grünes Wachstum eine Illusion?
+  '136-2': ['R3vSJA1sY9w', 'DIE ZEIT '], // Die wahren Kosten der Klimakrise | DEUTSCHLAND 2050
+  '137-0': ['2473NHJtdFA', 'Finanzfluss'], // Bitcoins Erklärung: In nur 12 Min. Bitcoin verstehen!
+  '137-1': ['Ur7iViKeNIE', 'hessenschau'], // Warum die Energiepreise und Inflationsrate explodieren | hessenschau D
+  '137-2': ['w7daiJHfjoY', 'Dinge Erklärt – Kurzgesagt'], // Geld fürs Nichtstun? - Bedingungsloses Grundeinkommen
+  '139-0': ['rh5MUxhUUEE', 'musstewissen Deutsch'], // Dramentheorie | musstewissen Deutsch
+  '139-1': ['40HLRBDS4lY', 'Deutsch - simpleclub'], // Erzähltechnik - Erzählform und Erzählverhalten
+  '139-2': ['-rzEdO3WHNE', 'Studyflix'], // Metrum bestimmen | einfach erklärt
+  '140-0': ['60kNNVHeYTU', 'Sommers Weltliteratur to go'], // Nathan der Weise to go (Lessing in 8,5 Minuten)
+  '140-1': ['8qYlUIjSsnU', 'Sommers Weltliteratur to go'], // Die Räuber to go (Schiller in 10 Minuten)
+  '140-2': ['ApN1tq0q0xE', 'Sommers Weltliteratur to go'], // Woyzeck to go (Büchner in 9 Minuten)
+  '141-0': ['2JidaOO2Fds', 'Terra X History'], // 5 historische Wahrheiten hinter Hänsel und Gretel | Terra X
+  '141-1': ['4I2Tq9k0jWU', 'Study History'], // Nordische Götter I Thor, Loki und Co. einfach erklärt
+  '141-2': ['3fiXbU5Zpxw', 'VORZOCKER'], // Heldenreise - Warum viele Filme gleich aufgebaut sind?! | Erklärt
+  '142-0': ['Tf8ifFn0w4Y', 'Sommers Weltliteratur to go'], // Effi Briest to go (Fontane in 9,5 Minuten)
+  '142-1': ['lWWyfF3qOt8', 'Sommers Weltliteratur to go'], // Stolz und Vorurteil to go (Austen in 12,75 Minuten)
+  '142-2': ['1qLvsbquIsY', 'Klassiker der Weltliteratur'], // Klassiker der Weltliteratur: Lev Nikolajewitsch Tolstoj - "Anna Kareni
+  '143-0': ['QbU_PU4hT-0', 'Sommers Weltliteratur to go'], // Buddenbrooks to go & #MeinSenf (Mann in 10,5 Minuten - Neufassung!)
+  '143-1': ['oYAAFXCSuu8', 'hyperkulturell'], // Dramentheorie – Aristoteles vs. Brecht – Klassisches antikes Theater v
+  '143-2': ['XN-B6P6R5w4', 'Sommers Weltliteratur to go'], // Der Steppenwolf to go (Hesse in 13 Minuten)
+  '144-0': ['5eDUvC8IXUI', 'Die Merkhilfe'], // Literatur der Nachkriegszeit / Trümmerliteratur - Literaturepoche einf
+  '144-1': ['ZhWXP-PTLHY', 'Text und Bühne'], // Autoren erzählen: Heinrich Böll
+  '144-2': ['a9lIYp_xCAc', 'Selmas Poesiealbum'], // Selma erklärt: Paul Celan, Todesfuge
+  '145-0': ['to9lbR8JvyM', 'Quarks'], // Was bringt Gendern wirklich? | Quarks TabulaRasa
+  '145-1': ['KVKTMNVkeVE', 'musstewissen Deutsch'], // Anglizismen einfach erklärt I Wörter im Deutschen aus dem Englischen
+  '145-2': ['o8_iutAEwZI', 'Die Merkhilfe'], // Jugendsprache & Kiezdeutsch - Form, Soziolekt & sprachliche Besonderhe
+  '147-0': ['HLfyDNh788Y', 'Der Kunsterklärer'], // Systematische Bildanalyse : Die Bildbeschreibung
+  '147-1': ['C06KtGCZt8Y', 'Hans Dieter Huber'], // 17b. perspektive in der renaissance
+  '147-2': ['EdUGaS0UIhQ', 'Der Kunsterklärer'], // Der Farbkreis - Johannes Itten und Harald Küppers in Kombination
+  '148-0': ['8EU-7hEICtg', 'Terra X History'], // Leonardo da Vinci: Was erfand er wirklich?
+  '148-1': ['ZnRqidEunDc', 'Deutsch lernen mit der DW'], // Deutsch lernen mit Videos | Rembrandt – Weltstar auch nach 350 Jahren 
+  '148-2': ['ROObvneVdJ4', 'Lars Reimers'], // Kunst in der Romantik - Caspar David Friedrich
+  '149-0': ['kVUNEdGG9Ns', 'MusikDurchblick'], // DUR-Tonleiter und MOLL-Tonleiter - einfach verstehen!
+  '149-1': ['l1Fid3PYe8Y', 'hr-Sinfonieorchester – Frankfurt Radio Symphony'], // Young Person's Guide: Das Orchester und seine Gruppen – vorgestellt vo
+  '149-2': ['kzAGtLJjnp8', 'klassiktv redaktion'], // Carmen - Opern kurz und bündig
+  '150-0': ['uPEQtq6pTow', 'IKP_movie'], // Marcel Duchamp und das Ready-made // Zugänge zu exemplarischen Kunstwe
+  '150-1': ['xcmWao9oSdQ', 'DW Deutsch'], // "Jeder Mensch ist ein Künstler" - Im Mai wäre Joseph Beuys 100 Jahre a
+  '150-2': ['KQiT8UbRlEE', 'Wissenswert'], // 6 simple Kunstwerke die Millionen wert sind - WARUM?
+  '151-0': ['-OAatV4jNpY', 'DW Doku'], // Ist es möglich, unsere Städte für ein besseres Leben neu zu gestalten?
+  '151-1': ['6NZjf7SoNwE', 'Terra X History'], // Wie kommen die Wolkenkratzer nach New York? | Terra X
+  '151-2': ['GSLaPYeEQ1I', 'klima:neutral'], // Klimasünder Beton! Das sind klimafreundliche Alternativen | green:scre
+  '152-0': ['QWHAh3e37bE', 'Histoclips'], // "Entartete Kunst"-Ausstellungen
+  '152-1': ['8FXQOVnp8lk', 'ZDF MAGAZIN ROYALE'], // Wer oder was ist alles von der Kunstfreiheit gedeckt? | ZDF Magazin Ro
+  '152-2': ['XmdWkcyt5Ac', 'DER SPIEGEL'], // Wer war Leni Riefenstahl: Die Regisseurin des NS-Films | SPIEGEL TV
+  '153-0': ['ayTOgTcPDGo', 'ARTEde'], // KI-Kunst | Mit offenen Augen | ARTE
+  '153-1': ['0qhuthv90_g', 'MDR Investigativ'], // Das Geschäft von Spotify, Amazon und Apple Music: So wenig verdienen N
+  '153-2': ['LzPShWLOzvw', 'DW Deutsch'], // Games: Zeitverschwendung oder Kunst? | DW Deutsch
+  '155-0': ['xjQtFsUCpGc', 'Bundeszentrale für politische Bildung / bpb'], // Wie entsteht ein Gesetz?
+  '155-1': ['Tzr3nztOo04', 'JUGEND PRÄGT'], // Bundespolitik = Landespolitik? | Mirko Drotschmann erklärt Föderalismu
+  '155-2': ['nnP2IC6bZzY', 'Die Merkhilfe'], // Parteien & Parteiensystem in Deutschland einfach erklärt - Entstehung,
+  '156-0': ['IZSCCKjttM0', 'Study History'], // Verhältniswahl & Mehrheitswahl im Vergleich I Vor- und Nachteile der W
+  '156-1': ['QSFiBisOJ8g', 'tagesschau'], // Volksabstimmung, Volksentscheid | Wie demokratisch bist Du? – Das Expe
+  '156-2': ['TKHCCSypIXI', 'Latiniculus'], // Die Verfassung der USA erklärt (Kongress | Senat | checks and balances
+  '157-0': ['PuiASCpc2M8', 'Die Merkhilfe Wirtschaft'], // Einführung ins Strafrecht - materiell & formell, Strafzweck & Beispiel
+  '157-1': ['bnpmLdw4SG0', 'explainity ® Erklärvideos'], // Das deutsche Rechtssystem einfach erklärt (explainity® Erklärvideo)
+  '157-2': ['0CpynaBOqRU', 'Lecturio Jura'], // Strafrecht I Überblick über das Strafverfahren I RA Stefan Koslowski
+  '158-0': ['T1VXkO3RrBs', 'Amnesty Switzerland'], // Menschenrechte in drei Minuten erklärt
+  '158-1': ['-XJHnc5ka6I', 'ARTEde'], // Internationaler Strafgerichtshof am Limit? | ARTE Hintergrund
+  '158-2': ['N2k29XO87Fc', 'Refugee Law Clinic Dresden'], // Asyl- und Aufenthaltsrecht: Kompakt - Chronologie des Asylverfahrens
+  '159-0': ['lglNVX7v1qs', 'ARTEde'], // Atomare Abschreckung: Schutzschirm für Europa? | Mit offenen Karten - 
+  '159-1': ['iDyR4jfnW20', 'MrWissen2go Geschichte | Terra X'], // Von RAF bis NSU: Politischer Terror in Deutschland
+  '159-2': ['iFBzdkcTh7k', 'engagementglobal'], // Peacekeeping der UN und Nachhaltige Entwicklung [Erklärvideo für die O
+  '160-0': ['oWIQxUFkTmg', 'NZZ'], // Populismus einfach erklärt – was ist Populismus eigentlich?
+  '160-1': ['CuUKbW4DEdc', 'EinfachSchule'], // Was ist ein Parteiverbot? - Parteiverbotsverfahren in Deutschland - Pa
+  '160-2': ['yOVry0hH9vk', 'Wirtschaft - simpleclub'], // Lobbyismus – Grundbegriffe der Wirtschaft
+  '161-0': ['HrpXgqFcN0k', 'MrWissen2go'], // Zuwanderung: Die größten Probleme & Lösungen
+  '161-1': ['WtvdUkielo4', 'ARTEde'], // Was bleibt vom Pariser Klimaabkommen? | ARTE Hintergrund
+  '161-2': ['6lKfx1uer9k', 'MrWissen2go'], // Wehrdienst oder Wehrpflicht? Das gilt ab jetzt!
+  '163-0': ['8QWXJ1JjVzk', 'Sprouts Deutschland'], // Ivan Pavlovs Klassische Konditionierung
+  '163-1': ['C-psNuTOR6Q', 'Mission Bachelor'], // Operante Konditionierung | Negative und positive Verstärkung bzw. Best
+  '163-2': ['lRPLIElAq9A', 'Sprouts Deutschland'], // Sozialkognitive Lerntheorie: Banduras Experimente mit der Schlagpuppe
+  '164-0': ['IT_iaZr96wY', 'Quarks Dimension Ralph'], // Sinnestäuschungen: So trügt uns unsere Wahrnehmung | Ralphs Universum 
+  '164-1': ['vJG698U2Mvo', 'Daniel Simons'], // selective attention test
+  '164-2': ['vErs2HGNTq8', 'ARTEde'], // Warum träumen wir? | Wer nicht fragt, stirbt dumm! | ARTE
+  '165-0': ['hT5Ym09bJJk', 'Die Merkhilfe'], // Kommunikationsquadrat von Schulz von Thun einfach erklärt - Kommunikat
+  '165-1': ['6aem_0AcHZo', 'Quarks Dimension Ralph'], // Liebe und Verliebtsein: Alles nur Illusion? | Quarks Dimension Ralph
+  '165-2': ['VWumM6LwOng', 'Erzieherkanal - Wissen, Theorien & Infos'], // GEWALTFREIE KOMMUNIKATION nach Marshall Rosenberg - gewaltfrei kommuni
+  '166-0': ['yD0XiigUcrw', 'ARD'], // Das Stanford-Prison-Experiment – unwissenschaftlich und sadistisch?
+  '166-1': ['P_xq2PCm0us', 'Quarks'], // Süßigkeiten-Experiment: Welche Kinder können widerstehen? | Quarks
+  '166-2': ['rsqofw2Lv1c', 'Hans-Peter Steuer'], // Der kleine Albert und seine krankhafte Angst vor Ratten
+  '167-0': ['se4wl9qN3v8', 'AOK - Der Gesundheitskanal'], // Schizophrenie - Was ist das genau?
+  '167-1': ['Kxn1Ek5hQFc', 'Die Techniker'], // ADHS verstehen: Ursachen, Symptome, Diagnose & Therapie | DocTommy
+  '167-2': ['vuoIs5_J0rw', 'Dinge Erklärt – Kurzgesagt'], // Sucht
+  '168-0': ['Qia-McaUSY8', 'Philosophical Questions'], // The Replication Crisis in Psychology
+  '168-1': ['b0pmfpIDCgs', 'psychologeek'], // Myers-Briggs Typenindikator (MBTI) – das kann er wirklich | psychologe
+  '168-2': ['DN2kCvTilOo', 'Wlad Jachtchenko - DER FÜHRUNGSKRÄFTE PODCAST'], // Lerntypen: Gibt es sie wirklich? Oder nur ein dummer Mythos?
+  '169-0': ['trKJKn2wntc', 'ARTEde'], // Scrollen sich Teenager dumm? | 42 - Die Antwort auf fast alles | ARTE
+  '169-1': ['IlEuuCtUvlo', 'Terra Xplore'], // Glücksforschung: Kann ich Zufriedenheit lernen? | Terra Xplore mit Eri
+  '169-2': ['DwqwRYe6fKA', 'Dinge Erklärt – Kurzgesagt'], // Einsamkeit
+  '171-0': ['QXowmQ2J7wo', 'Terra X Nature'], // Wie Gletscher Deutschland formten | Terra X plus
+  '171-1': ['cuU63o04_cE', 'Die Merkhilfe'], // Mäander - Bildung & Aufbau von Mäander - Altarmbildung & Flussbegradig
+  '171-2': ['wPBvtSUuncc', 'TeacherToby'], // Wüstenarten /Wüstenformen der Erde und ihre Entstehung [Erdkunde, Mitt
+  '172-0': ['Xjl9LeOCBHg', 'Terra X Nature'], // Aus für den Golfstrom? Droht Europa die nächste Eiszeit? | Terra X plu
+  '172-1': ['56HmkPjGlWg', 'TeacherToby'], // Monsunzirkulation / Monsun in Indien [Sommermonsun + Wintermonsun] [Er
+  '172-2': ['bnw55aE0sFU', 'Breaking Lab'], // El Niño: Das Klimaphänomen einfach erklärt
+  '173-0': ['_scVEtRaXd0', 'DW Deutsch'], // Wasser: Warum unsere wertvollste Ressource knapp wird | Made in German
+  '173-1': ['U-jeKCmTKac', 'Geographie - simpleclub'], // Boden - Was ist das? - Böden Basics 1
+  '173-2': ['OYEukC3TGdI', 'Quarks'], // Faktencheck Seltene Erden: Wie abhängig sind wir? | Studio Q
+  '174-0': ['YGe0-9PdqUo', 'Geographie - simpleclub'], // Globale Disparitäten - Abiturzusammenfassung
+  '174-1': ['UIARB24wAnw', 'TeacherToby'], // HDI (Human Development Index) und IHDI, Vorteile + Nachteile [Erdkunde
+  '174-2': ['lhC57UUafSY', 'SWR Landesschau Rheinland-Pfalz'], // So funktioniert Fairer Handel
+  '175-0': ['W3L8hB_O3q0', 'Bleib neugierig — TED-Ed'], // Wie Tsunamis entstehen – Alex Gendler
+  '175-1': ['p3XAhsx01u8', 'Terra X Nature'], // Hurrikane – so entstehen die gefährlichen Stürme | Terra X
+  '175-2': ['8EuV3sSZqsc', 'Hessischer Rundfunk'], // Dürre trotz Überflutungen: Was Hochwasser und Schneemassen fürs Klima 
+  '176-0': ['P0NWErWu5ac', 'Alfred-Wegener-Institut, Helmholtz-Zentrum für Polar- und Meeresforschung'], // Meeresspiegelanstieg, was passiert und warum?
+  '176-1': ['61aUHA4895c', 'klima.bayern'], // Prinzip Schwammstadt - So können wir unsere Städte klimafit machen | C
+  '176-2': ['VcVsV9Yn4P4', 'Dinge Erklärt – Kurzgesagt'], // Geoengineering: Der Klima-Cheat?
+  '177-0': ['rct96QqCalY', 'NDR Info'], // Verkehrswende in der Stadt: Was passiert, wenn das Auto nicht mehr dom
+  '177-1': ['iGiBLpIBdFI', 'Geographie - simpleclub'], // Gentrifizierung - einfach erklärt!
+  '177-2': ['v9jEX6NBbs0', 'Galileo'], // Barcelona, Vorbild für die ganze Welt! So funktioniert die Smart-City 
+  '179-0': ['Srb0nZ14y4Q', 'Lehrerschmidt'], // Viertaktmotor - Ottomotor - Dieselmotor | Mechanik | Physik | Lehrersc
+  '179-1': ['krRzH0myAOc', 'Terra X Nature'], // Wie der Lithium-Ionen-Akku funktioniert | Terra X plus
+  '179-2': ['VH0k0H7MgWc', 'Apolins Physik-Universum'], // So funktioniert Fliegen wirklich!
+  '180-0': ['xq1LkN5Hi34', 'Physik - simpleclub'], // Was sind Halbleiter?
+  '180-1': ['IhCZu8ALmFE', 'brainfaqt'], // Wie funktionieren Transistoren und Mikrochips? #1
+  '180-2': ['K8oNMCWZlmQ', 'SONNENSEITE'], // Einfache Erklärung Wie GPS Funktioniert
+  '181-0': ['LfUC263au58', 'Techplausch'], // Was sind 4G, 5G und LTE? - Mobilfunkstandards Zusammengefasst!
+  '181-1': ['AFlbY6P10mc', 'Physik - simpleclub'], // Wie funktioniert ein Glasfaserkabel?!?
+  '181-2': ['8jLFecXj0WU', 'Die Maus'], // Satellitenbau | DieMaus | WDR
+  '182-0': ['9Gtd6E5R39c', 'Fabian Rappert | Data Science Institute'], // 17 Programmiersprachen erklärt (in 17min)
+  '182-1': ['HihZ6PKk9WI', 'task media'], // Verschlüsselungsverfahren (symmetrisch, asymmetrisch, hybrid) - it-arc
+  '182-2': ['3gm71ABbXVo', 'c\'t 3003'], // Passkeys endlich verstanden | Nie mehr Passwörter
+  '183-0': ['twuD09Sn3Wo', 'Physik - simpleclub'], // Wie fliegt eine Rakete ins Weltall?
+  '183-1': ['-5JP2UZx4z8', 'Die Maus'], // Ein Tag an Board der ISS | DieMaus | WDR
+  '183-2': ['I-wjgwxI17U', 'Terra X History'], // Wann und wie werden wir den Mars besiedeln? | Terra X
+  '184-0': ['uN1Zx-Ia-SE', 'MrWissen2go'], // KI außer Kontrolle? So gefährlich ist es wirklich
+  '184-1': ['Qg7sOHGmq-s', 'ZDFheute Nachrichten'], // Jobkiller KI? Oder Chance für Deutschland? | Wirtschaft erklärt
+  '184-2': ['tXsORfMcVyw', 'ZAPP - Die Medienredaktion'], // KI vs Realität: Jetzt beweisen Videos wirklich nichts mehr | ZAPP | ND
+  '185-0': ['cxeJBzezVTk', 'ZDFheute Nachrichten'], // Cyberangriff hautnah: gezielt, professionell, geplant - so arbeiten et
+  '185-1': ['nUpIOi0frOM', 'DW Deutsch'], // KI-Gesichtserkennung – Gefahr für Privatsphäre? | Shift
+  '185-2': ['SjZuuG7kOJ0', 'ITAS | Institute for Technology Assessment'], // Was ist eigentlich Technikfolgenabschätzung? – Armin Grunwald erklärt 
 }
 
 // Ausgemustert am 2026-10-22: KI-generierte Videos (NotebookLM-Folien, KI-Bilder/-Stimme, Stockfootage-Kanäle).
