@@ -9,7 +9,7 @@ import { checkNotes, dayDone, parseCheck, type Verdict } from '../lib/stats'
 import { dayState, getState, today, type State } from '../lib/store'
 import { CoinBadge, CoinButton } from './Coin'
 import { InkPaths } from './Ink'
-import { LernzettelFull } from './Lernzettel'
+import { LernzettelFull, SheetFull } from './Lernzettel'
 
 // „Session geschafft“: erscheint, sobald der Verstaendnischeck fertig ist. Nacheinander: Thema wird
 // abgehakt → Zeit → Antworten mit Staerken/Luecken → Balken Ueberthema (faehrt aus, waechst) →
@@ -44,7 +44,7 @@ const fmtMin = (ms: number) => {
 
 interface Props {
   day: number
-  /** KI-Zusammenfassung, Ersatz-Lernzettel fuer Tage ohne eigenen */
+  /** KI-Zusammenfassung: Schema der Session + was nicht sass (entsteht, waehrend der Bildschirm laeuft) */
   summary?: string
   busy: boolean
   onEnd: () => void
@@ -53,7 +53,7 @@ interface Props {
 export function SessionDone({ day, summary, busy, onEnd }: Props) {
   const d = getDay(day)
   const [step, setStep] = useState(0)
-  const [sheet, setSheet] = useState(false)
+  const [sheet, setSheet] = useState<'lz' | 'zf' | null>(null)
   const [pressed, setPressed] = useState(false)
 
   const r = useMemo(() => {
@@ -95,7 +95,6 @@ export function SessionDone({ day, summary, busy, onEnd }: Props) {
   }, [])
 
   const on = (i: number) => `done-sec${step > i ? ' on' : ''}`
-  const canSheet = hasSheet(day) || !!summary
   const idxDiff = r.idxAfter - r.idxBefore
 
   return createPortal(
@@ -173,9 +172,12 @@ export function SessionDone({ day, summary, busy, onEnd }: Props) {
         </div>
 
         <div className={`${on(5)} done-actions`}>
-          <button className="btn" disabled={!canSheet} onClick={(e) => (e.stopPropagation(), setSheet(true))}>
-            {canSheet || !busy ? 'Lernzettel' : 'Lernzettel …'}
-          </button>
+          <span className="done-sheets">
+            {hasSheet(day) && <button className="btn" onClick={(e) => (e.stopPropagation(), setSheet('lz'))}>Lernzettel</button>}
+            <button className="btn" disabled={!summary} onClick={(e) => (e.stopPropagation(), setSheet('zf'))}>
+              {summary || !busy ? 'Zusammenfassung' : 'Zusammenfassung …'}
+            </button>
+          </span>
           <svg
             className="done-end"
             viewBox="-112 -30 224 72"
@@ -192,7 +194,8 @@ export function SessionDone({ day, summary, busy, onEnd }: Props) {
           </svg>
         </div>
       </div>
-      {sheet && <LernzettelFull day={day} title={d.title} fallback={summary} onClose={() => setSheet(false)} />}
+      {sheet === 'lz' && <LernzettelFull day={day} title={d.title} onClose={() => setSheet(null)} />}
+      {sheet === 'zf' && summary && <SheetFull text={summary} title={d.title} kind="Zusammenfassung" onClose={() => setSheet(null)} />}
     </div>,
     document.body,
   )

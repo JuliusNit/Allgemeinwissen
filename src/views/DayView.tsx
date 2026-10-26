@@ -11,7 +11,7 @@ import { haptic } from '../lib/native'
 import { fmtTime } from '../lib/video'
 import { VideoWatch } from '../components/VideoWatch'
 import { VideoList } from '../components/VideoList'
-import { Lernzettel } from '../components/Lernzettel'
+import { Lernzettel, SheetFull } from '../components/Lernzettel'
 import { hasSheet } from '../data/lernzettel'
 import { Chat } from '../components/Chat'
 import { Markdown } from '../components/Markdown'
@@ -21,7 +21,7 @@ import { Frame } from '../components/Ink'
 import { AccountButton } from '../components/NeedAccount'
 import { SessionDone } from '../components/SessionDone'
 
-type Tab = 'fragen' | 'check' | 'zusammenfassung'
+type Tab = 'fragen' | 'check'
 
 interface Props {
   day: number
@@ -47,13 +47,14 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
   const repeat = isRepeat(level, day)
   const grade = SCHOOL_GRADE[day]
   const checkDone = !!ds.check?.some((m) => m.role === 'assistant' && m.content.includes(DONE_MARKER))
-  const [tab, setTab] = useState<Tab>(ds.status === 'fertig' ? 'zusammenfassung' : ds.check?.length ? 'check' : 'fragen')
+  const [tab, setTab] = useState<Tab>(ds.check?.length ? 'check' : 'fragen')
   const [anchorText, setAnchorText] = useState<string | null>(null)
   const [refreshText, setRefreshText] = useState<string | null>(null)
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [checkGen, setCheckGen] = useState(0)
   const [doneOpen, setDoneOpen] = useState(false)
+  const [summaryFull, setSummaryFull] = useState(false)
   const block = BLOCKS[d.block]
   const mix = isBlockMix(d)
   const watched = new Set(ds.watched ?? [])
@@ -112,7 +113,6 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
       haptic('erfolg')
     }
     setDoneOpen(true)
-    setTab('zusammenfassung')
     if (firstTime || !dayState(getState(), day).summary) void finish()
   }
 
@@ -124,7 +124,6 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
       updateDay(day, (x) => ({ ...x, summary: r.summary_markdown, status: 'fertig', completedAt: x.completedAt ?? today() }))
       const hasCards = getState().cards.some((c) => c.day === day)
       if (!hasCards || confirm('Neue Karteikarten zusätzlich zu den vorhandenen anlegen?')) addCards(day, r.cards)
-      setTab('zusammenfassung')
     } catch (e) {
       setError(describeError(e))
     } finally {
@@ -318,7 +317,6 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
         <div className="tabs">
           <button className={tab === 'fragen' ? 'active' : ''} onClick={() => setTab('fragen')}>{mix ? 'Fragen' : `${noteNo + 1} · Deine Fragen`}</button>
           <button className={tab === 'check' ? 'active' : ''} onClick={() => setTab('check')}>Verständnischeck {checkDone && '✓'}</button>
-          <button className={tab === 'zusammenfassung' ? 'active' : ''} onClick={() => setTab('zusammenfassung')}>Zusammenfassung {ds.summary && '✓'}</button>
         </div>
 
         {tab === 'fragen' && (
@@ -355,36 +353,36 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
             )}
             <div className="row end">
               {(ds.check?.length ?? 0) > 0 && <button className="btn ghost small" onClick={resetCheck}>Check neu starten</button>}
-              {checkDone && (
-                <button className="btn primary" onClick={ds.status === 'fertig' ? finish : complete} disabled={!!busy}>
-                  {ds.status === 'fertig' ? 'Zusammenfassung neu erzeugen' : 'Session abschließen'}
-                </button>
-              )}
+              {checkDone && ds.status !== 'fertig' && <button className="btn primary" onClick={complete} disabled={!!busy}>Session abschließen</button>}
             </div>
           </>
         )}
 
-        {tab === 'zusammenfassung' && (
-          <div>
-            {ds.summary ? (
-              <>
-                <Markdown text={ds.summary} />
-                <div className="row end">
-                  <button className="btn ghost small" onClick={() => navigator.clipboard?.writeText(ds.summary ?? '')}>Kopieren</button>
-                  <button className="btn ghost small" onClick={finish} disabled={!!busy || !hasKey}>Neu erzeugen</button>
-                </div>
-              </>
-            ) : (
-              ds.status === 'fertig' && !busy ? (
-                <div className="row end"><button className="btn" onClick={finish} disabled={!hasKey}>Zusammenfassung erzeugen</button></div>
-              ) : (
-                !busy && <p className="muted">Die Zusammenfassung entsteht automatisch, sobald der Verständnischeck sitzt.</p>
-              )
+      </Frame>
+
+      {(ds.summary || ds.status === 'fertig' || busy) && (
+        <Frame className="card">
+          <div className="section-head">
+            <h2>Zusammenfassung</h2>
+            {ds.summary && !busy && (
+              <span className="head-side">
+                <button className="btn ghost small" onClick={() => navigator.clipboard?.writeText(ds.summary ?? '')}>Kopieren</button>
+                <button className="btn ghost small" onClick={finish} disabled={!hasKey}>Neu erzeugen</button>
+              </span>
             )}
           </div>
-        )}
-        {busy && <p className="typing">{busy}</p>}
-      </Frame>
+          {busy ? (
+            <p className="typing">{busy}</p>
+          ) : ds.summary ? (
+            <div className="lz open-full" role="button" tabIndex={0} aria-label="Zusammenfassung im Vollbild" onClick={() => setSummaryFull(true)} onKeyDown={(e) => e.key === 'Enter' && setSummaryFull(true)}>
+              <Markdown text={ds.summary} />
+            </div>
+          ) : (
+            <div className="row end"><button className="btn" onClick={finish} disabled={!hasKey}>Zusammenfassung erzeugen</button></div>
+          )}
+          {summaryFull && ds.summary && <SheetFull text={ds.summary} title={d.title} kind="Zusammenfassung" onClose={() => setSummaryFull(false)} />}
+        </Frame>
+      )}
     </div>
   )
 }

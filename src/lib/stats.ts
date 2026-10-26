@@ -21,6 +21,8 @@ export interface QA {
 
 const MARK = /\[\[BEWERTUNG:\s*(richtig|teilweise|falsch|offen)\s*\|\s*([1-5])\s*\]\]/i
 export const DONE_MARKER = '[[SESSION_ABGESCHLOSSEN]]'
+// „keine Ahnung“ ohne Marker (das Modell vergisst ihn manchmal) zaehlt trotzdem als nicht gewusst
+const DONT_KNOW = /^\s*(keine? ahnung|wei(ß|ss) (ich )?(es |das )?nicht|kein plan|keinen schimmer|\?+)\s*[.!?]*\s*$/i
 const NOTE = /\[\[(STAERKE|STÄRKE|LUECKE|LÜCKE):\s*([^\]]+)\]\]/gi
 
 export function stripMarks(t: string): string {
@@ -60,8 +62,8 @@ export function parseCheck(msgs: ChatMsg[] = []): QA[] {
       question: q ?? (lastQ && !MARK.test(prev.content) ? lastQ : stripMarks(prev.content)),
       answer: m.content,
       feedback: next?.role === 'assistant' ? stripMarks(next.content) : '',
-      verdict: mk ? (mk[1].toLowerCase() as Verdict) : undefined,
-      precision: mk ? Number(mk[2]) : undefined,
+      verdict: mk ? (mk[1].toLowerCase() as Verdict) : DONT_KNOW.test(m.content) ? 'offen' : undefined,
+      precision: mk ? Number(mk[2]) : DONT_KNOW.test(m.content) ? 1 : undefined,
       ms: ms && ms > 0 && ms < 30 * 60_000 ? ms : undefined,
     })
   }

@@ -209,7 +209,7 @@ function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
           {summary && (
             <Frame className="card">
               <details>
-                <summary>Lernzettel {isDone ? '' : '(erst nach dem Test spicken)'}</summary>
+                <summary>Zusammenfassung {isDone ? '' : '(erst nach dem Test spicken)'}</summary>
                 <Markdown text={summary} />
               </details>
             </Frame>

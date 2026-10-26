@@ -3,7 +3,8 @@ import { FAECHER, fach, topicsUpTo, type Fach, type FachId } from '../data/lehrp
 import { blockName, DAY_FACH, isRepeat, knownUpTo, levelLabel, SCHOOL_GRADE } from '../data/school'
 import type { BasisNode } from './path'
 import { functionCall, kiProxy, type CloudMsg } from './cloud'
-import { dayDone, DONE_MARKER, likesTable, statsTable } from './stats'
+import { dayDone, DONE_MARKER, likesTable, parseCheck, statsTable } from './stats'
+import { hasSheet, loadSheet } from '../data/lernzettel'
 import { dayState, examState, getState, videoNotesText, videosOf, type ChatMsg } from './store'
 
 export { DONE_MARKER }
@@ -393,22 +394,39 @@ export async function makeSummary(day: number): Promise<SummaryResult> {
   const ds = dayState(getState(), day)
   const transcript = (label: string, msgs?: ChatMsg[]) =>
     msgs?.length ? `\n## ${label}\n` + msgs.map((m) => `${m.role === 'user' ? nm() : 'Begleiter'}: ${m.content}`).join('\n\n') : ''
+  // was nicht sass, ausdruecklich auflisten – darauf liegt das Gewicht
+  const missed = parseCheck(ds.check)
+    .filter((q) => q.verdict && q.verdict !== 'richtig')
+    .map((q) => `- [${q.verdict === 'offen' ? 'nicht gewusst' : q.verdict}] ${clip(q.question, 400)}\n  Antwort: ${clip(q.answer, 400)}`)
+  const sheet = !isBlockMix(d) && hasSheet(day) ? await loadSheet(day).catch(() => '') : ''
+  const own = !!(ds.questions?.length || ds.notes || videoNotesText(getState(), day))
 
+  // Julius (26.10.2026): schematisch das Ganze, ausfuehrlich nur das Nicht-Gekonnte – den Rest hat der feste Lernzettel
   const system = `${persona()}
 
-Erstelle nach der abgeschlossenen Session den Lernzettel zum Wiederholen und Karteikarten. Antworte NUR mit JSON.
+Erstelle nach der abgeschlossenen Session die persönliche Zusammenfassung und Karteikarten. Antworte NUR mit JSON.
 
-summary_markdown – NUR Stichpunkte und Grafiken, kein Fließtext:
-# <kurzer Titel> · ${AREAS[d.area].name}
-## Einordnung  (Zeitstrahl/Karte, 1–2 Stichpunkte)
-## Kernpunkte  (je Teilthema 2–4 knappe Stichpunkte)
-## Merkgrafik  (eine Grafik als Markdown-Tabelle ODER als einfaches Text-Diagramm in einem \`\`\`-Codeblock, z. B. Ablauf mit Pfeilen → oder Zeitleiste)
-## Verknüpfungen  (zu früheren Sessions und anderen Bereichen)
-## Wackelig  (was im Verständnischeck nicht sofort saß – nur falls vorhanden)
-${d.evidence ? '## Evidenz  (belegt vs. Hype, je 1 Zeile)\n' : ''}
-cards – 6–10 Karteikarten für Spaced Repetition. Fragen, die Verständnis prüfen (Warum/Was wäre wenn/Zusammenhang), Antworten in 1–3 Sätzen. Schwerpunkt auf den wackeligen Punkten.`
+summary_markdown – Stichpunkte und eine Grafik, kein Fließtext, keine Einleitung, kein Titel:
+## Überblick
+EIN Schema der ganzen Session als Codeblock in einer dieser Formen (Beschriftungen höchstens 6 Wörter, „Titel | Zusatz“ = Zusatz klein darunter):
+\`\`\`baum        Hierarchie, Einrückung mit 2 Leerzeichen
+\`\`\`kette       je Zeile ein Schritt; „→ Text“ beschriftet den Pfeil davor
+\`\`\`gruppen     Zeile ohne Einrückung = Kastentitel, eingerückte Zeilen = Inhalt
+\`\`\`zeitstrahl  je Zeile „Zeit | Ereignis“
+Nur Gerüst und Zusammenhänge, keine Details – die stehen ${sheet ? 'im Lernzettel' : 'in den Videos'}.
+## Nicht gesessen
+Je Punkt, der im Verständnischeck falsch, teilweise oder nicht gewusst war (Liste unten), der Kernbegriff fett und darunter die richtige Erklärung: so ausführlich wie nötig, damit ${nm()} es versteht, so knapp wie möglich (2–5 Stichpunkte, bei Bedarf ein Beispiel oder ein Merksatz mit „> “). Was in der Antwort schon stimmte, nicht wiederholen. Ist nichts offen, nur: Alles saß.
+${own ? `## Deine Fragen und Notizen
+Nur was über den Lernzettel hinausgeht: je Frage oder Notiz eine Zeile mit Kernantwort bzw. Einordnung. Weglassen, was oben schon steht.
+` : ''}${d.evidence ? '## Evidenz\nNur falls im Check strittig: belegt vs. Hype, je 1 Zeile.\n' : ''}
+Sonst nichts aus dem Lernzettel wiederholen. Keine Tabellen.
+
+cards – 4–8 Karteikarten für Spaced Repetition: vor allem zu den nicht gesessenen Punkten, dazu 1–2 zum Kern der Session. Fragen, die Verständnis prüfen (Warum/Was wäre wenn/Zusammenhang), Antworten in 1–3 Sätzen.`
 
   const user = `${sessionContext(d)}
+${sheet ? `\n## Lernzettel (hat ${nm()} schon)\n${clip(sheet, 9000)}\n` : ''}
+## Nicht gesessen im Verständnischeck
+${missed.join('\n') || '(nichts – alles richtig)'}
 ${transcript('Eigene Fragen', ds.questions)}
 ${transcript('Verständnischeck', ds.check)}`
 
@@ -417,7 +435,7 @@ ${transcript('Verständnischeck', ds.check)}`
     response_format: {
       type: 'json_schema',
       json_schema: {
-        name: 'lernzettel',
+        name: 'zusammenfassung',
         schema: {
           type: 'object',
           additionalProperties: false,

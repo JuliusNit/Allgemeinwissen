@@ -160,8 +160,8 @@ function TopicDetail({ area, day, go }: { area: AreaId; day: number; go: (hash: 
       </Frame>
 
       <Frame className="card">
-        <h2>Lernzettel</h2>
-        {ds.summary ? <Markdown text={ds.summary} /> : <p className="muted">Der Lernzettel entsteht, wenn die Session abgeschlossen wird.</p>}
+        <h2>Zusammenfassung</h2>
+        {ds.summary ? <Markdown text={ds.summary} /> : <p className="muted">Die Zusammenfassung entsteht, wenn die Session abgeschlossen wird.</p>}
       </Frame>
       <button className="btn" onClick={() => go(`/tag/${day}`)}>Zur Session</button>
     </div>

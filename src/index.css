@@ -672,6 +672,7 @@ span.star { cursor: default; }
 .on .done-bar-head .gain { animation: onb-in 0.3s ease-out 1.3s both; }
 .done-actions { display: flex; align-items: center; gap: 14px; position: sticky; bottom: calc(-20px - var(--sa-bottom)); padding: 10px 0 calc(14px + var(--sa-bottom)); background: #fff; }
 .done-actions .btn { flex: none; }
+.done-sheets { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
 .done-end { flex: 1 1 0; min-width: 0; width: 100%; max-width: 300px; margin-left: auto; height: auto; cursor: pointer; outline: none; overflow: visible; }
 .done-end:focus-visible { outline: 2px dashed var(--ink); outline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) {

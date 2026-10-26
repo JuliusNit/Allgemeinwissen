@@ -40,7 +40,7 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   das Feld ist mit Konto und in der nativen App ausgeblendet. Standard: Qwen `qwen3.8-27b` auf
   `ai.inference2.corpus.music` (vLLM, CORS offen). **Key nie ins Repo.**
   Modi: Anknüpfen, Fragen, Verständnischeck (Ende über `[[SESSION_ABGESCHLOSSEN]]`, Bewertung je Antwort über
-  `[[BEWERTUNG: richtig|teilweise|falsch | 1-5]]`), Lernzettel + Karten (json_schema), Stärkenberatung, Kanal-Chat.
+  `[[BEWERTUNG: richtig|teilweise|falsch | 1-5]]`), Zusammenfassung + Karten (json_schema; Julius, 26.10.2026: nur Schema der ganzen Session + ausführlich, was im Check falsch/teilweise/nicht gewusst war + eigene Fragen/Notizen, den Rest hat der Lernzettel; eigener Kasten unter dem Check, kein Tab), Stärkenberatung, Kanal-Chat.
 - `src/lib/stats.ts` – wertet Marker + Zeitstempel aus (richtig, Antwortzeit, Präzision) je Session/Überthema.
   Bot erkennt zuerst, was die Nachricht ist (`adapt()` in `ai.ts`, Check + Grundcheck; Prüfung kurz): Antwortversuch → bewerten,
   „keine Ahnung“ → Lösung herleiten, Marker `offen` (zählt wie falsch, kein ❌), Tipp/Rückfrage/Gegenfrage → kein Marker.
@@ -48,7 +48,7 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 - `src/components/SessionDone.tsx` – „Session geschafft“: erscheint, sobald der Check `[[SESSION_ABGESCHLOSSEN]]` schreibt
   (Session sofort `fertig`, Zusammenfassung + Karten entstehen dahinter). Nacheinander: Thema abgehakt → Zeit, Ø Antwort,
   richtig → Fragen mit ✓/~/✗/? + Stärken/Lücken → Balken Überthema (MIX: Block) fährt aus und wächst → Lernstand gesamt
-  (`knowledgeIndex`) → unten „Lernzettel“ (Vollbild mit Teilen/Bild/PDF, `LernzettelFull`) + „Session beenden“ (→ Home).
+  (`knowledgeIndex`) → unten „Lernzettel“ + „Zusammenfassung“ (Vollbild mit Teilen/Bild/PDF, `LernzettelFull`/`SheetFull`) + „Session beenden“ (→ Home).
 - `src/lib/path.ts` – Lernpfad je Wissensstand (`buildPath(level)`): beginnt direkt mit dem neuen Stoff, Abruf-Station nach je
   4 Sessions, am Ende Abschlusswiederholung (`w-ende`, unsicherste Karten). Schulstoff-Sessions stehen nicht im Pfad und zählen
   als gelernt (`dayDone`: Statistik, Prüfung) erst nach dem Grundcheck ihres Fachs. Grundwissen optional über „Auffrischen“ im Anknüpfen-Kasten einer Session, die per `links` auf
