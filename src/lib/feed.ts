@@ -17,7 +17,7 @@
 //   wenig bekanntes Gebiet, nie dreimal dasselbe Überthema hintereinander (Filterblase vermeiden).
 // - Einstieg: zuerst ein anderes Thema als die letzte Session, dann gleich eins aus ihr – Neugier + Anknüpfen.
 import type { Bite } from '../data/feed'
-import { DAYS, type AreaId } from '../data/plan'
+import { ALL_DAYS, type AreaId } from '../data/plan'
 import { LIKE_GROUPS, parseCheck, STAT_AREAS, dayDone } from './stats'
 import { pathDays } from './path'
 import { dayState, examState, today, type BiteLog, type State } from './store'
@@ -100,7 +100,7 @@ interface SessionSignal {
 
 function sessionSignals(s: State): SessionSignal[] {
   const out: SessionSignal[] = []
-  for (const d of DAYS) {
+  for (const d of ALL_DAYS) {
     const ds = dayState(s, d.day)
     if (ds.status !== 'fertig' || d.area === 'MIX') continue
     const qa = parseCheck(ds.check)
@@ -191,7 +191,7 @@ export function interests(s: State, bites: Bite[]): Map<AreaId, Interest> {
 
 /** Überthemen der zuletzt abgeschlossenen Sessions, neueste zuerst */
 export function recentAreas(s: State): AreaId[] {
-  return DAYS.filter((d) => d.area !== 'MIX' && dayState(s, d.day).completedAt)
+  return ALL_DAYS.filter((d) => d.area !== 'MIX' && dayState(s, d.day).completedAt)
     .sort((a, b) => (dayState(s, b.day).completedAt ?? '').localeCompare(dayState(s, a.day).completedAt ?? '') || b.day - a.day)
     .map((d) => d.area)
     .filter((a, i, xs) => xs.indexOf(a) === i)
@@ -223,7 +223,7 @@ export function pickNext(s: State, bites: Bite[], shown: string[]): Bite | null 
   const byId = new Map(bites.map((b) => [b.id, b]))
   const prev = shown.length ? byId.get(shown[shown.length - 1])?.area : undefined
   const prev2 = shown.length > 1 ? byId.get(shown[shown.length - 2])?.area : undefined
-  const open = pathDays(s.level).find((d) => !dayDone(s, d))
+  const open = pathDays(s).find((d) => !dayDone(s, d))
 
   // Einstieg: erst etwas anderes, dann die letzte Session
   if (pos === 0 && last && pool.some((b) => b.area !== last)) pool = pool.filter((b) => b.area !== last)

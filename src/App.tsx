@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import { AREAS, type AreaId } from './data/plan'
+import { AREAS, MAX_DAY, type AreaId } from './data/plan'
 import { dueCards } from './lib/srs'
 import { cloud, useAuth } from './lib/cloud'
 import { useStore } from './lib/store'
@@ -34,13 +34,13 @@ function parseHash(): Route {
   const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)
   const [a, b, c, d, e, f] = parts
   if (a === 'tag' && b) {
-    const day = Math.min(90, Math.max(1, Number(b) || 1))
+    const day = Math.min(MAX_DAY, Math.max(1, Number(b) || 1))
     if (c === 'video' && d) return { tab: 'home', day, video: decodeURIComponent(d), at: e ? Number(e) || 0 : undefined }
     return { tab: 'home', day }
   }
-  if (a === 'thema' && b) return { tab: 'home', topic: Math.min(90, Math.max(1, Number(b) || 1)) }
+  if (a === 'thema' && b) return { tab: 'home', topic: Math.min(MAX_DAY, Math.max(1, Number(b) || 1)) }
   if (a === 'wiederholung' && b) {
-    if (c === 'video' && d && e) return { tab: 'home', review: b, vday: Math.min(90, Math.max(1, Number(d) || 1)), video: decodeURIComponent(e), at: f ? Number(f) || 0 : undefined }
+    if (c === 'video' && d && e) return { tab: 'home', review: b, vday: Math.min(MAX_DAY, Math.max(1, Number(d) || 1)), video: decodeURIComponent(e), at: f ? Number(f) || 0 : undefined }
     return { tab: 'home', review: b }
   }
   if (a === 'entdecken') return { tab: 'feed', bite: b ? decodeURIComponent(b) : undefined }
@@ -50,7 +50,7 @@ function parseHash(): Route {
   }
   if (a === 'profil') return { tab: 'profil', section: parseSection(b) }
   if (a === 'datenschutz' || a === 'impressum' || a === 'bildnachweis') return { tab: 'profil', legal: a }
-  if (a === 'pruefung') return { tab: 'exam', day: b ? Math.min(90, Math.max(1, Number(b) || 1)) : undefined }
+  if (a === 'pruefung') return { tab: 'exam', day: b ? Math.min(MAX_DAY, Math.max(1, Number(b) || 1)) : undefined }
   return { tab: 'home' }
 }
 

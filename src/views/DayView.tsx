@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { AREAS, BLOCKS, getDay, isBlockMix, type Video } from '../data/plan'
+import { AREAS, BLOCKS, getDay, isBlockMix, isProject, type Video } from '../data/plan'
+import { STAGES } from '../data/deep'
 import { anchorChat, checkChat, describeError, DONE_MARKER, makeSummary, questionsChat, refreshChat, refreshDays } from '../lib/ai'
 import { saveDayVideos, useAiReady, useCanEdit } from '../lib/cloud'
 import { blockName, isRepeat, SCHOOL_GRADE } from '../data/school'
@@ -43,6 +44,8 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
   const statuses = useStore((s) => s.days)
   const hasKey = useAiReady()
   const level = useStore((s) => s.level)
+  const focus = useStore((s) => s.focus)
+  const ctx = { level, focus }
   const canEdit = useCanEdit()
   const repeat = isRepeat(level, day)
   const grade = SCHOOL_GRADE[day]
@@ -58,17 +61,18 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
   const [sheetFull, setSheetFull] = useState(false)
   const block = BLOCKS[d.block]
   const mix = isBlockMix(d)
+  const project = isProject(d)
   const watched = new Set(ds.watched ?? [])
   const stars = videos.filter((v) => v.star)
   const starsWatched = stars.filter((v) => watched.has(v.id)).length
   const playing = video ? videos.find((v) => v.id === video) : undefined
-  const order = pathDays(level)
-  const no = sessionNo(level, day)
+  const order = pathDays(ctx)
+  const no = sessionNo(ctx, day)
   const base = repeat ? [] : refreshDays(day)
   const stations = [...new Map(base.map((n) => stationOf(level, n)).filter((n): n is BasisNode => !!n).map((n) => [n.id, n])).values()]
   const streaming = anchorText !== null || refreshText !== null
   const sheet = !mix && hasSheet(day)
-  const noteNo = mix ? 2 : sheet ? 4 : 3
+  const noteNo = mix || project ? 2 : sheet ? 4 : 3
   const noteCount = Object.values(ds.videoNotes ?? {}).reduce((a, n) => a + n.length, 0)
 
   function setVideos(v: Video[] | null) {
@@ -146,7 +150,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
       <div className="day-head">
         <div className="day-nav">
           <button className="icon-btn" onClick={back} aria-label="Zurück zum Lernpfad"><Icon name="BACK" size={26} /></button>
-          <span className="muted small">{no ? `Session ${no} von ${order.length}` : 'Grundwissen'} · {blockName(block, level)}</span>
+          <span className="muted small">{no ? `Session ${no} von ${order.length}` : d.stage ? 'Vertiefung' : 'Grundwissen'} · {d.stage ? STAGES[d.stage] : blockName(block, level)}</span>
           {no && (
             <span className="right">
               <button className="btn ghost small" disabled={no <= 1} onClick={() => openDay(order[no - 2])} aria-label="Vorherige Session">‹</button>
@@ -178,7 +182,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
       {error && <div className="chat-error">{error}</div>}
 
       <Frame className="card">
-        <h2>1 · Anknüpfen</h2>
+        <h2>1 · {project ? 'Projektfrage' : 'Anknüpfen'}</h2>
         {d.links.length > 0 && (
           <div className="chips">
             {d.links.map((n) => {
@@ -221,9 +225,9 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
         {!streaming && (
           <div className="row">
             {ds.anchor ? (
-              <button className="btn ghost small" onClick={runAnchor} disabled={!hasKey}>Neu einordnen</button>
+              <button className="btn ghost small" onClick={runAnchor} disabled={!hasKey}>{project ? 'Andere Fragen' : 'Neu einordnen'}</button>
             ) : (
-              <button className="btn" onClick={runAnchor} disabled={!hasKey}>Einordnen lassen: Zeitstrahl, Karte, frühere Sessions</button>
+              <button className="btn" onClick={runAnchor} disabled={!hasKey}>{project ? 'Projektfragen vorschlagen' : 'Einordnen lassen: Zeitstrahl, Karte, frühere Sessions'}</button>
             )}
             {base.length > 0 &&
               (ds.refresh ? (
@@ -235,7 +239,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
         )}
       </Frame>
 
-      {!mix && (
+      {!mix && !project && (
         <Frame className="card">
           <div className="section-head">
             <h2>2 · Lernvideos{repeat ? ' (optional)' : ''}</h2>
@@ -313,7 +317,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
         <textarea
           className="notes"
           rows={2}
-          placeholder={mix ? 'Eigene Stichpunkte (fließen in Check & Zusammenfassung ein)' : 'Allgemeine Notizen zur Session'}
+          placeholder={mix ? 'Eigene Stichpunkte (fließen in Check & Zusammenfassung ein)' : project ? 'Deine Frage, Quellen, Ergebnisse' : 'Allgemeine Notizen zur Session'}
           value={ds.notes ?? ''}
           onChange={(e) => updateDay(day, (x) => ({ ...x, notes: e.target.value }))}
         />
@@ -321,8 +325,8 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
 
       <Frame className="card">
         <div className="tabs">
-          <button className={tab === 'fragen' ? 'active' : ''} onClick={() => setTab('fragen')}>{mix ? 'Fragen' : `${noteNo + 1} · Deine Fragen`}</button>
-          <button className={tab === 'check' ? 'active' : ''} onClick={() => setTab('check')}>Verständnischeck {checkDone && '✓'}</button>
+          <button className={tab === 'fragen' ? 'active' : ''} onClick={() => setTab('fragen')}>{mix ? 'Fragen' : project ? `${noteNo + 1} · Betreuung` : `${noteNo + 1} · Deine Fragen`}</button>
+          <button className={tab === 'check' ? 'active' : ''} onClick={() => setTab('check')}>{project ? 'Vorstellen' : 'Verständnischeck'} {checkDone && '✓'}</button>
         </div>
 
         {tab === 'fragen' && (
@@ -332,11 +336,11 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
               history={ds.questions ?? []}
               onHistory={(h) => updateDay(day, (x) => ({ ...x, questions: h }))}
               send={(h, cb) => questionsChat(day, h, cb)}
-              placeholder="Frag alles zum Thema …"
+              placeholder={project ? 'Woran arbeitest du gerade?' : 'Frag alles zum Thema …'}
               disabled={!hasKey}
             />
             <div className="row end">
-              <button className="btn primary" disabled={!hasKey} onClick={() => { start(); setTab('check') }}>Verstanden → Verständnischeck</button>
+              <button className="btn primary" disabled={!hasKey} onClick={() => { start(); setTab('check') }}>{project ? 'Fertig → Ergebnis vorstellen' : 'Verstanden → Verständnischeck'}</button>
             </div>
           </>
         )}
@@ -352,7 +356,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
                 onHistory={(h) => updateDay(day, (x) => ({ ...x, check: h }))}
                 send={(h, cb) => checkChat(day, h, cb)}
                 placeholder="Deine Antwort …"
-                kickoff={mix ? 'Bereit für die Block-Abfrage.' : 'verstanden'}
+                kickoff={mix ? 'Bereit für die Block-Abfrage.' : project ? 'Ich bin bereit, mein Projekt vorzustellen.' : 'verstanden'}
                 disabled={!hasKey || checkDone}
                 onDone={complete}
               />

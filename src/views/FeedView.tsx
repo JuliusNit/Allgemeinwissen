@@ -181,6 +181,8 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
   const [hidden, setHidden] = useState(document.hidden)
   const saved = useStore((s) => s.feed.saved.includes(b.id))
   const level = useStore((s) => s.level)
+  const focus = useStore((s) => s.focus)
+  const ctx = { level, focus }
   const [stopped, setStopped] = useState(false)
   const [dur, setDur] = useState(Infinity)
   const paused = hold || hidden || stopped
@@ -320,7 +322,7 @@ function BitePlayer({ bite: b, dir, next, prev, go }: { bite: Bite; dir: 'up' | 
   })
 
   const day = b.day
-  const no = day ? sessionNo(level, day) : undefined
+  const no = day ? sessionNo(ctx, day) : undefined
 
   return (
     <div className={`bite feed-in-${dir}${paused ? ' paused' : ''}`} {...swipe} onWheel={onWheel}>

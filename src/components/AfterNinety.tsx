@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { AREAS, type AreaId } from '../data/plan'
+import { AREAS, MAP_AREAS, type AreaId } from '../data/plan'
 import { choiceKey, choiceLabel, MODES, parseChoice, planFinished, recommend, type PathChoice, type PathMode } from '../lib/after90'
-import { LIKE_GROUPS, LIKE_LABELS, STAT_AREAS } from '../lib/stats'
+import { LIKE_GROUPS, LIKE_LABELS } from '../lib/stats'
 import { setState, useStore } from '../lib/store'
 
-/** Regler „gefallen“ → Empfehlung → Wahl A/B/C. Auf Home als großer Kasten nach Tag 90, im Profil unter Stärken. */
-export function AfterNinety() {
+/** Regler „gefallen“ → Empfehlung → Wahl A/B/C. Auf Home als großer Kasten nach Tag 90, im Profil unter Stärken.
+ *  Nach der Wahl haengt der Pfad die Vertiefung an (lib/path.ts); onChosen fuehrt dorthin. */
+export function AfterNinety({ onChosen }: { onChosen?: () => void }) {
   const s = useStore((x) => x)
   const likes = s.focus.likes ?? {}
   const rec = recommend(s)
@@ -22,6 +23,7 @@ export function AfterNinety() {
 
   function save(c: PathChoice) {
     setState((x) => ({ ...x, focus: { ...x.focus, choice: choiceKey(c) } }))
+    onChosen?.()
   }
 
   return (
@@ -66,7 +68,7 @@ export function AfterNinety() {
           {pick !== 'breit' && (
             <select value={pickArea} onChange={(e) => setArea(e.target.value as AreaId)} aria-label="Fach">
               <option value="">Fach wählen …</option>
-              {STAT_AREAS.map((a) => <option key={a} value={a}>{AREAS[a].name}</option>)}
+              {MAP_AREAS.map((a) => <option key={a} value={a}>{AREAS[a].name}</option>)}
             </select>
           )}
           <button className="btn primary" disabled={pick !== 'breit' && !pickArea}

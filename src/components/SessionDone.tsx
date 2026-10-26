@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { AREAS, BLOCKS, DAYS, getDay } from '../data/plan'
 import { hasSheet } from '../data/lernzettel'
 import { line, poly, roundRect } from '../lib/ink'
-import { sessionNo } from '../lib/path'
+import { areaDays, sessionNo } from '../lib/path'
 import { knowledgeIndex } from '../lib/recap'
 import { checkNotes, dayDone, parseCheck, type Verdict } from '../lib/stats'
 import { dayState, getState, today, type State } from '../lib/store'
@@ -63,7 +63,7 @@ export function SessionDone({ day, summary, busy, onEnd }: Props) {
     const before = withDone(s, day, false)
     const after = withDone(s, day, true)
     const mix = d.area === 'MIX'
-    const group = mix ? DAYS.filter((x) => x.block === d.block) : DAYS.filter((x) => x.area === d.area)
+    const group = mix ? DAYS.filter((x) => x.block === d.block) : areaDays(s, d.area)
     const cnt = (st: State) => group.filter((x) => dayDone(st, x.day)).length
     // Zeit: vom Start der Session, sonst (lange Pause dazwischen) nur der Verstaendnischeck
     const last = msgs[msgs.length - 1]?.at ?? Date.now()
@@ -73,7 +73,7 @@ export function SessionDone({ day, summary, busy, onEnd }: Props) {
     const qa = parseCheck(msgs).filter((q) => q.verdict)
     const secs = qa.filter((q) => q.ms).map((q) => q.ms! / 1000)
     return {
-      no: sessionNo(s.level, day),
+      no: sessionNo(s, day),
       ms,
       avgSec: secs.length ? secs.reduce((a, b) => a + b, 0) / secs.length : null,
       qa: qa.map((q) => ({ v: q.verdict!, ...shortQ(q.question) })),

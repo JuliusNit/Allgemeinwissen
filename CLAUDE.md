@@ -142,7 +142,17 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 - `src/lib/after90.ts` + `components/AfterNinety.tsx` – Weg nach Tag 90: Regler „Was hat dir gefallen?“ (4 Grobbereiche, `focus.likes`),
   Empfehlung per Regel (gern + Können → A breit / B spezialisieren / C Hybrid 70/30 + Erhaltungsmodus), Wahl in `focus.choice`
   (`breit` | `spezial:<Fach>` | `hybrid:<Fach>`). Großer Kasten oben auf Home, sobald Tag 90 fertig ist (danach eine Zeile), auch im Profil.
-  Die eigentlichen Pfade A/B/C sind noch nicht gebaut.
+  Fächer für B/C: die 12 Überthemen (Chemie → Physik, Nervensystem → Leben & Körper, `lib/choice.ts`).
+- **Vertiefung (Phase 3)** `src/data/deep.ts`: je Überthema 8 Sessions (Plan-Tage 91–186, Block 8): Grundmodelle (1–3) →
+  klassische Fragen (4–5) → Streitfragen (6–7) → eigenes Projekt (8, keine Videos: KI schlägt Fragen vor, betreut, Abschluss
+  = Vorstellen mit 4 Fragen, Prompts `project…` in `ai.ts`). Je 3 Teilthemen mit Video wie im Plan (videos.ts, Lernzettel).
+  Pfad (`deepNodes` in `path.ts`, angehängt, sobald `focus.choice` gesetzt ist): A = Stufe 1–3 aller Fächer im Wechsel (36),
+  B = alle 8 des Fachs, C = Fach + nach je 2 Fach-Sessions eine breite (8 + 3). B/C beginnen mit Station „Grundlagen <Fach>“
+  (`v-<Fach>`, unsicherste Karten der Plan-Sessions des Fachs), Abruf-Station je 4, „Erhaltung“ (`e<Tag>`, Karten aus den
+  90 Tagen + Prüfung zum dringendsten Thema) je 8 Sessions, Schluss `v-ende`. Pfad-Funktionen nehmen den Zustand (`PathCtx`:
+  Wissensstand + Wahl), nicht nur den Wissensstand. `ALL_DAYS`/`getDay` umfassen 1–186, `DAYS` bleibt der 90-Tage-Plan
+  (Wissensindex, Grundwiederholung). Statistik je Überthema: Plan + Vertiefung im eigenen Pfad (`areaDays`).
+  Nach der Wahl springt Home zur ersten offenen Station der Vertiefung; liegengebliebene Plan-Stationen halten dann nicht auf.
 - `src/views/Intro.tsx` – Einführung beim ersten Start: 6 animierte Folien (Tusche-Striche pro Bild aus einer Uhr je Folie,
   Bühne 340 × 430, Texte als HTML darüber): Blitz/Kristall mit Vergleich (✗ fluide / ✓ kristallin) → Kristall zerspringt
   zum Ring → Altersdiagramm zeichnet sich → die Kurven schlängeln aus dem Bild und legen sich als Kontur um den Blitz →

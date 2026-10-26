@@ -1,4 +1,5 @@
-import { AREAS, BLOCKS, DAYS, getDay, isBlockMix, type AreaId, type Day } from '../data/plan'
+import { ALL_DAYS, AREAS, BLOCKS, DAYS, getDay, isBlockMix, isProject, type AreaId, type Day } from '../data/plan'
+import { STAGES, type Stage } from '../data/deep'
 import { FAECHER, fach, topicsUpTo, type Fach, type FachId } from '../data/lehrplan'
 import { blockName, DAY_FACH, isRepeat, knownUpTo, levelLabel, SCHOOL_GRADE } from '../data/school'
 import type { BasisNode } from './path'
@@ -146,7 +147,7 @@ function earlierSessions(d: Day): string {
   const s = getState()
   const related = isBlockMix(d) ? DAYS.filter((x) => d.links.includes(x.day)) : d.links.map(getDay)
   // dazu: alle bereits abgeschlossenen Sessions als kurze Liste fuer bereichsuebergreifende Verknuepfungen
-  const done = DAYS.filter((x) => x.day < d.day && dayState(s, x.day).status === 'fertig')
+  const done = ALL_DAYS.filter((x) => x.day !== d.day && dayState(s, x.day).status === 'fertig')
   const parts: string[] = []
   if (related.length) {
     parts.push('Direkt verknüpfte frühere Sessions:')
@@ -162,6 +163,14 @@ function earlierSessions(d: Day): string {
   return parts.join('\n')
 }
 
+/** Vertiefung nach Tag 90: worauf die Stufe zielt */
+const STAGE_HINT: Record<Stage, string> = {
+  grund: 'ein tragendes Modell des Fachs genauer als im Plan verstehen: Mechanismus, Begriffe, Beispiel.',
+  klassik: 'eine große Frage des Fachs: verschiedene Antworten, warum sie sich unterscheiden, was heute gilt.',
+  streit: 'eine aktuelle Kontroverse: Positionen, Belege, was gesichert ist und was offen.',
+  projekt: 'eine selbst gewählte Frage recherchieren und das Ergebnis in eigenen Worten begründen.',
+}
+
 function sessionContext(d: Day): string {
   const s = getState()
   const block = BLOCKS[d.block]
@@ -174,8 +183,11 @@ function sessionContext(d: Day): string {
     `Phase ${d.phase}, ${blockName(block, s.level)}`,
     isBlockMix(d)
       ? `MIX-Tag: gemischte Abfrage des ganzen Blocks (${block.from}–${block.to - 1}) + Verknüpfungsfragen zwischen Bereichen. Schwerpunkte: ${d.subtopics.join(' · ')}`
-      : `★-Pflichtvideos (nur deren Inhalt wird abgefragt): ${stars.map((v) => v.title).join(' · ') || '—'}`,
+      : isProject(d)
+        ? `Projekt-Session ohne Videos. Teilthemen: ${d.subtopics.join(' · ')}`
+        : `★-Pflichtvideos (nur deren Inhalt wird abgefragt): ${stars.map((v) => v.title).join(' · ') || '—'}`,
   ]
+  if (d.stage) lines.push(`VERTIEFUNG nach den 90 Tagen, Stufe „${STAGES[d.stage]}“: ${STAGE_HINT[d.stage]} Grundwissen aus dem Plan wird vorausgesetzt – darauf aufbauen, nicht wiederholen.`)
   if (isRepeat(s.level, d.day)) {
     lines.push(`WIEDERHOLUNG: Für ${nm()} ist das Schulstoff (LehrplanPLUS Bayern bis Jgst. ${SCHOOL_GRADE[d.day]}), also bekannt. Vorwissen aktivieren, Lücken aufdecken und vor allem mit Neuem und anderen Bereichen verknüpfen. Videos sind nur zum Auffrischen; abgefragt werden die Teilthemen insgesamt.`)
   }
@@ -210,6 +222,7 @@ Antworte immer auf Deutsch, klar und knapp, ohne Floskeln. Markdown ist erlaubt 
 
 export function anchorChat(day: number, onText: (t: string) => void) {
   const d = getDay(day)
+  if (isProject(d)) return projectStartChat(d, onText)
   const system = `${persona()}
 
 Aufgabe: „Anknüpfen“ zu Beginn der Session. Schreibe 4–6 kurze Stichpunkte:
@@ -221,6 +234,24 @@ Keine Inhalte der Videos vorwegnehmen, nur einordnen.
 
 ${sessionContext(d)}`
   return streamChat(system, [{ role: 'user', content: 'Lass uns anknüpfen.' }], onText, 2000)
+}
+
+// ---------- Projekt (letzte Session der Vertiefung eines Fachs) ----------
+
+const PROJECT = (d: Day) => `${nm()} schließt die Vertiefung „${AREAS[d.area].name}“ mit einem eigenen kleinen Projekt ab: eine selbst gewählte Frage, ein bis zwei Stunden Recherche, das Ergebnis in eigenen Worten begründet.`
+
+function projectStartChat(d: Day, onText: (t: string) => void) {
+  const system = `${persona()}
+
+Aufgabe: Projekt-Start. ${PROJECT(d)}
+Schlage 3 Projektfragen vor, die an die Sessions unten anknüpfen und über sie hinausgehen – je eine aus Grundmodellen, klassischen Fragen und Streitfragen, mindestens eine mit Bezug zu einem anderen Bereich. Je Frage:
+- die Frage fett, darunter ein Halbsatz, warum sie spannend ist
+- 2–3 konkrete Startpunkte (bestimmter Wikipedia-Artikel, bpb, Statistisches Bundesamt, ein Klassiker der Fachliteratur, Museum/Archiv online)
+- was am Ende stehen könnte (Begründung, Vergleichstabelle, Zeitstrahl, Pro/Contra)
+Eine Frage muss in ein bis zwei Stunden beantwortbar sein: eng genug, nicht nur Meinung. Zum Schluss eine Zeile: Eine eigene Frage ist genauso gut.
+
+${sessionContext(d)}`
+  return streamChat(system, [{ role: 'user', content: 'Schlag mir Projektfragen vor.' }], onText, 2000)
 }
 
 /** Schulstoff-Sessions, auf die eine Session verweist (Grundlage fürs Auffrischen) */
@@ -252,7 +283,18 @@ ${base.map((b) => `- ${dayLine(b)} – ${b.subtopics.join(' · ')}`).join('\n')}
 
 export function questionsChat(day: number, history: ChatMsg[], onText: (t: string) => void) {
   const d = getDay(day)
-  const system = `${persona()}
+  const system = isProject(d)
+    ? `${persona()}
+
+Phase „Projekt-Betreuung“: ${PROJECT(d)} Du betreust wie ein Tutor:
+- Frage schärfen: beantwortbar, eng genug, klar, was am Ende stehen soll.
+- Quellen finden und prüfen: Wer schreibt, wann, mit welchem Beleg? Primär- vs. Sekundärquelle, Studie vs. Meinung.
+- Zwischenergebnisse ordnen, Lücken und Gegenargumente aufzeigen.
+Mach die Arbeit nicht selbst: keine fertige Antwort auf die Projektfrage, sondern Hinweise, Rückfragen, Gegenbeispiele. Nennst du Fakten, sag, wie sicher sie sind.${d.evidence ? ' Gesundheits-/Psychologie-Aussagen nach Evidenz einordnen („belegt vs. Hype“).' : ''}
+Frage NICHT ab – das passiert erst, wenn ${nm()} das Ergebnis vorstellt.
+
+${sessionContext(d)}`
+    : `${persona()}
 
 Phase „Eigene Fragen“: ${nm()} hat die Videos gesehen und stellt eigene Fragen zum Thema.
 Erkläre verständlich, mit Beispielen aus Alltag/Nachrichten, und knüpfe wo sinnvoll an Zeitstrahl, Karte und frühere Sessions an.
@@ -278,6 +320,7 @@ const adapt = () => `Lies jede Nachricht von ${nm()} zuerst darauf, WAS sie ist,
 
 export function checkChat(day: number, history: ChatMsg[], onText: (t: string) => void) {
   const d = getDay(day)
+  if (isProject(d)) return projectCheckChat(d, history, onText)
   const system = `${persona()}
 
 Phase „Verständnischeck“: ${nm()} hat „verstanden“ gesagt. Führe den Check nach diesen Regeln:
@@ -291,6 +334,24 @@ Phase „Verständnischeck“: ${nm()} hat „verstanden“ gesagt. Führe den C
   P = Präzision der Antwort von 1 (vage) bis 5 (präzise, Fachbegriffe korrekt). Beispiel: [[BEWERTUNG: teilweise | 3]]
 - Danach kurz bewerten (✅ richtig / 🟡 unvollständig / ❌ falsch). Bei falsch/unvollständig: kurz erklären, dann eine Nachfrage zum GLEICHEN Punkt stellen, bevor es mit der nächsten Frage weitergeht. ${FOLLOW_UP}
 - Erst wenn alles sitzt: ein Satz Fazit, darunter je eine Zeile [[STAERKE: …]] für 1–3 Dinge, die gut saßen, und [[LUECKE: …]] für 0–3 echte Lücken (je höchstens 6 Wörter, konkret zum Inhalt, z. B. [[LUECKE: Ursache der Inflation 1923]]). In die letzte Zeile exakt: ${DONE_MARKER}
+- Schreibe ${DONE_MARKER} niemals vorher.
+
+${sessionContext(d)}`
+  return streamChat(system, history, onText)
+}
+
+function projectCheckChat(d: Day, history: ChatMsg[], onText: (t: string) => void) {
+  const system = `${persona()}
+
+Phase „Projekt-Abschluss“: ${PROJECT(d)} Jetzt stellt ${nm()} das Ergebnis vor. Ablauf:
+- **Frage 1/4:** Bitte um die Vorstellung in eigenen Worten: Frage, Vorgehen, Ergebnis, wichtigste Quellen (5–10 Sätze reichen).
+- Danach genau 3 Fragen zum vorgestellten Projekt, IMMER nur EINE pro Nachricht: **Frage 2/4** Beleg (Woher weißt du das, wie verlässlich ist die Quelle?), **Frage 3/4** Gegenposition (Was spricht dagegen, wer sieht es anders und warum?), **Frage 4/4** Transfer (Was folgt daraus für ein anderes Fach, die Gegenwart oder eine Entscheidung?).
+- ${adapt()}
+- Nach jedem Antwortversuch (auch der Vorstellung) beginnt deine Nachricht in der ersten Zeile mit genau einem Marker:
+  [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]  (P = Präzision 1–5)
+  Bewertet wird die Begründung, nicht die Meinung: richtig = schlüssig und belegt, teilweise = Lücken im Beleg oder in der Logik, falsch = sachlich falsch oder unbegründet.
+- Danach kurz würdigen und konkret sagen, was die Argumentation stärker machen würde. Sachfehler korrigieren.
+- Zum Schluss: ein Satz Fazit, darunter je eine Zeile [[STAERKE: …]] für 1–3 Dinge, die gut waren, und [[LUECKE: …]] für 0–3 Punkte zum Weiterdenken (je höchstens 6 Wörter). In die letzte Zeile exakt: ${DONE_MARKER}
 - Schreibe ${DONE_MARKER} niemals vorher.
 
 ${sessionContext(d)}`

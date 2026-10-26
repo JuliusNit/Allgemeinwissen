@@ -154,8 +154,10 @@ export function TopicView({ day, go }: { day: number; go: (hash: string) => void
   const watched = useStore((s) => dayState(s, day).watched)
   const videos = useStore((s) => videosOf(s, day))
   const level = useStore((s) => s.level)
-  const order = pathDays(level)
-  const no = sessionNo(level, day)
+  const focus = useStore((s) => s.focus)
+  const ctx = { level, focus }
+  const order = pathDays(ctx)
+  const no = sessionNo(ctx, day)
   const [pressed, setPressed] = useState(false)
   const ids = d.subtopics.map((_, i) => videos.find((v) => v.id === `${day}-${i}`)?.id)
   const L = layout(d.subtopics, d.title.split(/[:(]/)[0].trim(), ids.map(Boolean))
@@ -182,7 +184,7 @@ export function TopicView({ day, go }: { day: number; go: (hash: string) => void
     <div className="topic">
       <div className="day-nav">
         <button className="icon-btn" onClick={() => go('/')} aria-label="Zurück zum Lernpfad"><Icon name="BACK" size={26} /></button>
-        <span className="muted small">{no ? `Session ${no} von ${order.length}` : 'Grundwissen'} · {AREAS[d.area].name}</span>
+        <span className="muted small">{no ? `Session ${no} von ${order.length}` : d.stage ? 'Vertiefung' : 'Grundwissen'} · {AREAS[d.area].name}</span>
       </div>
 
       <svg className="topic-map" viewBox={`0 0 ${W} ${L.height}`}>

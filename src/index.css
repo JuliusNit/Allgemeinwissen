@@ -96,6 +96,7 @@ h2 { font-size: 1.05rem; margin: 0 0 0.6rem; }
 .btn.small { --pad-y: 4px; padding-left: 10px; padding-right: 10px; font-size: 0.85rem; }
 .btn.wide { --pad-y: 12px; width: 100%; padding-left: 12px; padding-right: 12px; }
 .btn.due { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+.btn.ic { display: inline-flex; align-items: center; gap: 6px; }
 .icon-btn { background: none; border: 0; padding: 4px; cursor: pointer; display: inline-flex; flex: none; }
 
 input, select, textarea {

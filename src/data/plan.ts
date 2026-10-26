@@ -1,5 +1,6 @@
 // Lernplan – Allgemeinwissen. Inhalt 1:1 aus dem Plan, Teilthemen fuer Phase 2 ergaenzt.
 import { RETIRED_VIDEOS, VIDEO_PICKS } from './videos'
+import { DEEP_FROM, DEEP_RAW, PER_AREA, stageAt, type Stage } from './deep'
 import { parseVideoUrl } from '../lib/video'
 
 export type AreaId =
@@ -51,7 +52,11 @@ export const BLOCKS: Block[] = [
   { id: 5, name: 'Block 5 – Das 20. Jahrhundert', from: 57, to: 69 },
   { id: 6, name: 'Block 6 – Die Gegenwart verstehen', from: 70, to: 82 },
   { id: 7, name: 'Block 7 – Synthese', from: 83, to: 90 },
+  { id: 8, name: 'Vertiefung', from: 91, to: 186 },
 ]
+
+/** Block der Vertiefung nach Tag 90 (Phase 3, deep.ts) */
+export const DEEP_BLOCK = 8
 
 export interface Video {
   id: string
@@ -64,7 +69,8 @@ export interface Video {
 
 export interface Day {
   day: number
-  phase: 1 | 2
+  /** 3 = Vertiefung nach Tag 90 */
+  phase: 1 | 2 | 3
   block: number
   area: AreaId
   title: string
@@ -73,6 +79,8 @@ export interface Day {
   links: number[]
   /** Evidenzcheck "belegt vs. Hype" */
   evidence: boolean
+  /** Stufe in der Vertiefung */
+  stage?: Stage
 }
 
 type Raw = [number, AreaId, string, string, number[]]
@@ -193,8 +201,48 @@ export const DAYS: Day[] = RAW.map(([day, area, title, subs, links]) => ({
   evidence: day > 5 && (area === 'BIO' || area === 'PSY'),
 }))
 
+/** Vertiefung: je Fach 8 Sessions, die letzte ist das eigene Projekt; verknuepft mit den zwei vorigen des Fachs */
+export const DEEP_DAYS: Day[] = DEEP_RAW.flatMap(([area, rows], ai) => {
+  const from = DEEP_FROM + ai * PER_AREA
+  const own = rows.map((_, i) => from + i)
+  const evidence = area === 'BIO' || area === 'PSY'
+  const days: Day[] = rows.map(([title, subs, links], i) => ({
+    day: from + i,
+    phase: 3,
+    block: DEEP_BLOCK,
+    area,
+    title,
+    subtopics: subs.split(' · '),
+    links: [...links, ...own.slice(Math.max(0, i - 2), i)],
+    evidence,
+    stage: stageAt(i),
+  }))
+  days.push({
+    day: from + rows.length,
+    phase: 3,
+    block: DEEP_BLOCK,
+    area,
+    title: `Eigenes Projekt: ${AREAS[area].name}`,
+    subtopics: ['Frage finden', 'Recherchieren & Quellen prüfen', 'Ergebnis erklären'],
+    links: own,
+    evidence,
+    stage: 'projekt',
+  })
+  return days
+})
+
+/** Plan (1–90) und Vertiefung (91–186), lueckenlos nach Tag */
+export const ALL_DAYS: Day[] = [...DAYS, ...DEEP_DAYS]
+
+export const MAX_DAY = ALL_DAYS.length
+
 export function getDay(n: number): Day {
-  return DAYS[n - 1]
+  return ALL_DAYS[n - 1]
+}
+
+/** Projekt-Session der Vertiefung: eigene Frage statt Videos */
+export function isProject(d: Day): boolean {
+  return d.stage === 'projekt'
 }
 
 /** Block-MIX-Tage (17, 30, …) haben keine Videos, sondern fragen den ganzen Block ab. Tag 5 ist ein normaler Tag. */
@@ -219,7 +267,7 @@ export function defaultVideos(d: Day): Video[] {
 }
 
 function buildDefaultVideos(d: Day): Video[] {
-  if (isBlockMix(d)) return []
+  if (isBlockMix(d) || isProject(d)) return []
   return d.subtopics.map((s, i) => {
     const pick = VIDEO_PICKS[`${d.day}-${i}`]
     return {

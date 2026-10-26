@@ -1,6 +1,6 @@
-import { AREAS, DAYS, MAP_AREAS, type AreaId } from '../data/plan'
+import { AREAS, MAP_AREAS, type AreaId } from '../data/plan'
 import { isRepeat } from '../data/school'
-import { stationOf, type BasisNode } from './path'
+import { areaDays, stationOf, type BasisNode } from './path'
 import { dayState, type ChatMsg, type State } from './store'
 
 // Auswertung des Verstaendnischecks: das Modell setzt nach jeder Antwort einen Marker
@@ -126,7 +126,7 @@ export interface AreaStats {
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null)
 
 export function areaStats(s: State, area: AreaId): AreaStats {
-  const days = DAYS.filter((d) => d.area === area)
+  const days = areaDays(s, area)
   let good = 0
   let bad = 0
   const verdicts: number[] = []

@@ -1,7 +1,7 @@
-import { AREAS, DAYS, getDay, type AreaId } from '../data/plan'
+import { ALL_DAYS, AREAS, DAYS, getDay, type AreaId } from '../data/plan'
 import { fach } from '../data/lehrplan'
-import { isRepeat, type Level } from '../data/school'
-import { currentNode, pathOf, nodeDone, sessionNo, sessionRange, type PathNode } from './path'
+import { isRepeat } from '../data/school'
+import { currentNode, pathOf, nodeDone, reviewLabel, sessionNo, type PathNode } from './path'
 import { dayDone, dayDoneAt, sessionScore, VERDICT_SCORE, type Verdict } from './stats'
 import { activeDates, localDate, streak, toDate } from './streak'
 import { dayState, examState, today, type State } from './store'
@@ -78,9 +78,12 @@ export interface Recap {
   next: string[]
 }
 
-function nodeLabel(n: PathNode, level: Level | undefined): string {
-  if (n.kind === 'day') return `Session ${sessionNo(level, n.day)} · ${getDay(n.day).title.split(/[:(]/)[0].trim()}`
-  if (n.kind === 'review') return n.final ? 'Abschlusswiederholung' : `Wiederholung ${sessionRange(level, n.days)}`
+function nodeLabel(n: PathNode, s: State): string {
+  if (n.kind === 'day') return `Session ${sessionNo(s, n.day)} · ${getDay(n.day).title.split(/[:(]/)[0].trim()}`
+  if (n.kind === 'review') {
+    const l = reviewLabel(s, n)
+    return `${l.head} · ${l.title}`
+  }
   if (n.variant === 'auffrischung') return 'Auffrischung Grundwissen'
   if (n.variant === 'abschluss') return 'Grundwissen-Check'
   return `Grundcheck ${n.fach === 'mix' ? 'gemischt' : fach(n.fach).name}`
@@ -93,14 +96,14 @@ export function weekRecap(s: State): Recap {
   const from = addDays(end, -7)
   const inWeek = (v?: string) => !!v && toDate(v) >= from && toDate(v) < end
 
-  const days = DAYS.filter((d) => inWeek(dayState(s, d.day).completedAt))
+  const days = ALL_DAYS.filter((d) => inWeek(dayState(s, d.day).completedAt))
   const byArea = new Map<AreaId, string[]>()
   for (const d of days) byArea.set(d.area, [...(byArea.get(d.area) ?? []), d.title.split(/[:(]/)[0].trim()])
   const learned = [...byArea].map(([area, titles]) => ({ area, name: AREAS[area].name, titles }))
 
   // Antworten im Verstaendnischeck und in Pruefungen der Woche
   const verdicts: number[] = []
-  for (const d of DAYS) {
+  for (const d of ALL_DAYS) {
     for (const chat of [dayState(s, d.day).check, examState(s, d.day).chat]) {
       chat?.forEach((m, i) => {
         const v = m.role === 'assistant' ? MARK.exec(m.content) : null
@@ -116,7 +119,7 @@ export function weekRecap(s: State): Recap {
     .slice(path.indexOf(cur))
     .filter((n) => !nodeDone(s, n))
     .slice(0, 3)
-    .map((n) => nodeLabel(n, s.level))
+    .map((n) => nodeLabel(n, s))
 
   const active = [...activeDates(s)].filter((d) => d >= from && d < end)
   return {

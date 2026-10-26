@@ -77,7 +77,7 @@ export function ProfileView({ section, go }: { section: ProfileSection; go: (has
           {cur === 'konto' && <Account />}
           {cur === 'wissensstand' && <Knowledge />}
           {cur === 'staerken' && <Strengths />}
-          {cur === 'nach90' && <Ninety />}
+          {cur === 'nach90' && <Ninety go={go} />}
           {cur === 'gemerkt' && <Saved go={go} />}
           {cur === 'ki' && <AiSettings />}
           {cur === 'erinnerung' && <ReminderSettings />}
@@ -101,7 +101,7 @@ function Me() {
   const auth = useAuth()
   const profile = s.profile
   const picRef = useRef<HTMLInputElement>(null)
-  const path = pathDays(s.level)
+  const path = pathDays(s)
   const done = path.filter((d) => dayDone(s, d)).length
 
   async function pickAvatar(f: File) {
@@ -148,16 +148,16 @@ function Knowledge() {
   )
 }
 
-function Ninety() {
+function Ninety({ go }: { go: (hash: string) => void }) {
   const s = useStore((x) => x)
   const allDone = DAYS.every((d) => dayDone(s, d.day))
   // Offene Sessions im eigenen Pfad (Schulstoff steht nicht im Pfad)
-  const open = pathDays(s.level).filter((d) => !dayDone(s, d)).length
+  const open = pathDays(s).filter((d) => d <= 90 && !dayDone(s, d)).length
   return (
     <Frame className="card">
       <h2>Nach Tag 90</h2>
       {!allDone && open > 0 && <p className="muted small">Noch {open} Sessions</p>}
-      <AfterNinety />
+      <AfterNinety onChosen={() => go('/')} />
     </Frame>
   )
 }

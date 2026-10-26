@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AREAS, DAYS, getDay, type AreaId } from '../data/plan'
+import { AREAS, getDay, type AreaId } from '../data/plan'
+import { areaDays } from '../lib/path'
 import { circle, line, poly, roundRect, sectorPath, type Pt, type Stroke } from '../lib/ink'
 import { areaStats, dayDone, parseCheck, sessionScore, STAT_AREAS } from '../lib/stats'
 import { dayState, useStore } from '../lib/store'
@@ -74,7 +75,7 @@ export function StatsView({ area, day, go }: { area?: AreaId; day?: number; go: 
 function AreaBox({ area, left, open, go }: { area: AreaId; left: boolean; open: boolean; go: (hash: string) => void }) {
   const s = useStore((x) => x)
   const st = areaStats(s, area)
-  const days = DAYS.filter((d) => d.area === area)
+  const days = areaDays(s, area)
   const toggle = () => go(open ? '/statistik' : `/statistik/${area}`)
   return (
     <Frame className={`area-box ${open ? 'open' : left ? 'left' : 'right'}`}>

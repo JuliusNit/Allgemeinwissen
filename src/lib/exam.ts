@@ -1,4 +1,4 @@
-import { DAYS, isBlockMix } from '../data/plan'
+import { ALL_DAYS, isBlockMix, isProject } from '../data/plan'
 import { dayDone, dayDoneAt, parseCheck, sessionScore, VERDICT_SCORE } from './stats'
 import { dayState, examState, type ChatMsg, type State } from './store'
 
@@ -27,7 +27,7 @@ function daysAgo(date: string): number {
 }
 
 export function examTopics(s: State): ExamTopic[] {
-  return DAYS.filter((d) => !isBlockMix(d) && dayDone(s, d.day))
+  return ALL_DAYS.filter((d) => !isBlockMix(d) && !isProject(d) && dayDone(s, d.day))
     .map((d) => {
       const ds = dayState(s, d.day)
       const ex = examState(s, d.day)

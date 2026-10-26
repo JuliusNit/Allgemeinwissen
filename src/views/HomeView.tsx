@@ -1,9 +1,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { BLOCKS, getDay } from '../data/plan'
+import { AREAS, BLOCKS, DEEP_BLOCK, getDay } from '../data/plan'
 import { bez, type Stroke } from '../lib/ink'
 import { fach } from '../data/lehrplan'
-import { blockName, knownUpTo, type Level } from '../data/school'
-import { BASIS_BLOCK, currentNode, sessionNo, sessionRange, nodeDone, nodeReady, pathOf, type PathNode } from '../lib/path'
+import { blockName, knownUpTo } from '../data/school'
+import { BASIS_BLOCK, currentNode, firstDeepNode, sessionNo, nodeDone, nodeReady, pathOf, reviewLabel, type PathCtx, type PathNode } from '../lib/path'
 import { basisTitle } from './BasisView'
 import { dueCards } from '../lib/srs'
 import { getState, setState, useStore } from '../lib/store'
@@ -94,17 +94,21 @@ function wrap(t: string, max: number): string[] {
   return lines
 }
 
-function label(n: PathNode, level: Level | undefined): { head: string; title: string } {
+function label(n: PathNode, c: PathCtx): { head: string; title: string } {
   if (n.kind === 'basis') return basisTitle(n)
-  if (n.kind === 'review' && n.final) return { head: 'Abschluss', title: 'Alle Karten wiederholen' }
-  if (n.kind === 'review') return { head: 'Wiederholung', title: sessionRange(level, n.days) }
+  if (n.kind === 'review') return reviewLabel(c, n)
   const d = getDay(n.day)
-  return { head: `Session ${sessionNo(level, d.day)}`, title: d.title.split(/[:(]/)[0].trim() }
+  return { head: `Session ${sessionNo(c, d.day)}`, title: d.title.split(/[:(]/)[0].trim() }
 }
 
 function iconOf(n: PathNode): IconName {
   if (n.kind === 'basis') return n.fach === 'mix' ? 'REVIEW' : fach(n.fach).icon
   return n.kind === 'review' ? 'REVIEW' : getDay(n.day).area
+}
+
+function deepName(choice?: string): string {
+  const c = parseChoice(choice)
+  return c ? `Vertiefung · ${MODES[c.mode].letter} ${c.area ? AREAS[c.area].name : MODES[c.mode].name}` : 'Vertiefung'
 }
 
 /** Nach Tag 90: großer Kasten mit Auswertung und Wahl des weiteren Wegs; nach der Wahl eine Zeile */
@@ -124,7 +128,7 @@ function Finished() {
     <Frame className="card after90-home">
       <h1>90 Tage geschafft!</h1>
       <h2>Wie geht es weiter?</h2>
-      <AfterNinety />
+      <AfterNinety onChosen={() => setEdit(false)} />
       {chosen && <button className="btn small" onClick={() => setEdit(false)}>fertig</button>}
     </Frame>
   )
@@ -163,12 +167,22 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
   const curRef = useRef<SVGGElement>(null)
   const [recap, setRecap] = useState(() => recapDue(getState()))
 
+  const choice = s.focus.choice
+  const chosenOnce = useRef(choice)
   useEffect(() => {
     // nach Tag 90 ohne Wahl bleibt der Kasten oben sichtbar
     const st = getState()
     if (planFinished(st) && !parseChoice(st.focus.choice)) window.scrollTo(0, 0)
     else curRef.current?.scrollIntoView({ block: 'center' })
   }, [])
+
+  // Weg gewaehlt oder geaendert → zur ersten offenen Station der Vertiefung
+  useEffect(() => {
+    if (choice === chosenOnce.current || !parseChoice(choice)) return
+    chosenOnce.current = choice
+    if (!firstDeepNode(getState())) return
+    window.setTimeout(() => document.querySelector(`[data-node="${currentNode(getState()).id}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50)
+  }, [choice])
 
   const blockLabels = L.placed.filter((p) => p.blockStart)
 
@@ -223,7 +237,7 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
           const y = p.y - COIN_R - (first ? (basis ? 48 : 30) : 44)
           return (
             <g key={p.node.block} className="block-label">
-              <text x={CX} y={y} textAnchor="middle">{basis ? 'Grundwiederholung' : blockName(BLOCKS[p.node.block], s.level)}</text>
+              <text x={CX} y={y} textAnchor="middle">{basis ? 'Grundwiederholung' : p.node.block === DEEP_BLOCK ? deepName(s.focus.choice) : blockName(BLOCKS[p.node.block], s.level)}</text>
               {basis && (
                 <text x={CX} y={y + 16} textAnchor="middle" className="block-sub">Schulstoff bis Jgst. {knownUpTo(s.level)} · LehrplanPLUS Bayern</text>
               )}
@@ -233,7 +247,7 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
         {L.placed.map((p) => {
           const n = p.node
           const st = stateOf(n)
-          const l = label(n, s.level)
+          const l = label(n, s)
           const right = p.x <= CX
           const tx = right ? p.x + COIN_R + 16 : p.x - COIN_R - 16
           const lines = wrap(l.title, right ? Math.floor((W - tx) / 7.4) : Math.floor(tx / 7.4))
@@ -241,6 +255,7 @@ export function HomeView({ go }: { go: (hash: string) => void }) {
             <g
               key={n.id}
               ref={n.id === cur.id ? curRef : undefined}
+              data-node={n.id}
               className={`node ${st}`}
               role="listitem button"
               tabIndex={0}
