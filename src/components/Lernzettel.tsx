@@ -11,9 +11,9 @@ import { Markdown } from './Markdown'
 const SVG_PROPS = ['fill', 'stroke', 'stroke-width', 'stroke-linejoin', 'paint-order', 'font-size', 'font-weight', 'font-style', 'opacity']
 const X = [line([6, 6], [20, 20]), line([20, 6.5], [6.5, 20])]
 
-export function Lernzettel({ day, title }: { day: number; title: string }) {
+/** Lernzettel im Kasten; das Vollbild oeffnet der ganze Kasten (DayView) */
+export function Lernzettel({ day, onOpen }: { day: number; onOpen: () => void }) {
   const [sheet, setSheet] = useState<{ day: number; text?: string; error?: boolean } | null>(null)
-  const [full, setFull] = useState(false)
   useEffect(() => {
     let on = true
     loadSheet(day).then(
@@ -27,12 +27,9 @@ export function Lernzettel({ day, title }: { day: number; title: string }) {
   if (sheet?.day !== day) return <p className="typing">lädt …</p>
   if (sheet.error) return <p className="chat-error">Lernzettel konnte nicht geladen werden – offline?</p>
   return (
-    <>
-      <div className="lz open-full" role="button" tabIndex={0} aria-label="Lernzettel im Vollbild" onClick={() => setFull(true)} onKeyDown={(e) => e.key === 'Enter' && setFull(true)}>
-        <Markdown text={sheet.text ?? ''} />
-      </div>
-      {full && <SheetFull text={sheet.text ?? ''} title={title} onClose={() => setFull(false)} />}
-    </>
+    <div className="lz" role="button" tabIndex={0} aria-label="Lernzettel im Vollbild" onKeyDown={(e) => e.key === 'Enter' && onOpen()}>
+      <Markdown text={sheet.text ?? ''} />
+    </div>
   )
 }
 

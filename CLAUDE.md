@@ -22,7 +22,7 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   (RSS `feeds/videos.xml?channel_id=`). Ausgemusterte IDs in `RETIRED_VIDEOS` (`videos.ts`); `upgradeVideos` ersetzt sie
   auch in gespeicherten und vom Editor veröffentlichten Listen.
 - `src/data/lernzettel/NN.md` – Lernzettel je Session (Kasten „3 · Lernzettel“ zwischen Videos und Notizen, standardmäßig zu wie die Videos
-  (`sheetOpen`, `videosOpen`); Antippen → Vollbild mit Teilen/Bild speichern (PNG über html-to-image)/PDF (Web: Drucken, App: Bild-PDF aus `src/lib/pdf.ts` übers Teilen-Menü); lädt lazy über `src/data/lernzettel.ts`). Geschrieben nach den Transkripten (YouTube-Untertitel) der Videos aus
+  (`sheetOpen`, `videosOpen`); Antippen irgendwo im Kasten (auch zugeklappt) → Vollbild mit Teilen/Bild speichern (PNG über html-to-image)/PDF (Web: Drucken, App: Bild-PDF aus `src/lib/pdf.ts` übers Teilen-Menü); lädt lazy über `src/data/lernzettel.ts`). Geschrieben nach den Transkripten (YouTube-Untertitel) der Videos aus
   `videos.ts`, nach Thema gegliedert, nicht nach Video; max. 2 Seiten, Stichpunkte + Diagramme. Ohne Untertitel (nach Titel,
   Beschreibung, Fachwissen): 45-3, 63-1, 67-2, 76-2, 76-3, 85-0, 85-2. Wird ein Video getauscht, Lernzettel prüfen.
   Diagramme = Markdown-Codeblöcke ```kette/kreis/zeitstrahl/baum/gruppen/pyramide/schichten/kurve/balken

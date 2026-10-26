@@ -11,7 +11,7 @@ import { haptic } from '../lib/native'
 import { fmtTime } from '../lib/video'
 import { VideoWatch } from '../components/VideoWatch'
 import { VideoList } from '../components/VideoList'
-import { Lernzettel, SheetFull } from '../components/Lernzettel'
+import { Lernzettel, LernzettelFull, SheetFull } from '../components/Lernzettel'
 import { hasSheet } from '../data/lernzettel'
 import { Chat } from '../components/Chat'
 import { Markdown } from '../components/Markdown'
@@ -55,6 +55,7 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
   const [checkGen, setCheckGen] = useState(0)
   const [doneOpen, setDoneOpen] = useState(false)
   const [summaryFull, setSummaryFull] = useState(false)
+  const [sheetFull, setSheetFull] = useState(false)
   const block = BLOCKS[d.block]
   const mix = isBlockMix(d)
   const watched = new Set(ds.watched ?? [])
@@ -267,16 +268,21 @@ export function DayView({ day, video, at, openDay, openStation, openVideo, close
       )}
 
       {sheet && (
-        <Frame className="card">
+        // ganzer Kasten oeffnet das Vollbild; das Vollbild steht ausserhalb, sonst kaeme sein Schliessen-Klick (Portal) hier wieder an
+        <Frame className="card open-full" onClick={() => setSheetFull(true)}>
           <div className="section-head">
             <h2>3 · Lernzettel</h2>
-            <button className="btn ghost small" onClick={() => updateDay(day, (x) => ({ ...x, sheetOpen: !x.sheetOpen }))}>
+            <button
+              className="btn ghost small"
+              onClick={(e) => (e.stopPropagation(), updateDay(day, (x) => ({ ...x, sheetOpen: !x.sheetOpen })))}
+            >
               {ds.sheetOpen ? 'zuklappen' : 'aufklappen'}
             </button>
           </div>
-          {ds.sheetOpen && <Lernzettel day={day} title={d.title} />}
+          {ds.sheetOpen && <Lernzettel day={day} onOpen={() => setSheetFull(true)} />}
         </Frame>
       )}
+      {sheetFull && <LernzettelFull day={day} title={d.title} onClose={() => setSheetFull(false)} />}
 
       <Frame className="card">
         <div className="section-head">

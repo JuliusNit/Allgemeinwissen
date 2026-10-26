@@ -686,7 +686,8 @@ span.star { cursor: default; }
 /* Lernzettel: Vollbild, Teilen, Drucken */
 .head-side { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; margin-left: auto; }
 .section-head h2 { white-space: nowrap; }
-.lz.open-full { cursor: zoom-in; }
+.open-full { cursor: zoom-in; }
+.open-full .btn { cursor: pointer; }
 .sheet-full { position: fixed; inset: 0; z-index: 30; background: #fff; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .sheet-bar { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: max(8px, var(--sa-top)) 12px 8px; background: #fff; }
 .sheet-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
