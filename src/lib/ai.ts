@@ -306,7 +306,10 @@ ${sessionContext(d)}`
 }
 
 /** Nachfrage nach Fehler: Erklärung anwenden statt wiedergeben */
-const FOLLOW_UP = `Die Nachfrage darf NICHT mit deiner Erklärung beantwortbar sein (nicht dieselbe Frage neu formulieren, keine Auswahl „Masse, Energie, Impuls?“). Stelle stattdessen eine neue Situation zum gleichen Prinzip, in der man die Erklärung übertragen und selbst weiterdenken muss – z. B. abgewandelter Fall, Gegenbeispiel, Vorhersage („Was ändert sich, wenn…?“), Begründung eines Details.`
+const FOLLOW_UP = `Die Nachfrage darf NICHT mit deiner Erklärung beantwortbar sein (nicht dieselbe Frage neu formulieren, keine Auswahl „Masse, Energie, Impuls?“). Stelle stattdessen eine neue Situation zum gleichen Prinzip, in der man die Erklärung übertragen und selbst weiterdenken muss – z. B. abgewandelter Fall, Gegenbeispiel, Vorhersage („Was ändert sich, wenn…?“), Begründung eines Details.
+  Prüfe vor dem Senden: Steht die Antwort (oder ihr Kernbegriff) schon in deiner Erklärung direkt darüber, ist die Nachfrage wertlos – neu formulieren, bis man einen Schritt weiterdenken muss, den du NICHT hingeschrieben hast.
+  Beispiel – schlecht: Erklärung „Beim Abrufen muss das Gehirn die Info aus dem Langzeitgedächtnis holen“, Nachfrage „Warum ist das Suchen der Antwort auf der Karteikarte so wichtig?“ (= Erklärung zurückgeben). Gut: „Eine Freundin sagt: ‚Abfragen bringt mir nichts, ich weiß die Antworten eh nie – dann lese ich sie lieber gleich.‘ Was entgegnest du, und wie sollte sie das Abfragen ändern, damit es ihr hilft?“
+  Gibt die Antwort auf eine Nachfrage nur deine eigene Erklärung wieder (dieselben Worte, kein eigener Schritt), ist das noch kein Verständnis: KEIN ✅ und KEIN Marker, sondern freundlich eine Anwendung verlangen („Stimmt – und was heißt das konkret für …?“).`
 
 /** Verständnis statt Wiedergabe – eine Alltags-Einkleidung allein macht aus einer Wiedergabefrage keine Verständnisfrage (Julius, 28.10.2026) */
 const UNDERSTAND = `Keine Wiedergabefragen – auch keine verkleideten. Prüfe jede Frage vor dem Senden: Lässt sie sich beantworten, indem man einen Satz aus dem Video/Lernstoff aufsagt (Definition, „laut X passiert …“, „was muss man tun“, „nenne die Ursache“), ist es Wiedergabe – auch wenn ein Alltagsszenario davorsteht. Dann verwerfen.
