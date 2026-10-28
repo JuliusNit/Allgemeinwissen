@@ -308,6 +308,12 @@ ${sessionContext(d)}`
 /** Nachfrage nach Fehler: Erklärung anwenden statt wiedergeben */
 const FOLLOW_UP = `Die Nachfrage darf NICHT mit deiner Erklärung beantwortbar sein (nicht dieselbe Frage neu formulieren, keine Auswahl „Masse, Energie, Impuls?“). Stelle stattdessen eine neue Situation zum gleichen Prinzip, in der man die Erklärung übertragen und selbst weiterdenken muss – z. B. abgewandelter Fall, Gegenbeispiel, Vorhersage („Was ändert sich, wenn…?“), Begründung eines Details.`
 
+/** Verständnis statt Wiedergabe – eine Alltags-Einkleidung allein macht aus einer Wiedergabefrage keine Verständnisfrage (Julius, 28.10.2026) */
+const UNDERSTAND = `Keine Wiedergabefragen – auch keine verkleideten. Prüfe jede Frage vor dem Senden: Lässt sie sich beantworten, indem man einen Satz aus dem Video/Lernstoff aufsagt (Definition, „laut X passiert …“, „was muss man tun“, „nenne die Ursache“), ist es Wiedergabe – auch wenn ein Alltagsszenario davorsteht. Dann verwerfen.
+  Eine Verständnisfrage zwingt dazu, das Gelernte auf etwas anzuwenden, das im Stoff so NICHT vorkam, und dabei selbst zu denken: zwischen Optionen entscheiden und begründen, ein Ergebnis für einen abgewandelten Fall vorhersagen, zwei Fälle vergleichen, einen Fehler in einer Behauptung/einem Plan finden, etwas mit konkreten Zahlen planen, Teilthemen kombinieren („Was passiert mit X, wenn Y ausfällt?“), mit früheren Sessions oder anderen Bereichen verknüpfen. Die Antwort steht nirgends wörtlich, man muss sie herleiten.
+  Beispiel – schlecht: „Du vergisst den Stoff nach 24 Stunden. Warum passiert das laut der Vergessenskurve, und was muss man tun?“ (= Kurve + „wiederholen“ aufsagen). Gut: „Lena lernt 3 Stunden am Abend vor der Prüfung, Tom 6 × 30 Minuten über zwei Wochen. Wer schneidet in der Prüfung besser ab, wer in einem Monat – und warum?“
+  Wirkt das Thema dafür zu dünn, nicht auf Wiedergabe ausweichen, sondern Anwendung, Grenzfälle („Gilt das auch, wenn …?“) und Verknüpfungen nutzen.`
+
 /** Erst erkennen, was die Nachricht ist – nicht jede Eingabe ist eine Antwort, die richtig oder falsch sein kann */
 const adapt = () => `Lies jede Nachricht von ${nm()} zuerst darauf, WAS sie ist, und reagiere passend – nicht alles ist eine Antwort:
   • Antwortversuch (auch kurz, umgangssprachlich, unsicher formuliert oder nur ein Teil): bewerten (Marker richtig/teilweise/falsch, siehe unten). Stimmt der Kern, ist es richtig – nicht auf Fachbegriffe, Vollständigkeit oder Formulierung pochen.
@@ -326,7 +332,7 @@ export function checkChat(day: number, history: ChatMsg[], onText: (t: string) =
 Phase „Verständnischeck“: ${nm()} hat „verstanden“ gesagt. Führe den Check nach diesen Regeln:
 - ${isBlockMix(d) ? '5' : '3–5'} Verständnisfragen, IMMER nur EINE Frage pro Nachricht, dann auf die Antwort warten.
 - ${isBlockMix(d) ? 'Gemischte Abfrage des ganzen Blocks plus Verknüpfungsfragen zwischen den Bereichen.' : isRepeat(getState().level, d.day) ? 'Wiederholung: abgefragt werden die Teilthemen (Schulstoff) – unabhängig davon, welche Videos gesehen wurden; Schwerpunkt Lücken und Verknüpfungen.' : 'Abgefragt wird nur, was in den ★-Pflichtvideos gelehrt wurde.'}
-- Keine reinen Wiedergabefragen, sondern: Teilthemen kombinieren („Was passiert mit X, wenn Y ausfällt?“), Anwendung auf Alltag/Nachrichten/Entscheidungen, Vorhersagen & Fallbeispiele („Warum…?“, „Was wäre, wenn…?“), Verknüpfung mit früheren Sessions UND anderen Bereichen.
+- ${UNDERSTAND}
 - Nummeriere die Fragen im Format „**Frage 2/4:** …“.
 - ${adapt()}
 - Nach jedem Antwortversuch beginnt deine Nachricht in der ersten Zeile mit genau einem Bewertungs-Marker:
@@ -420,7 +426,8 @@ ${n.days.map((d) => `- ${dayLine(getDay(d))} – ${getDay(d).subtopics.join(' ·
 
 Regeln:
 - ${mix ? '6' : '4–6'} Fragen, IMMER nur EINE Frage pro Nachricht, dann auf die Antwort warten. Format „**Frage 2/5:** …“.
-- Quer über die Jahrgangsstufen und Lernbereiche; Kernwissen und Zusammenhänge statt Details, keine reinen Wiedergabefragen („Warum…?“, „Was passiert, wenn…?“, Einordnen auf Zeitstrahl/Karte).
+- Quer über die Jahrgangsstufen und Lernbereiche; Kernwissen und Zusammenhänge statt Details, Einordnen auf Zeitstrahl/Karte.
+- ${UNDERSTAND}
 ${mix ? '- Jede Frage verknüpft mindestens zwei Fächer oder Schulstoff mit einer neuen Session.\n' : ''}- ${adapt()}
 - Nach jedem Antwortversuch beginnt deine Nachricht in der ersten Zeile mit genau einem Marker:
   [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]  (P = Präzision 1–5)

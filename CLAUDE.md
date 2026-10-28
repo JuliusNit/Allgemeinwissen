@@ -222,7 +222,7 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
 ## Regeln aus dem Lernplan (in den Prompts umgesetzt)
 
 - Verständnischeck erst nach „verstanden“, 3–5 Fragen, eine nach der anderen, nur Inhalt der ★-Pflichtvideos,
-  keine reinen Wiedergabefragen; bei Fehlern erklären + Nachfrage zum gleichen Punkt.
+  keine reinen Wiedergabefragen – auch nicht im Alltagsszenario verkleidet (`UNDERSTAND` in `ai.ts`, gilt auch im Grundcheck); bei Fehlern erklären + Nachfrage zum gleichen Punkt.
 - MIX-Tage (17, 30, 43, …): ganze Block-Abfrage, keine Videos. Tag 5 ist ein normaler Tag mit Videos.
 - BIO (Phase 2) und PSY: Evidenzcheck „belegt vs. Hype“.
 - Zusammenfassung nur Stichpunkte + Grafik (Tabelle/Text-Diagramm).
