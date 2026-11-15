@@ -5,7 +5,7 @@ import { hasSheet } from '../data/lernzettel'
 import { line, poly, roundRect } from '../lib/ink'
 import { areaDays, sessionNo } from '../lib/path'
 import { knowledgeIndex } from '../lib/recap'
-import { checkNotes, dayDone, parseCheck, type Verdict } from '../lib/stats'
+import { checkNotes, dayDone, parseCheck, VERDICT_MARK } from '../lib/stats'
 import { dayState, getState, today, type State } from '../lib/store'
 import { CoinBadge, CoinButton } from './Coin'
 import { InkPaths } from './Ink'
@@ -24,8 +24,6 @@ function withDone(s: State, day: number, done: boolean): State {
   const next = done ? { ...ds, status: 'fertig' as const, completedAt: ds.completedAt ?? today() } : { ...ds, status: 'laeuft' as const, completedAt: undefined }
   return { ...s, days: { ...s.days, [day]: next } }
 }
-
-const MARKS: Record<Verdict, string> = { richtig: '✓', teilweise: '~', falsch: '✗', offen: '?' }
 
 /** Kurzform einer Frage: ohne „Frage n/m“, bei Nachfragen der letzte Satz mit „?“ */
 function shortQ(t: string): { text: string; follow: boolean } {
@@ -125,7 +123,7 @@ export function SessionDone({ day, summary, busy, onEnd }: Props) {
             <ol className="done-qa">
               {r.qa.map((q, i) => (
                 <li key={i} className={q.follow ? 'follow' : ''}>
-                  <span className={`verdict ${q.v}`}>{MARKS[q.v]}</span>
+                  <span className={`verdict ${q.v}`}>{VERDICT_MARK[q.v]}</span>
                   <span>{q.text}</span>
                 </li>
               ))}

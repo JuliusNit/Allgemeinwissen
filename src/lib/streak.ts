@@ -21,6 +21,7 @@ export function activeDates(s: State): Set<string> {
     for (const m of [...(d.questions ?? []), ...(d.check ?? [])]) if (m.role === 'user' && m.at) out.add(localDate(m.at))
   }
   for (const e of Object.values(s.exams)) for (const m of e.chat ?? []) if (m.role === 'user' && m.at) out.add(localDate(m.at))
+  for (const e of Object.values(s.exams)) for (const a of e.test?.answers ?? []) out.add(localDate(a.at))
   for (const l of s.cardLog) out.add(toDate(l.at))
   for (const v of Object.values(s.reviews)) out.add(toDate(v))
   return out

@@ -4,9 +4,10 @@ import { FAECHER, fach, topicsUpTo, type Fach, type FachId } from '../data/lehrp
 import { blockName, DAY_FACH, isRepeat, knownUpTo, levelLabel, SCHOOL_GRADE } from '../data/school'
 import type { BasisNode } from './path'
 import { functionCall, kiProxy, type CloudMsg } from './cloud'
-import { dayDone, DONE_MARKER, likesTable, parseCheck, statsTable } from './stats'
+import { examLinks, examPlan } from './exam'
+import { checkNotes, dayDone, DONE_MARKER, likesTable, parseCheck, statsTable, VERDICT_SCORE } from './stats'
 import { hasSheet, loadSheet } from '../data/lernzettel'
-import { dayState, examState, getState, videoNotesText, videosOf, type ChatMsg } from './store'
+import { dayState, examState, getState, videoNotesText, videosOf, type ChatMsg, type ExamAnswer, type ExamQuestion } from './store'
 
 export { DONE_MARKER }
 
@@ -369,34 +370,193 @@ ${sessionContext(d)}`
 
 // ---------- Pruefungs-Wiederholung ----------
 
-export function examChat(day: number, history: ChatMsg[], onText: (t: string) => void) {
+// Kurztest statt Chat (Julius, 15.11.2026): nicht noch einmal das ganze Thema pruefen, sondern ob das Kernprinzip
+// sitzt und sich anwenden laesst, plus ein Zusammenhang zu einer frueheren Session (nur um eine Ecke). Wenig Text:
+// die Frage ein Satz, den Fall traegt das Material daneben (Diagramm, Tabelle, kurzer Fall).
+
+const EXAM_DIAGRAMS = `\`\`\`kette       je Zeile ein Schritt (Kasten), die Pfeile entstehen von selbst; eine Lücke ist ein eigener Schritt „?“
+\`\`\`kreis       Kreislauf, je Zeile eine Station
+\`\`\`zeitstrahl  je Zeile „Zeit | Ereignis“
+\`\`\`baum        Hierarchie, Einrückung mit 2 Leerzeichen
+\`\`\`gruppen     Zeile ohne Einrückung = Kastentitel, eingerückte Zeilen = Inhalt (gut für Fall A / Fall B)
+\`\`\`pyramide    Stufen von oben nach unten
+\`\`\`balken      je Zeile „Name: Zahl | Anzeige“
+\`\`\`kurve       Zeilen „x: Achse“, „y: Achse“, dann Reihen „Name: x y, x y, x y“ (nur Zahlen)`
+
+const str = { type: 'string' }
+
+function jsonSchema(name: string, properties: Record<string, unknown>) {
+  return {
+    chat_template_kwargs: { enable_thinking: false },
+    response_format: {
+      type: 'json_schema',
+      json_schema: { name, schema: { type: 'object', additionalProperties: false, required: Object.keys(properties), properties } },
+    },
+  }
+}
+
+/** Material aufraeumen, damit jedes Diagramm auch etwas zeigt */
+function fixMaterial(m: string): string {
+  return m.trim().replace(/```(kette|balken|kurve)\n([\s\S]*?)```/g, (_, kind: string, src: string) => {
+    const ls = src.split('\n').filter((l) => l.trim())
+    if (kind === 'kette') {
+      // „→ Text“ ist nur Pfeilbeschriftung – steht kein Schritt davor oder dahinter, ist es selbst der Schritt
+      const arrow = (l?: string) => !!l && /^\s*(→|->)/.test(l)
+      const fixed = ls.map((l, i) => (arrow(l) && (i === 0 || i === ls.length - 1 || arrow(ls[i - 1])) ? l.replace(/^\s*(→|->)\s*/, '') : l))
+      return '```kette\n' + fixed.join('\n') + '\n```'
+    }
+    // Balken/Kurve ohne Zahlen blieben leer, Balken mit gemischten Einheiten (10000 € neben 5 %) sagen nichts → als Kaesten zeigen
+    const units = new Set(ls.map((l) => /:\s*-?[\d.,]+\s*([^\d|]*)/.exec(l)?.[1].trim()))
+    const numbers = kind === 'balken' ? units.size === 1 && !units.has(undefined) : ls.some((l) => /:\s*-?\d+([.,]\d+)?\s+-?\d/.test(l))
+    return numbers ? '```' + kind + '\n' + ls.join('\n') + '\n```' : '```gruppen\n' + ls.map((l) => l.trim().replace(/:\s*/, ' | ')).join('\n') + '\n```'
+  })
+}
+
+export async function makeExam(day: number, review = true): Promise<ExamQuestion[]> {
   const d = getDay(day)
   const s = getState()
   const ds = dayState(s, day)
-  const past = examState(s, day).results
+  const ex = examState(s, day)
+  const plan = examPlan(s, day)
+  const links = examLinks(s, day)
+  const sheet = hasSheet(day) ? await loadSheet(day).catch(() => '') : ''
+  const weak = checkNotes(ds.check).weak
+  const DIR = { vor: 'darauf baut das Thema auf', nach: 'baut auf dem Thema auf', nah: 'ohne feste Verknüpfung – nur nehmen, wenn die Verbindung direkt ist' }
+  // Stoff der verknuepften Sessions: ohne ihn bleibt die Zusammenhang-Frage vage
+  const linked = await Promise.all(
+    links.slice(0, 3).map(async (l) => {
+      const txt = hasSheet(l.day.day) ? await loadSheet(l.day.day).catch(() => '') : ''
+      return `- ${dayLine(l.day)} – ${l.day.subtopics.join(' · ')} (${DIR[l.dir]})${txt ? `\n  Auszug Lernzettel: ${clip(txt.replace(/```[\s\S]*?```/g, ' ').replace(/\s+/g, ' '), 1200)}` : ''}`
+    }),
+  )
+
   const system = `${persona()}
 
-Modus „Prüfungs-Wiederholung“: ${nm()} hat dieses Thema schon abgeschlossen und wiederholt es jetzt in Prüfungsform. Sinn der App: mit vorhandenem Wissen schneller Neues erschließen – genau das wird hier geprüft.
-Regeln:
-- Genau 2 Aufgaben, IMMER nur EINE pro Nachricht, dann auf die Antwort warten. Nummeriere im Format „**Frage 1/2:** …“.
-- Beide Aufgaben ausführlich und anspruchsvoll, KEINE Wissens- oder Wiedergabefragen (kein „Nenne…“, „Was ist…“, „Wann war…“).
-- Aufgabe 1 – Verständnis: Zusammenhänge erklären lassen, Ursachen/Folgen, „Was passiert, wenn…?“, Teilthemen kombinieren.
-- Aufgabe 2 – Transfer: Gib zuerst neues Material, das in der Session NICHT vorkam (ein kurzer Fall, eine Situation, ein Textauszug, Daten/eine kleine Tabelle, ein Ereignis aus einer anderen Epoche, einem anderen Land oder Bereich). Stelle dann eine Frage, die man nur mit dem Wissen aus diesem Thema beantworten oder sich erschließen kann. Das Material selbst enthält die Lösung nicht.
-- Stütze dich auf den Lernzettel und die Teilthemen; ${d.evidence ? 'ordne Gesundheits-/Psychologie-Aussagen nach Evidenz ein („belegt vs. Hype“). ' : ''}Schwerpunkt auf Punkten, die früher wackelig waren.
-- Nach JEDEM Antwortversuch beginnt deine Nachricht in der ersten Zeile mit genau einem Marker:
-  [[BEWERTUNG: richtig | P]] oder [[BEWERTUNG: teilweise | P]] oder [[BEWERTUNG: falsch | P]]  (P = Präzision 1–5)
-  Stimmt der Kern, ist es richtig – nicht auf Formulierung pochen. Schreibt ${nm()} „keine Ahnung“, „weiß nicht“ o. ä.: Marker [[BEWERTUNG: offen | 1]], kein ❌, locker bleiben und gleich die Musterlösung erklären. Rückfrage zur Aufgabe oder Bitte um Tipp: Aufgabe klarer formulieren bzw. Denkanstoß ohne Lösung, KEIN Marker, Aufgabe bleibt offen.
-- Danach kurz bewerten (✅ / 🟡 / ❌) und die Musterlösung in 2–4 Stichpunkten zeigen – bei Transfer: welches Wissen aus dem Thema den Schlüssel liefert. Keine Nachfrage, weiter zur nächsten Aufgabe.
-- Nach der letzten Bewertung: Fazit in 2 Zeilen (was saß, was wiederholen) und dann in die letzte Zeile exakt: ${DONE_MARKER}
-- Schreibe ${DONE_MARKER} niemals vorher.
+Aufgabe: Kurztest zu einem Thema bauen, das ${nm()} schon ausführlich gelernt hat (Videos, Lernzettel, Verständnischeck). Antworte NUR mit JSON.
+Der Test prüft NICHT noch einmal das ganze Thema. Er prüft nur:
+- anwenden: Sitzt das Kernprinzip noch – und kann ${nm()} es auf einen neuen Fall anwenden? Das ist das Wichtige.
+- zusammenhang: Wie hängt das Thema mit einer früheren Session zusammen?
 
-THEMA: ${dayLine(d)}
+Zuerst kern: das Kernprinzip der Session in einem Satz – die eine Idee oder der Mechanismus, der bleiben soll (keine Details, Zahlen, Namen, Listen).
+Dann genau ${plan.length} Fragen in dieser Reihenfolge: ${plan.join(', ')}. Jede Frage dauert etwa eine Minute.
+
+Felder je Frage:
+- kind: wie vorgegeben.
+- material: Darauf schaut ${nm()} beim Antworten; es steht groß neben der Frage und trägt den Fall, damit die Frage kurz bleibt. Höchstens 40 Wörter, konkret (Personen, Zahlen, Orte), keine Fachbegriffe als Etikett. Je Frage eine andere Form:
+  • Diagramm als Markdown-Codeblock (bevorzugt). Beschriftungen höchstens 5 Wörter, „Titel | Zusatz“ = Zusatz klein darunter:
+${EXAM_DIAGRAMS}
+    gruppen immer mit mindestens zwei Kästen, Kastentitel = die Sache selbst (Name, Ort, Gegenstand – nie „Session 1“, „Thema A“); kurve und balken nur mit echten Zahlen, balken nur für Werte derselben Einheit, die man vergleichen soll.
+  • kleine Markdown-Tabelle (höchstens 3 Spalten, 4 Zeilen)
+  • ein Fall in 1–2 Sätzen oder eine Behauptung als Zitat (Zeile mit „> “)
+  Das Material zeigt nur, WAS der Fall ist – nie, WARUM. Es nennt weder das Prinzip noch die Erklärung. Eine Lücke heißt „?“.
+- schritt: der Denkschritt, den die Antwort verlangt – in einem Halbsatz. Er steht weder im Material noch in der Frage und in dieser Form auch nicht im Lernzettel. Fällt dir keiner ein, ist der Fall zu einfach: neuen Fall bauen.
+- q: EINE Frage in EINEM Satz, höchstens 14 Wörter, die sich auf das Material bezieht. Alltagssprache, konkret – keine abstrakten Hüllen („die biologische Basis“, „die Stabilität“), keine Einleitung, keine Teilaufträge (kein „und“, „sowie“, „beziehe dich auf“). Beim ersten Lesen ist klar, was gefragt ist. Die Antwort darf anspruchsvoll sein, die Frage nicht.
+- form: "text" = freie Antwort in 1–3 Sätzen (options leer). "wahl" = 2–4 Optionen in options, je höchstens 6 Wörter: mögliche Ergebnisse oder Entscheidungen (keine Fachbegriffe zum Zuordnen), alle plausibel, genau eine richtig; ${nm()} tippt eine an und begründet in einem Satz. Mindestens eine Frage "text", höchstens eine "wahl".
+- link: bei zusammenhang der Titel der früheren Session, sonst "".
+- solution: Musterlösung in 1–2 Sätzen (bei wahl: richtige Option und warum).
+
+anwenden – so entsteht die Frage:
+1. Baue einen NEUEN Fall, der im Lernzettel so nicht vorkommt (Alltag, anderes Land, andere Zeit, anderes Fach). Er steht im Material.
+2. Frage, was das Kernprinzip für diesen Fall bedeutet: Was passiert? Wer liegt vorn? Was sollte X ändern? Wo steckt der Fehler? Was kommt als Nächstes?
+Ein guter Fall hat einen Haken: Er weicht in einem Punkt vom Lehrbuchfall ab, oder die naheliegende Antwort ist falsch. Wer nur die Begriffe kennt, das Prinzip aber nicht verstanden hat, liegt daneben. Die Frage nimmt die Antwort nicht vorweg.
+Die anwenden-Fragen nehmen verschiedene Fälle und verschiedene Seiten des Prinzips.
+Verboten, weil Wiedergabe: nach dem Namen eines Prinzips oder Begriffs fragen („Welches Prinzip ist das?“, „Wie heißt …?“), Definitionen, Aufzählungen, „Warum gilt <Satz aus dem Lernzettel>?“. Probe: Kann man die Frage beantworten, indem man einen Satz aus dem Lernzettel aufsagt, verwerfen.${d.evidence ? '\nEine anwenden-Frage darf eine Behauptung einordnen lassen: belegt oder Hype?' : ''}
+Beispiel für die Form (anderes Thema, nicht übernehmen) – Kernprinzip „Knappheit treibt den Preis“:
+  schlecht: material „Fall A: Nach der Missernte steigt der Brotpreis.“, q „Welches Marktgesetz zeigt dieser Fall?“ (Begriff zuordnen)
+  gut: material als gruppen „Stadt A | 2 Bäcker, 9000 Einwohner“ / „Stadt B | 6 Bäcker, 9000 Einwohner“, q „In welcher Stadt kostet das Brötchen nach einem Mehl-Engpass mehr?“, form wahl mit „Stadt A“, „Stadt B“, „in beiden gleich“.
+
+zusammenhang – so entsteht die Frage:
+1. Nimm aus „Zusammenhänge“ EINE frühere Session.
+2. Finde die direkte Verbindung – nur um eine Ecke: EIN Schritt von A nach B (A erklärt B, A ist Voraussetzung für B, beide folgen demselben Prinzip, B ist das Gegenstück). Keine Kette über mehrere Stationen, keine dritte Session.
+3. Das Material stellt je eine konkrete Sache aus beiden Sessions nebeneinander (gruppen mit zwei Kästen, kette mit „?“ als Schritt dazwischen, zeitstrahl) – ohne die Verbindung zu nennen. Die Frage fragt nach genau dieser Verbindung: Warum folgt B aus A? Was hat A mit B zu tun? Was gehört an die Stelle „?“?
+Beispiel für die Form (anderes Thema, nicht übernehmen) – Thema Impfung, frühere Session Immunsystem:
+  schlecht: q „Wie beeinflusst das Immunsystem die Wirkung?“ (vage), material nennt schon „Gedächtniszellen merken sich den Erreger“ (verrät die Lösung)
+  gut: material als kette mit drei Schritten „Spritze mit abgetötetem Erreger“, „?“, „Monate später: echte Infektion bleibt harmlos“, q „Was passiert im Körper beim Fragezeichen?“.`
+
+  const user = `THEMA: ${dayLine(d)}
 Teilthemen: ${d.subtopics.join(' · ')}
-${ds.summary ? `Lernzettel:\n${clip(ds.summary, 3500)}` : '(kein Lernzettel vorhanden – Teilthemen nutzen)'}
-${past.length ? `Frühere Prüfungen: ${past.map((r) => `${r.at.slice(0, 10)} ${r.score == null ? '–' : Math.round(r.score * 100) + ' %'}`).join(', ')}` : ''}
+${sheet ? `\nLernzettel (kennt ${nm()}):\n${clip(sheet, 7000)}\n` : ''}${weak.length ? `\nLücken aus dem Verständnischeck: ${weak.join(' · ')}\n` : ''}${ex.asked?.length ? `\nFragen des letzten Tests (andere Fälle nehmen):\n${ex.asked.map((q) => `- ${q}`).join('\n')}\n` : ''}
+Zusammenhänge – frühere Sessions von ${nm()}:
+${linked.join('\n') || '(keine)'}`
 
-${earlierSessions(d)}`
-  return streamChat(system, history, onText)
+  const schema = jsonSchema('test', {
+    kern: str,
+    questions: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['kind', 'material', 'schritt', 'q', 'form', 'options', 'link', 'solution'],
+        properties: { kind: { type: 'string', enum: ['anwenden', 'zusammenhang'] }, material: str, schritt: str, q: str, form: { type: 'string', enum: ['text', 'wahl'] }, options: { type: 'array', items: str }, link: str, solution: str },
+      },
+    },
+  })
+  const read = (text: string): ExamQuestion[] => {
+    const raw = parseJson<{ questions?: Partial<ExamQuestion>[] }>(text).questions
+    return (Array.isArray(raw) ? raw : [])
+      .filter((q) => typeof q.q === 'string' && q.q.trim())
+      .slice(0, plan.length)
+      .map((q, i): ExamQuestion => {
+        const options = Array.isArray(q.options) ? q.options.filter((o) => typeof o === 'string' && o.trim()).slice(0, 4) : []
+        const wahl = q.form === 'wahl' && options.length >= 2
+        return {
+          kind: q.kind === 'zusammenhang' ? 'zusammenhang' : plan[i],
+          q: q.q!.trim(),
+          material: typeof q.material === 'string' ? fixMaterial(q.material) : '',
+          form: wahl ? 'wahl' : 'text',
+          options: wahl ? options : [],
+          solution: typeof q.solution === 'string' ? q.solution.trim() : '',
+        }
+      })
+  }
+
+  const draft = await complete(system, user, 3000, schema)
+  const first = read(draft)
+  if (!first.length) throw new ApiError('Unvollständige Antwort – bitte erneut versuchen.')
+  if (!review) return first
+
+  // Zweiter Durchgang: Der Entwurf hat oft einzelne Ausreisser (Fall passt nicht zum Thema, Material verraet die Loesung,
+  // Zusammenhang nur eine Wortgleichheit). Ein Pruefschritt mit denselben Regeln faengt die meisten ab; der Denkmodus
+  // waere dafuer zu langsam (~1 min statt ~5 s je Aufruf).
+  const check = `${system}
+
+PRÜFSCHRITT: Unten steht ein Entwurf dieses Tests. Geh jede Frage durch. Besteht sie alle Punkte, übernimm sie unverändert; sonst schreib sie neu (Material, Frage, Optionen, Lösung). kind und Reihenfolge bleiben. Antworte mit dem ganzen Test im selben JSON-Format.
+1. Thema: Der Fall dreht sich um das Kernprinzip DIESES Themas, nicht um ein Nachbarfach.
+2. Eindeutig: Mit Material und Wissen aus dem Thema gibt es genau eine vertretbare Antwort. Die Fälle im Material unterscheiden sich im entscheidenden Punkt, Zahlen und Fakten stimmen.
+3. Denken statt Aufsagen: Die Antwort steht weder in der Frage noch im Material noch wörtlich im Lernzettel; kein Begriff-Zuordnen. Sie ist aber auch nicht schon in der Frage vorweggenommen.
+4. Kurz und klar: q ist ein Satz mit höchstens 14 Wörtern, konkret, bezieht sich auf das Material. Material höchstens 40 Wörter.
+5. Material hat ein gültiges Format (siehe oben); balken und kurve nur mit Zahlen, sonst gruppen oder Tabelle.
+6. zusammenhang: genau zwei konkrete Dinge – eines aus dem Thema, eines aus der früheren Session –, verbunden durch EINEN echten sachlichen Schritt (Ursache, Voraussetzung, derselbe Mechanismus). Bloße Wortgleichheit oder lose Analogie („beides wiederholt etwas“) zählt nicht; gibt die gewählte Session das nicht her, nimm eine andere aus der Liste.
+7. wahl: genau eine Option ist richtig, die Optionen sind Ergebnisse oder Entscheidungen.
+8. solution: sachlich richtig, 1–2 Sätze, passt zu Frage und Material, keine Selbstkorrektur.`
+  try {
+    const second = read(await complete(check, `${user}\n\nENTWURF:\n${draft}`, 3000, schema))
+    return second.length === first.length ? second : first
+  } catch {
+    return first
+  }
+}
+
+export async function gradeExam(day: number, q: ExamQuestion, answer: string, choice?: number): Promise<Pick<ExamAnswer, 'verdict' | 'precision' | 'feedback'>> {
+  const d = getDay(day)
+  const system = `${persona()}
+
+Aufgabe: EINE Antwort im Kurztest bewerten. Antworte NUR mit JSON.
+- verdict: "richtig" = der Kern stimmt (nicht auf Formulierung, Fachbegriffe oder Vollständigkeit pochen, auch kurz und umgangssprachlich zählt) · "teilweise" = richtige Richtung, aber der entscheidende Schritt fehlt oder die Begründung trägt nicht · "falsch" · "offen" = keine Antwort („keine Ahnung“, „?“).${q.form === 'wahl' ? '\n  Bei Auswahl: richtige Option mit tragender Begründung = richtig; richtige Option ohne oder mit falscher Begründung = teilweise; falsche Option = falsch.' : ''}
+- precision: 1 (vage) bis 5 (präzise, Begriffe korrekt).
+- feedback: höchstens 2 kurze Sätze, zusammen höchstens 35 Wörter, direkt an ${nm()} (du). Bei richtig: der Gedanke, der die Antwort trägt. Sonst: was fehlt oder nicht stimmt, und wie man auf die Lösung kommt. Gleich mit dem Inhalt beginnen – kein Lob, keine Ankündigung („Der entscheidende Punkt ist …“), keine Wiederholung der Frage, kein ✅/❌.
+Maßstab ist die Musterlösung; eine andere, sachlich richtige Herleitung zählt genauso.`
+  const user = `THEMA: ${dayLine(d)}
+Frage: ${q.q}
+Material:
+${q.material || '(keins)'}
+${q.form === 'wahl' ? `Optionen: ${q.options.map((o, i) => `${i + 1}) ${o}`).join(' · ')}\n` : ''}Musterlösung: ${q.solution}
+
+Antwort von ${nm()}: ${choice != null ? `Option ${choice + 1}) ${q.options[choice]}${answer ? ` – Begründung: ${answer}` : ' – ohne Begründung'}` : answer}`
+  const text = await complete(system, user, 600, jsonSchema('bewertung', { verdict: { type: 'string', enum: ['richtig', 'teilweise', 'falsch', 'offen'] }, precision: { type: 'integer', minimum: 1, maximum: 5 }, feedback: str }))
+  const r = parseJson<Partial<ExamAnswer>>(text)
+  if (!r.verdict || !(r.verdict in VERDICT_SCORE)) throw new ApiError('Unvollständige Antwort – bitte erneut versuchen.')
+  return { verdict: r.verdict, precision: Math.min(5, Math.max(1, Math.round(Number(r.precision)) || 3)), feedback: typeof r.feedback === 'string' ? r.feedback.trim() : '' }
 }
 
 // ---------- Grundwiederholung ----------

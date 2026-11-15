@@ -111,6 +111,7 @@ export function weekRecap(s: State): Recap {
         if (v && a?.role === 'user' && a.at && inWeek(localDate(a.at))) verdicts.push(VERDICT_SCORE[v[1].toLowerCase() as Verdict])
       })
     }
+    for (const a of examState(s, d.day).test?.answers ?? []) if (inWeek(localDate(a.at))) verdicts.push(VERDICT_SCORE[a.verdict])
   }
 
   const path = pathOf(s)

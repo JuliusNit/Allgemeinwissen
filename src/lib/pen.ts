@@ -45,7 +45,6 @@ const SELECTOR = [
   '.vnote-input',
   '.name-input',
   '.flash-a',
-  '.exam-result',
   '.videos li',
   '.vnotes li',
   '.qa-list > li',

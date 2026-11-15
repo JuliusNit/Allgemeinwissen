@@ -133,8 +133,15 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   (beim Ändern alle 90 Karten auf Überlappung prüfen). Symbole: `src/components/Symbols.tsx` (eigene Tusche-Symbole + alle
   Icons), Zuordnung je Teilthema in `src/data/symbols.ts` (passend zum Video, `0` = Kreis mit Abspielzeichen).
 - `src/views/ExamView.tsx` + `src/lib/exam.ts` – Prüfungsmodus `#/pruefung[/N]`: abgeschlossene Themen nach Dringlichkeit
-  (Schwäche + Zeit seit letztem Abruf), oben Vorschlag, Münze fährt Kasten aus; Test = 1 Verständnis- + 1 Transferaufgabe
-  (`examChat`), Ergebnisse in `exams`.
+  (Schwäche + Zeit seit letztem Abruf), oben Vorschlag, Münze fährt Kasten aus. Test (Julius, 15.11.2026: kein Chat, wenig Text,
+  nicht noch einmal das ganze Thema): Startscreen nur mit Knopf „Test starten“ → Test wird erzeugt → Anzahl + Dauer (~1 min je Frage) →
+  je Frage ein Screen → Ergebnis. Fragen-Screen: Frage oben über die ganze Breite (ein Satz), darunter links groß das Material
+  (Diagramm-Codeblock, Tabelle oder kurzer Fall), rechts schmal die Antwort (`text` = Freitext, `wahl` = Option + „weil …“); am Handy
+  untereinander. Inhalt: 2 × `anwenden` (Kernprinzip auf einen neuen Fall) + 1 × `zusammenhang` (eine gelernte Session aus `links`,
+  beide Richtungen, `examLinks`; nur um eine Ecke), keine Wiedergabefragen. `makeExam` in `ai.ts` (json_schema, Entwurf + Prüfschritt
+  mit denselben Regeln, zusammen ~10 s; Denkmodus dafür zu langsam), `gradeExam` bewertet je Antwort (Urteil, Präzision, 2 Sätze),
+  „Weiß ich nicht“ = `offen` ohne KI-Aufruf. Zustand `exams[day]`: `test` (Fragen + Antworten), `asked` (Fragen des letzten Tests, damit
+  der nächste andere stellt), `results`; `chat` ist der alte Chat-Test und wird nur noch für Streak/Wochenrückblick gelesen.
 - `src/lib/recap.ts` + `components/WeekRecap.tsx` – Wochenrückblick: ab Montag beim ersten Öffnen von Home ein Kasten über die Vorwoche
   (Seiten: neu gelernt grob je Überthema · Wissensindex mit Zuwachs · nächste Stationen; Streak oben rechts; X oder letzte Seite
   schließt, `recapSeen` = Montag). Wissensindex = Anteil des Plans, der sitzt (gewichtet wie Prüfungsmodus) – bewusst kein IQ-Wert,

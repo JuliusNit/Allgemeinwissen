@@ -61,9 +61,43 @@ export interface CardLog {
   at: string
 }
 
+/** Eine Frage des Kurztests: kurze Frage + Material daneben + Antwortform */
+export interface ExamQuestion {
+  /** anwenden = Kernprinzip auf einen neuen Fall, zusammenhang = Verbindung zu einer frueheren Session */
+  kind: 'anwenden' | 'zusammenhang'
+  q: string
+  /** Markdown: Diagramm-Codeblock, kleine Tabelle oder kurzer Fall */
+  material: string
+  /** text = freie Antwort, wahl = Option antippen + Begruendung */
+  form: 'text' | 'wahl'
+  options: string[]
+  solution: string
+}
+
+export interface ExamAnswer {
+  text: string
+  /** gewaehlte Option bei form = wahl */
+  choice?: number
+  at: number
+  verdict: 'richtig' | 'teilweise' | 'falsch' | 'offen'
+  precision: number
+  feedback: string
+}
+
+export interface ExamTest {
+  questions: ExamQuestion[]
+  answers: ExamAnswer[]
+  /** nach dem Screen mit Anzahl + Dauer */
+  started?: boolean
+}
+
 /** Pruefungs-Wiederholung eines Themas: laufender Test + Ergebnisse frueherer Tests */
 export interface ExamState {
+  /** alter Chat-Test (vor dem Umbau), nur noch fuer Streak und Wochenrueckblick gelesen */
   chat?: ChatMsg[]
+  test?: ExamTest
+  /** Fragen des letzten Tests – der naechste stellt andere */
+  asked?: string[]
   results: { at: string; score: number | null }[]
 }
 

@@ -71,6 +71,7 @@ export function parseCheck(msgs: ChatMsg[] = []): QA[] {
 }
 
 export const VERDICT_SCORE: Record<Verdict, number> = { richtig: 1, teilweise: 0.5, falsch: 0, offen: 0 }
+export const VERDICT_MARK: Record<Verdict, string> = { richtig: '✓', teilweise: '~', falsch: '✗', offen: '?' }
 
 function scoreOf(msgs: ChatMsg[] | undefined): number | null {
   const qa = parseCheck(msgs).filter((q) => q.verdict)

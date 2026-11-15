@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { AREAS, getDay } from '../data/plan'
-import { DONE_MARKER, examChat } from '../lib/ai'
+import { describeError, gradeExam, makeExam } from '../lib/ai'
 import { useAiReady } from '../lib/cloud'
-import { examScore, examTopics, type ExamTopic } from '../lib/exam'
-import { dayDone } from '../lib/stats'
-import { dayState, examState, getState, updateExam, useStore } from '../lib/store'
-import { Chat } from '../components/Chat'
+import { examOpen, examScore, examTopics, type ExamTopic } from '../lib/exam'
+import { haptic } from '../lib/native'
+import { dayDone, VERDICT_MARK } from '../lib/stats'
+import { examState, getState, updateExam, useStore, type ExamAnswer, type ExamQuestion, type ExamState, type ExamTest } from '../lib/store'
 import { Coin, COIN_D, COIN_R, CoinBadge } from '../components/Coin'
 import { Icon } from '../components/Icons'
 import { Frame } from '../components/Ink'
 import { AccountButton } from '../components/NeedAccount'
+import { inline } from '../components/inline'
 import { Markdown } from '../components/Markdown'
 
 // Pruefungs-Wiederholung: oben der dringendste Vorschlag, darunter alle Themen als Muenzen
@@ -18,8 +19,6 @@ import { Markdown } from '../components/Markdown'
 const COLS = 3
 
 const short = (day: number) => getDay(day).title.split(/[:(]/)[0].trim()
-
-const finished = (day: number) => !!examState(getState(), day).chat?.some((m) => m.role === 'assistant' && m.content.includes(DONE_MARKER))
 
 /** Muenze als eigenes SVG, mit Platz fuer den Ring des Vorschlags */
 function CoinSvg({ day, size, ring, pressed }: { day: number; size: number; ring?: boolean; pressed?: boolean }) {
@@ -40,13 +39,12 @@ export function ExamView({ day, go }: { day?: number; go: (hash: string) => void
 
 function startTest(day: number, go: (hash: string) => void) {
   // abgeschlossenen Test nicht wiederaufnehmen, sondern neu beginnen
-  if (finished(day)) updateExam(day, (e) => ({ ...e, chat: [] }))
+  if (examState(getState(), day).test && !examOpen(getState(), day)) updateExam(day, (e) => ({ ...e, test: undefined }))
   go(`/pruefung/${day}`)
 }
 
 function startLabel(day: number) {
-  const chat = examState(getState(), day).chat
-  return chat?.length && !finished(day) ? 'Test fortsetzen' : 'Test starten'
+  return examOpen(getState(), day) ? 'Test fortsetzen' : 'Test starten'
 }
 
 function ExamList({ go }: { go: (hash: string) => void }) {
@@ -140,28 +138,52 @@ function ExamPop({ t, col, go }: { t: ExamTopic; col: number; go: (hash: string)
   )
 }
 
+// Test eines Themas: Start (nur der Knopf) → Test wird erzeugt → Anzahl + Dauer → je Frage ein Screen → Ergebnis.
+// Frage oben ueber die ganze Breite, darunter links gross das Material, rechts schmaler die Antwort (Handy: untereinander).
 function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
   const d = getDay(day)
   const ex = useStore((s) => examState(s, day))
   const done = useStore((s) => dayDone(s, day))
-  const summary = useStore((s) => dayState(s, day).summary)
   const hasKey = useAiReady()
-  const [gen, setGen] = useState(0)
-  const chat = ex.chat ?? []
-  const isDone = chat.some((m) => m.role === 'assistant' && m.content.includes(DONE_MARKER))
-  const last = ex.results[ex.results.length - 1]
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const t = ex.test
+  // nach der Bewertung bleibt die Frage stehen, bis „Weiter“ – deshalb eigene Position statt answers.length
+  const [pos, setPos] = useState(() => t?.answers.length ?? 0)
+  const asking = !!t?.started && pos < t.questions.length
 
-  function restart() {
-    updateExam(day, (e) => ({ ...e, chat: [] }))
-    setGen((g) => g + 1)
+  async function create() {
+    setBusy(true)
+    setError(null)
+    try {
+      const questions = await makeExam(day)
+      updateExam(day, (e) => ({ ...e, chat: undefined, test: { questions, answers: [] } }))
+      setPos(0)
+    } catch (e) {
+      setError(describeError(e))
+    } finally {
+      setBusy(false)
+    }
   }
 
-  function record() {
-    updateExam(day, (e) => ({ ...e, results: [...e.results, { at: new Date().toISOString(), score: examScore(e.chat ?? []) }] }))
+  function answer(a: ExamAnswer) {
+    updateExam(day, (e) => {
+      if (!e.test) return e
+      const test = { ...e.test, answers: [...e.test.answers, a] }
+      if (test.answers.length < test.questions.length) return { ...e, test }
+      return { ...e, test, asked: test.questions.map((q) => q.q), results: [...e.results, { at: new Date().toISOString(), score: examScore(test) }] }
+    })
+    if (t && t.answers.length + 1 >= t.questions.length) haptic('erfolg')
+  }
+
+  // ohne Test zeigt die Seite den Startscreen im Ladezustand – schlaegt das Erzeugen fehl, steht dort wieder der Knopf
+  function again() {
+    updateExam(day, (e) => ({ ...e, test: undefined }))
+    void create()
   }
 
   return (
-    <div className="exam">
+    <div className={`exam${asking ? ' exam-wide' : ''}`}>
       <div className="page-head">
         <button className="icon-btn" onClick={() => go('/pruefung')} aria-label="Zurück zur Übersicht"><Icon name="BACK" size={26} /></button>
         <CoinBadge icon={d.area} size={52} />
@@ -176,46 +198,173 @@ function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
           <p>Diese Session ist noch nicht abgeschlossen.</p>
           <button className="btn primary" onClick={() => go(`/tag/${day}`)}>Zur Session</button>
         </Frame>
-      ) : (
-        <>
+      ) : !t ? (
+        <div className="exam-start">
           {!hasKey && <div className="notice">Für die Prüfung bitte anmelden – oder unter <b>Profil → KI</b> einen eigenen Key eintragen. <AccountButton /></div>}
-          <Frame className="card">
-            {(hasKey || chat.length > 0) && (
-              <Chat
-                key={`e-${day}-${gen}`}
-                history={chat}
-                onHistory={(h) => updateExam(day, (e) => ({ ...e, chat: h }))}
-                send={(h, cb) => examChat(day, h, cb)}
-                placeholder="Deine Antwort – ruhig ausführlich …"
-                kickoff="Prüfung starten"
-                disabled={!hasKey || isDone}
-                onDone={record}
-              />
-            )}
-            {isDone && (
-              <div className="exam-result">
-                <p className="big">{last?.score == null ? 'Test abgeschlossen' : `${Math.round(last.score * 100)} % richtig`}</p>
-                {ex.results.length > 1 && (
-                  <p className="muted small">Bisher: {ex.results.map((r) => (r.score == null ? '–' : `${Math.round(r.score * 100)} %`)).join(' · ')}</p>
-                )}
-              </div>
-            )}
-            <div className="row end">
-              {chat.length > 0 && !isDone && <button className="btn ghost small" onClick={() => confirm('Test neu beginnen? Der bisherige Verlauf wird gelöscht.') && restart()}>Neu beginnen</button>}
-              {isDone && <button className="btn" onClick={restart} disabled={!hasKey}>Neuer Test</button>}
-              {isDone && <button className="btn primary" onClick={() => go('/pruefung')}>Nächstes Thema</button>}
-            </div>
-          </Frame>
-          {summary && (
-            <Frame className="card">
-              <details>
-                <summary>Zusammenfassung {isDone ? '' : '(erst nach dem Test spicken)'}</summary>
-                <Markdown text={summary} />
-              </details>
-            </Frame>
-          )}
-        </>
+          {busy ? <p className="typing">Test wird erstellt …</p> : <button className="btn primary" onClick={() => void create()} disabled={!hasKey}>Test starten</button>}
+          {error && <div className="chat-error">{error}</div>}
+        </div>
+      ) : !t.started ? (
+        <Frame className="card exam-info">
+          <p className="exam-count">{t.questions.length} {t.questions.length === 1 ? 'Frage' : 'Fragen'}</p>
+          <p className="muted">ca. {t.questions.length} {t.questions.length === 1 ? 'Minute' : 'Minuten'}</p>
+          <button className="btn primary" onClick={() => updateExam(day, (e) => (e.test ? { ...e, test: { ...e.test, started: true } } : e))}>Los</button>
+        </Frame>
+      ) : asking ? (
+        <ExamAsk
+          key={pos}
+          day={day}
+          q={t.questions[pos]}
+          a={t.answers[pos]}
+          n={pos + 1}
+          total={t.questions.length}
+          ready={hasKey}
+          onAnswer={answer}
+          onNext={() => setPos(pos + 1)}
+        />
+      ) : (
+        <ExamResult ex={ex} test={t} ready={hasKey} onAgain={again} onNext={() => go('/pruefung')} />
       )}
     </div>
+  )
+}
+
+function ExamAsk({ day, q, a, n, total, ready, onAnswer, onNext }: {
+  day: number
+  q: ExamQuestion
+  a?: ExamAnswer
+  n: number
+  total: number
+  ready: boolean
+  onAnswer: (a: ExamAnswer) => void
+  onNext: () => void
+}) {
+  const [text, setText] = useState('')
+  const [choice, setChoice] = useState<number | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const wahl = q.form === 'wahl'
+  const can = !busy && ready && (wahl ? choice != null : !!text.trim())
+
+  async function submit() {
+    if (!can) return
+    setBusy(true)
+    setError(null)
+    try {
+      const r = await gradeExam(day, q, text.trim(), wahl ? choice! : undefined)
+      onAnswer({ text: text.trim(), ...(wahl ? { choice: choice! } : {}), at: Date.now(), ...r })
+    } catch (e) {
+      setError(describeError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <>
+      <div className="exam-q">
+        <p className="muted small">Frage {n}/{total}</p>
+        <h2>{inline(q.q)}</h2>
+      </div>
+      <div className={`exam-body${q.material ? ' two' : ''}`}>
+        {q.material && (
+          <Frame className="card exam-material">
+            <Markdown text={q.material} />
+          </Frame>
+        )}
+        <Frame className="card exam-answer">
+          {a ? (
+            <>
+              <p className="exam-verdict"><span className={`verdict ${a.verdict}`}>{VERDICT_MARK[a.verdict]}</span></p>
+              <Given q={q} a={a} />
+              <p>{inline(a.feedback || q.solution)}</p>
+              <div className="row end"><button className="btn primary" onClick={onNext}>{n === total ? 'Ergebnis' : 'Weiter'}</button></div>
+            </>
+          ) : (
+            <>
+              {wahl && (
+                <div className="level-opts">
+                  {q.options.map((o, i) => (
+                    <button key={i} className={`level-opt${choice === i ? ' on' : ''}`} onClick={() => setChoice(i)} disabled={busy} aria-pressed={choice === i}>{inline(o)}</button>
+                  ))}
+                </div>
+              )}
+              <textarea
+                value={text}
+                rows={wahl ? 2 : 5}
+                placeholder={wahl ? 'weil …' : 'Deine Antwort …'}
+                disabled={busy}
+                onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    void submit()
+                  }
+                }}
+              />
+              {error && <div className="chat-error">{error}</div>}
+              {busy ? (
+                <p className="typing">wird bewertet …</p>
+              ) : (
+                <div className="row end">
+                  <button className="btn ghost small" onClick={() => onAnswer({ text: '', at: Date.now(), verdict: 'offen', precision: 1, feedback: q.solution })}>Weiß ich nicht</button>
+                  <button className="btn primary" onClick={() => void submit()} disabled={!can}>Abgeben</button>
+                </div>
+              )}
+            </>
+          )}
+        </Frame>
+      </div>
+    </>
+  )
+}
+
+/** die eigene Antwort: gewaehlte Option + Text */
+function Given({ q, a }: { q: ExamQuestion; a: ExamAnswer }) {
+  if (a.choice == null && !a.text) return null
+  return (
+    <p className="exam-given">
+      {a.choice != null && <b>{inline(q.options[a.choice] ?? '')}</b>}
+      {a.choice != null && a.text ? ' – ' : ''}
+      {a.text}
+    </p>
+  )
+}
+
+function ExamResult({ ex, test, ready, onAgain, onNext }: {
+  ex: ExamState
+  test: ExamTest
+  ready: boolean
+  onAgain: () => void
+  onNext: () => void
+}) {
+  const right = test.answers.filter((a) => a.verdict === 'richtig').length
+  return (
+    <Frame className="card exam-result">
+      <p className="exam-count">{right}/{test.questions.length} richtig</p>
+      {ex.results.length > 1 && (
+        <p className="muted small">Bisher: {ex.results.map((r) => (r.score == null ? '–' : `${Math.round(r.score * 100)} %`)).join(' · ')}</p>
+      )}
+      <ol className="done-qa exam-qa">
+        {test.questions.map((q, i) => {
+          const a = test.answers[i]
+          return (
+            <li key={i}>
+              <span className={`verdict ${a.verdict}`}>{VERDICT_MARK[a.verdict]}</span>
+              <details>
+                <summary>{inline(q.q)}</summary>
+                <Given q={q} a={a} />
+                {a.verdict !== 'offen' && a.feedback && <p>{inline(a.feedback)}</p>}
+                {a.verdict !== 'richtig' && q.solution && <div className="md"><blockquote>{inline(q.solution)}</blockquote></div>}
+              </details>
+            </li>
+          )
+        })}
+      </ol>
+      <div className="row end">
+        <button className="btn" onClick={onAgain} disabled={!ready}>Neuer Test</button>
+        <button className="btn primary" onClick={onNext}>Nächstes Thema</button>
+      </div>
+    </Frame>
   )
 }

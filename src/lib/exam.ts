@@ -1,8 +1,9 @@
-import { ALL_DAYS, isBlockMix, isProject } from '../data/plan'
-import { dayDone, dayDoneAt, parseCheck, sessionScore, VERDICT_SCORE } from './stats'
-import { dayState, examState, type ChatMsg, type State } from './store'
+import { ALL_DAYS, getDay, isBlockMix, isProject, type Day } from '../data/plan'
+import { dayDone, dayDoneAt, sessionScore, VERDICT_SCORE } from './stats'
+import { dayState, examState, type ExamQuestion, type ExamTest, type State } from './store'
 
-// Pruefungs-Wiederholung: Themen (abgeschlossene Sessions) nach Dringlichkeit sortiert.
+// Pruefungs-Wiederholung: Themen (abgeschlossene Sessions) nach Dringlichkeit sortiert; je Thema ein Kurztest
+// (Fragen erzeugt `makeExam` in ai.ts, bewertet `gradeExam`; Ablauf in views/ExamView.tsx).
 // Dringlichkeit = 60 % Schwaeche + 40 % Abstand seit dem letzten Abruf (Session-Abschluss oder Pruefung),
 // Abstand gedeckelt bei 4 Wochen. Schwaeche aus letzter Pruefung (doppelt gewichtet), Verstaendnischeck und
 // Karteikarten-Quote des Themas.
@@ -57,8 +58,44 @@ export function examTopics(s: State): ExamTopic[] {
     .sort((a, b) => b.priority - a.priority || a.day - b.day)
 }
 
-/** Anteil richtig eines Prüfungsverlaufs, null ohne Bewertungen */
-export function examScore(chat: ChatMsg[]): number | null {
-  const qa = parseCheck(chat).filter((q) => q.verdict)
-  return qa.length ? qa.reduce((a, q) => a + VERDICT_SCORE[q.verdict!], 0) / qa.length : null
+/** Anteil richtig eines Tests, null ohne Antworten */
+export function examScore(t: ExamTest): number | null {
+  return t.answers.length ? t.answers.reduce((a, x) => a + VERDICT_SCORE[x.verdict], 0) / t.answers.length : null
+}
+
+/** Test laeuft: erzeugt, aber noch nicht alle Fragen beantwortet */
+export function examOpen(s: State, day: number): boolean {
+  const t = examState(s, day).test
+  return !!t && t.answers.length < t.questions.length
+}
+
+// Der Test prueft zwei Dinge (Julius, 15.11.2026): Kernprinzip anwenden + wie das Thema mit einem frueheren
+// zusammenhaengt – nur um eine Ecke. Rund eine Minute je Frage, deshalb wenige.
+export const EXAM_APPLY = 2
+
+export interface ExamLink {
+  day: Day
+  /** vor = darauf baut das Thema auf, nach = baut auf dem Thema auf, nah = nur zeitlich benachbart */
+  dir: 'vor' | 'nach' | 'nah'
+}
+
+/** Was womit zusammenhaengt: gelernte Sessions, die im Plan mit dem Thema verknuepft sind (`links`, beide Richtungen) */
+export function examLinks(s: State, day: number): ExamLink[] {
+  const d = getDay(day)
+  const ok = (x: Day) => x.day !== day && !isBlockMix(x) && !isProject(x) && dayDone(s, x.day)
+  const out: ExamLink[] = [
+    ...d.links.map(getDay).filter(ok).map((x) => ({ day: x, dir: 'vor' as const })),
+    ...ALL_DAYS.filter((x) => x.links.includes(day) && ok(x)).map((x) => ({ day: x, dir: 'nach' as const })),
+  ]
+  if (out.length) return out
+  // nichts direkt verknuepft: die naechstgelegenen gelernten Sessions, das Modell sucht die klarste Verbindung
+  return ALL_DAYS.filter(ok)
+    .sort((a, b) => Math.abs(a.day - day) - Math.abs(b.day - day))
+    .slice(0, 6)
+    .map((x) => ({ day: x, dir: 'nah' as const }))
+}
+
+/** Fragen eines Tests: erst anwenden, zum Schluss ein Zusammenhang (wenn es ein zweites gelerntes Thema gibt) */
+export function examPlan(s: State, day: number): ExamQuestion['kind'][] {
+  return [...Array<'anwenden'>(EXAM_APPLY).fill('anwenden'), ...(examLinks(s, day).length ? ['zusammenhang' as const] : [])]
 }

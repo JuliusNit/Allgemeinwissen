@@ -593,7 +593,40 @@ span.star { cursor: default; }
   from { left: calc(var(--ox) - 50px); }
   to { left: 0; }
 }
-.exam-result { text-align: center; padding: 10px 0 4px; border-top: 2px dashed var(--ink); margin-top: 10px; }
+/* Test: Start → Anzahl/Dauer → Frage oben, Material links gross, Antwort rechts schmal (Handy: untereinander) → Ergebnis */
+.exam-start { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 16vh; }
+.exam-start .typing { margin: 0; }
+.exam-info { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 32px 18px; }
+.exam-info p, .exam-result p { margin: 0; }
+.exam-info .btn { margin-top: 18px; }
+.exam-count { font-size: 1.6rem; font-weight: 800; }
+.exam-q { margin: 4px 0 16px; }
+.exam-q p { margin: 0 0 2px; }
+.exam-q h2 { margin: 0; font-size: 1.45rem; line-height: 1.3; text-wrap: balance; }
+.exam-body { display: grid; gap: 16px; align-items: start; }
+.exam-body .card { margin: 0; }
+.exam-material { min-width: 0; min-height: 110px; display: flex; align-items: center; }
+.exam-material .md { flex: 1; min-width: 0; font-size: 1.05rem; }
+.exam-answer { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.exam-answer textarea { margin: 0; resize: none; }
+.exam-answer p, .exam-answer .row, .exam-answer blockquote { margin: 0; }
+.exam-verdict .verdict { font-size: 1.9rem; font-weight: 800; line-height: 1; }
+.exam-given { color: var(--muted); overflow-wrap: anywhere; }
+.exam-given b { color: var(--ink); }
+.exam-result { display: flex; flex-direction: column; gap: 8px; }
+.exam-qa { margin-top: 8px; gap: 10px; }
+.exam-qa details { flex: 1; min-width: 0; }
+.exam-qa summary { color: var(--ink); font-size: 0.95rem; list-style: none; }
+.exam-qa summary::-webkit-details-marker { display: none; }
+.exam-qa details[open] summary { font-weight: 700; }
+.exam-qa details > p, .exam-qa details > .md { margin: 6px 0 0; font-size: 0.92rem; }
+@media (min-width: 900px) {
+  .exam-wide { --exam-w: min(1180px, 100vw - 64px); width: var(--exam-w); margin-left: calc((100% - var(--exam-w)) / 2); }
+  .exam-body.two { grid-template-columns: minmax(0, 1.75fr) minmax(300px, 1fr); }
+  .exam-body.two .exam-material { min-height: 260px; padding: 26px; }
+  .exam-body.two .exam-material .md { zoom: 1.3; }
+  .exam-body:not(.two) { max-width: 728px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .exam-pop-box, .exam-pop-coin { animation: none; }
 }
