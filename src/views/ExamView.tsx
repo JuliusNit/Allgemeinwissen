@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { AREAS, getDay } from '../data/plan'
 import { describeError, gradeExam, makeExam } from '../lib/ai'
 import { useAiReady } from '../lib/cloud'
-import { examOpen, examScore, examTopics, type ExamTopic } from '../lib/exam'
+import { EXAM_APPLY, examOpen, examPlan, examScore, examTopics, type ExamTopic } from '../lib/exam'
 import { haptic } from '../lib/native'
 import { dayDone, VERDICT_MARK } from '../lib/stats'
 import { examState, getState, updateExam, useStore, type ExamAnswer, type ExamQuestion, type ExamState, type ExamTest } from '../lib/store'
@@ -138,7 +138,7 @@ function ExamPop({ t, col, go }: { t: ExamTopic; col: number; go: (hash: string)
   )
 }
 
-// Test eines Themas: Start (nur der Knopf) → Test wird erzeugt → Anzahl + Dauer → je Frage ein Screen → Ergebnis.
+// Test eines Themas: Übersicht (Anzahl, Dauer, „Test starten“) → Test wird erzeugt → je Frage ein Screen → Ergebnis.
 // Frage oben ueber die ganze Breite, darunter links gross das Material, rechts schmaler die Antwort (Handy: untereinander).
 function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
   const d = getDay(day)
@@ -150,7 +150,10 @@ function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
   const t = ex.test
   // nach der Bewertung bleibt die Frage stehen, bis „Weiter“ – deshalb eigene Position statt answers.length
   const [pos, setPos] = useState(() => t?.answers.length ?? 0)
-  const asking = !!t?.started && pos < t.questions.length
+  const asking = !!t && pos < t.questions.length
+  // steht vor dem Erzeugen fest: Aufbau des Tests aus exam.ts
+  const total = useStore((s) => examPlan(s, day).length)
+  const linked = total - EXAM_APPLY
 
   async function create() {
     setBusy(true)
@@ -176,7 +179,7 @@ function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
     if (t && t.answers.length + 1 >= t.questions.length) haptic('erfolg')
   }
 
-  // ohne Test zeigt die Seite den Startscreen im Ladezustand – schlaegt das Erzeugen fehl, steht dort wieder der Knopf
+  // ohne Test zeigt die Seite die Übersicht im Ladezustand – schlaegt das Erzeugen fehl, steht dort wieder der Knopf
   function again() {
     updateExam(day, (e) => ({ ...e, test: undefined }))
     void create()
@@ -199,17 +202,16 @@ function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
           <button className="btn primary" onClick={() => go(`/tag/${day}`)}>Zur Session</button>
         </Frame>
       ) : !t ? (
-        <div className="exam-start">
+        <>
           {!hasKey && <div className="notice">Für die Prüfung bitte anmelden – oder unter <b>Profil → KI</b> einen eigenen Key eintragen. <AccountButton /></div>}
-          {busy ? <p className="typing">Test wird erstellt …</p> : <button className="btn primary" onClick={() => void create()} disabled={!hasKey}>Test starten</button>}
-          {error && <div className="chat-error">{error}</div>}
-        </div>
-      ) : !t.started ? (
-        <Frame className="card exam-info">
-          <p className="exam-count">{t.questions.length} {t.questions.length === 1 ? 'Frage' : 'Fragen'}</p>
-          <p className="muted">ca. {t.questions.length} {t.questions.length === 1 ? 'Minute' : 'Minuten'}</p>
-          <button className="btn primary" onClick={() => updateExam(day, (e) => (e.test ? { ...e, test: { ...e.test, started: true } } : e))}>Los</button>
-        </Frame>
+          <Frame className="card exam-info">
+            <p className="exam-count">{total} Fragen</p>
+            <p className="muted">ca. {total} Minuten</p>
+            <p className="muted small">{EXAM_APPLY} × Anwenden{linked > 0 ? ` · ${linked} × Zusammenhang` : ''}</p>
+            {busy ? <p className="typing">Test wird erstellt …</p> : <button className="btn primary" onClick={() => void create()} disabled={!hasKey}>Test starten</button>}
+            {error && <div className="chat-error">{error}</div>}
+          </Frame>
+        </>
       ) : asking ? (
         <ExamAsk
           key={pos}

@@ -593,12 +593,12 @@ span.star { cursor: default; }
   from { left: calc(var(--ox) - 50px); }
   to { left: 0; }
 }
-/* Test: Start → Anzahl/Dauer → Frage oben, Material links gross, Antwort rechts schmal (Handy: untereinander) → Ergebnis */
-.exam-start { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 16vh; }
-.exam-start .typing { margin: 0; }
+/* Test: Übersicht (Anzahl, Dauer) → Frage oben, Material links gross, Antwort rechts schmal (Handy: untereinander) → Ergebnis */
 .exam-info { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 32px 18px; }
 .exam-info p, .exam-result p { margin: 0; }
-.exam-info .btn { margin-top: 18px; }
+.exam-info .small { margin-top: 6px; }
+.exam-info .btn, .exam-info .typing { margin-top: 18px; }
+.exam-info .chat-error { justify-content: center; }
 .exam-count { font-size: 1.6rem; font-weight: 800; }
 .exam-q { margin: 4px 0 16px; }
 .exam-q p { margin: 0 0 2px; }

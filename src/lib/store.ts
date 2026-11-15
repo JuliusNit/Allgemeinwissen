@@ -87,8 +87,6 @@ export interface ExamAnswer {
 export interface ExamTest {
   questions: ExamQuestion[]
   answers: ExamAnswer[]
-  /** nach dem Screen mit Anzahl + Dauer */
-  started?: boolean
 }
 
 /** Pruefungs-Wiederholung eines Themas: laufender Test + Ergebnisse frueherer Tests */

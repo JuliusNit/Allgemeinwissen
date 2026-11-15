@@ -134,8 +134,8 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   Icons), Zuordnung je Teilthema in `src/data/symbols.ts` (passend zum Video, `0` = Kreis mit Abspielzeichen).
 - `src/views/ExamView.tsx` + `src/lib/exam.ts` – Prüfungsmodus `#/pruefung[/N]`: abgeschlossene Themen nach Dringlichkeit
   (Schwäche + Zeit seit letztem Abruf), oben Vorschlag, Münze fährt Kasten aus. Test (Julius, 15.11.2026: kein Chat, wenig Text,
-  nicht noch einmal das ganze Thema): Startscreen nur mit Knopf „Test starten“ → Test wird erzeugt → Anzahl + Dauer (~1 min je Frage) →
-  je Frage ein Screen → Ergebnis. Fragen-Screen: Frage oben über die ganze Breite (ein Satz), darunter links groß das Material
+  nicht noch einmal das ganze Thema): Startscreen = Übersicht (Anzahl Fragen, Dauer ~1 min je Frage, Aufbau, Knopf „Test starten“ – steht vorab fest, `examPlan`) →
+  Test wird erzeugt → je Frage ein Screen → Ergebnis. Fragen-Screen: Frage oben über die ganze Breite (ein Satz), darunter links groß das Material
   (Diagramm-Codeblock, Tabelle oder kurzer Fall), rechts schmal die Antwort (`text` = Freitext, `wahl` = Option + „weil …“); am Handy
   untereinander. Inhalt: 2 × `anwenden` (Kernprinzip auf einen neuen Fall) + 1 × `zusammenhang` (eine gelernte Session aus `links`,
   beide Richtungen, `examLinks`; nur um eine Ecke), keine Wiedergabefragen. `makeExam` in `ai.ts` (json_schema, Entwurf + Prüfschritt
