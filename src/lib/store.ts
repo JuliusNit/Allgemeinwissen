@@ -61,23 +61,20 @@ export interface CardLog {
   at: string
 }
 
-/** Eine Frage des Kurztests: kurze Frage + Material daneben + Antwortform */
+/** Eine Aufgabe des Kurztests: der Fall (Material) + die Aufgabe dazu, Antwort als Freitext */
 export interface ExamQuestion {
-  /** anwenden = Kernprinzip auf einen neuen Fall, zusammenhang = Verbindung zu einer frueheren Session */
+  /** anwenden = Mechanismus auf einen neuen Fall, zusammenhang = Verbindung zu einer frueheren Session */
   kind: 'anwenden' | 'zusammenhang'
   q: string
-  /** Markdown: Diagramm-Codeblock, kleine Tabelle oder kurzer Fall */
+  /** Markdown: Fall in kurzen Saetzen, Tabelle oder Diagramm-Codeblock */
   material: string
-  /** text = freie Antwort, wahl = Option antippen + Begruendung */
-  form: 'text' | 'wahl'
-  options: string[]
+  /** Schritte der Begruendung, an denen die Antwort gemessen wird */
+  criteria: string[]
   solution: string
 }
 
 export interface ExamAnswer {
   text: string
-  /** gewaehlte Option bei form = wahl */
-  choice?: number
   at: number
   verdict: 'richtig' | 'teilweise' | 'falsch' | 'offen'
   precision: number
@@ -85,6 +82,8 @@ export interface ExamAnswer {
 }
 
 export interface ExamTest {
+  /** Format der Aufgaben; aeltere Tests (Auswahlfragen, ohne Kriterien) werden verworfen */
+  v: 2
   questions: ExamQuestion[]
   answers: ExamAnswer[]
 }

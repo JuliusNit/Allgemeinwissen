@@ -133,15 +133,21 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   (beim Ändern alle 90 Karten auf Überlappung prüfen). Symbole: `src/components/Symbols.tsx` (eigene Tusche-Symbole + alle
   Icons), Zuordnung je Teilthema in `src/data/symbols.ts` (passend zum Video, `0` = Kreis mit Abspielzeichen).
 - `src/views/ExamView.tsx` + `src/lib/exam.ts` – Prüfungsmodus `#/pruefung[/N]`: abgeschlossene Themen nach Dringlichkeit
-  (Schwäche + Zeit seit letztem Abruf), oben Vorschlag, Münze fährt Kasten aus. Test (Julius, 15.11.2026: kein Chat, wenig Text,
-  nicht noch einmal das ganze Thema): Startscreen = Übersicht (Anzahl Fragen, Dauer ~1 min je Frage, Aufbau, Knopf „Test starten“ – steht vorab fest, `examPlan`) →
-  Test wird erzeugt → je Frage ein Screen → Ergebnis. Fragen-Screen: Frage oben über die ganze Breite (ein Satz), darunter links groß das Material
-  (Diagramm-Codeblock, Tabelle oder kurzer Fall), rechts schmal die Antwort (`text` = Freitext, `wahl` = Option + „weil …“); am Handy
-  untereinander. Inhalt: 2 × `anwenden` (Kernprinzip auf einen neuen Fall) + 1 × `zusammenhang` (eine gelernte Session aus `links`,
-  beide Richtungen, `examLinks`; nur um eine Ecke), keine Wiedergabefragen. `makeExam` in `ai.ts` (json_schema, Entwurf + Prüfschritt
-  mit denselben Regeln, zusammen ~10 s; Denkmodus dafür zu langsam), `gradeExam` bewertet je Antwort (Urteil, Präzision, 2 Sätze),
-  „Weiß ich nicht“ = `offen` ohne KI-Aufruf. Zustand `exams[day]`: `test` (Fragen + Antworten), `asked` (Fragen des letzten Tests, damit
-  der nächste andere stellt), `results`; `chat` ist der alte Chat-Test und wird nur noch für Streak/Wochenrückblick gelesen.
+  (Schwäche + Zeit seit letztem Abruf), oben Vorschlag, Münze fährt Kasten aus. Test (Julius, 15./16.11.2026: kein Chat, nicht noch
+  einmal das ganze Thema, **Verständnis statt Wiedergabe – lieber zu schwer als zu leicht**; mehr Text ist in Ordnung, nur kein Fließtext):
+  Startscreen = Übersicht (Anzahl Aufgaben, Dauer, Aufbau, Knopf „Test starten“ – steht vorab fest, `examPlan`/`examMinutes`) →
+  Test wird erzeugt (Fortschritt „1/3“) → je Aufgabe ein Screen → Ergebnis. Screen: Aufgabe oben über die ganze Breite (1–2 Sätze),
+  darunter links groß der Fall (Stichpunkte, Tabelle oder Diagramm-Codeblock), rechts schmal die Antwort (nur Freitext mit Begründung;
+  Auswahlfragen waren zu leicht zu erraten); am Handy untereinander. Inhalt: 2 × `anwenden` + 1 × `zusammenhang` (eine gelernte
+  Session aus `links`, beide Richtungen, `examLinks`; nur um eine Ecke – der Satz aus der früheren Session steht über dem Fall).
+  `makeExam` in `ai.ts`: je Aufgabe ein eigener Ablauf, alle gleichzeitig (~25–35 s): Entwurf nach Typ (`EXAM_TYPES`: Fehler im Plan,
+  überraschender Befund, Grenzfall, abgewandelte Bedingung, Brücke – Typ und Schwerpunkt würfelt der Code; Vorarbeit „Merksatz“ + „Haken“
+  im JSON) → schneller Prüfer (Wiedergabe? Lösung verraten? Sachfehler?) → bei Mangel ein neuer Entwurf → Musterantwort nachrechnen
+  (einziger Schritt im Denkmodus; mit großem Kontext denkt das Modell bis ins Token-Limit). `gradeExam` misst die Antwort an 2–3
+  Begründungsschritten (`criteria`): Ergebnis ohne Mechanismus = teilweise. „Weiß ich nicht“ = `offen` ohne KI-Aufruf.
+  Grenze: Das Modell liefert weiter einzelne schiefe Fälle; verlässlich wäre nur ein vorab geschriebener Aufgabenpool je Session.
+  Zustand `exams[day]`: `test` (`v: 2`, Aufgaben + Antworten; ältere Formate werden verworfen), `asked` (Aufgaben des letzten Tests,
+  damit der nächste andere stellt), `results`; `chat` ist der alte Chat-Test und wird nur noch für Streak/Wochenrückblick gelesen.
 - `src/lib/recap.ts` + `components/WeekRecap.tsx` – Wochenrückblick: ab Montag beim ersten Öffnen von Home ein Kasten über die Vorwoche
   (Seiten: neu gelernt grob je Überthema · Wissensindex mit Zuwachs · nächste Stationen; Streak oben rechts; X oder letzte Seite
   schließt, `recapSeen` = Montag). Wissensindex = Anteil des Plans, der sitzt (gewichtet wie Prüfungsmodus) – bewusst kein IQ-Wert,

@@ -65,13 +65,22 @@ export function examScore(t: ExamTest): number | null {
 
 /** Test laeuft: erzeugt, aber noch nicht alle Fragen beantwortet */
 export function examOpen(s: State, day: number): boolean {
-  const t = examState(s, day).test
+  const t = examTest(s, day)
   return !!t && t.answers.length < t.questions.length
 }
 
 // Der Test prueft zwei Dinge (Julius, 15.11.2026): Kernprinzip anwenden + wie das Thema mit einem frueheren
-// zusammenhaengt – nur um eine Ecke. Rund eine Minute je Frage, deshalb wenige.
+// zusammenhaengt – nur um eine Ecke. Wenige Aufgaben, dafuer zum Nachdenken (1–2 min je Aufgabe).
 export const EXAM_APPLY = 2
+
+/** ungefaehre Dauer in Minuten */
+export const examMinutes = (questions: number) => Math.round(questions * 1.7)
+
+/** laufender oder letzter Test im aktuellen Format */
+export function examTest(s: State, day: number): ExamTest | undefined {
+  const t = examState(s, day).test
+  return t?.v === 2 ? t : undefined
+}
 
 export interface ExamLink {
   day: Day

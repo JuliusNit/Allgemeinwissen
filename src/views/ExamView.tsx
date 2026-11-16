@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { AREAS, getDay } from '../data/plan'
 import { describeError, gradeExam, makeExam } from '../lib/ai'
 import { useAiReady } from '../lib/cloud'
-import { EXAM_APPLY, examOpen, examPlan, examScore, examTopics, type ExamTopic } from '../lib/exam'
+import { EXAM_APPLY, examMinutes, examOpen, examPlan, examScore, examTopics, type ExamTopic } from '../lib/exam'
 import { haptic } from '../lib/native'
 import { dayDone, VERDICT_MARK } from '../lib/stats'
 import { examState, getState, updateExam, useStore, type ExamAnswer, type ExamQuestion, type ExamState, type ExamTest } from '../lib/store'
@@ -38,7 +38,7 @@ export function ExamView({ day, go }: { day?: number; go: (hash: string) => void
 }
 
 function startTest(day: number, go: (hash: string) => void) {
-  // abgeschlossenen Test nicht wiederaufnehmen, sondern neu beginnen
+  // abgeschlossenen Test (oder einen im alten Format) nicht wiederaufnehmen, sondern neu beginnen
   if (examState(getState(), day).test && !examOpen(getState(), day)) updateExam(day, (e) => ({ ...e, test: undefined }))
   go(`/pruefung/${day}`)
 }
@@ -139,15 +139,17 @@ function ExamPop({ t, col, go }: { t: ExamTopic; col: number; go: (hash: string)
 }
 
 // Test eines Themas: Übersicht (Anzahl, Dauer, „Test starten“) → Test wird erzeugt → je Frage ein Screen → Ergebnis.
-// Frage oben ueber die ganze Breite, darunter links gross das Material, rechts schmaler die Antwort (Handy: untereinander).
+// Aufgabe oben ueber die ganze Breite, darunter links gross der Fall (Material), rechts schmaler die Antwort (Handy: untereinander).
 function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
   const d = getDay(day)
   const ex = useStore((s) => examState(s, day))
   const done = useStore((s) => dayDone(s, day))
   const hasKey = useAiReady()
   const [busy, setBusy] = useState(false)
+  const [ready, setReady] = useState(0)
   const [error, setError] = useState<string | null>(null)
-  const t = ex.test
+  // Tests im alten Format (Auswahlfragen) gelten als nicht vorhanden
+  const t = ex.test?.v === 2 ? ex.test : undefined
   // nach der Bewertung bleibt die Frage stehen, bis „Weiter“ – deshalb eigene Position statt answers.length
   const [pos, setPos] = useState(() => t?.answers.length ?? 0)
   const asking = !!t && pos < t.questions.length
@@ -157,10 +159,11 @@ function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
 
   async function create() {
     setBusy(true)
+    setReady(0)
     setError(null)
     try {
-      const questions = await makeExam(day)
-      updateExam(day, (e) => ({ ...e, chat: undefined, test: { questions, answers: [] } }))
+      const questions = await makeExam(day, setReady)
+      updateExam(day, (e) => ({ ...e, chat: undefined, test: { v: 2, questions, answers: [] } }))
       setPos(0)
     } catch (e) {
       setError(describeError(e))
@@ -206,9 +209,9 @@ function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
           {!hasKey && <div className="notice">Für die Prüfung bitte anmelden – oder unter <b>Profil → KI</b> einen eigenen Key eintragen. <AccountButton /></div>}
           <Frame className="card exam-info">
             <p className="exam-count">{total} Fragen</p>
-            <p className="muted">ca. {total} Minuten</p>
+            <p className="muted">ca. {examMinutes(total)} Minuten</p>
             <p className="muted small">{EXAM_APPLY} × Anwenden{linked > 0 ? ` · ${linked} × Zusammenhang` : ''}</p>
-            {busy ? <p className="typing">Test wird erstellt …</p> : <button className="btn primary" onClick={() => void create()} disabled={!hasKey}>Test starten</button>}
+            {busy ? <p className="typing">Test wird erstellt … {ready}/{total}</p> : <button className="btn primary" onClick={() => void create()} disabled={!hasKey}>Test starten</button>}
             {error && <div className="chat-error">{error}</div>}
           </Frame>
         </>
@@ -242,19 +245,17 @@ function ExamAsk({ day, q, a, n, total, ready, onAnswer, onNext }: {
   onNext: () => void
 }) {
   const [text, setText] = useState('')
-  const [choice, setChoice] = useState<number | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const wahl = q.form === 'wahl'
-  const can = !busy && ready && (wahl ? choice != null : !!text.trim())
+  const can = !busy && ready && !!text.trim()
 
   async function submit() {
     if (!can) return
     setBusy(true)
     setError(null)
     try {
-      const r = await gradeExam(day, q, text.trim(), wahl ? choice! : undefined)
-      onAnswer({ text: text.trim(), ...(wahl ? { choice: choice! } : {}), at: Date.now(), ...r })
+      const r = await gradeExam(day, q, text.trim())
+      onAnswer({ text: text.trim(), at: Date.now(), ...r })
     } catch (e) {
       setError(describeError(e))
     } finally {
@@ -278,23 +279,17 @@ function ExamAsk({ day, q, a, n, total, ready, onAnswer, onNext }: {
           {a ? (
             <>
               <p className="exam-verdict"><span className={`verdict ${a.verdict}`}>{VERDICT_MARK[a.verdict]}</span></p>
-              <Given q={q} a={a} />
-              <p>{inline(a.feedback || q.solution)}</p>
+              {a.text && <p className="exam-given">{a.text}</p>}
+              {a.verdict !== 'offen' && a.feedback && <p>{inline(a.feedback)}</p>}
+              {a.verdict !== 'richtig' && q.solution && <div className="md"><blockquote>{inline(q.solution)}</blockquote></div>}
               <div className="row end"><button className="btn primary" onClick={onNext}>{n === total ? 'Ergebnis' : 'Weiter'}</button></div>
             </>
           ) : (
             <>
-              {wahl && (
-                <div className="level-opts">
-                  {q.options.map((o, i) => (
-                    <button key={i} className={`level-opt${choice === i ? ' on' : ''}`} onClick={() => setChoice(i)} disabled={busy} aria-pressed={choice === i}>{inline(o)}</button>
-                  ))}
-                </div>
-              )}
               <textarea
                 value={text}
-                rows={wahl ? 2 : 5}
-                placeholder={wahl ? 'weil …' : 'Deine Antwort …'}
+                rows={7}
+                placeholder="Deine Antwort mit Begründung …"
                 disabled={busy}
                 onChange={(e) => setText(e.target.value)}
                 onKeyDown={(e) => {
@@ -321,18 +316,6 @@ function ExamAsk({ day, q, a, n, total, ready, onAnswer, onNext }: {
   )
 }
 
-/** die eigene Antwort: gewaehlte Option + Text */
-function Given({ q, a }: { q: ExamQuestion; a: ExamAnswer }) {
-  if (a.choice == null && !a.text) return null
-  return (
-    <p className="exam-given">
-      {a.choice != null && <b>{inline(q.options[a.choice] ?? '')}</b>}
-      {a.choice != null && a.text ? ' – ' : ''}
-      {a.text}
-    </p>
-  )
-}
-
 function ExamResult({ ex, test, ready, onAgain, onNext }: {
   ex: ExamState
   test: ExamTest
@@ -355,7 +338,7 @@ function ExamResult({ ex, test, ready, onAgain, onNext }: {
               <span className={`verdict ${a.verdict}`}>{VERDICT_MARK[a.verdict]}</span>
               <details>
                 <summary>{inline(q.q)}</summary>
-                <Given q={q} a={a} />
+                {a.text && <p className="exam-given">{a.text}</p>}
                 {a.verdict !== 'offen' && a.feedback && <p>{inline(a.feedback)}</p>}
                 {a.verdict !== 'richtig' && q.solution && <div className="md"><blockquote>{inline(q.solution)}</blockquote></div>}
               </details>
