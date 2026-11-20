@@ -92,4 +92,4 @@ Bewertet nach Teilthemen und ausgewählten Videos (Kanal, Titel, Zielgruppe).
 | 89 | GESCH | Muster der Geschichte | gut (Acemoglu/Robinson) | ✓ | A | – | |
 | 17, 30, 43, 56, 69, 82, 90 | MIX | Block-Abfragen | – | – | – | – | ohne Videos |
 
-**Bilanz:** 46 passen, 26 anspruchsvoller machen, 2 umbauen/ersetzen (6, 45). Doppelte Videos: 13-1 = 34-2, 61-2 = 73-2, Buchdruck in 35 und 45.
+**Bilanz:** 50 passen, 26 anspruchsvoller machen, 2 umbauen/ersetzen (6, 45). Doppelte Videos: 13-1 = 34-2, 61-2 = 73-2, Buchdruck in 35 und 45.
