@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { AREAS, getDay } from '../data/plan'
-import { describeError, gradeExam, makeExam } from '../lib/ai'
+import { describeError, gradeExam, makeExam, prepareExam } from '../lib/ai'
 import { useAiReady } from '../lib/cloud'
 import { EXAM_APPLY, examMinutes, examOpen, examPlan, examScore, examTopics, type ExamTopic } from '../lib/exam'
 import { haptic } from '../lib/native'
@@ -156,6 +156,11 @@ function ExamRun({ day, go }: { day: number; go: (hash: string) => void }) {
   // steht vor dem Erzeugen fest: Aufbau des Tests aus exam.ts
   const total = useStore((s) => examPlan(s, day).length)
   const linked = total - EXAM_APPLY
+  // die Analyse der Session (Grundlage der Aufgaben) läuft schon, während die Übersicht zu sehen ist
+  const idle = done && !t && hasKey
+  useEffect(() => {
+    if (idle) prepareExam(day)
+  }, [idle, day])
 
   async function create() {
     setBusy(true)

@@ -70,11 +70,11 @@ export function examOpen(s: State, day: number): boolean {
 }
 
 // Der Test prueft zwei Dinge (Julius, 15.11.2026): Kernprinzip anwenden + wie das Thema mit einem frueheren
-// zusammenhaengt – nur um eine Ecke. Wenige Aufgaben, dafuer zum Nachdenken (1–2 min je Aufgabe).
+// zusammenhaengt – nur um eine Ecke. Wenige Aufgaben, dafuer anspruchsvoll (2–3 min je Aufgabe).
 export const EXAM_APPLY = 2
 
 /** ungefaehre Dauer in Minuten */
-export const examMinutes = (questions: number) => Math.round(questions * 1.7)
+export const examMinutes = (questions: number) => Math.round(questions * 2.5)
 
 /** laufender oder letzter Test im aktuellen Format */
 export function examTest(s: State, day: number): ExamTest | undefined {

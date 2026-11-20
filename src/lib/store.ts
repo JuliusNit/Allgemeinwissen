@@ -88,8 +88,38 @@ export interface ExamTest {
   answers: ExamAnswer[]
 }
 
+/** Analyse einer Session fuer den Test (ai.ts, `examAnalysis`): woraus die Aufgaben gebaut werden */
+export interface ExamMechanism {
+  name: string
+  /** Ursache → … → sichtbare Wirkung */
+  kette: string[]
+  voraussetzungen: string[]
+  fehlvorstellung: string
+  /** nicht offensichtliche, gesicherte Folge */
+  folge: string
+  /** echte Faelle ausserhalb des Lernzettels */
+  faelle: string[]
+}
+
+export interface ExamBridge {
+  /** Plan-Tag der frueheren Session */
+  tag: number
+  frueher: string
+  heute: string
+  schritt: string
+  /** 3 = Ursache/Voraussetzung, 2 = gleicher Mechanismus, 1 = lose */
+  staerke: number
+}
+
+export interface ExamAnalysis {
+  mechanismen: ExamMechanism[]
+  bruecken: ExamBridge[]
+}
+
 /** Pruefungs-Wiederholung eines Themas: laufender Test + Ergebnisse frueherer Tests */
 export interface ExamState {
+  /** zwischengespeicherte Analyse; key = Version + gelernte Verknuepfungen */
+  analysis?: { key: string; data: ExamAnalysis }
   /** alter Chat-Test (vor dem Umbau), nur noch fuer Streak und Wochenrueckblick gelesen */
   chat?: ChatMsg[]
   test?: ExamTest

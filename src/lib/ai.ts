@@ -7,7 +7,7 @@ import { functionCall, kiProxy, type CloudMsg } from './cloud'
 import { examLinks, examPlan } from './exam'
 import { checkNotes, dayDone, DONE_MARKER, likesTable, parseCheck, statsTable, VERDICT_SCORE } from './stats'
 import { hasSheet, loadSheet } from '../data/lernzettel'
-import { dayState, examState, getState, videoNotesText, videosOf, type ChatMsg, type ExamAnswer, type ExamQuestion } from './store'
+import { dayState, examState, getState, updateExam, videoNotesText, videosOf, type ChatMsg, type ExamAnswer, type ExamAnalysis, type ExamBridge, type ExamMechanism, type ExamQuestion } from './store'
 
 export { DONE_MARKER }
 
@@ -370,9 +370,9 @@ ${sessionContext(d)}`
 
 // ---------- Pruefungs-Wiederholung ----------
 
-// Kurztest statt Chat (Julius, 15.11.2026): nicht noch einmal das ganze Thema pruefen, sondern ob das Kernprinzip
-// sitzt und sich anwenden laesst, plus ein Zusammenhang zu einer frueheren Session (nur um eine Ecke). Kein langer
-// Fliesstext: die Aufgabe 1–2 Saetze, den Fall traegt das Material daneben (Diagramm, Tabelle, Fall in Stichpunkten).
+// Test statt Chat (Julius, 15.11.2026): nicht noch einmal das ganze Thema pruefen, sondern ob die Mechanismen sitzen und
+// sich anwenden lassen, plus ein Zusammenhang zu einer frueheren Session (nur um eine Ecke). Kein Fliesstext: die Aufgabe
+// 1–3 Saetze, den Fall traegt das Material daneben (Stichpunkte, Tabelle, Diagramm).
 
 const EXAM_DIAGRAMS = `\`\`\`kette       je Zeile ein Schritt (Kasten), die Pfeile entstehen von selbst; eine Lücke ist ein eigener Schritt „?“
 \`\`\`kreis       Kreislauf, je Zeile eine Station
@@ -384,10 +384,11 @@ const EXAM_DIAGRAMS = `\`\`\`kette       je Zeile ein Schritt (Kasten), die Pfei
 \`\`\`kurve       Zeilen „x: Achse“, „y: Achse“, dann Reihen „Name: x y, x y, x y“ (nur Zahlen)`
 
 const str = { type: 'string' }
+const strs = { type: 'array', items: str }
 
-function jsonSchema(name: string, properties: Record<string, unknown>) {
+function jsonSchema(name: string, properties: Record<string, unknown>, think = false) {
   return {
-    chat_template_kwargs: { enable_thinking: false },
+    chat_template_kwargs: { enable_thinking: think },
     response_format: {
       type: 'json_schema',
       json_schema: { name, schema: { type: 'object', additionalProperties: false, required: Object.keys(properties), properties } },
@@ -408,7 +409,9 @@ function fixMaterial(m: string): string {
     // Balken/Kurve ohne Zahlen blieben leer, Balken mit gemischten Einheiten (10000 € neben 5 %) sagen nichts → als Kaesten zeigen
     const units = new Set(ls.map((l) => /:\s*-?[\d.,]+\s*([^\d|]*)/.exec(l)?.[1].trim()))
     const numbers = kind === 'balken' ? units.size === 1 && !units.has(undefined) : ls.some((l) => /:\s*-?\d+([.,]\d+)?\s+-?\d/.test(l))
-    return numbers ? '```' + kind + '\n' + ls.join('\n') + '\n```' : '```gruppen\n' + ls.map((l) => l.trim().replace(/:\s*/, ' | ')).join('\n') + '\n```'
+    // eine Anzeige ohne Buchstaben/Ziffern („| ▏“) waere nur Muell neben dem Balken
+    const clean = ls.map((l) => l.replace(/\s*\|\s*[^\p{L}\p{N}]*$/u, ''))
+    return numbers ? '```' + kind + '\n' + clean.join('\n') + '\n```' : '```gruppen\n' + ls.map((l) => l.trim().replace(/:\s*/, ' | ')).join('\n') + '\n```'
   })
   // ein Absatz aus mehreren Saetzen liest sich neben der Aufgabe schlecht → je Satz ein Stichpunkt
   return out
@@ -421,29 +424,45 @@ function fixMaterial(m: string): string {
     .join('\n\n')
 }
 
-// Aufgabentypen: jeder zwingt dazu, den Mechanismus zu benutzen – der Merksatz allein fuehrt nicht zur Loesung
-// (Julius, 16.11.2026: die ersten Tests waren Wiedererkennen einer gelernten Regel und viel zu leicht).
-// Je Typ eine enge Bauvorschrift und ein Beispiel desselben Typs; ein gemeinsamer langer Prompt wurde ignoriert.
+// Geruest der Erzeugung (Julius, 20.11.2026: nicht vorab schreiben, sondern das Geruest verbessern, nach dem die KI den
+// Test baut; anspruchsvoller, gern etwas mehr Text). Vorher hat das Modell Fall und Haken frei erfunden – daher schiefe
+// Faelle („der Nil fliesst durch das Amazonasbecken“) und verkleidete Merksaetze. Jetzt in drei Stufen:
+// 1. Analyse der Session (einmal je Session, in exams[day].analysis zwischengespeichert): 3–4 Mechanismen als Kette von
+//    Ursache und Wirkung, je mit Voraussetzungen, typischer Fehlvorstellung, nicht offensichtlicher Folge und echten Faellen
+//    ausserhalb des Lernzettels; dazu je verknuepfter Session die direkte Verbindung (ein Schritt).
+// 2. Je Aufgabe ein anderer Mechanismus und ein Typ, der an genau ein Element der Analyse andockt (Grenzfall ← Voraussetzung,
+//    Fehler im Plan ← Fehlvorstellung, Befund ← nicht offensichtliche Folge, Stoerung ← Kette + echter Fall, Bruecke ← staerkste
+//    Verbindung). Der Kontext ist klein (nur dieser Mechanismus). Kein Denkmodus: damit kam beim Bau kaputtes JSON.
+// 3. Fall und Musterantwort nachrechnen – ohne Denkmodus, aber mit ausgeschriebener Pruefung als erstem JSON-Feld
+//    (im Denkmodus dachte das Modell hier ueber 6000 Tokens und brach ab, ~40 s ohne Ergebnis).
+
+const EXAM_LEVEL = `Anspruch: Verständnis, nicht Gedächtnis – lieber zu schwer als zu leicht. Die Lösung braucht ZWEI Denkschritte, die nirgends stehen: (1) im Fall erkennen, welches Glied der Kette betroffen ist bzw. welche Voraussetzung fehlt, (2) daraus die Folge über mindestens ein weiteres Glied bis zu einem sichtbaren oder messbaren Ergebnis ableiten. Wer nur Merksätze und Fachbegriffe kennt, liegt daneben oder bleibt stecken. Wer den Mechanismus verstanden hat, kommt in zwei bis drei Minuten Nachdenken drauf und antwortet in 3–6 Sätzen.`
+
 const EXAM_TYPES = {
+  grenzfall: {
+    anker: 'Voraussetzungen',
+    regel: `Grenzfall. Eine echte Situation, auf die der Mechanismus auf den ersten Blick passt, in der aber eine seiner Voraussetzungen (aus der Analyse) nicht erfüllt ist – deshalb läuft es anders. Im Material beruft sich eine Person mit einem wörtlichen Satz auf die Regel und zieht daraus eine Vorhersage – die im Normalfall RICHTIG wäre (korrekte Richtung von Ursache und Wirkung); falsch wird sie nur, weil in diesem Fall die Voraussetzung fehlt. Aufgabe: Trifft ihre Vorhersage ein? Was passiert stattdessen, und warum? Die fehlende Voraussetzung wird nirgends genannt, nur der Fall zeigt sie.`,
+    beispiel: `Thema Angebot und Nachfrage – material: „- Stadion mit 40 000 Plätzen, Karten bisher zu 60 €, jedes Spiel nach vier Minuten ausverkauft\n- Auf dem Zweitmarkt gehen die Karten für 200–250 € weg\n- Die Warteliste für Dauerkarten ist acht Jahre lang\n- Der Geschäftsführer: ‚Höhere Preise senken die Nachfrage. Wenn wir auf 120 € gehen, verkaufen wir nur noch halb so viele Karten – das lohnt sich nicht.‘“, q: „Trifft seine Vorhersage ein? Begründe, wie viele Karten bei 120 € verkauft würden und wer bisher die Differenz zum Marktpreis einstreicht.“`,
+  },
   plan: {
-    regel: `Fehler im Plan. Eine Person wendet die im Thema empfohlene Regel tatsächlich AN (nicht ihr Gegenteil – wer einfach alles falsch macht, ist ein Strohmann) und verfehlt trotzdem ihr Ziel, weil sie eine Voraussetzung des Mechanismus übersieht: falsche Dosis, falscher Zeitpunkt, falsches Material, zu früh aufgehört, richtige Maßnahme an der falschen Stelle. Material: der Plan und das enttäuschende Ergebnis. Aufgabe: Woran liegt es, und welche EINE Änderung bringt am meisten?`,
-    beispiel: `Thema Preisbildung – material: „- Eine Stadt deckelt alle Mieten auf 8 € je m² (Marktmiete: 12 €)\n- Ziel: Wohnen soll bezahlbar bleiben\n- Fünf Jahre später: Wer eine Wohnung hat, zahlt weniger\n- Die Wartelisten sind doppelt so lang, gebaut wird kaum noch“, q: „Jede einzelne Wohnung ist billiger geworden. Warum finden trotzdem weniger Menschen eine – und welche Maßnahme setzt an der Ursache an?“`,
+    anker: 'Fehlvorstellung',
+    regel: `Fehler im Plan. Jemand handelt nach der typischen Fehlvorstellung (aus der Analyse) – oder wendet die richtige Regel an, verletzt aber eine Voraussetzung. Der Plan klingt vernünftig und macht einiges richtig; Material: Ausgangslage, Plan und das enttäuschende Ergebnis nach einiger Zeit (mit Zahlen). Aufgabe: Woran ist der Plan gescheitert – über welchen Weg genau? – und welche EINE Änderung hätte am meisten gebracht? Kein Strohmann, der einfach alles falsch macht.`,
+    beispiel: `Thema Preisbildung – material: „- Eine Stadt deckelt alle Mieten auf 8 € je m², die Marktmiete liegt bei 12 €\n- Ziel: Wohnen soll für Familien bezahlbar bleiben\n- Nach fünf Jahren: Wer schon eine Wohnung hat, zahlt deutlich weniger\n- Die Wartelisten der Wohnungsbaugesellschaften sind doppelt so lang\n- Neubau: von 2400 auf 600 Wohnungen im Jahr gesunken“, q: „Jede einzelne Wohnung ist billiger geworden. Erkläre, über welche Schritte trotzdem weniger Familien eine Wohnung finden – und welche Maßnahme an der Ursache angesetzt hätte.“`,
   },
   befund: {
-    regel: `Überraschender Befund. Eine kleine Tabelle mit Zahlen (2–3 Zeilen), in der etwas der ersten Erwartung widerspricht: zwei Verläufe kreuzen sich, mehr Aufwand bringt weniger, ein Vorteil kehrt sich um, eine Maßnahme wirkt nur bei einer Gruppe. NICHT: Die Gruppe mit der Lehrbuch-Methode ist einfach besser. Die Zahlen sind erfunden, müssen aber dem entsprechen, was nach dem Fachwissen wirklich herauskäme. Aufgabe: das ganze Muster mit EINEM Mechanismus erklären.`,
-    beispiel: `Thema Evolution – material: „| | resistente Infektionen 2019 | 2024 |\n|---|---|---|\n| Klinik A: Antibiotika vorsorglich für alle | 4 % | 19 % |\n| Klinik B: nur bei Nachweis | 5 % | 7 % |“, q: „Klinik A behandelt gründlicher und hat am Ende mehr unbehandelbare Infektionen. Wie kommt das zustande?“`,
+    anker: 'nicht offensichtliche Folge',
+    regel: `Überraschender Befund. Eine kleine Markdown-Tabelle (2–4 Zeilen, Zahlen, die nach dem Fachwissen wirklich so herauskämen; keine echte Studie behaupten) plus 1–3 Stichpunkte Kontext. Das Muster zeigt die nicht offensichtliche Folge aus der Analyse: zwei Verläufe kreuzen sich, ein Vorteil kehrt sich um, mehr Aufwand bringt weniger, eine Maßnahme wirkt nur bei einer Gruppe. NICHT: Die Gruppe mit der Lehrbuch-Methode ist einfach besser. Aufgabe: das ganze Muster – jede Auffälligkeit der Tabelle – mit EINEM Mechanismus erklären und daraus etwas vorhersagen, das nicht in der Tabelle steht.`,
+    beispiel: `Thema Evolution – material: „| | resistente Infektionen 2019 | 2024 |\n|---|---|---|\n| Klinik A: Antibiotika vorsorglich für alle Patienten | 4 % | 19 % |\n| Klinik B: Antibiotika nur bei nachgewiesener Infektion | 5 % | 7 % |\n\n- Beide Kliniken behandeln ähnliche Patienten, Klinik A hatte 2019 weniger Infektionen insgesamt“, q: „Klinik A behandelt gründlicher und hat am Ende mehr unbehandelbare Infektionen. Erkläre, wie das zustande kommt, und sag voraus, wie sich die Zahlen entwickeln, wenn Klinik A 2025 auf die Praxis von Klinik B umstellt.“`,
   },
-  grenzfall: {
-    regel: `Grenzfall. Eine Situation, auf die die Regel des Themas zu passen scheint, in der sie aber nicht oder nur halb gilt, weil eine Voraussetzung des Mechanismus fehlt. Material: die Situation und eine Person, die sich mit einem wörtlichen Satz auf die Regel beruft. Aufgabe: Geht ihre Rechnung hier auf? Die Antwort ist „nein, weil …“ oder „nur zum Teil, weil …“ – weder Material noch Aufgabe verraten das.`,
-    beispiel: `Thema Angebot und Nachfrage – material: „- Stadion mit 40 000 Plätzen, Karten zu 60 €, nach vier Minuten ausverkauft\n- Auf dem Zweitmarkt kosten die Karten 240 €\n- Der Veranstalter: ‚Höhere Preise senken die Nachfrage. Bei 120 € verkaufe ich also nur noch halb so viele Karten.‘“, q: „Geht seine Rechnung auf? Begründe, was bei 120 € mit der Zahl der verkauften Karten passiert.“`,
-  },
-  abwandlung: {
-    regel: `Abgewandelte Bedingung. Ein Ablauf aus dem Thema, an dem EINE Stelle verändert ist: ein Teil fällt aus, läuft viel schneller, kommt in anderer Reihenfolge oder doppelt. Material: der Ablauf in Stichpunkten oder als kette, die geänderte Stelle beginnt mit „Geändert:“. Aufgabe: Was passiert danach – bis zu einer Folge, die man von außen sehen oder messen könnte – und warum? Die Folge steht so nicht im Lernzettel. Die Änderung muss in der Wirklichkeit möglich sein (kein Fluss, der den Kontinent wechselt). Hat das Thema keinen echten Ablauf (Prozess, Kette von Ursache und Wirkung), baue stattdessen einen Grenzfall: eine Situation, auf die eine Regel des Themas zu passen scheint, in der sie aber nicht gilt, weil eine Voraussetzung fehlt – Aufgabe dann: Gilt die Regel hier, und warum (nicht)?`,
-    beispiel: `Thema Immunsystem – material: „- Erste Impfdosis: Der Körper bildet Antikörper und wenige Gedächtniszellen\n- Üblich: zweite Dosis nach vier Wochen\n- Geändert: Die zweite Dosis kommt schon am nächsten Tag“, q: „Wie gut ist diese Person in einem Jahr geschützt, verglichen mit dem üblichen Abstand – und warum?“`,
+  stoerung: {
+    anker: 'Kette und echte Fälle',
+    regel: `Störung im Ablauf. Einer der echten Fälle aus der Analyse (oder ein ähnlich echter): An EINEM Glied der Kette ist etwas gestört – fällt aus, ist blockiert, läuft zu schnell, kommt zu früh. Der Fall muss so in der Wirklichkeit vorkommen (Krankheit, Gift, Unfall, politischer Eingriff, Naturereignis, Experiment) – nichts Unmögliches. Material: die Situation und was man von außen beobachtet; welches Glied gestört ist, steht NICHT da. Aufgabe: Welches Glied ist betroffen, und wie führt das über die weiteren Glieder zu dem, was man beobachtet? Optional: Was würde helfen und warum?`,
+    beispiel: `Thema Zellatmung – material: „- Feuerwehrleute bergen einen Mann aus einem verrauchten Haus, er hatte Blausäure (Cyanid) eingeatmet\n- Er atmet schnell, das Blut in seinen Venen ist auffallend hellrot\n- Die Sauerstoffsättigung im Blut liegt bei 99 %\n- Der Laktatwert im Blut ist stark erhöht“, q: „Sein Blut ist voller Sauerstoff, trotzdem droht er zu ersticken. Erkläre, wo Cyanid eingreift und wie es zu hellrotem Venenblut und hohem Laktat kommt.“`,
   },
   bruecke: {
-    regel: `Zusammenhang mit einer früheren Session – nur um eine Ecke, EIN Schritt. Wähle aus „Frühere Sessions“ die mit der stärksten direkten Verbindung: Ein Mechanismus von dort erklärt, verursacht oder begrenzt etwas im heutigen Thema. Lose Analogien und Wortgleichheit („beides wiederholt etwas“) zählen nicht. Zusatzfelder: session = Titel der früheren Session; frueher = der Mechanismus oder die Tatsache von dort in einem Satz (wird ${'${NAME}'} gezeigt). material = NUR die heutige Seite: EINE konkrete Beobachtung, Regel oder ein Fall aus dem heutigen Thema (kein Vergleich zweier Gruppen). Aufgabe: mit dem Früheren erklären, warum das Heutige so ist, oder vorhersagen, was daraus für den Fall folgt. Die Verbindung selbst steht nirgends.`,
-    beispiel: `Thema Inflation, frühere Session Angebot und Nachfrage – frueher: „Ein Preis steigt, wenn die Nachfrage schneller wächst als das Angebot.“, material: „- Ein Staat zahlt jedem Haushalt einmalig 3000 € aus\n- Fabriken und Läden arbeiten schon an der Kapazitätsgrenze\n- Sechs Monate später kosten Alltagswaren 9 % mehr“, q: „Warum führt das Geschenk zu höheren Preisen statt zu mehr Wohlstand – und unter welcher Bedingung wäre es anders ausgegangen?“`,
+    anker: 'Verbindung',
+    regel: `Zusammenhang mit einer früheren Session – nur um eine Ecke, EIN Schritt. Über dem Material steht schon der Satz aus der früheren Session (frueher, siehe unten). material = NUR die heutige Seite: EIN echter Fall oder eine Beobachtung, in der „heute“ steckt, mit Zahlen oder konkreten Details, ohne den Verbindungsschritt zu nennen – kein Experiment mit zwei Gruppen, kein Vorher-nachher zweier Lernmethoden. Aufgabe: Mit dem Früheren erklären, warum das Heutige so ist – und daraus etwas für den Fall vorhersagen oder entscheiden. Lose Analogien und Wortgleichheit zählen nicht.`,
+    beispiel: `Thema Inflation, frühere Session Angebot und Nachfrage – frueher: „Ein Preis steigt, wenn die Nachfrage schneller wächst als das Angebot.“, material: „- Ein Staat zahlt jedem Haushalt einmalig 3000 € aus\n- Fabriken und Handwerker sind seit Monaten ausgebucht, Lieferzeiten für Möbel: 6 Monate\n- Ein halbes Jahr später kosten Alltagswaren 9 % mehr, die verkaufte Menge ist kaum gestiegen“, q: „Erkläre, warum das Geschenk vor allem die Preise erhöht hat statt den Wohlstand – und unter welcher Bedingung die gleiche Auszahlung mehr Güter statt höherer Preise gebracht hätte.“`,
   },
 }
 type ExamType = keyof typeof EXAM_TYPES
@@ -457,138 +476,228 @@ function shuffle<T>(a: T[]): T[] {
   return out
 }
 
-/** Test erzeugen: je Aufgabe Entwurf → Prüfer → bei klarem Mangel ein neuer Entwurf → Musterantwort nachrechnen; alle Aufgaben gleichzeitig (~25 s) */
+/** Version der Analyse – bei Änderungen am Analyse-Prompt erhöhen, dann wird neu analysiert */
+const ANALYSIS_V = 1
+
+const mechText = (m: ExamMechanism) =>
+  `Mechanismus „${m.name}“
+Kette: ${m.kette.join(' → ')}
+Voraussetzungen: ${m.voraussetzungen.join(' · ')}
+Fehlvorstellung: ${m.fehlvorstellung}
+Nicht offensichtliche Folge: ${m.folge}
+Echte Fälle: ${m.faelle.join(' · ')}`
+
+/** Analyse schon beim Öffnen der Testseite anstoßen, damit „Test starten“ nur noch die Aufgaben baut */
+export function prepareExam(day: number): void {
+  examAnalysis(day).catch(() => {
+    // beim Start wird es erneut versucht und der Fehler dort gezeigt
+  })
+}
+
+let analysing: { day: number; p: Promise<ExamAnalysis> } | undefined
+
+/** Stufe 1: Analyse der Session – einmal je Session (und je Stand der gelernten Verknüpfungen), danach aus dem Zustand */
+function examAnalysis(day: number): Promise<ExamAnalysis> {
+  // läuft schon (vom Öffnen der Seite) → nicht doppelt anfragen
+  if (analysing?.day === day) return analysing.p
+  // ein zweiter Versuch: die lange JSON-Antwort ist gelegentlich kaputt
+  const p = runAnalysis(day)
+    .catch(() => runAnalysis(day))
+    .finally(() => {
+      if (analysing?.p === p) analysing = undefined
+    })
+  analysing = { day, p }
+  return p
+}
+
+async function runAnalysis(day: number): Promise<ExamAnalysis> {
+  const d = getDay(day)
+  const s = getState()
+  const links = examLinks(s, day).slice(0, 3)
+  const key = `${ANALYSIS_V}:${links.map((l) => l.day.day).join(',')}`
+  const cached = examState(s, day).analysis
+  if (cached?.key === key && cached.data.mechanismen.length) return cached.data
+
+  const sheet = hasSheet(day) ? await loadSheet(day).catch(() => '') : ''
+  const linked = await Promise.all(
+    links.map(async (l) => {
+      const txt = hasSheet(l.day.day) ? await loadSheet(l.day.day).catch(() => '') : ''
+      return `- ${l.day.title} – ${l.day.subtopics.join(' · ')}${txt ? `\n  Auszug Lernzettel: ${clip(txt.replace(/```[\s\S]*?```/g, ' ').replace(/\s+/g, ' '), 1500)}` : ''}`
+    }),
+  )
+  const system = `${persona()}
+
+Aufgabe: Eine Session analysieren, damit daraus später anspruchsvolle Verständnisaufgaben gebaut werden. Antworte NUR mit JSON. Nur gesichertes Fachwissen – was du nicht sicher weißt, lässt du weg.
+
+mechanismen: die 3–4 wichtigsten Mechanismen der Session – Dinge, die über Ursache und Wirkung funktionieren (Prozesse, Regelkreise, Gesetzmäßigkeiten, Anreize, Wechselwirkungen), keine Fakten oder Definitionen. Hat das Thema eher Fakten (z. B. Geografie, Epochen), nimm die Ursachen dahinter (warum ist das Klima dort so, warum kam es zu …). Je Mechanismus:
+- name: 2–5 Wörter
+- kette: 3–5 Glieder von der Ursache bis zur sichtbaren Wirkung, je ein kurzer Satz
+- voraussetzungen: 2–3 Bedingungen, ohne die der Mechanismus nicht oder anders abläuft (die man leicht übersieht)
+- fehlvorstellung: was jemand mit Halbwissen typischerweise glaubt oder falsch macht – und warum es falsch ist (1–2 Sätze)
+- folge: eine nicht offensichtliche, aber gesicherte Folge – etwas, das der ersten Erwartung widerspricht (Umkehrung, Zielkonflikt, Schwelle, Nebenwirkung)
+- faelle: 3 echte, konkrete Situationen, in denen der Mechanismus wirkt oder gestört ist – aus Alltag, Medizin, Technik, Geschichte, Politik, anderen Ländern; NICHT die Beispiele aus dem Lernzettel; jede in einem Satz mit konkretem Detail
+bruecken: je frühere Session (Liste unten) die direkteste sachliche Verbindung zum heutigen Thema, EIN Schritt:
+- session: Titel der früheren Session, genau wie in der Liste
+- frueher: EIN konkreter Mechanismus oder eine Tatsache von dort, als ein Satz mit Ursache und Wirkung (keine Aufzählung, kein Oberbegriff wie „hängt von vielen Faktoren ab“), ohne das heutige Thema zu nennen
+- heute: das konkrete Phänomen im heutigen Thema, das dadurch erklärt wird
+- schritt: wie das eine das andere erklärt (1–2 Sätze)
+- staerke: 3 = das Frühere ist Ursache/Voraussetzung des Heutigen, 2 = derselbe Mechanismus wirkt in beiden, 1 = nur lose verwandt oder Analogie (Lernen als „Preis“, Gedächtnis als „Markt“ u. ä. = 1)
+${links.length ? '' : '(keine früheren Sessions – bruecken leer lassen)'}`
+  const user = `THEMA: ${dayLine(d)}
+Teilthemen: ${d.subtopics.join(' · ')}
+${sheet ? `\nLernzettel:\n${clip(sheet, 8000)}\n` : ''}
+Frühere Sessions:
+${linked.join('\n') || '(keine)'}`
+  const r = parseJson<{ mechanismen?: Partial<ExamMechanism>[]; bruecken?: (Partial<ExamBridge> & { session?: string })[] }>(
+    await complete(
+      system,
+      user,
+      5000,
+      jsonSchema('analyse', {
+        mechanismen: {
+          type: 'array',
+          items: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['name', 'kette', 'voraussetzungen', 'fehlvorstellung', 'folge', 'faelle'],
+            properties: { name: str, kette: strs, voraussetzungen: strs, fehlvorstellung: str, folge: str, faelle: strs },
+          },
+        },
+        bruecken: {
+          type: 'array',
+          items: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['session', 'frueher', 'heute', 'schritt', 'staerke'],
+            properties: { session: str, frueher: str, heute: str, schritt: str, staerke: { type: 'integer', minimum: 1, maximum: 3 } },
+          },
+        },
+      }),
+    ),
+  )
+  const list = (x: unknown) => (Array.isArray(x) ? x.filter((y): y is string => typeof y === 'string' && !!y.trim()).map((y) => y.trim()) : [])
+  const text = (x: unknown) => (typeof x === 'string' ? x.trim() : '')
+  const short = (t: string) => t.split(/[:(]/)[0].trim()
+  const data: ExamAnalysis = {
+    mechanismen: (Array.isArray(r.mechanismen) ? r.mechanismen : [])
+      .map((m) => ({ name: text(m.name), kette: list(m.kette), voraussetzungen: list(m.voraussetzungen), fehlvorstellung: text(m.fehlvorstellung), folge: text(m.folge), faelle: list(m.faelle) }))
+      .filter((m) => m.name && m.kette.length >= 2)
+      .slice(0, 4),
+    bruecken: (Array.isArray(r.bruecken) ? r.bruecken : [])
+      .map((b) => {
+        const l = links.find((x) => text(b.session).includes(short(x.day.title)) || short(x.day.title).includes(short(text(b.session))))
+        return l && text(b.frueher) && text(b.heute) ? { tag: l.day.day, frueher: text(b.frueher), heute: text(b.heute), schritt: text(b.schritt), staerke: Math.min(3, Math.max(1, Number(b.staerke) || 1)) } : null
+      })
+      .filter((b): b is ExamBridge => !!b)
+      .sort((a, b) => b.staerke - a.staerke),
+  }
+  if (!data.mechanismen.length) throw new ApiError('Analyse unvollständig – bitte erneut versuchen.')
+  updateExam(day, (e) => ({ ...e, analysis: { key, data } }))
+  return data
+}
+
+/** Test erzeugen: Analyse (zwischengespeichert, beim Öffnen der Seite angestoßen) → je Aufgabe Bau → Prüfung; alle Aufgaben gleichzeitig (~15 s) */
 export async function makeExam(day: number, onProgress?: (ready: number) => void): Promise<ExamQuestion[]> {
   const d = getDay(day)
   const s = getState()
-  const ds = dayState(s, day)
   const ex = examState(s, day)
   const plan = examPlan(s, day)
-  const links = examLinks(s, day)
-  const sheet = hasSheet(day) ? await loadSheet(day).catch(() => '') : ''
-  const weak = checkNotes(ds.check).weak
-  const DIR = { vor: 'darauf baut das Thema auf', nach: 'baut auf dem Thema auf', nah: 'ohne feste Verknüpfung – nur nehmen, wenn die Verbindung direkt ist' }
-  const linked = await Promise.all(
-    links.slice(0, 3).map(async (l) => {
-      const txt = hasSheet(l.day.day) ? await loadSheet(l.day.day).catch(() => '') : ''
-      return `- ${dayLine(l.day)} – ${l.day.subtopics.join(' · ')} (${DIR[l.dir]})${txt ? `\n  Auszug Lernzettel: ${clip(txt.replace(/```[\s\S]*?```/g, ' ').replace(/\s+/g, ' '), 1800)}` : ''}`
-    }),
-  )
+  const weak = checkNotes(dayState(s, day).check).weak
+  const a = await examAnalysis(day)
 
-  // Vielfalt legt der Code fest, nicht das Modell: je Aufgabe ein anderer Typ und ein anderer Schwerpunkt
-  const types = shuffle<ExamType>(['plan', 'befund', 'grenzfall', 'abwandlung'])
-  const focus = shuffle(d.subtopics)
-  const jobs = plan.map((kind, i) => ({ kind, typ: kind === 'zusammenhang' ? ('bruecke' as const) : types[i % types.length], focus: kind === 'zusammenhang' ? '' : focus[i % focus.length] }))
-
-  const context = `THEMA: ${dayLine(d)}
-Teilthemen: ${d.subtopics.join(' · ')}
-${sheet ? `\nLernzettel (kennt ${nm()}):\n${clip(sheet, 7000)}\n` : ''}${weak.length ? `\nLücken aus dem Verständnischeck: ${weak.join(' · ')}\n` : ''}${ex.asked?.length ? `\nAufgaben des letzten Tests (andere Fälle und andere Punkte nehmen):\n${ex.asked.map((q) => `- ${q}`).join('\n')}\n` : ''}`
-
-  const system = (typ: ExamType) => `${persona()}
-
-Aufgabe: EINE Aufgabe für einen Kurztest bauen. ${nm()} hat das Thema vor einiger Zeit ausführlich gelernt (Videos, Lernzettel, Verständnischeck). Antworte NUR mit JSON.
-
-Maßstab: Verständnis, nicht Gedächtnis. Wer die Merksätze des Themas nur auswendig kann, kommt mit ihnen allein NICHT zur Lösung. Wer den Mechanismus dahinter verstanden hat, kommt mit ein bis zwei Minuten Nachdenken drauf und antwortet in 2–4 Sätzen. Die Antwort steht nirgends im Lernzettel. Lieber zu schwer als zu leicht.
-
-Typ der Aufgabe – halte dich genau an diese Bauvorschrift:
-${EXAM_TYPES[typ].regel.replace('${NAME}', nm())}
-Beispiel für Typ und Niveau (anderes Thema, nicht übernehmen): ${EXAM_TYPES[typ].beispiel}
-
-Felder, in dieser Reihenfolge:
-- merksatz: der Lehrbuchsatz aus dem Thema, den jemand ohne Verständnis zu deinem Fall aufsagen würde.
-- haken: warum der Merksatz allein hier nicht zur Lösung führt – welchen Schritt man selbst denken muss. Fällt dir keiner ein, ist der Fall zu leicht: anderen Fall bauen.${typ === 'bruecke' ? '\n- session, frueher: siehe Bauvorschrift.' : ''}
-- material: der Fall, den ${nm()} neben der Aufgabe sieht – kein Fließtext, sondern 3–5 Stichpunkte als Markdown-Liste (je höchstens 18 Wörter), bei Zahlen eine kleine Markdown-Tabelle (dazu höchstens zwei Stichpunkte), ein Ablauf auch als Codeblock:
-${EXAM_DIAGRAMS}
-  Konkret: Personen, Zahlen, Orte, Zeiträume. Der Fall kommt so nicht im Lernzettel vor (anderer Alltag, anderes Land, andere Zeit), bleibt aber beim Stoff des Themas. Das Material sagt nur, was jemand tut oder was gemessen wurde – es nennt weder das Prinzip noch dessen Fachbegriff, begründet und bewertet nichts.
-- q: die Aufgabe in 1–2 Sätzen, höchstens 35 Wörter. Sie verlangt eine Begründung und ist nicht mit Ja/Nein, einem Namen oder einer Zahl erledigt. Sie nennt den gesuchten Mechanismus nicht („Erkläre den Mechanismus der Verdrängung“ verrät die Lösung), enthält keinen Merksatz, keine Rechenaufgabe und keine Liste von Teilfragen.
-- kriterien: 2–3 Gedankenschritte, die eine gute Antwort enthalten muss (je ein kurzer Satz).
-- solution: Musterantwort in 2–4 Sätzen.
-
-Verboten, weil Wiedererkennen statt Verständnis: zwei Personen oder Gruppen vergleichen, von denen eine die Lehrbuch-Methode nutzt und die andere nicht; nach dem Namen eines Prinzips fragen; „Warum ist <empfohlene Methode> besser?“.`
-
-  const fields = { material: str, q: str, kriterien: { type: 'array', items: str }, solution: str }
-  const schema = (typ: ExamType) => jsonSchema('aufgabe', { merksatz: str, haken: str, ...(typ === 'bruecke' ? { session: str, frueher: str } : {}), ...fields })
-  type Raw = { merksatz?: string; haken?: string; session?: string; frueher?: string; material?: string; q?: string; kriterien?: string[]; solution?: string }
+  // Vielfalt legt der Code fest: je Aufgabe ein anderer Mechanismus und ein anderer Typ; die Brücke nimmt die stärkste Verbindung
+  const mechs = shuffle(a.mechanismen)
+  const types = shuffle<ExamType>(['grenzfall', 'plan', 'befund', 'stoerung'])
+  const bridge = a.bruecken.find((b) => b.staerke >= 2) ?? a.bruecken[0]
+  // gibt die Analyse keine brauchbare Verbindung her, wird die Brücke zu einer weiteren Anwenden-Aufgabe (Anzahl bleibt wie angekündigt)
+  const jobs = plan
+    .map((k) => (k === 'zusammenhang' && !bridge ? ('anwenden' as const) : k))
+    .map((kind, i) => ({ kind, typ: kind === 'zusammenhang' ? ('bruecke' as const) : types[i % types.length], mech: mechs[i % mechs.length] }))
 
   const short = (t: string) => t.split(/[:(]/)[0].trim()
-  // Titel der frueheren Session aus den Verknuepfungen – das Modell schreibt Bereich und Teilthemen mit hinein
-  const sessionTitle = (x = '') => short((links.find((l) => x.includes(short(l.day.title))) ?? links[0]).day.title)
-  const toQuestion = (kind: ExamQuestion['kind'], r: Raw): ExamQuestion => {
+  const system = (typ: ExamType) => `${persona()}
+
+Aufgabe: EINE Aufgabe für einen Test bauen. ${nm()} hat das Thema vor einiger Zeit ausführlich gelernt (Videos, Lernzettel, Verständnischeck). Antworte NUR mit JSON.
+
+${EXAM_LEVEL}
+
+Typ der Aufgabe – halte dich genau an diese Bauvorschrift:
+${EXAM_TYPES[typ].regel}
+Beispiel für Typ, Umfang und Niveau (anderes Thema, nicht übernehmen): ${EXAM_TYPES[typ].beispiel}
+
+Felder:
+- haken: welche zwei Denkschritte die Lösung braucht und warum der Merksatz allein nicht reicht (für dich, wird nicht gezeigt).
+- material: der Fall neben der Aufgabe, 50–110 Wörter – kein Fließtext, sondern 3–6 Stichpunkte als Markdown-Liste, bei Zahlen dazu eine kleine Markdown-Tabelle; ein Ablauf auch als Codeblock:
+${EXAM_DIAGRAMS}
+  Echt oder genau so möglich: konkrete Orte, Personen, Zahlen in realistischen Größenordnungen, nichts physikalisch, biologisch oder historisch Unmögliches. Nicht aus dem Lernzettel. Das Material beschreibt nur, was jemand tut, sagt oder misst – es nennt weder den Mechanismus noch seinen Fachbegriff noch die Begründung und bewertet nichts.
+- q: die Aufgabe, 1–3 Sätze, höchstens 45 Wörter. Sie darf zwei Teile haben, die aufeinander aufbauen (erklären → vorhersagen/entscheiden), aber keine Liste von Teilfragen. Sie nennt den gesuchten Mechanismus nicht und enthält keinen Merksatz. Beim ersten Lesen ist klar, was gefragt ist.
+- kriterien: 3 Gedankenschritte, die eine volle Antwort enthalten muss (je ein kurzer Satz).
+- solution: Musterantwort, 3–6 Sätze.
+
+Verboten: zwei Personen oder Gruppen, von denen eine die Lehrbuch-Methode nutzt und die andere nicht („Wer lernt besser?“); nach einem Namen oder Fachbegriff fragen; ein Fall, bei dem schon das Material die Erklärung liefert.`
+
+  const fields = { haken: str, material: str, q: str, kriterien: strs, solution: str }
+
+  // harte Pruefung im Code: was das Modell trotz Verbot oft liefert, bekommt einen zweiten Versuch mit Begruendung
+  const flaw = (typ: ExamType, q: string, material: string): string => {
+    if (/\b(be)?nenne\b|\bwie hei(ß|ss)t\b/i.test(q)) return 'Die Aufgabe fragt nach einem Namen oder Fachbegriff („nenne“, „benenne“) – frage stattdessen nach Begründung, Vorhersage oder Entscheidung.'
+    if (typ !== 'befund' && /Gruppe A[\s\S]*Gruppe B|Gruppe 1[\s\S]*Gruppe 2/i.test(material)) return 'Der Fall vergleicht zwei Gruppen – baue EINEN echten Fall mit einer Person, einem Ort oder einem Ereignis.'
+    return ''
+  }
+
+  async function one(job: (typeof jobs)[number], i: number, note = ''): Promise<ExamQuestion> {
+    const others = jobs.filter((_, k) => k !== i).map((x) => (x.typ === 'bruecke' ? '' : x.mech.name)).filter(Boolean)
+    const user = `THEMA: ${dayLine(d)}
+Teilthemen: ${d.subtopics.join(' · ')}
+
+${job.typ === 'bruecke' ? `Verbindung zur früheren Session „${short(getDay(bridge!.tag).title)}“:\nfrueher (steht über dem Material): ${bridge!.frueher}\nheute: ${bridge!.heute}\nSchritt (die Lösung, nicht verraten): ${bridge!.schritt}${others.length ? `\nDie anderen Aufgaben behandeln „${others.join('“, „')}“ – nimm einen anderen Fall.` : ''}` : `${mechText(job.mech)}\n\nAnsatzpunkt für diesen Typ: ${EXAM_TYPES[job.typ].anker}.${others.length ? ` Die anderen Aufgaben behandeln „${others.join('“, „')}“ – bleib bei diesem Mechanismus.` : ''}`}
+${weak.length ? `\nLücken aus dem Verständnischeck (gern aufgreifen): ${weak.join(' · ')}` : ''}${ex.asked?.length ? `\nAufgaben des letzten Tests (andere Fälle nehmen):\n${ex.asked.map((q) => `- ${q}`).join('\n')}` : ''}${note}`
+    const r = parseJson<{ material?: string; q?: string; kriterien?: string[]; solution?: string }>(
+      await complete(system(job.typ), user, 3000, jsonSchema('aufgabe', fields)),
+    )
     if (typeof r.q !== 'string' || !r.q.trim() || typeof r.material !== 'string' || !r.material.trim()) throw new ApiError('Unvollständige Antwort – bitte erneut versuchen.')
-    const frueher = typeof r.frueher === 'string' && r.frueher.trim()
-    return {
-      kind,
+    const q: ExamQuestion = {
+      kind: job.kind,
       q: r.q.trim(),
-      // beim Zusammenhang stehen beide Seiten da: die fruehere Session als Satz, darunter der heutige Fall
-      material: (frueher && links.length ? `> **${sessionTitle(r.session)}:** ${frueher}\n\n` : '') + fixMaterial(r.material),
+      // bei der Brücke stehen beide Seiten da: der Satz aus der früheren Session, darunter der heutige Fall
+      material: (job.typ === 'bruecke' ? `> **${short(getDay(bridge!.tag).title)}:** ${bridge!.frueher}\n\n` : '') + fixMaterial(r.material),
       criteria: Array.isArray(r.kriterien) ? r.kriterien.filter((k) => typeof k === 'string' && k.trim()).slice(0, 3) : [],
       solution: typeof r.solution === 'string' ? r.solution.trim() : '',
     }
+    const why = note ? '' : flaw(job.typ, q.q, r.material)
+    if (why) return one(job, i, `\n\nDein letzter Entwurf wurde verworfen: ${why}\nVerworfene Aufgabe: ${q.q}`).catch(() => verify(q))
+    return verify(q)
   }
 
-  // Pruefer: eigener kurzer Aufruf ohne Lernzettel. Er urteilt nur – Umschreiben im selben Aufruf half nicht, das Modell
-  // liess seine Wiedergabe-Aufgaben stehen. Bei einem klaren Mangel gibt es einen neuen Entwurf mit dem Grund; mehr
-  // Runden kosten nur Zeit. Ohne Denkmodus: mit ihm dauert ein Test ~40 s (statt ~10) und der Pruefer winkt alles durch.
-  const judgeSystem = (typ: ExamType) => `Du prüfst eine Aufgabe für einen Verständnistest. Antworte NUR mit JSON. Melde nur klare Mängel – im Zweifel false.
-- wiedergabe: true, wenn jemand volle Punkte bekäme, der nur den Merksatz kennt und ihn hinschreibt, ohne über den Fall nachzudenken. Immer true, wenn zwei Personen oder Gruppen verglichen werden, von denen eine die Lehrbuch-Methode nutzt und die andere nicht; wenn nach dem Namen eines Prinzips gefragt wird; bei „Warum ist <empfohlene Methode> besser?“.
-- verraten: true, wenn Material oder Aufgabe die Lösung schon aussprechen: den Fachbegriff des gesuchten Mechanismus oder die Begründung. Fachwörter, die nur den Fall beschreiben, sind erlaubt.
-- sachfehler: true nur bei einem eindeutigen Fehler: Die Rechnung stimmt nicht, eine Fachaussage ist falsch herum, die Musterantwort widerspricht dem Material. Dass man etwas auch anders sehen könnte, ist kein Sachfehler.${typ === 'bruecke' ? '\n- ohne_bezug: true, wenn man die Aufgabe genauso gut lösen kann, ohne den Satz aus der früheren Session (im Material oben, fett eingeleitet) zu benutzen.' : ''}
-- grund: ein Satz, was genau das Problem ist; "" wenn alles false ist.`
-  const bool = { type: 'boolean' }
-  const judgeSchema = (typ: ExamType) => jsonSchema('urteil', { wiedergabe: bool, verraten: bool, sachfehler: bool, ...(typ === 'bruecke' ? { ohne_bezug: bool } : {}), grund: str })
-
-  async function one(job: (typeof jobs)[number], i: number): Promise<ExamQuestion> {
-    const other = jobs.filter((x, k) => k !== i && x.focus).map((x) => x.focus)
-    const base = `${context}
-${job.kind === 'zusammenhang' ? `Frühere Sessions von ${nm()}:\n${linked.join('\n')}` : `Schwerpunkt dieser Aufgabe: ${job.focus} – gibt der Schwerpunkt keinen Mechanismus her, nimm das Kernprinzip der Session.${other.length ? ` Eine andere Aufgabe des Tests behandelt „${other.join('“, „')}“ – nimm einen anderen Mechanismus.` : ''}`}`
-    let best: { q: ExamQuestion; flaws: number } | undefined
-    let note = ''
-    for (let n = 0; n < 2; n++) {
-      const draft = parseJson<Raw>(await complete(system(job.typ), base + note, 2500, schema(job.typ)))
-      const q = toQuestion(job.kind, draft)
-      let v: { wiedergabe?: boolean; verraten?: boolean; sachfehler?: boolean; ohne_bezug?: boolean; grund?: string } = {}
-      try {
-        v = parseJson(
-          await complete(
-            judgeSystem(job.typ),
-            `THEMA: ${dayLine(d)}\n\nMerksatz: ${draft.merksatz ?? ''}\nMaterial:\n${q.material}\nAufgabe: ${q.q}\nMusterantwort: ${q.solution}`,
-            400,
-            judgeSchema(job.typ),
-          ),
-        )
-      } catch {
-        // ohne Urteil gilt der Entwurf
-      }
-      const flaws = [v.wiedergabe, v.verraten, v.sachfehler, v.ohne_bezug].filter(Boolean).length
-      if (!best || flaws < best.flaws) best = { q, flaws }
-      if (!flaws) break
-      note = `\n\nDein letzter Entwurf wurde verworfen: ${v.grund || 'Wiedergabe statt Verständnis'}\nVerworfene Aufgabe: ${q.q}\nBaue einen grundlegend anderen Fall, der diesen Mangel nicht hat.`
-    }
-    return verify(best!.q)
-  }
-
-  // Zum Schluss die Musterantwort nachrechnen – der einzige Schritt im Denkmodus, mit kleinstem Kontext (~10 s).
-  // Der Entwurf behauptet sonst gelegentlich Falsches („2,5 % ist höher als 3 %“), und daran wird die Antwort gemessen.
+  // Musterantwort nachrechnen – die Antwort wird an ihr gemessen; der Entwurf behauptet sonst gelegentlich Falsches („2,5 % ist höher als 3 %“)
   async function verify(q: ExamQuestion): Promise<ExamQuestion> {
     try {
-      const r = parseJson<{ kriterien?: string[]; solution?: string }>(
+      const r = parseJson<{ material?: string; q?: string; kriterien?: string[]; solution?: string }>(
         await complete(
-          `Du prüfst die Musterantwort einer Testaufgabe auf sachliche Richtigkeit. Antworte NUR mit JSON.
-Rechne nach und vergleiche jede Aussage mit dem Material und dem Stand des Fachs: Zahlen, Größer/Kleiner, Richtung von Ursache und Wirkung, Fachbegriffe. Korrigiere nur, was falsch ist oder dem Material widerspricht – Umfang, Stil und alles Richtige bleiben, wie sie sind.
+          `Du prüfst eine Testaufgabe auf sachliche Richtigkeit. Antworte NUR mit JSON.
+Prüfe den Fall: Ist er echt oder genau so möglich? Widerspricht er sich selbst (z. B. „ein Flussdelta, das nicht an der Küste liegt“)? Stimmen die Zahlen und Größenordnungen? Zitiert der Fall jemanden mit einer Regel oder Vorhersage, muss diese für den Normalfall stimmen (richtige Richtung, z. B. Zinssenkung → mehr Kredite → eher MEHR Inflation) – sonst ihren Satz korrigieren. Passt die Aufgabe zum Fall (fragt sie nach etwas, das der Fall auch zeigt)? Prüfe die Musterantwort: Rechne nach, vergleiche jede Aussage mit dem Fall und dem Stand des Fachs (Größer/Kleiner, Richtung von Ursache und Wirkung, Fachbegriffe). Ist sie die einzig vertretbare Antwort?
+Korrigiere nur, was falsch oder widersprüchlich ist – Umfang, Stil, Niveau und alles Richtige bleiben, wie sie sind. Gib jedes Feld vollständig zurück, auch wenn es unverändert ist.
+- pruefung: zuerst nachrechnen und prüfen, Schritt für Schritt in Stichworten: jede Zahl, jede Größer/Kleiner-Aussage, jede Ursache-Wirkung-Richtung im Fall und in der Musterantwort (höchstens 120 Wörter).
 - fehler: was falsch war, in einem Satz ("" wenn nichts).
-- kriterien: die 2–3 Begründungsschritte, korrigiert.
-- solution: die Musterantwort, korrigiert (2–4 Sätze).`,
+- material: der Fall (Markdown, Codeblöcke unverändert übernehmen, wenn sie stimmen).
+- q: die Aufgabe.
+- kriterien: die 3 Begründungsschritte.
+- solution: die Musterantwort.`,
           `THEMA: ${dayLine(d)}\nMaterial:\n${q.material}\nAufgabe: ${q.q}\nBegründungsschritte:\n${q.criteria.map((k) => `- ${k}`).join('\n')}\nMusterantwort: ${q.solution}`,
-          4000,
-          { ...jsonSchema('korrektur', { fehler: str, kriterien: { type: 'array', items: str }, solution: str }), chat_template_kwargs: { enable_thinking: true } },
+          2500,
+          jsonSchema('korrektur', { pruefung: str, fehler: str, material: str, q: str, kriterien: strs, solution: str }),
         ),
       )
       const criteria = Array.isArray(r.kriterien) ? r.kriterien.filter((k) => typeof k === 'string' && k.trim()).slice(0, 3) : []
-      return typeof r.solution === 'string' && r.solution.trim() ? { ...q, solution: r.solution.trim(), criteria: criteria.length ? criteria : q.criteria } : q
+      if (typeof r.solution !== 'string' || !r.solution.trim()) return q
+      // Fall und Aufgabe nur übernehmen, wenn sie nicht verloren gingen (das Modell kürzt sonst gelegentlich)
+      const keep = (neu: unknown, alt: string) => (typeof neu === 'string' && neu.trim().length >= alt.length * 0.6 ? neu.trim() : alt)
+      return { ...q, material: fixMaterial(keep(r.material, q.material)), q: keep(r.q, q.q), solution: r.solution.trim(), criteria: criteria.length ? criteria : q.criteria }
     } catch {
       return q
     }
   }
+
   let ready = 0
   return Promise.all(
     jobs.map((j, i) =>
@@ -607,7 +716,7 @@ export async function gradeExam(day: number, q: ExamQuestion, answer: string): P
   const system = `${persona()}
 
 Aufgabe: EINE Antwort im Kurztest bewerten. Antworte NUR mit JSON.
-Bewertet wird die Begründung, nicht die Schlussfolgerung allein. Maßstab sind die Begründungsschritte; eine andere, sachlich richtige Herleitung zählt genauso. Formulierung, Fachbegriffe und Länge sind egal – auch kurz und umgangssprachlich zählt, wenn der Gedanke da ist.
+Bewertet wird die Begründung, nicht die Schlussfolgerung allein. Maßstab sind die Begründungsschritten; eine andere, sachlich richtige Herleitung zählt genauso. Formulierung, Fachbegriffe und Länge sind egal – auch kurz und umgangssprachlich zählt, wenn der Gedanke da ist.
 - verdict: "richtig" = die entscheidenden Schritte sind da (ein Nebenpunkt darf fehlen) · "teilweise" = richtige Richtung oder richtiges Ergebnis, aber der Mechanismus fehlt, oder nur ein Teil der Schritte · "falsch" = die Begründung trägt nicht oder führt in die falsche Richtung · "offen" = keine Antwort („keine Ahnung“, „?“).
   Wer nur einen Merksatz aufsagt, ohne ihn auf den Fall zu beziehen, bekommt höchstens "teilweise".
 - precision: 1 (vage) bis 5 (präzise, Begriffe korrekt).

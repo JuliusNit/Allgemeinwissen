@@ -603,6 +603,7 @@ span.star { cursor: default; }
 .exam-q { margin: 4px 0 16px; }
 .exam-q p { margin: 0 0 2px; }
 .exam-q h2 { margin: 0; font-size: 1.3rem; line-height: 1.35; max-width: 46em; }
+@media (max-width: 640px) { .exam-q h2 { font-size: 1.08rem; } }
 .exam-body { display: grid; gap: 16px; align-items: start; }
 .exam-body .card { margin: 0; }
 .exam-material { min-width: 0; min-height: 110px; display: flex; align-items: center; }
