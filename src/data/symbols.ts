@@ -8,7 +8,7 @@ const DAY_SYMBOLS: Record<number, (SymbolName | 0)[]> = {
   3: ['molekuel', 'REVIEW', 'batterie', 'kette', 'BIO'],
   4: ['NERV', 'BOLT', 'synapse', 'molekuel', 'tropfen'],
   5: ['kraft', 'hebel', 'schild', 'parlament', 'wahlurne'],
-  6: ['gehirn', 'abfall', 'EXAM', 'MIX'],
+  6: ['gehirn', 'EXAM', 'sanduhr', 'berg'],
   7: ['faustkeil', 'GESCH', 'burg', 'fabrik'],
   8: ['lineal', 'PHY', 'GEO', 'planet'],
   9: ['GEO', 'thermometer', 'berg', 'stadt'],

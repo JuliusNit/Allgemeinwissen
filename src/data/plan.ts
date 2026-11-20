@@ -93,7 +93,7 @@ const RAW: Raw[] = [
   [4, 'NERV', 'Nerven & Hormone', 'Neuron · Aktionspotenzial · Synapse · Neurotransmitter · Hormone & Regelkreise (Blutzucker, Stress)', [1, 3]],
   [5, 'MIX', 'Physik, Immunsystem & Politik', 'Kraft & Energie · Leistung & Hebel · Immunsystem · Politisches System · Wahlen', [1, 2, 3, 4]],
   // Block 1
-  [6, 'DENK', 'Lernen lernen: Gedächtnis, Spaced Repetition, Active Recall', 'Gedächtnismodelle (Kurz- & Langzeitgedächtnis) · Vergessenskurve & Spaced Repetition · Active Recall & Testeffekt · Interleaving & Elaboration', [4]],
+  [6, 'DENK', 'Lernen lernen: Was die Gedächtnisforschung zeigt', 'Gedächtnis im Gehirn: Hippocampus, Konsolidierung & Schlaf · Testeffekt: Abrufen statt Wiederlesen · Spacing: wann wiederholen? · Erwünschte Erschwernisse: Üben ≠ Lernen', [4]],
   [7, 'GESCH', 'Zeitstrahl der Menschheit: Steinzeit bis heute im Überblick', 'Steinzeit & neolithische Revolution · Antike Hochkulturen bis Rom · Mittelalter bis frühe Neuzeit · Industrialisierung bis heute', []],
   [8, 'PHY', 'Größenordnungen: vom Atom bis zum Universum', 'Zehnerpotenzen & wissenschaftliche Schreibweise · Vom Atom zur Zelle · Vom Menschen zur Erde · Sonnensystem, Galaxie, Universum', [1]],
   [9, 'GEO', 'Weltkarte: Kontinente, Ozeane, Klimazonen, wichtige Länder', 'Kontinente & Ozeane · Klima- & Vegetationszonen · Gebirge, Flüsse & Wüsten · Wichtige Länder & Bevölkerungszentren', [7]],
@@ -293,7 +293,7 @@ export function upgradeVideos(d: Day, videos: Video[]): Video[] {
     const def = defs.find((x) => x.id === v.id)
     if (def && def.url !== v.url && (v.url === youtubeSearch(`${v.title} einfach erklärt`) || isRetired(v.url))) {
       changed = true
-      return { ...v, url: def.url, source: def.source }
+      return { ...v, title: def.title, url: def.url, source: def.source }
     }
     return v
   })

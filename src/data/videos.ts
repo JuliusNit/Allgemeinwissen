@@ -28,10 +28,10 @@ export const VIDEO_PICKS: Record<string, [string, string]> = {
   '5-2': ['nek0lyV8D9o', 'Dinge Erklärt – Kurzgesagt'], // Das Immunsystem erklärt
   '5-3': ['jvJS8IyZvUc', 'MrWissen2go'], // Ganz einfach: Das politische System Deutschlands erklärt
   '5-4': ['7RMKwP_854M', 'Bundeszentrale für politische Bildung / bpb'], // Erst- und Zweitstimme
-  '6-0': ['wapSqech8fE', 'Sprouts Deutschland'], // Das Multi-Store Modell: Wie Erinnerungen entstehen
-  '6-1': ['otTSq-5PNsE', 'Jens-Peter Geuther'], // Die Vergessenskurve von Hermann Ebbinghaus
-  '6-2': ['CPwn78QSdR4', 'Emanuel Reinhardt'], // Steigere deine Gedächtnisleistung - mit dieser Technik: Active Recall
-  '6-3': ['AWTYfzxBwPg', 'Benjamin Keep, PhD, JD'], // Secrets of Interleaved Practice | How Learning Works
+  '6-0': ['NteHQv0ceN4', 'Artem Kirsanov'], // Memory Consolidation: Time Machine of the Brain (Neurowissenschaftler, engl.)
+  '6-1': ['apI5DKMFK9w', 'ColumbiaLearn'], // Retrieval Practice | Effective Teaching Strategies (Columbia University, engl.)
+  '6-2': ['BLS4ryIubBM', 'LastingLearning.com'], // Spacing Study Sessions Enhances Learning, Dr. Sean Kang (engl.)
+  '6-3': ['0NIXM74NwXs', 'TEDx Talks'], // How to study to maximize performance | Elizabeth Bjork & Robert Bjork (engl.)
   '7-0': ['4LLH6TC0mjg', 'MrWissen2go Geschichte | Terra X'], // Die Steinzeit – Vom Faustkeil bis Stonehenge
   '7-1': ['DFpt2T7Xogw', 'Die Merkhilfe'], // Die Antike - Grundlagen, Antikes Griechenland, Antikes Rom & Merkmale 
   '7-2': ['1fFITnbOwE0', 'Geschichte - simpleclub'], // Beginn des Mittelalters - Das Mittelalter einfach erklärt
@@ -605,4 +605,5 @@ export const RETIRED_VIDEOS = new Set([
   '6wkHF8Gaq8s', 'AHOj4GScXpw', // Geschichte 101, MOOCit
   'RpxjwDQfurQ', 'NtFUz-hOx6I', 'KwwakhyAy6E', 'HFKC3trVsL4', 'w8QKrArC4SM', 'A8-i_sgRDCI', // Grundwissen, erklaerung-und-mehr, Geo Karten, StrateGems, Hikma, Faktenkompass
   '5p-UD1cnRVg', 'pDrm4OglI4Q', '4Z7M7_Jhork', // Lars Reimers (2024), Musiklehrer, selbstorientiert (2024)
+  'wapSqech8fE', 'otTSq-5PNsE', 'CPwn78QSdR4', 'AWTYfzxBwPg', // Tag 6 alt (Ratgeber-Niveau), Session neu: Gedächtnisforschung (20.11.2026)
 ])

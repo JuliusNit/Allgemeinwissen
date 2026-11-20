@@ -16,6 +16,9 @@ Live: https://juliusnit.github.io/Allgemeinwissen/ · Repo: https://github.com/J
   `links` (frühere Sessions zum Anknüpfen). Phase-2-Teilthemen und Verknüpfungen wurden ergänzt, nicht von Julius vorgegeben.
   Videos: pro Teilthema ein ausgewähltes YouTube-Video aus `src/data/videos.ts` (per Suche gefunden, von Hand gewählt,
   per oEmbed auf „existiert + einbettbar“ geprüft; bevorzugt Studyflix, simpleclub, MrWissen2go, Terra X, Kurzgesagt).
+  **Niveau (Julius, 20.11.2026):** Maßstab ist Phase 1 Bio (Abi, Mechanismen). Lieber wissenschaftlich als „einfach erklärt“: Forschende
+  selbst (Vorträge, Uni-Kanäle, TEDx der Forscher), keine Ratgeber-YouTuber; Lernzettel mit Studienlage (Autor, Jahr, Zahlen) und Nutzen
+  („So nutzt du es“). Bewertung aller Sessions + Reihenfolge der Überarbeitung: `docs/niveau-check.md` (dort abhaken).
   **Keine KI-generierten Videos** (Julius, 22.10.2026: kein NotebookLM-Folienfilm, keine KI-Bilder/-Stimme, keine
   Stockfootage-Kanäle). Suchtreffer sind voll davon (neue Kanäle mit Titel-Schema „X | EINFACH ERKLÄRT“, „… zum Einschlafen“).
   Neue Kandidaten prüfen: Storyboard-Vorschaubilder (Innertube-Player, Client ANDROID → `storyboards`) ansehen + Kanalverlauf
